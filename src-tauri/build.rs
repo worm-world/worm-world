@@ -1,3 +1,4 @@
 fn main() {
-  tauri_build::build()
+    println!("cargo:rerun-if-changed=db/migrations");
+    tauri_build::build()
 }

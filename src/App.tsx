@@ -1,88 +1,55 @@
-import { useCallback, useState, useRef } from 'react';
+import * as React from 'react';
 import './App.css';
-import ReactFlow, { OnConnectStartParams } from 'react-flow-renderer';
-import {
-  useReactFlow, 
-  useNodesState, 
-  useEdgesState, 
-  Node, 
-  Edge, 
-  NodeChange, 
-  EdgeChange,
-  addEdge,
-  Connection,
-  ReactFlowProvider
-} from 'react-flow-renderer';
+import { invoke } from '@tauri-apps/api/tauri';
+import { User } from './models/User';
 
-const initialNodes: Node[] = [
-  { id: '0', data: { label: 'Node 1' }, position: { x: 5, y: 5 } },
-];
+function App() {
+  const [users, setUsers] = React.useState<User[]>([]);
+  const getUsersFromDB = () => {
+    invoke("get_users").then((m) => {
+      setUsers(m as User[]);
+      console.log(users);
+    });
+  }
 
+  React.useEffect(getUsersFromDB, []);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
-let id = 1;
-const getId = () => `${id++}`;
-
-const fitViewOptions = {
-  padding: 3,
-};
-
-const AddNodeOnEdgeDrop = () => {
-  const reactFlowWrapper = useRef(null);
-  const connectingNodeId = useRef<string | null>(null);
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const { project } = useReactFlow();
-  const onConnect = useCallback((params : Connection) => setEdges((eds) => addEdge(params, eds)), []);
-
-  const onConnectStart = useCallback((_ : any, {nodeId} : OnConnectStartParams) => {
-    connectingNodeId.current = nodeId;
-  }, []);
-
-  const onConnectStop = useCallback(
-    (event: MouseEvent) => {
-
-      const targetIsPane = (event.target instanceof Element) && event.target?.classList.contains('react-flow__pane');
-
-      if (targetIsPane) {
-        // we need to remove the wrapper bounds, in order to get the correct position
-        // @ts-ignore
-        const { top, left } = reactFlowWrapper.current.getBoundingClientRect();
-        const id = getId();
-        const newNode = {
-          id,
-          // we are removing the half of the node width (75) to center the new node
-          position: project({ x: event.clientX - left - 75, y: event.clientY - top }),
-          data: { label: `Node ${id}` },
-        };
-
-        setNodes((nds) => nds.concat(newNode));
-        setEdges((eds: Edge[]) =>
-          eds.concat({ id, source: connectingNodeId.current, target: id } as Edge)
-        );
-      }
-    },
-    [project]
-  );
+  const sendInput = () => {
+    if (inputRef.current && inputRef.current.value.length > 0) {
+      invoke("insert_user", { name: inputRef.current.value }).then((m) => {
+        getUsersFromDB();
+      })
+      console.log("Sent input");
+    }
+  }
 
   return (
-    <div className="main" ref={reactFlowWrapper}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onConnectStart={onConnectStart}
-        onConnectStop={onConnectStop}
-        fitView
-        fitViewOptions={fitViewOptions}
-      />
+    <div className="App">
+      <div className="App-header">
+        Welcome to this app.
+      </div>
+      <div>
+        <div>
+          <button onClick={sendInput}>Add New User</button>
+          <input
+            ref={inputRef}
+            type="text"
+          />
+        </div>
+        <h2>Users Queried from the Database:</h2>
+        <ul>
+          {
+            users.map(u =>
+              <li key={String(u.id)}>
+                {u.id + ": " + u.userName}
+              </li>
+            )
+          }
+        </ul>
+      </div>
     </div>
   );
-};
+}
 
-export default () => (
-  <ReactFlowProvider>
-    <AddNodeOnEdgeDrop />
-  </ReactFlowProvider>
-);
+export default App;
