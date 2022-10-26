@@ -54,6 +54,9 @@
     },
     "windows": [
       {
+        "focus": true,
+        "visible": true,
+        "maximized": false,
         "fullscreen": false,
         "height": 600,
         "resizable": true,

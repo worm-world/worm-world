@@ -1,0 +1,37 @@
+{
+  "db": "SQLite",
+  "4b20efcf7f046a75fe263588c971ecbc6ef971f777cc7871e88ff8d3254d3d7b": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "INSERT INTO Users (user_name)\n            VALUES($1)\n            "
+  },
+  "b43eaae38c5a6bfef06571f521fa4975b64f3af4e0c18494f28c82fd4075e84d": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "user_name",
+          "ordinal": 1,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT u.id, u.user_name\n            FROM Users u\n            "
+  }
+}
