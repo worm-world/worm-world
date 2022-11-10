@@ -97,7 +97,7 @@
           {
             "name": "phys_loc",
             "comment": "",
-            "dataType": "TEXT",
+            "dataType": "INTEGER",
             "default": "",
             "option": {
               "autoIncrement": false,
@@ -120,7 +120,7 @@
           {
             "name": "gen_loc",
             "comment": "",
-            "dataType": "TEXT",
+            "dataType": "REAL",
             "default": "",
             "option": {
               "autoIncrement": false,
@@ -182,7 +182,7 @@
           {
             "name": "contents",
             "comment": "",
-            "dataType": "",
+            "dataType": "TEXT",
             "default": "",
             "option": {
               "autoIncrement": false,
@@ -513,7 +513,7 @@
           {
             "name": "dominance",
             "comment": "",
-            "dataType": "TEXT",
+            "dataType": "INTEGER",
             "default": "",
             "option": {
               "autoIncrement": false,
