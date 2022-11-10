@@ -1,5 +1,4 @@
-
 export interface User {
-    id: Number;
-    userName: String;
+  id: Number;
+  userName: String;
 }
