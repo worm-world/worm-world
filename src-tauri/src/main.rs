@@ -45,12 +45,15 @@ impl InnerDbState {
             VALUES($1)
             ",
             name
-        ).execute(&self.conn_pool).await {
+        )
+        .execute(&self.conn_pool)
+        .await
+        {
             Ok(_) => Ok(()),
             Err(e) => {
                 eprint!("Insert User error: {e}");
                 Err(SqlQueryError::SqlQueryError)
-            },
+            }
         }
     }
 }
@@ -64,13 +67,13 @@ fn greet(name: &str) -> String {
 #[tauri::command]
 async fn get_users(state: tauri::State<'_, DbState>) -> Result<Vec<User>, SqlQueryError> {
     let state_guard = state.0.read().await;
-    return state_guard.get_users().await;
+    state_guard.get_users().await
 }
 
 #[tauri::command]
 async fn insert_user(state: tauri::State<'_, DbState>, name: String) -> Result<(), SqlQueryError> {
     let state_guard = state.0.read().await;
-    return state_guard.insert_user(name).await;
+    state_guard.insert_user(name).await
 }
 
 #[derive(Error, Debug)]
@@ -123,11 +126,7 @@ async fn main() {
 
     tauri::Builder::default()
         .manage(DbState(RwLock::new(InnerDbState { conn_pool: pool })))
-        .invoke_handler(tauri::generate_handler![
-            greet, 
-            get_users, 
-            insert_user
-        ])
+        .invoke_handler(tauri::generate_handler![greet, get_users, insert_user])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

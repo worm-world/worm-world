@@ -1,10 +1,5 @@
-import { useState } from 'react';
-import ReactFlow from 'react-flow-renderer';
+// import ReactFlow from 'react-flow-renderer';
 
-export function Cross(){
-    return (
-      <div className="cross">
-
-      </div>  
-    );
+export function Cross(): JSX.Element {
+  return <div className='cross' />;
 }
