@@ -12,5 +12,5 @@ export interface Cross {
  */
 export interface CrossParent {
   crossId: Number;
-  strainId: Number;
+  treeStrainId: Number;
 }

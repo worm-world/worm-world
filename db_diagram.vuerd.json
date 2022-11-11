@@ -97,7 +97,7 @@
           {
             "name": "phys_loc",
             "comment": "",
-            "dataType": "INTEGER",
+            "dataType": "TEXT",
             "default": "",
             "option": {
               "autoIncrement": false,
@@ -120,7 +120,7 @@
           {
             "name": "gen_loc",
             "comment": "",
-            "dataType": "REAL",
+            "dataType": "TEXT",
             "default": "",
             "option": {
               "autoIncrement": false,
@@ -1340,18 +1340,14 @@
         "startRelationshipType": "Dash",
         "start": {
           "tableId": "fde07340-01bb-4c74-be46-a0b9d53d5f95",
-          "columnIds": [
-            "82f16f93-8387-4398-855d-b75404608b1e"
-          ],
+          "columnIds": ["82f16f93-8387-4398-855d-b75404608b1e"],
           "x": 443.8915453125,
           "y": 1410.0272,
           "direction": "right"
         },
         "end": {
           "tableId": "1b3297ab-1927-4a26-acc8-8d23ef4a1022",
-          "columnIds": [
-            "8732f168-01a3-4a8c-accd-6057f3c7400e"
-          ],
+          "columnIds": ["8732f168-01a3-4a8c-accd-6057f3c7400e"],
           "x": 902.5291,
           "y": 1393.7224,
           "direction": "left"
@@ -1366,18 +1362,14 @@
         "startRelationshipType": "Dash",
         "start": {
           "tableId": "e5c86f53-27c2-44bd-901b-2fcc2d40226b",
-          "columnIds": [
-            "e10f2d47-9a0d-4dfb-9ac1-e33b666b6c64"
-          ],
+          "columnIds": ["e10f2d47-9a0d-4dfb-9ac1-e33b666b6c64"],
           "x": 1745.0742,
           "y": 1385.4437,
           "direction": "left"
         },
         "end": {
           "tableId": "1b3297ab-1927-4a26-acc8-8d23ef4a1022",
-          "columnIds": [
-            "b4fbd051-23a3-4006-b3e1-02d706018df5"
-          ],
+          "columnIds": ["b4fbd051-23a3-4006-b3e1-02d706018df5"],
           "x": 1322.34794765625,
           "y": 1393.7224,
           "direction": "right"
@@ -1392,18 +1384,14 @@
         "startRelationshipType": "Dash",
         "start": {
           "tableId": "2a7262db-69f4-4780-b130-a093c6868b81",
-          "columnIds": [
-            "a28bcc43-cedb-4c1c-8c7d-3829bd00ea0f"
-          ],
+          "columnIds": ["a28bcc43-cedb-4c1c-8c7d-3829bd00ea0f"],
           "x": 262.068603515625,
           "y": 1877.2777,
           "direction": "top"
         },
         "end": {
           "tableId": "fde07340-01bb-4c74-be46-a0b9d53d5f95",
-          "columnIds": [
-            "4cc4f236-c503-4907-bac8-346b40529050"
-          ],
+          "columnIds": ["4cc4f236-c503-4907-bac8-346b40529050"],
           "x": 265.05707265625,
           "y": 1475.2772,
           "direction": "bottom"
@@ -1418,18 +1406,14 @@
         "startRelationshipType": "Dash",
         "start": {
           "tableId": "e5c86f53-27c2-44bd-901b-2fcc2d40226b",
-          "columnIds": [
-            "e10f2d47-9a0d-4dfb-9ac1-e33b666b6c64"
-          ],
+          "columnIds": ["e10f2d47-9a0d-4dfb-9ac1-e33b666b6c64"],
           "x": 1930.037334765625,
           "y": 1258.6937,
           "direction": "top"
         },
         "end": {
           "tableId": "043996fc-4488-47ee-932d-079e874ad3db",
-          "columnIds": [
-            "f87c993a-111b-4aa2-9870-6781d62e9d63"
-          ],
+          "columnIds": ["f87c993a-111b-4aa2-9870-6781d62e9d63"],
           "x": 1737.950828125,
           "y": 1017.9749,
           "direction": "right"
@@ -1444,18 +1428,14 @@
         "startRelationshipType": "Dash",
         "start": {
           "tableId": "e5c86f53-27c2-44bd-901b-2fcc2d40226b",
-          "columnIds": [
-            "e10f2d47-9a0d-4dfb-9ac1-e33b666b6c64"
-          ],
+          "columnIds": ["e10f2d47-9a0d-4dfb-9ac1-e33b666b6c64"],
           "x": 1930.037334765625,
           "y": 1512.1937,
           "direction": "bottom"
         },
         "end": {
           "tableId": "7413ed9b-1886-4955-a1ac-bd627be6a590",
-          "columnIds": [
-            "004f4822-9b09-44b8-84d3-7d33555ef99f"
-          ],
+          "columnIds": ["004f4822-9b09-44b8-84d3-7d33555ef99f"],
           "x": 1698.65274765625,
           "y": 1725.9161,
           "direction": "right"
@@ -1526,18 +1506,14 @@
         "startRelationshipType": "Dash",
         "start": {
           "tableId": "c09ec67f-2dcc-4a74-85c1-e8d05bb51900",
-          "columnIds": [
-            "7a29df19-3297-4da2-a9dd-bd9d0957a27e"
-          ],
+          "columnIds": ["7a29df19-3297-4da2-a9dd-bd9d0957a27e"],
           "x": 245.16660000000002,
           "y": 538.3335,
           "direction": "bottom"
         },
         "end": {
           "tableId": "b8b4a1d0-ebad-479d-a0de-7405defacd49",
-          "columnIds": [
-            "87cf4b09-b7c3-42c3-a2fe-55efa314c1d2"
-          ],
+          "columnIds": ["87cf4b09-b7c3-42c3-a2fe-55efa314c1d2"],
           "x": 254.1105,
           "y": 925.723,
           "direction": "top"
@@ -1552,18 +1528,14 @@
         "startRelationshipType": "Dash",
         "start": {
           "tableId": "fde07340-01bb-4c74-be46-a0b9d53d5f95",
-          "columnIds": [
-            "82f16f93-8387-4398-855d-b75404608b1e"
-          ],
+          "columnIds": ["82f16f93-8387-4398-855d-b75404608b1e"],
           "x": 265.05707265625,
           "y": 1344.7772,
           "direction": "top"
         },
         "end": {
           "tableId": "b8b4a1d0-ebad-479d-a0de-7405defacd49",
-          "columnIds": [
-            "f23c47c6-ea2c-4142-b4d1-ad7a3d2235bf"
-          ],
+          "columnIds": ["f23c47c6-ea2c-4142-b4d1-ad7a3d2235bf"],
           "x": 254.1105,
           "y": 1035.723,
           "direction": "bottom"
@@ -1578,18 +1550,14 @@
         "startRelationshipType": "Dash",
         "start": {
           "tableId": "9546fb7b-5f49-45c6-812a-11d517a1f0e1",
-          "columnIds": [
-            "c06762bc-abe9-4b7e-8586-c484617d3ce5"
-          ],
+          "columnIds": ["c06762bc-abe9-4b7e-8586-c484617d3ce5"],
           "x": 1526.3569,
           "y": 99.9163,
           "direction": "left"
         },
         "end": {
           "tableId": "86627f68-9ef4-47ab-b0f4-e6bf31d0a69a",
-          "columnIds": [
-            "4f86b040-cb96-44a9-9598-f3079bb8aeb1"
-          ],
+          "columnIds": ["4f86b040-cb96-44a9-9598-f3079bb8aeb1"],
           "x": 1228.5320109375,
           "y": 95.9468,
           "direction": "right"
@@ -1604,18 +1572,14 @@
         "startRelationshipType": "Dash",
         "start": {
           "tableId": "c09ec67f-2dcc-4a74-85c1-e8d05bb51900",
-          "columnIds": [
-            "7a29df19-3297-4da2-a9dd-bd9d0957a27e"
-          ],
+          "columnIds": ["7a29df19-3297-4da2-a9dd-bd9d0957a27e"],
           "x": 418.6666,
           "y": 483.3335,
           "direction": "right"
         },
         "end": {
           "tableId": "86627f68-9ef4-47ab-b0f4-e6bf31d0a69a",
-          "columnIds": [
-            "cfa4c195-de3f-4746-986d-b87b20fdd8d7"
-          ],
+          "columnIds": ["cfa4c195-de3f-4746-986d-b87b20fdd8d7"],
           "x": 789.9158,
           "y": 138.8218,
           "direction": "left"
@@ -1630,18 +1594,14 @@
         "startRelationshipType": "Dash",
         "start": {
           "tableId": "decf918b-dcfd-4ac1-bd06-c1924341fc8a",
-          "columnIds": [
-            "0036be1f-0e5b-446d-817e-c09653b2c2f6"
-          ],
+          "columnIds": ["0036be1f-0e5b-446d-817e-c09653b2c2f6"],
           "x": 1155.5751,
           "y": 659.7319,
           "direction": "right"
         },
         "end": {
           "tableId": "615dfde1-b492-4b6e-b7c4-d0cfa5fa867b",
-          "columnIds": [
-            "bc798bac-0161-496a-9a3a-1ad09d5d408f"
-          ],
+          "columnIds": ["bc798bac-0161-496a-9a3a-1ad09d5d408f"],
           "x": 1418.3338,
           "y": 443.5719,
           "direction": "left"
@@ -1656,18 +1616,14 @@
         "startRelationshipType": "Dash",
         "start": {
           "tableId": "86627f68-9ef4-47ab-b0f4-e6bf31d0a69a",
-          "columnIds": [
-            "98f725dc-0bc5-4bc9-bfd3-aa8222ef94d6"
-          ],
+          "columnIds": ["98f725dc-0bc5-4bc9-bfd3-aa8222ef94d6"],
           "x": 1228.5320109375,
           "y": 181.6968,
           "direction": "right"
         },
         "end": {
           "tableId": "615dfde1-b492-4b6e-b7c4-d0cfa5fa867b",
-          "columnIds": [
-            "a7eff398-080c-4c60-b779-f05f506f0dcb"
-          ],
+          "columnIds": ["a7eff398-080c-4c60-b779-f05f506f0dcb"],
           "x": 1418.3338,
           "y": 388.5719,
           "direction": "left"
@@ -1682,18 +1638,14 @@
         "startRelationshipType": "Ring",
         "start": {
           "tableId": "decf918b-dcfd-4ac1-bd06-c1924341fc8a",
-          "columnIds": [
-            "0036be1f-0e5b-446d-817e-c09653b2c2f6"
-          ],
+          "columnIds": ["0036be1f-0e5b-446d-817e-c09653b2c2f6"],
           "x": 982.0751,
           "y": 637.3569,
           "direction": "top"
         },
         "end": {
           "tableId": "86627f68-9ef4-47ab-b0f4-e6bf31d0a69a",
-          "columnIds": [
-            "68688320-4d0a-44af-a34b-5c8db9fee7d5"
-          ],
+          "columnIds": ["68688320-4d0a-44af-a34b-5c8db9fee7d5"],
           "x": 1009.22390546875,
           "y": 224.5718,
           "direction": "bottom"
@@ -1708,18 +1660,14 @@
         "startRelationshipType": "Dash",
         "start": {
           "tableId": "9546fb7b-5f49-45c6-812a-11d517a1f0e1",
-          "columnIds": [
-            "c06762bc-abe9-4b7e-8586-c484617d3ce5"
-          ],
+          "columnIds": ["c06762bc-abe9-4b7e-8586-c484617d3ce5"],
           "x": 1878.2367828125,
           "y": 99.9163,
           "direction": "right"
         },
         "end": {
           "tableId": "cb0f673b-c728-4e92-9c20-123f1eeecfb9",
-          "columnIds": [
-            "1e5db330-c008-4f1f-b363-5efb2f761179"
-          ],
+          "columnIds": ["1e5db330-c008-4f1f-b363-5efb2f761179"],
           "x": 2238.0002,
           "y": 99.3334,
           "direction": "left"
@@ -1734,18 +1682,14 @@
         "startRelationshipType": "Dash",
         "start": {
           "tableId": "cb0f673b-c728-4e92-9c20-123f1eeecfb9",
-          "columnIds": [
-            "88969918-21f0-4393-bb0f-de916d1eb726"
-          ],
+          "columnIds": ["88969918-21f0-4393-bb0f-de916d1eb726"],
           "x": 2411.5002,
           "y": 154.33339999999998,
           "direction": "bottom"
         },
         "end": {
           "tableId": "22816b0d-99ad-4ca4-87c8-e0775e83d11e",
-          "columnIds": [
-            "7e28fce5-ba08-4e81-a4df-4c5b3705172d"
-          ],
+          "columnIds": ["7e28fce5-ba08-4e81-a4df-4c5b3705172d"],
           "x": 2412.98463515625,
           "y": 622.5,
           "direction": "top"
@@ -1760,18 +1704,14 @@
         "startRelationshipType": "Dash",
         "start": {
           "tableId": "decf918b-dcfd-4ac1-bd06-c1924341fc8a",
-          "columnIds": [
-            "0036be1f-0e5b-446d-817e-c09653b2c2f6"
-          ],
+          "columnIds": ["0036be1f-0e5b-446d-817e-c09653b2c2f6"],
           "x": 1155.5751,
           "y": 704.4819,
           "direction": "right"
         },
         "end": {
           "tableId": "22816b0d-99ad-4ca4-87c8-e0775e83d11e",
-          "columnIds": [
-            "ab58b4b3-dc1e-470d-abfa-4ad2b750c57b"
-          ],
+          "columnIds": ["ab58b4b3-dc1e-470d-abfa-4ad2b750c57b"],
           "x": 2215.3611,
           "y": 698,
           "direction": "left"

@@ -6,6 +6,6 @@
 export default interface ScheduledCross {
   id: Number;
   crossId: Number;
-  date: Date;
+  deadline: Date;
   completed: Boolean;
 }
