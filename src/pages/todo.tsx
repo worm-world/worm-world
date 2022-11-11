@@ -1,13 +1,14 @@
-import React from "react";
-  
-const Todo = () => {
+import React from 'react';
+
+const Todo = (): JSX.Element => {
   return (
     <div>
       <h1>
-        Here you can view all the tasks you need to complete for your ongoing crosses!
+        Here you can view all the tasks you need to complete for your ongoing
+        crosses!
       </h1>
     </div>
   );
 };
-  
+
 export default Todo;

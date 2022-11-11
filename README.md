@@ -5,7 +5,7 @@ A tool to facilitate the creation and tracking of formula-like written derivatio
 ## Getting started
 
 1. Install [Node](https://nodejs.org/en/download/)
-2. Install [Rust](https://www.rust-lang.org/tools/install)
+2. Install [Rust](https://www.rust-lang.org/tools/install) and run `rustup component add clippy`
 3. Install the `sqlx` CLI by running `cargo install sqlx-cli`
 4. Run `npm run tauri dev`.
 5. On the first run above, the database URL is printed out.
@@ -19,6 +19,8 @@ A tool to facilitate the creation and tracking of formula-like written derivatio
 You can view all available scripts in `package.json`.
 - `npm run tauri dev` runs the frontend and backend together
 - `npm run test-all` tests the frontend (`vitest`) and backend (`cargo test`)
+- `npm run lint` lints the frontend and backend, gives warnings and suggestions, and auto-fixes some formatting errors. 
+  If your precommit script fails at the linting phase, run this.
 
 ## Info
 Right now, there are models in 3 places:
@@ -30,5 +32,12 @@ Right now, there are models in 3 places:
    - The up commands are run automatically in the `migrate!` method in the program or with `sqlx migrate run`.
    - The down commands are only relevant for us in development. You can run `sqlx migrate revert`
 
+### Precommits
 
-
+Right now, we don't have CI/CD running checks on each PR.
+Instead, we've set up a precommit Git hooks that run locally before commiting.
+Currently, they run the following checks:
+- check if a commit message is valid as a [conventional commit](https://www.conventionalcommits.org/en/v1.0.0/).
+- Lints the frontend with ESLint
+- Formats the backend with cargo fmt
+- 
