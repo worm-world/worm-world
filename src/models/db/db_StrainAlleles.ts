@@ -4,6 +4,6 @@
  * @ForeignKeys {strainName: Strain.name} {alleleName: Allele.name}
  */
 export default interface StrainAlleles {
-    strainName: String,
-    alleleName: String,
+  strainName: String;
+  alleleName: String;
 }
