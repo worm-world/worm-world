@@ -12,7 +12,7 @@ use sqlx::{
     Pool, Sqlite,
 };
 mod models;
-use models::User;
+use models::user::User;
 use thiserror::Error;
 use tokio::sync::RwLock;
 
