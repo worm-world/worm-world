@@ -4,7 +4,11 @@ import Paths from '../routes/frontend';
 function Navbar(): JSX.Element {
   return (
       <nav id='navbar'>
-        <div id='title'>WormWorld</div>
+        <div id='title'>
+        <Link to={Paths.HomePath}>
+          WormWorld
+         </Link>
+        </div>
         <div id='nav-items'>
           <Link to={Paths.CrossDesignerPath}>
             <div className='nav-item'>Designer</div>

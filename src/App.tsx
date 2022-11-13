@@ -5,14 +5,11 @@ import Import from './pages/import';
 import Home from './pages/home';
 import CrossPage from './pages/crossPage';
 import Paths from './routes/frontend';
-import Navbar from './components/Navbar';
 import Layout from './layout'
 
 function App(): JSX.Element {
   return (
-    <div>
       <Router>
-        <Navbar />
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
@@ -23,7 +20,6 @@ function App(): JSX.Element {
           </Route>
         </Routes>
       </Router>
-    </div>
   );
 }
 

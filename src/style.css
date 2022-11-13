@@ -106,18 +106,16 @@ html, body, #root {
 
 #layout {
   background-color: white;
-  height: 100%;
   display: flex;
-}
-
-#navbar-view {
-  background-color: whitesmoke;
+  height: 100%;
 }
 
 #navbar {
   top: 0;
   position: sticky;
   overflow-x: hidden;
+  background-color: whitesmoke;
+  height: 100vh;
 }
 
 .nav-item {
@@ -135,6 +133,8 @@ html, body, #root {
   box-shadow: none;
   font-size: x-large;
   padding: 0px 10px;
+  position: sticky;
+  top: 0;
 }
 
 #nav-items {
