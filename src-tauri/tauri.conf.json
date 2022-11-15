@@ -58,10 +58,10 @@
         "visible": true,
         "maximized": false,
         "fullscreen": false,
-        "height": 600,
+        "height": 1000,
         "resizable": true,
         "title": "worm-world",
-        "width": 800
+        "width": 1400
       }
     ]
   }

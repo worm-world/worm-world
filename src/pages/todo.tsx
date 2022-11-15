@@ -1,13 +1,14 @@
+import { Tab } from '@mui/material';
 import React from 'react';
+import { TopNav } from '../components/TopNav/TopNav';
 
 const Todo = (): JSX.Element => {
   return (
-    <div>
-      <h1>
-        Here you can view all the tasks you need to complete for your ongoing
-        crosses!
-      </h1>
-    </div>
+    <TopNav title={'Scheduler'}>
+      <Tab label='View Single Cross' />
+      <Tab label='Open ToDo' />
+      <Tab label='Import Cross' />
+    </TopNav>
   );
 };
 
