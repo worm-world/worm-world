@@ -16,6 +16,9 @@
     "lint": "npx eslint 'src/**/*.{js,jsx,ts,tsx}' --fix && cd src-tauri && cargo clippy --fix --allow-dirty --allow-staged"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mui/material": "^5.10.14",
     "@tauri-apps/api": "^1.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
