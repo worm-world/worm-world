@@ -3,9 +3,9 @@
     "version": "2.2.11",
     "width": 3000,
     "height": 3000,
-    "scrollTop": -1084,
-    "scrollLeft": -1494,
-    "zoomLevel": 0.8,
+    "scrollTop": -911,
+    "scrollLeft": -582,
+    "zoomLevel": 0.3,
     "show": {
       "tableComment": true,
       "columnComment": true,
@@ -19,7 +19,7 @@
     },
     "database": "SQLite",
     "databaseName": "Worm World",
-    "canvasType": "@vuerd/builtin-sql-ddl",
+    "canvasType": "ERD",
     "language": "GraphQL",
     "tableCase": "pascalCase",
     "columnCase": "camelCase",
@@ -143,9 +143,9 @@
         ],
         "ui": {
           "active": false,
-          "left": 80,
-          "top": 1877.2777,
-          "zIndex": 4,
+          "left": 403.5,
+          "top": 1140.2777,
+          "zIndex": 103,
           "widthName": 60,
           "widthComment": 60
         },
@@ -182,7 +182,7 @@
           {
             "name": "contents",
             "comment": "",
-            "dataType": "",
+            "dataType": "TEXT",
             "default": "",
             "option": {
               "autoIncrement": false,
@@ -224,13 +224,36 @@
               "widthDefault": 60
             },
             "id": "4cc4f236-c503-4907-bac8-346b40529050"
+          },
+          {
+            "name": "variation_info",
+            "comment": "",
+            "dataType": "INTEGER",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": false
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": true,
+              "pfk": false,
+              "widthName": 79.3271484375,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            },
+            "id": "1de60def-1b06-4def-8f6d-d6281a915c03"
           }
         ],
         "ui": {
           "active": false,
-          "left": 86.2226,
-          "top": 1344.7772,
-          "zIndex": 63,
+          "left": 24.2226,
+          "top": 1429.7772,
+          "zIndex": 125,
           "widthName": 60,
           "widthComment": 60
         },
@@ -263,6 +286,29 @@
               "widthDefault": 60
             },
             "id": "faf1adfb-aa82-48e8-805d-2a476756bb8f"
+          },
+          {
+            "name": "short_name",
+            "comment": "",
+            "dataType": "TEXT",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": true
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": false,
+              "pfk": false,
+              "widthName": 70.64990234375,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            },
+            "id": "e10f2d47-9a0d-4dfb-9ac1-e33b666b6c64"
           },
           {
             "name": "description",
@@ -311,10 +357,33 @@
             "id": "10f4bad4-356e-4169-97bc-3c78a8ea3bf4"
           },
           {
+            "name": "lethal",
+            "comment": "",
+            "dataType": "INTEGER",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": false
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": false,
+              "pfk": false,
+              "widthName": 60,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            },
+            "id": "73ffde82-9f51-409f-87ee-a866832246dc"
+          },
+          {
             "name": "female_sterile",
             "comment": "",
             "dataType": "INTEGER",
-            "default": "0",
+            "default": "",
             "option": {
               "autoIncrement": false,
               "primaryKey": false,
@@ -337,7 +406,7 @@
             "name": "arrested",
             "comment": "",
             "dataType": "INTEGER",
-            "default": "0",
+            "default": "",
             "option": {
               "autoIncrement": false,
               "primaryKey": false,
@@ -357,30 +426,7 @@
             "id": "afe8af60-0dbf-46f9-9c95-f3ccde5c2a5d"
           },
           {
-            "name": "lethal",
-            "comment": "",
-            "dataType": "INTEGER",
-            "default": "0",
-            "option": {
-              "autoIncrement": false,
-              "primaryKey": false,
-              "unique": false,
-              "notNull": false
-            },
-            "ui": {
-              "active": false,
-              "pk": false,
-              "fk": false,
-              "pfk": false,
-              "widthName": 60,
-              "widthComment": 60,
-              "widthDataType": 60,
-              "widthDefault": 60
-            },
-            "id": "73ffde82-9f51-409f-87ee-a866832246dc"
-          },
-          {
-            "name": "growth_rate",
+            "name": "maturation_days",
             "comment": "",
             "dataType": "REAL",
             "default": "",
@@ -395,88 +441,19 @@
               "pk": false,
               "fk": false,
               "pfk": false,
-              "widthName": 70.64990234375,
+              "widthName": 98.10986328125,
               "widthComment": 60,
               "widthDataType": 60,
               "widthDefault": 60
             },
             "id": "bc1c43f0-9438-4816-ad6e-deb4b8de1904"
-          },
-          {
-            "name": "short_name",
-            "comment": "",
-            "dataType": "TEXT",
-            "default": "",
-            "option": {
-              "autoIncrement": false,
-              "primaryKey": false,
-              "unique": false,
-              "notNull": false
-            },
-            "ui": {
-              "active": false,
-              "pk": false,
-              "fk": false,
-              "pfk": false,
-              "widthName": 70.64990234375,
-              "widthComment": 60,
-              "widthDataType": 60,
-              "widthDefault": 60
-            },
-            "id": "e10f2d47-9a0d-4dfb-9ac1-e33b666b6c64"
-          },
-          {
-            "name": "env_reqs",
-            "comment": "",
-            "dataType": "TEXT",
-            "default": "",
-            "option": {
-              "autoIncrement": false,
-              "primaryKey": false,
-              "unique": false,
-              "notNull": false
-            },
-            "ui": {
-              "active": false,
-              "pk": false,
-              "fk": false,
-              "pfk": false,
-              "widthName": 60,
-              "widthComment": 60,
-              "widthDataType": 60,
-              "widthDefault": 60
-            },
-            "id": "89b1acdb-2612-4815-bf7f-3f87cfccb76d"
-          },
-          {
-            "name": "is_condition",
-            "comment": "",
-            "dataType": "INTEGER",
-            "default": "0",
-            "option": {
-              "autoIncrement": false,
-              "primaryKey": false,
-              "unique": false,
-              "notNull": true
-            },
-            "ui": {
-              "active": false,
-              "pk": false,
-              "fk": false,
-              "pfk": false,
-              "widthName": 70.65625,
-              "widthComment": 60,
-              "widthDataType": 60,
-              "widthDefault": 60
-            },
-            "id": "8822f224-e070-4eff-bf80-5e7eeec4aa27"
           }
         ],
         "ui": {
           "active": false,
-          "left": 1745.0742,
+          "left": 2120.0742,
           "top": 1258.6937,
-          "zIndex": 131,
+          "zIndex": 199,
           "widthName": 69.2216796875,
           "widthComment": 60
         },
@@ -559,9 +536,9 @@
         ],
         "ui": {
           "active": false,
-          "left": 902.5291,
-          "top": 1328.4724,
-          "zIndex": 10,
+          "left": 770.0291,
+          "top": 1299.7224,
+          "zIndex": 203,
           "widthName": 71.37353515625,
           "widthComment": 120
         },
@@ -627,7 +604,7 @@
               "autoIncrement": false,
               "primaryKey": false,
               "unique": false,
-              "notNull": true
+              "notNull": false
             },
             "ui": {
               "active": false,
@@ -640,13 +617,36 @@
               "widthDefault": 60
             },
             "id": "f87c993a-111b-4aa2-9870-6781d62e9d63"
+          },
+          {
+            "name": "suppressing_condition",
+            "comment": "",
+            "dataType": "TEXT",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": true
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": true,
+              "pfk": false,
+              "widthName": 131.365234375,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            },
+            "id": "d394b1fd-da96-4867-a48d-308338f39de1"
           }
         ],
         "ui": {
           "active": false,
           "left": 1310.902,
           "top": 952.7249,
-          "zIndex": 11,
+          "zIndex": 247,
           "widthName": 61.97900390625,
           "widthComment": 120
         },
@@ -712,7 +712,7 @@
               "autoIncrement": false,
               "primaryKey": false,
               "unique": false,
-              "notNull": true
+              "notNull": false
             },
             "ui": {
               "active": false,
@@ -725,13 +725,36 @@
               "widthDefault": 60
             },
             "id": "004f4822-9b09-44b8-84d3-7d33555ef99f"
+          },
+          {
+            "name": "required_condition",
+            "comment": "",
+            "dataType": "TEXT",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": false
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": true,
+              "pfk": false,
+              "widthName": 108.96435546875,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            },
+            "id": "ba795c48-2dc5-4a29-994e-1f401f319feb"
           }
         ],
         "ui": {
           "active": false,
           "left": 1278.8339,
           "top": 1660.6661,
-          "zIndex": 9,
+          "zIndex": 240,
           "widthName": 60,
           "widthComment": 120
         },
@@ -793,7 +816,7 @@
           "active": false,
           "left": 71.6666,
           "top": 428.3335,
-          "zIndex": 58,
+          "zIndex": 1,
           "widthName": 60,
           "widthComment": 60
         },
@@ -940,7 +963,7 @@
           "active": false,
           "left": 1526.3569,
           "top": 34.6663,
-          "zIndex": 12,
+          "zIndex": 10,
           "widthName": 60,
           "widthComment": 60
         },
@@ -1071,7 +1094,7 @@
           "active": false,
           "left": 681.5825,
           "top": 41.6668,
-          "zIndex": 57,
+          "zIndex": 14,
           "widthName": 69.919921875,
           "widthComment": 60
         },
@@ -1110,7 +1133,7 @@
           "active": false,
           "left": 808.5751,
           "top": 637.3569,
-          "zIndex": 24,
+          "zIndex": 11,
           "widthName": 60,
           "widthComment": 120
         },
@@ -1172,7 +1195,7 @@
           "active": false,
           "left": 1418.3338,
           "top": 361.0719,
-          "zIndex": 32,
+          "zIndex": 12,
           "widthName": 83.64990234375,
           "widthComment": 120
         },
@@ -1234,7 +1257,7 @@
           "active": false,
           "left": 2238.0002,
           "top": 44.3334,
-          "zIndex": 8,
+          "zIndex": 6,
           "widthName": 72.82080078125,
           "widthComment": 60
         },
@@ -1242,7 +1265,7 @@
         "id": "cb0f673b-c728-4e92-9c20-123f1eeecfb9"
       },
       {
-        "name": "sched_repros",
+        "name": "sched_crosses",
         "comment": "",
         "columns": [
           {
@@ -1342,12 +1365,297 @@
           "active": false,
           "left": 2215.3611,
           "top": 622.5,
-          "zIndex": 38,
-          "widthName": 80.76806640625,
+          "zIndex": 22,
+          "widthName": 88.708984375,
           "widthComment": 60
         },
         "visible": true,
         "id": "22816b0d-99ad-4ca4-87c8-e0775e83d11e"
+      },
+      {
+        "name": "variation_info",
+        "comment": "",
+        "columns": [
+          {
+            "name": "id",
+            "comment": "",
+            "dataType": "INTEGER",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": true,
+              "unique": false,
+              "notNull": true
+            },
+            "ui": {
+              "active": false,
+              "pk": true,
+              "fk": false,
+              "pfk": false,
+              "widthName": 60,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            },
+            "id": "34122943-ab27-4f22-977f-b97604974df1"
+          },
+          {
+            "name": "chromosome",
+            "comment": "",
+            "dataType": "TEXT",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": false
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": false,
+              "pfk": false,
+              "widthName": 77.13720703125,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            },
+            "id": "78c773cd-0402-48fd-a2d5-f21adf6bce33"
+          },
+          {
+            "name": "phys_loc",
+            "comment": "",
+            "dataType": "TEXT",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": false
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": false,
+              "pfk": false,
+              "widthName": 60,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            },
+            "id": "cd2f9a23-629a-4f3b-b113-1763b4abc376"
+          },
+          {
+            "name": "gen_loc",
+            "comment": "",
+            "dataType": "TEXT",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": false
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": false,
+              "pfk": false,
+              "widthName": 60,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            },
+            "id": "9d9c2022-633f-4df6-a664-d0d1f2b3d04d"
+          }
+        ],
+        "ui": {
+          "active": false,
+          "left": 26,
+          "top": 1706.5,
+          "zIndex": 128,
+          "widthName": 79.3271484375,
+          "widthComment": 60
+        },
+        "visible": true,
+        "id": "ab79771c-148b-4da6-9b28-67854ffa74b7"
+      },
+      {
+        "name": "conditions",
+        "comment": "",
+        "columns": [
+          {
+            "name": "name",
+            "comment": "",
+            "dataType": "TEXT",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": true,
+              "unique": false,
+              "notNull": true
+            },
+            "ui": {
+              "active": false,
+              "pk": true,
+              "fk": false,
+              "pfk": false,
+              "widthName": 60,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            },
+            "id": "4cea157f-2d8c-4950-acb9-f3ed52dbbfa7"
+          },
+          {
+            "name": "description",
+            "comment": "",
+            "dataType": "TEXT",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": false
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": false,
+              "pfk": false,
+              "widthName": 64.8671875,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            },
+            "id": "eb3773ce-681f-42cc-a147-2c3ce8ab0f0a"
+          },
+          {
+            "name": "male_mating",
+            "comment": "",
+            "dataType": "INTEGER",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": false
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": false,
+              "pfk": false,
+              "widthName": 76.42626953125,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            },
+            "id": "eb2919b7-a4a4-4fce-a039-7b02bcbe0840"
+          },
+          {
+            "name": "lethal",
+            "comment": "",
+            "dataType": "INTEGER",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": false
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": false,
+              "pfk": false,
+              "widthName": 60,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            },
+            "id": "bed96a70-4149-4178-9b3e-fd9fa627714e"
+          },
+          {
+            "name": "female_sterile",
+            "comment": "",
+            "dataType": "INTEGER",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": false
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": false,
+              "pfk": false,
+              "widthName": 82.92626953125,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            },
+            "id": "a33944f7-e790-4423-9efb-34471bcb130b"
+          },
+          {
+            "name": "arrested",
+            "comment": "",
+            "dataType": "INTEGER",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": false
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": false,
+              "pfk": false,
+              "widthName": 60,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            },
+            "id": "268b5fe9-1ac0-4fdd-9655-3ea5ed25cee8"
+          },
+          {
+            "name": "maturation_days",
+            "comment": "",
+            "dataType": "REAL",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": false
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": false,
+              "pfk": false,
+              "widthName": 98.10986328125,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            },
+            "id": "bffd482d-d9c4-4857-b52c-70fa5af85c4b"
+          }
+        ],
+        "ui": {
+          "active": false,
+          "left": 1459.1945,
+          "top": 1245.0558,
+          "zIndex": 206,
+          "widthName": 60.5380859375,
+          "widthComment": 60
+        },
+        "visible": true,
+        "id": "79728688-ecb1-41e4-a328-765631e34d34"
       }
     ],
     "indexes": []
@@ -1366,8 +1674,8 @@
           "columnIds": [
             "82f16f93-8387-4398-855d-b75404608b1e"
           ],
-          "x": 443.8915453125,
-          "y": 1410.0272,
+          "x": 390.5497484375,
+          "y": 1543.0272,
           "direction": "right"
         },
         "end": {
@@ -1375,8 +1683,8 @@
           "columnIds": [
             "8732f168-01a3-4a8c-accd-6057f3c7400e"
           ],
-          "x": 902.5291,
-          "y": 1393.7224,
+          "x": 770.0291,
+          "y": 1364.9724,
           "direction": "left"
         },
         "constraintName": "fk_alleles_to_allele_expressions",
@@ -1392,8 +1700,8 @@
           "columnIds": [
             "e10f2d47-9a0d-4dfb-9ac1-e33b666b6c64"
           ],
-          "x": 1745.0742,
-          "y": 1395.6937,
+          "x": 2120.0742,
+          "y": 1452.860366666667,
           "direction": "left"
         },
         "end": {
@@ -1401,8 +1709,8 @@
           "columnIds": [
             "b4fbd051-23a3-4006-b3e1-02d706018df5"
           ],
-          "x": 1322.34794765625,
-          "y": 1393.7224,
+          "x": 1189.84794765625,
+          "y": 1408.4724,
           "direction": "right"
         },
         "constraintName": "fk_phenotypes_to_allele_expressions",
@@ -1418,18 +1726,18 @@
           "columnIds": [
             "a28bcc43-cedb-4c1c-8c7d-3829bd00ea0f"
           ],
-          "x": 262.068603515625,
-          "y": 1877.2777,
-          "direction": "top"
+          "x": 585.568603515625,
+          "y": 1291.2777,
+          "direction": "bottom"
         },
         "end": {
           "tableId": "fde07340-01bb-4c74-be46-a0b9d53d5f95",
           "columnIds": [
             "4cc4f236-c503-4907-bac8-346b40529050"
           ],
-          "x": 265.05707265625,
-          "y": 1475.2772,
-          "direction": "bottom"
+          "x": 390.5497484375,
+          "y": 1467.5272,
+          "direction": "right"
         },
         "constraintName": "fk_genes_to_alleles",
         "visible": true,
@@ -1438,15 +1746,15 @@
       {
         "identification": false,
         "relationshipType": "ZeroN",
-        "startRelationshipType": "Dash",
+        "startRelationshipType": "Ring",
         "start": {
           "tableId": "e5c86f53-27c2-44bd-901b-2fcc2d40226b",
           "columnIds": [
             "e10f2d47-9a0d-4dfb-9ac1-e33b666b6c64"
           ],
-          "x": 1930.037334765625,
-          "y": 1258.6937,
-          "direction": "top"
+          "x": 2120.0742,
+          "y": 1297.5270333333335,
+          "direction": "left"
         },
         "end": {
           "tableId": "043996fc-4488-47ee-932d-079e874ad3db",
@@ -1454,7 +1762,7 @@
             "f87c993a-111b-4aa2-9870-6781d62e9d63"
           ],
           "x": 1737.950828125,
-          "y": 1017.9749,
+          "y": 1028.2249000000002,
           "direction": "right"
         },
         "constraintName": "fk_phenotypes_to_allele_suppresions",
@@ -1464,15 +1772,15 @@
       {
         "identification": false,
         "relationshipType": "ZeroN",
-        "startRelationshipType": "Dash",
+        "startRelationshipType": "Ring",
         "start": {
           "tableId": "e5c86f53-27c2-44bd-901b-2fcc2d40226b",
           "columnIds": [
             "e10f2d47-9a0d-4dfb-9ac1-e33b666b6c64"
           ],
-          "x": 1930.037334765625,
-          "y": 1532.6937,
-          "direction": "bottom"
+          "x": 2120.0742,
+          "y": 1375.1937000000003,
+          "direction": "left"
         },
         "end": {
           "tableId": "7413ed9b-1886-4955-a1ac-bd627be6a590",
@@ -1480,7 +1788,7 @@
             "004f4822-9b09-44b8-84d3-7d33555ef99f"
           ],
           "x": 1698.65274765625,
-          "y": 1725.9161,
+          "y": 1736.1661,
           "direction": "right"
         },
         "constraintName": "fk_phenotypes_to_allele_reqs",
@@ -1497,9 +1805,9 @@
             "8732f168-01a3-4a8c-accd-6057f3c7400e",
             "b4fbd051-23a3-4006-b3e1-02d706018df5"
           ],
-          "x": 1112.438523828125,
-          "y": 1458.9724,
-          "direction": "bottom"
+          "x": 1189.84794765625,
+          "y": 1364.9724,
+          "direction": "right"
         },
         "end": {
           "tableId": "7413ed9b-1886-4955-a1ac-bd627be6a590",
@@ -1508,7 +1816,7 @@
             "5df53d71-c3d3-4a23-b731-ba68b86735e1"
           ],
           "x": 1278.8339,
-          "y": 1725.9161,
+          "y": 1736.1661,
           "direction": "left"
         },
         "constraintName": "fk_allele_expressions_to_allele_reqs",
@@ -1525,9 +1833,9 @@
             "8732f168-01a3-4a8c-accd-6057f3c7400e",
             "b4fbd051-23a3-4006-b3e1-02d706018df5"
           ],
-          "x": 1112.438523828125,
-          "y": 1328.4724,
-          "direction": "top"
+          "x": 1189.84794765625,
+          "y": 1321.4724,
+          "direction": "right"
         },
         "end": {
           "tableId": "043996fc-4488-47ee-932d-079e874ad3db",
@@ -1536,7 +1844,7 @@
             "257d8e1d-ea86-4ef7-b02e-8883c83132c5"
           ],
           "x": 1310.902,
-          "y": 1017.9749,
+          "y": 1028.2249000000002,
           "direction": "left"
         },
         "constraintName": "fk_allele_expressions_to_allele_suppresions",
@@ -1578,8 +1886,8 @@
           "columnIds": [
             "82f16f93-8387-4398-855d-b75404608b1e"
           ],
-          "x": 265.05707265625,
-          "y": 1344.7772,
+          "x": 207.38617421875,
+          "y": 1429.7772,
           "direction": "top"
         },
         "end": {
@@ -1802,6 +2110,84 @@
         "constraintName": "fk_reproductions_to_scheduled_reproductions",
         "visible": true,
         "id": "84ad5d4f-5e7c-411c-8543-7c8cc648c115"
+      },
+      {
+        "identification": false,
+        "relationshipType": "OneOnly",
+        "startRelationshipType": "Ring",
+        "start": {
+          "tableId": "ab79771c-148b-4da6-9b28-67854ffa74b7",
+          "columnIds": [
+            "34122943-ab27-4f22-977f-b97604974df1"
+          ],
+          "x": 208.068603515625,
+          "y": 1706.5,
+          "direction": "top"
+        },
+        "end": {
+          "tableId": "fde07340-01bb-4c74-be46-a0b9d53d5f95",
+          "columnIds": [
+            "1de60def-1b06-4def-8f6d-d6281a915c03"
+          ],
+          "x": 207.38617421875,
+          "y": 1580.7772,
+          "direction": "bottom"
+        },
+        "constraintName": "fk_variation_info_to_alleles",
+        "visible": true,
+        "id": "d2bcfd5f-bd84-4fd4-bb08-98a0783550e4"
+      },
+      {
+        "identification": false,
+        "relationshipType": "ZeroN",
+        "startRelationshipType": "Dash",
+        "start": {
+          "tableId": "79728688-ecb1-41e4-a328-765631e34d34",
+          "columnIds": [
+            "4cea157f-2d8c-4950-acb9-f3ed52dbbfa7"
+          ],
+          "x": 1651.749431640625,
+          "y": 1245.0558,
+          "direction": "top"
+        },
+        "end": {
+          "tableId": "043996fc-4488-47ee-932d-079e874ad3db",
+          "columnIds": [
+            "d394b1fd-da96-4867-a48d-308338f39de1"
+          ],
+          "x": 1524.4264140625,
+          "y": 1103.7249000000002,
+          "direction": "bottom"
+        },
+        "constraintName": "fk_conditions_to_expr_sups",
+        "visible": true,
+        "id": "e6095654-7bf8-439a-aa88-3dc09bbb1f82"
+      },
+      {
+        "identification": false,
+        "relationshipType": "ZeroN",
+        "startRelationshipType": "Ring",
+        "start": {
+          "tableId": "79728688-ecb1-41e4-a328-765631e34d34",
+          "columnIds": [
+            "4cea157f-2d8c-4950-acb9-f3ed52dbbfa7"
+          ],
+          "x": 1651.749431640625,
+          "y": 1457.5558,
+          "direction": "bottom"
+        },
+        "end": {
+          "tableId": "7413ed9b-1886-4955-a1ac-bd627be6a590",
+          "columnIds": [
+            "ba795c48-2dc5-4a29-994e-1f401f319feb"
+          ],
+          "x": 1488.743323828125,
+          "y": 1660.6661,
+          "direction": "top"
+        },
+        "constraintName": "fk_conditions_to_expr_reqs",
+        "visible": true,
+        "id": "e4b735be-f276-49bf-a079-012ef1e9d594"
       }
     ]
   }

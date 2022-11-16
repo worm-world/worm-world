@@ -1,11 +1,21 @@
 
         
 -- Reproductions are crosses or self-fertilizations
-BEGIN TRANSACTION;
-
 DROP TABLE Users;
 
 PRAGMA foreign_keys = OFF;
+
+CREATE TABLE conditions
+(
+  name            TEXT    NOT NULL,
+  description     TEXT    NULL    ,
+  male_mating     INTEGER NULL    ,
+  lethal          INTEGER NULL    ,
+  female_sterile  INTEGER NULL    ,
+  arrested        INTEGER NULL    ,
+  maturation_days REAL    NULL    ,
+  PRIMARY KEY (name)
+);
 
 -- Reproductions are crosses or self-fertilizations
 CREATE TABLE crosses
@@ -18,24 +28,24 @@ CREATE TABLE genes
 (
   name       TEXT NOT NULL,
   chromosome TEXT NULL    ,
-  phys_loc   TEXT NULL    ,
-  gen_loc    TEXT NULL    ,
+  phys_loc   INTEGER NULL    ,
+  gen_loc    REAL NULL    ,
   PRIMARY KEY (name)
 );
 
+-- If not recessive and and not wild, we know it will be suppressed by its phenotype equivalent
 CREATE TABLE phenotypes
 (
-  name           TEXT    NOT NULL,
-  description    TEXT    NULL    ,
-  male_mating    INTEGER NULL    ,
-  female_sterile INTEGER NULL     DEFAULT 0,
-  arrested       INTEGER NULL     DEFAULT 0,
-  lethal         INTEGER NULL     DEFAULT 0,
-  growth_rate    REAL    NULL    ,
-  short_name     TEXT    NULL    ,
-  env_reqs       TEXT    NULL    ,
-  is_condition   INTEGER NOT NULL DEFAULT 0,
-  PRIMARY KEY (name)
+  name            TEXT    NOT NULL,
+  wild            INTEGER NOT NULL,
+  short_name      TEXT    NOT NULL,
+  description     TEXT    NULL    ,
+  male_mating     INTEGER NULL    ,
+  lethal          INTEGER NULL    ,
+  female_sterile  INTEGER NULL    ,
+  arrested        INTEGER NULL    ,
+  maturation_days REAL    NULL    ,
+  PRIMARY KEY (name,wild)
 );
 
 CREATE TABLE strains
@@ -53,24 +63,36 @@ CREATE TABLE trees
   PRIMARY KEY (id)
 );
 
+CREATE TABLE variation_info
+(
+  allele_name        TEXT    NOT NULL,
+  chromosome TEXT    NULL    ,
+  phys_loc   INTEGER NULL    ,
+  gen_loc    REAL    NULL    ,
+  PRIMARY KEY (allele_name)
+);
+
 -- Relationship between alleles and the phenotypes they create
 CREATE TABLE allele_exprs
 (
   allele_name          TEXT NOT NULL,
-  expressing_phenotype TEXT NOT NULL,
-  dominance            TEXT NULL    ,
-  PRIMARY KEY (allele_name, expressing_phenotype),
+  expressing_phenotype_name TEXT NOT NULL,
+  expressing_phenotype_wild INTEGER NOT NULL,
+  dominance            INTEGER NULL    ,
+  PRIMARY KEY (allele_name, expressing_phenotype_name, expressing_phenotype_wild),
   FOREIGN KEY (allele_name) REFERENCES alleles (name),
-  FOREIGN KEY (expressing_phenotype) REFERENCES phenotypes (short_name)
+  FOREIGN KEY (expressing_phenotype_name, expressing_phenotype_wild) REFERENCES phenotypes (name, wild)
 );
 
 CREATE TABLE alleles
 (
-  name      TEXT NOT NULL,
-  contents       NULL    ,
-  gene_name TEXT NULL    ,
+  name           TEXT    NOT NULL,
+  contents       TEXT    NULL    ,
+  gene_name      TEXT    NULL    ,
+  variation_name TEXT NULL    ,
   PRIMARY KEY (name),
-  FOREIGN KEY (gene_name) REFERENCES genes (name)
+  FOREIGN KEY (gene_name) REFERENCES genes (name),
+  FOREIGN KEY (variation_name) REFERENCES variation_info (allele_name)
 );
 
 -- This is the list of parents involved in each repro (1 or 2)
@@ -98,26 +120,25 @@ CREATE TABLE tree_strains
 );
 
 -- Relationship between alleles and the phenotypes they require to express
-CREATE TABLE expr_reqs
+CREATE TABLE expr_relations
 (
   allele_name          TEXT NOT NULL,
-  expressing_phenotype TEXT NOT NULL,
-  required_phenotype   TEXT NOT NULL,
-  FOREIGN KEY (required_phenotype) REFERENCES phenotypes (short_name),
-  FOREIGN KEY (allele_name, expressing_phenotype) REFERENCES allele_exprs (allele_name, expressing_phenotype)
+  expressing_phenotype_name TEXT NOT NULL,
+  expressing_phenotype_wild INTEGER NOT NULL,
+
+  altering_phenotype_name   TEXT NULL    ,
+  altering_phenotype_wild   INTEGER NULL    ,
+  altering_condition   TEXT NULL    ,
+  -- if suppressing, the altering phenotype supresses an allele's expression
+  -- if not suppressing, the altering phenotype is required for allele to express
+  is_suppressing        INTEGER NOT NULL, 
+  FOREIGN KEY (altering_phenotype_name, altering_phenotype_wild) REFERENCES phenotypes (name, wild),
+  FOREIGN KEY (allele_name, expressing_phenotype_name, expressing_phenotype_wild) REFERENCES allele_exprs (allele_name, expressing_phenotype_name, expressing_phenotype_wild),
+  FOREIGN KEY (altering_condition) REFERENCES conditions (name)
+  PRIMARY KEY (allele_name, expressing_phenotype_name, expressing_phenotype_wild, altering_phenotype_name, altering_phenotype_wild, altering_condition)
 );
 
--- Relationship between alleles and the phenotypes that suppress their expression
-CREATE TABLE expr_sups
-(
-  expressing_phenotype  TEXT NOT NULL,
-  allele_name           TEXT NOT NULL,
-  suppressing_phenotype TEXT NOT NULL,
-  FOREIGN KEY (suppressing_phenotype) REFERENCES phenotypes (short_name),
-  FOREIGN KEY (allele_name, expressing_phenotype) REFERENCES allele_exprs (allele_name, expressing_phenotype)
-);
-
-CREATE TABLE sched_repros
+CREATE TABLE sched_crosses
 (
   scheduled_tree_id INTEGER NOT NULL,
   cross_id          INTEGER NOT NULL,
@@ -144,7 +165,4 @@ CREATE TABLE strain_alleles
   FOREIGN KEY (name) REFERENCES alleles (name)
 );
 
-        
 PRAGMA foreign_keys = ON;
-        
-COMMIT TRANSACTION;
