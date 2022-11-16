@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import SideNav from '../sideNav/sideNav';
-import { Box, Button } from '@mui/material';
+import { Button } from '@mui/material';
 import './layout.css';
 import MenuIcon from '@mui/icons-material/Menu';
 
