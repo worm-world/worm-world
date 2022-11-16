@@ -1,4 +1,6 @@
-#sidenav-list {
-    display: flex;
-    flex-direction: column;
+#side-nav-title {
+    font-size: x-large;
+    width: 100%;
+    text-align: center;
+    padding-top: 10px;
 }
