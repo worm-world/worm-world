@@ -1,12 +1,22 @@
 import { Link } from 'react-router-dom';
 import Paths from '../../routes/frontend';
-import { List, Drawer, Button } from '@mui/material';
+import { List, ListItem, ListItemIcon, ListItemButton, ListItemText, Drawer } from '@mui/material';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import DataSetIcon from '@mui/icons-material/Dataset';
+import EventNoteIcon from '@mui/icons-material/EventNote';
 import './sideNav.css';
+import { Typography } from '@mui/material';
 
 interface SideNavProps {
   isOpen: boolean;
   drawerWidth: number;
 }
+
+let SideNavItems: { name: string, path: string, icon: JSX.Element}[] = [
+  {name: 'Cross Designer', path: Paths.CrossDesignerPath, icon: <AccountTreeIcon />},
+  {name: 'Scheduler', path: Paths.TodoPath, icon: <EventNoteIcon />},
+  {name: 'Data Manager', path: Paths.ImportPath, icon: <DataSetIcon /> },
+]
 
 function SideNav(props: SideNavProps): JSX.Element {
   return (
@@ -24,35 +34,18 @@ function SideNav(props: SideNavProps): JSX.Element {
         anchor='left'
         open={props.isOpen}
       >
-        <List id='sidenav-list'>
-          <Button
-            className='sidenav-button'
-            component={Link}
-            to={Paths.HomePath}
-          >
-            Home
-          </Button>
-          <Button
-            className='sidenav-button'
-            component={Link}
-            to={Paths.CrossDesignerPath}
-          >
-            Designer
-          </Button>
-          <Button
-            className='sidenav-button'
-            component={Link}
-            to={Paths.TodoPath}
-          >
-            Scheduler
-          </Button>
-          <Button
-            className='sidenav-button'
-            component={Link}
-            to={Paths.ImportPath}
-          >
-            Data Manager
-          </Button>
+        <Typography component={Link} to={Paths.HomePath} id='side-nav-title'>WormWorld</Typography>
+        <List id='side-nav-list'>
+          {SideNavItems.map((item) => (
+            <ListItem key={item.name} component={Link} to={item.path} disablePadding>
+            <ListItemButton>
+              <ListItemIcon>
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText primary={item.name} />
+            </ListItemButton>
+          </ListItem>))
+          }
         </List>
       </Drawer>
     </>
