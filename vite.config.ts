@@ -1,10 +1,23 @@
+/// <reference types="vitest" />
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
 
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/tests/setupTests.ts',
+  },
+
+  resolve: {
+    alias: [
+      { find: 'components', replacement: path.resolve(__dirname, 'src/components') },
+    ],
+  },
   // Vite optons tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   // prevent vite from obscuring rust errors
   clearScreen: false,

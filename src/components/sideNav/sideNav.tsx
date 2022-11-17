@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, To } from 'react-router-dom';
 import Paths from '../../routes/frontend';
 import {
   List,
@@ -12,13 +12,21 @@ import {
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import DataSetIcon from '@mui/icons-material/Dataset';
 import EventNoteIcon from '@mui/icons-material/EventNote';
+import { Key } from 'react';
+import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
 
 interface SideNavProps {
   isOpen: boolean;
   drawerWidth: number;
 }
 
-const SideNavItems: Array<{ name: string; path: string; icon: JSX.Element }> = [
+interface SideNavItem {
+  name: String;
+  path: String;
+  icon: JSX.Element;
+}
+
+const SideNavItems: SideNavItem[] = [
   {
     name: 'Cross Designer',
     path: Paths.CrossDesignerPath,
@@ -28,43 +36,48 @@ const SideNavItems: Array<{ name: string; path: string; icon: JSX.Element }> = [
   { name: 'Data Manager', path: Paths.ImportPath, icon: <DataSetIcon /> },
 ];
 
-function SideNav(props: SideNavProps): JSX.Element {
+const navHeader = (): ReactJSXElement => {
   return (
-    <>
-      <Drawer
-        sx={{
-          width: props.drawerWidth,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: props.drawerWidth,
-            boxSizing: 'border-box',
-          },
-        }}
-        variant='persistent'
-        anchor='left'
-        open={props.isOpen}
-      >
-        <Typography component={Link} to={Paths.HomePath} variant='h4' align='center'>
-          WormWorld
-        </Typography>
-        <List>
-          {SideNavItems.map((item) => (
-            <ListItem
-              key={item.name}
-              component={Link}
-              to={item.path}
-              disablePadding
-            >
-              <ListItemButton>
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.name} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-      </Drawer>
-    </>
+    <Link to={Paths.HomePath as To}>
+      <Typography variant='h4' align='center'>
+        WormWorld
+      </Typography>
+    </Link>
   );
-}
+};
+
+const getListItems = (): ReactJSXElement[] => {
+  return SideNavItems.map((item) => (
+    <Link key={item.name as Key} to={item.path as To}>
+      <ListItem disablePadding>
+        <ListItemButton>
+          <ListItemIcon>{item.icon}</ListItemIcon>
+          <ListItemText primary={item.name} />
+        </ListItemButton>
+      </ListItem>
+    </Link>
+  ));
+};
+
+const SideNav = (props: SideNavProps): ReactJSXElement => {
+  return (
+    <Drawer
+      sx={{
+        width: props.drawerWidth,
+        flexShrink: 0,
+        '& .MuiDrawer-paper': {
+          width: props.drawerWidth,
+          boxSizing: 'border-box',
+        },
+      }}
+      variant='persistent'
+      anchor='left'
+      open={props.isOpen}
+    >
+      {navHeader()}
+      <List>{getListItems()}</List>
+    </Drawer>
+  );
+};
 
 export default SideNav;

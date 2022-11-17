@@ -3,10 +3,11 @@ import { Outlet } from 'react-router-dom';
 import SideNav from '../sideNav/sideNav';
 import { Button } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
 
 const drawerWidth = 240;
 
-export default function Layout(): JSX.Element {
+const Layout = (): ReactJSXElement => {
   const [sideNavIsOpen, setsideNavIsOpen] = useState<boolean>(true);
   const toggleNavbar = (): void => setsideNavIsOpen(!sideNavIsOpen);
   return (
@@ -20,4 +21,5 @@ export default function Layout(): JSX.Element {
       </main>
     </>
   );
-}
+};
+export default Layout;
