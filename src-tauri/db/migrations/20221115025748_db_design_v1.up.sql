@@ -1,8 +1,6 @@
 
         
 -- Reproductions are crosses or self-fertilizations
-DROP TABLE Users;
-
 PRAGMA foreign_keys = OFF;
 
 CREATE TABLE conditions
@@ -166,3 +164,5 @@ CREATE TABLE strain_alleles
 );
 
 PRAGMA foreign_keys = ON;
+
+DROP TABLE Users;
