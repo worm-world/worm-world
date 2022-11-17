@@ -1,5 +1,5 @@
 const Paths = {
-  CrossDeignerPath: '/cross-designer',
+  CrossDesignerPath: '/cross-designer',
   ImportPath: 'data-import',
   TodoPath: 'scheduler-todo',
   HomePath: '/',
