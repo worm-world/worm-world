@@ -12,54 +12,16 @@ use sqlx::{
     Pool, Sqlite,
 };
 mod models;
-use models::{gene::Gene};
+use models::gene::Gene;
 use thiserror::Error;
 use tokio::sync::RwLock;
 
+mod bindings;
+use bindings::{SqlQueryError, InnerDbState};
+
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 
-pub struct InnerDbState {
-    conn_pool: Pool<Sqlite>,
-}
 
-impl InnerDbState {
-    // pub async fn get_genes(&self) -> Result<Vec<Gene>, SqlQueryError> {
-    pub async fn get_genes(&self) -> Result<Vec<Gene>, SqlQueryError> {
-        match sqlx::query_as!(
-            Gene,
-            "
-            select name, chromosome, phys_loc, gen_loc from genes order by name
-            "
-        )
-        .fetch_all(&self.conn_pool)
-        .await
-        {
-            Ok(genes) => Ok(genes),
-            Err(e) => {
-                eprint!("Get genes error: {e}");
-                Err(SqlQueryError::SqlQueryError(e.to_string()))
-            },
-        }
-        // return Ok(Vec::new());
-    }
-    pub async fn insert_gene(&self, gene: Gene) -> Result<(), SqlQueryError> {
-        match sqlx::query!(
-            "INSERT INTO genes (name, chromosome, phys_loc, gen_loc)
-            VALUES($1, $2, $3, $4)
-            ",
-            gene.name, gene.chromosome, gene.phys_loc, gene.gen_loc
-        )
-        .execute(&self.conn_pool)
-        .await
-        {
-            Ok(_) => Ok(()),
-            Err(e) => {
-                eprint!("Insert Gene error: {e}");
-                Err(SqlQueryError::SqlQueryError(e.to_string()))
-            }
-        }
-    }
-}
 pub struct DbState(pub RwLock<InnerDbState>);
 
 #[tauri::command]
@@ -73,6 +35,7 @@ async fn get_genes(state: tauri::State<'_, DbState>) -> Result<Vec<Gene>, SqlQue
     state_guard.get_genes().await
 }
 
+
 #[tauri::command]
 async fn insert_gene(state: tauri::State<'_, DbState>, gene: Gene) -> Result<(), SqlQueryError> {
     let state_guard = state.0.read().await;
@@ -83,12 +46,6 @@ async fn insert_gene(state: tauri::State<'_, DbState>, gene: Gene) -> Result<(),
 pub enum SqlSetupError {
     #[error("Failed to get valid project data directory from OS")]
     NoProjectDir,
-}
-
-#[derive(Error, Debug, Serialize, Deserialize)]
-pub enum SqlQueryError {
-    #[error("Failed to execute query: {0}")]
-    SqlQueryError(String),
 }
 
 async fn sqlite_setup() -> Result<Pool<Sqlite>> {
@@ -116,7 +73,7 @@ async fn sqlite_setup() -> Result<Pool<Sqlite>> {
         .connect_with(connection_options)
         .await?;
 
-    sqlx::migrate!("db/migrations").run(&sqlite_pool).await?;
+    sqlx::migrate!().run(&sqlite_pool).await?;
 
     Ok(sqlite_pool)
 }

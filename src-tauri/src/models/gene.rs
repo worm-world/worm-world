@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug, sqlx::FromRow)]
+#[derive(Serialize, Deserialize, Debug, sqlx::FromRow, PartialEq)]
 pub struct Gene {
     pub name: String,
     pub chromosome: Option<String>,
