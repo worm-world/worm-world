@@ -58,7 +58,7 @@ async fn sqlite_setup() -> Result<Pool<Sqlite>> {
 
     let database_url = format!(
         "sqlite:///{}",
-        database_dir.join("exampledb.sqlite").to_str().unwrap()
+        database_dir.join("worm.sqlite").to_str().unwrap()
     );
     println!("{}", database_url);
 

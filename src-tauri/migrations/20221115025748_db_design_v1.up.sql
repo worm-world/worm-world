@@ -164,5 +164,3 @@ CREATE TABLE strain_alleles
 );
 
 PRAGMA foreign_keys = ON;
-
-DROP TABLE Users;
