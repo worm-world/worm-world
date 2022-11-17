@@ -1,9 +1,7 @@
+use crate::models::gene::Gene;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use sqlx::{
-    Pool, Sqlite,
-};
-use crate::models::gene::Gene;
+use sqlx::{Pool, Sqlite};
 use thiserror::Error;
 
 #[derive(Error, Debug, Serialize, Deserialize)]
@@ -17,7 +15,6 @@ pub struct InnerDbState {
 }
 
 impl InnerDbState {
-    // pub async fn get_genes(&self) -> Result<Vec<Gene>, SqlQueryError> {
     pub async fn get_genes(&self) -> Result<Vec<Gene>, SqlQueryError> {
         match sqlx::query_as!(
             Gene,
@@ -34,7 +31,6 @@ impl InnerDbState {
                 Err(SqlQueryError::SqlQueryError(e.to_string()))
             }
         }
-        // return Ok(Vec::new());
     }
     pub async fn insert_gene(&self, gene: Gene) -> Result<(), SqlQueryError> {
         match sqlx::query!(
@@ -58,44 +54,22 @@ impl InnerDbState {
     }
 }
 
-#[sqlx::test(fixtures("dummy"))]
-async fn test_get_genes(pool: Pool<Sqlite>) -> Result<()> {
-    let state = InnerDbState { conn_pool: pool };
+#[cfg(test)]
+mod test {
+    use crate::dummy::testdata;
+    use crate::models::gene::Gene;
+    use crate::InnerDbState;
+    use anyhow::Result;
+    use sqlx::{Pool, Sqlite};
 
-    let mut genes: Vec<Gene> = state.get_genes().await?;
-    genes.sort_by(|a, b| (a.name.cmp(&b.name)));
-    let expected_genes = vec![
-        Gene {
-            name: "dpy-10".to_string(),
-            chromosome: Some("II".to_string()),
-            phys_loc: Some(6710149),
-            gen_loc: Some(0.0),
-        },
-        Gene {
-            name: "lin-15B".to_string(),
-            chromosome: Some("X".to_string()),
-            phys_loc: Some(15726123),
-            gen_loc: Some(22.95),
-        },
-        Gene {
-            name: "ox1059".to_string(),
-            chromosome: Some("IV".to_string()),
-            phys_loc: Some(11425742),
-            gen_loc: Some(4.98),
-        },
-        Gene {
-            name: "unc-119".to_string(),
-            chromosome: Some("III".to_string()),
-            phys_loc: Some(10902641),
-            gen_loc: Some(5.59),
-        },
-        Gene {
-            name: "unc-18".to_string(),
-            chromosome: Some("X".to_string()),
-            phys_loc: Some(7682896),
-            gen_loc: Some(-1.35),
-        },
-    ];
-    assert_eq!(genes, expected_genes);
-    Ok(())
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_genes(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let mut genes: Vec<Gene> = state.get_genes().await?;
+        genes.sort_by(|a, b| (a.name.cmp(&b.name)));
+
+        assert_eq!(genes, testdata::get_genes());
+        Ok(())
+    }
 }

@@ -6,12 +6,14 @@ use std::{str::FromStr, time::Duration};
 
 use anyhow::Result;
 use directories::ProjectDirs;
-use serde::{Deserialize, Serialize};
 use sqlx::{
     sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePoolOptions, SqliteSynchronous},
     Pool, Sqlite,
 };
+
 mod models;
+mod dummy;
+
 use models::gene::Gene;
 use thiserror::Error;
 use tokio::sync::RwLock;
