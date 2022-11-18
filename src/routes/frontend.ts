@@ -3,5 +3,6 @@ const Paths = {
   ImportPath: 'data-import',
   TodoPath: 'scheduler-todo',
   HomePath: '/',
+  Temp: '/temp',
 };
 export default Paths;

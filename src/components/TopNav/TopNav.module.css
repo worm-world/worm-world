@@ -1,0 +1,20 @@
+:root {
+  --height: 96px;
+}
+.TopNav-container {
+    background-color: white;
+    height: var(--height);
+    position: relative;
+  }
+  
+.title{
+  color: black;
+  font-size: 36px;
+  padding-left: 96px;
+  transform: translate(0%, 145%);
+  width: fit-content;  
+}
+.container{
+  letter-spacing: 5px;
+  padding-left: 400px;
+}

@@ -14,7 +14,16 @@ const Layout = (): ReactJSXElement => {
     <>
       <SideNav drawerWidth={drawerWidth} isOpen={sideNavIsOpen} />
       <main style={{ marginLeft: sideNavIsOpen ? drawerWidth : 0 }}>
-        <Button onClick={toggleNavbar}>
+        <Button
+          style={{
+            paddingTop: '35px',
+            paddingBottom: '35px',
+            zIndex: 999,
+            boxShadow: 'none',
+            position: 'absolute',
+          }}
+          onClick={toggleNavbar}
+        >
           <MenuIcon />
         </Button>
         <Outlet />

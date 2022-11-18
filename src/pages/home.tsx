@@ -1,9 +1,10 @@
+import { TopNav } from 'components/TopNav/TopNav';
 import React from 'react';
 
 const Home = (): JSX.Element => {
   return (
     <div>
-      <h1>Here is the homepage because i need a default route!</h1>
+      <TopNav title={'Home'} />
     </div>
   );
 };
