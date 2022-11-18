@@ -1,5 +1,6 @@
 pub mod gene;
 pub mod phenotype;
+pub mod allele;
 
 use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Sqlite};
