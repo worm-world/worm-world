@@ -3,7 +3,7 @@ import React from 'react';
 import { TopNav } from '../components/TopNav/TopNav';
 import { Routes, Route } from 'react-router-dom';
 import Paths from '../routes/frontend';
-import Home from './home';
+import Temp from './tempPage';
 
 const Todo = (): JSX.Element => {
   return (
@@ -14,7 +14,7 @@ const Todo = (): JSX.Element => {
         <Tab label='Import Cross' />
       </TopNav>
       <Routes>
-        <Route path={Paths.HomePath} element={<Home />} />
+        <Route path={Paths.Temp} element={<Temp />} />
       </Routes>
     </div>
   );

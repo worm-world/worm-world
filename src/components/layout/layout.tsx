@@ -4,6 +4,7 @@ import SideNav from '../sideNav/sideNav';
 import { Button } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
+import styles from './layout.module.css';
 
 const drawerWidth = 240;
 
@@ -14,7 +15,16 @@ const Layout = (): ReactJSXElement => {
     <>
       <SideNav drawerWidth={drawerWidth} isOpen={sideNavIsOpen} />
       <main style={{ marginLeft: sideNavIsOpen ? drawerWidth : 0 }}>
-        <Button onClick={toggleNavbar}>
+        <Button
+          style={{
+            paddingTop: '35px',
+            paddingBottom: '35px',
+            zIndex: 999,
+            boxShadow: 'none',
+            position: 'absolute',
+          }}
+          onClick={toggleNavbar}
+        >
           <MenuIcon />
         </Button>
         <Outlet />

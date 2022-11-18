@@ -12,7 +12,6 @@ function App(): JSX.Element {
     <Router>
       <Routes>
         <Route path='/' element={<Layout />}>
-          <Route index element={<Home />} />
           <Route path={Paths.CrossDesignerPath} element={<CrossPage />} />
           <Route path={Paths.HomePath} element={<Home />} />
           <Route path={Paths.TodoPath} element={<Todo />} />

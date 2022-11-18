@@ -3,7 +3,7 @@ import * as React from 'react';
 import styles from './TopNav.module.css';
 interface iTopNavInputProps {
   title: string;
-  children: any;
+  children?: any;
   tabIndex?: number;
 }
 
