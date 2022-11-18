@@ -4,7 +4,6 @@ import SideNav from '../sideNav/sideNav';
 import { Button } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
-import styles from './layout.module.css';
 
 const drawerWidth = 240;
 
