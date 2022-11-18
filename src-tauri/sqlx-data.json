@@ -1,37 +1,49 @@
 {
   "db": "SQLite",
-  "4b20efcf7f046a75fe263588c971ecbc6ef971f777cc7871e88ff8d3254d3d7b": {
+  "d3472407aeb8ed7e2e578f30bec37bf5e09e851458d739f8611f1648c85b4364": {
     "describe": {
       "columns": [],
       "nullable": [],
       "parameters": {
-        "Right": 1
+        "Right": 4
       }
     },
-    "query": "INSERT INTO Users (user_name)\n            VALUES($1)\n            "
+    "query": "INSERT INTO genes (name, chromosome, phys_loc, gen_loc)\n            VALUES($1, $2, $3, $4)\n            "
   },
-  "b43eaae38c5a6bfef06571f521fa4975b64f3af4e0c18494f28c82fd4075e84d": {
+  "d9718d2b454af7cdeb3698eaa61f650c302a1760da84d1e4ea17c99b3cb7adb1": {
     "describe": {
       "columns": [
         {
-          "name": "id",
+          "name": "name",
           "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "chromosome",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "phys_loc",
+          "ordinal": 2,
           "type_info": "Int64"
         },
         {
-          "name": "user_name",
-          "ordinal": 1,
-          "type_info": "Text"
+          "name": "gen_loc",
+          "ordinal": 3,
+          "type_info": "Float"
         }
       ],
       "nullable": [
         false,
-        false
+        true,
+        true,
+        true
       ],
       "parameters": {
         "Right": 0
       }
     },
-    "query": "\n            SELECT u.id, u.user_name\n            FROM Users u\n            "
+    "query": "\n            select name, chromosome, phys_loc, gen_loc from genes order by name\n            "
   }
 }
