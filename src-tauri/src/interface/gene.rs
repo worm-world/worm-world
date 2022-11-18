@@ -1,25 +1,15 @@
-use crate::models::gene::Gene;
+use crate::models::{
+    gene::Gene,
+};
+use super::{InnerDbState, DbError};
 use anyhow::Result;
-use serde::{Deserialize, Serialize};
-use sqlx::{Pool, Sqlite};
-use thiserror::Error;
-
-#[derive(Error, Debug, Serialize, Deserialize)]
-pub enum SqlQueryError {
-    #[error("Failed to execute query: {0}")]
-    SqlQueryError(String),
-}
-
-pub struct InnerDbState {
-    pub conn_pool: Pool<Sqlite>,
-}
 
 impl InnerDbState {
-    pub async fn get_genes(&self) -> Result<Vec<Gene>, SqlQueryError> {
+    pub async fn get_genes(&self) -> Result<Vec<Gene>, DbError> {
         match sqlx::query_as!(
             Gene,
             "
-            select name, chromosome, phys_loc, gen_loc from genes order by name
+            SELECT name, chromosome, phys_loc, gen_loc FROM genes order by name
             "
         )
         .fetch_all(&self.conn_pool)
@@ -28,11 +18,11 @@ impl InnerDbState {
             Ok(genes) => Ok(genes),
             Err(e) => {
                 eprint!("Get genes error: {e}");
-                Err(SqlQueryError::SqlQueryError(e.to_string()))
+                Err(DbError::SqlQueryError(e.to_string()))
             }
         }
     }
-    pub async fn insert_gene(&self, gene: Gene) -> Result<(), SqlQueryError> {
+    pub async fn insert_gene(&self, gene: Gene) -> Result<(), DbError> {
         match sqlx::query!(
             "INSERT INTO genes (name, chromosome, phys_loc, gen_loc)
             VALUES($1, $2, $3, $4)
@@ -48,7 +38,7 @@ impl InnerDbState {
             Ok(_) => Ok(()),
             Err(e) => {
                 eprint!("Insert Gene error: {e}");
-                Err(SqlQueryError::SqlQueryError(e.to_string()))
+                Err(DbError::SqlInsertError(e.to_string()))
             }
         }
     }

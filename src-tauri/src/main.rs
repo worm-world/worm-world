@@ -18,8 +18,8 @@ use models::gene::Gene;
 use thiserror::Error;
 use tokio::sync::RwLock;
 
-mod bindings;
-use bindings::{SqlQueryError, InnerDbState};
+mod interface;
+use interface::{DbError, InnerDbState};
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 
@@ -32,14 +32,14 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-async fn get_genes(state: tauri::State<'_, DbState>) -> Result<Vec<Gene>, SqlQueryError> {
+async fn get_genes(state: tauri::State<'_, DbState>) -> Result<Vec<Gene>, DbError> {
     let state_guard = state.0.read().await;
     state_guard.get_genes().await
 }
 
 
 #[tauri::command]
-async fn insert_gene(state: tauri::State<'_, DbState>, gene: Gene) -> Result<(), SqlQueryError> {
+async fn insert_gene(state: tauri::State<'_, DbState>, gene: Gene) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
     state_guard.insert_gene(gene).await
 }
