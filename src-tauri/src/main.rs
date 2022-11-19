@@ -41,7 +41,7 @@ async fn get_genes(state: tauri::State<'_, DbState>) -> Result<Vec<Gene>, DbErro
 #[tauri::command]
 async fn insert_gene(state: tauri::State<'_, DbState>, gene: Gene) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
-    state_guard.insert_gene(gene).await
+    state_guard.insert_gene(&gene).await
 }
 
 #[derive(Error, Debug)]

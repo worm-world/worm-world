@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Phenotype {
     pub name: String,
     pub wild: bool,
@@ -22,20 +22,20 @@ impl From<PhenotypeDb> for Phenotype {
     fn from(item: PhenotypeDb) -> Self {
         Phenotype { 
             name: item.name, 
-            wild: item.wild == 0, 
+            wild: item.wild == 1, 
             short_name: item.short_name, 
             description: item.description, 
             male_mating: item.male_mating,
             lethal: match item.lethal {
-                Some(v) => Some(v == 0),
+                Some(v) => Some(v == 1),
                 None => None,
             },  
             female_sterile: match item.female_sterile {
-                Some(v) => Some(v == 0),
+                Some(v) => Some(v == 1),
                 None => None,
             },  
             arrested: match item.arrested {
-                Some(v) => Some(v == 0),
+                Some(v) => Some(v == 1),
                 None => None,
             },
             maturation_days: item.maturation_days 

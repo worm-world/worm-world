@@ -22,7 +22,7 @@ impl InnerDbState {
             }
         }
     }
-    pub async fn insert_gene(&self, gene: Gene) -> Result<(), DbError> {
+    pub async fn insert_gene(&self, gene: &Gene) -> Result<(), DbError> {
         match sqlx::query!(
             "INSERT INTO genes (name, chromosome, phys_loc, gen_loc)
             VALUES($1, $2, $3, $4)
@@ -51,6 +51,7 @@ mod test {
     use crate::InnerDbState;
     use anyhow::Result;
     use sqlx::{Pool, Sqlite};
+    use pretty_assertions::{assert_eq};
 
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_genes(pool: Pool<Sqlite>) -> Result<()> {
@@ -60,6 +61,26 @@ mod test {
         genes.sort_by(|a, b| (a.name.cmp(&b.name)));
 
         assert_eq!(genes, testdata::get_genes());
+        Ok(())
+    }
+    #[sqlx::test]
+    async fn test_insert_gene(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let genes: Vec<Gene> = state.get_genes().await?;
+        assert_eq!(genes.len(), 0);
+
+        let expected = Gene {
+            name: "unc-119".to_string(),
+            chromosome: Some("III".to_string()),
+            phys_loc: Some(10902641),
+            gen_loc: Some(5.59),
+        };
+
+        state.insert_gene(&expected).await?;
+        let genes: Vec<Gene> = state.get_genes().await?;
+
+        assert_eq!(vec![expected], genes);
         Ok(())
     }
 }

@@ -24,19 +24,23 @@ impl InnerDbState {
             }
         }
     }
-    pub async fn insert_phenotype(&self, phenotype: Phenotype) -> Result<(), DbError> {
+    pub async fn insert_phenotype(&self, phenotype: &Phenotype) -> Result<(), DbError> {
+        let wild = phenotype.wild as i64;
+        let lethal = phenotype.lethal.map(|b| b as i64);
+        let female_sterile = phenotype.female_sterile.map(|b| b as i64);
+        let arrested = phenotype.arrested.map(|b| b as i64);
         match sqlx::query!(
             "INSERT INTO phenotypes (name, wild, short_name, description, male_mating, lethal, female_sterile, arrested, maturation_days)
             VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
             ",
             phenotype.name,
-            phenotype.wild,
+            wild,
             phenotype.short_name,
             phenotype.description,
             phenotype.male_mating,
-            phenotype.lethal,
-            phenotype.female_sterile,
-            phenotype.arrested,
+            lethal,
+            female_sterile,
+            arrested,
             phenotype.maturation_days,
         )
         .execute(&self.conn_pool)
@@ -58,18 +62,40 @@ mod test {
     use crate::InnerDbState;
     use anyhow::Result;
     use sqlx::{Pool, Sqlite};
+    use pretty_assertions::{assert_eq};
 
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_phenotypes(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState{conn_pool: pool};
         let phens = state.get_phenotypes().await?;
-        // TODO: implement
+
+        let expected_phens = testdata::get_phenotypes();
+        assert_eq!(phens, expected_phens);
         Ok(())
     }
 
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test]
     async fn test_insert_phenotype(pool: Pool<Sqlite>) -> Result<()> {
-        // TODO: implement
+        let state = InnerDbState{conn_pool: pool};
+        let phens = state.get_phenotypes().await?;
+        assert_eq!(phens.len(), 0);
+
+        let expected = Phenotype {
+            name: "unc-5".to_string(),
+            wild: true,
+            short_name: "unc".to_string(),
+            description: None,
+            male_mating: Some(0),
+            lethal: Some(true),
+            female_sterile: Some(true),
+            arrested: Some(true),
+            maturation_days: Some(4.0),
+        };
+
+        state.insert_phenotype(&expected).await?;
+
+        let phens = state.get_phenotypes().await?;
+        assert_eq!(vec![expected], phens);
         Ok(())
     }
 }

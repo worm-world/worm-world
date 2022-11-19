@@ -8,7 +8,7 @@ impl InnerDbState {
     pub async fn get_alleles(&self) -> Result<Vec<Allele>, DbError> {
         Err(DbError::SqlQueryError("Allele unimplememented".to_string()))
     }
-    pub async fn insert_allele(&self, allele: Allele) -> Result<(), DbError> {
+    pub async fn insert_allele(&self, allele: &Allele) -> Result<(), DbError> {
         Err(DbError::SqlInsertError("Allele unimplemented".to_string()))
     }
 }
@@ -16,10 +16,11 @@ impl InnerDbState {
 #[cfg(test)]
 mod test {
     use crate::dummy::testdata;
-    use crate::models::gene::Gene;
+    use crate::models::allele::Allele;
     use crate::InnerDbState;
     use anyhow::Result;
     use sqlx::{Pool, Sqlite};
+    use pretty_assertions::{assert_eq};
 
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_alleles(pool: Pool<Sqlite>) -> Result<()> {
