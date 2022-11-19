@@ -9,3 +9,4 @@ pub mod strain;
 pub mod strain_alleles;
 pub mod tree;
 pub mod tree_strain;
+pub mod condition;

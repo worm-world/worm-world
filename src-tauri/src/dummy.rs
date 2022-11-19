@@ -1,6 +1,6 @@
 #[cfg(test)]
 pub mod testdata {
-    use crate::models::{gene::Gene, phenotype::Phenotype};
+    use crate::models::{condition::Condition, gene::Gene, phenotype::Phenotype};
 
     pub fn get_genes() -> Vec<Gene> {
         vec![
@@ -33,6 +33,47 @@ pub mod testdata {
                 chromosome: Some("X".to_string()),
                 phys_loc: Some(7682896),
                 gen_loc: Some(-1.35),
+            },
+        ]
+    }
+
+    pub fn get_conditions() -> Vec<Condition> {
+        vec![
+            Condition {
+                name: "15C".to_string(),
+                description: None,
+                male_mating: Some(3),
+                lethal: Some(false),
+                female_sterile: Some(false),
+                arrested: Some(false),
+                maturation_days: Some(4.0),
+            },
+            Condition {
+                name: "25C".to_string(),
+                description: None,
+                male_mating: Some(3),
+                lethal: Some(false),
+                female_sterile: Some(false),
+                arrested: Some(false),
+                maturation_days: Some(3.0),
+            },
+            Condition {
+                name: "Histamine".to_string(),
+                description: None,
+                male_mating: Some(3),
+                lethal: Some(false),
+                female_sterile: Some(false),
+                arrested: Some(false),
+                maturation_days: Some(3.0),
+            },
+            Condition {
+                name: "Tetracycline".to_string(),
+                description: None,
+                male_mating: Some(3),
+                lethal: Some(false),
+                female_sterile: Some(false),
+                arrested: Some(false),
+                maturation_days: Some(3.0),
             },
         ]
     }
