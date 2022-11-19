@@ -23,9 +23,6 @@ impl InnerDbState {
         }
     }
     pub async fn insert_condition(&self, condition: &Condition) -> Result<(), DbError> {
-        let lethal = condition.lethal.map(|b| b as i64);
-        let female_sterile = condition.female_sterile.map(|b| b as i64);
-        let arrested = condition.arrested.map(|b| b as i64);
         match sqlx::query!(
             "INSERT INTO conditions (name, description, male_mating, lethal, female_sterile, arrested, maturation_days)
             VALUES($1, $2, $3, $4, $5, $6, $7)
@@ -33,9 +30,9 @@ impl InnerDbState {
             condition.name,
             condition.description,
             condition.male_mating,
-            lethal,
-            female_sterile,
-            arrested,
+            condition.lethal,
+            condition.female_sterile,
+            condition.arrested,
             condition.maturation_days,
         )
         .execute(&self.conn_pool)

@@ -25,22 +25,18 @@ impl InnerDbState {
         }
     }
     pub async fn insert_phenotype(&self, phenotype: &Phenotype) -> Result<(), DbError> {
-        let wild = phenotype.wild as i64;
-        let lethal = phenotype.lethal.map(|b| b as i64);
-        let female_sterile = phenotype.female_sterile.map(|b| b as i64);
-        let arrested = phenotype.arrested.map(|b| b as i64);
         match sqlx::query!(
             "INSERT INTO phenotypes (name, wild, short_name, description, male_mating, lethal, female_sterile, arrested, maturation_days)
             VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
             ",
             phenotype.name,
-            wild,
+            phenotype.wild,
             phenotype.short_name,
             phenotype.description,
             phenotype.male_mating,
-            lethal,
-            female_sterile,
-            arrested,
+            phenotype.lethal,
+            phenotype.female_sterile,
+            phenotype.arrested,
             phenotype.maturation_days,
         )
         .execute(&self.conn_pool)
