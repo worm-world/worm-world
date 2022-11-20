@@ -1,7 +1,10 @@
+pub mod allele;
+pub mod allele_expr;
+pub mod condition;
+pub mod expr_relation;
 pub mod gene;
 pub mod phenotype;
-pub mod allele;
-pub mod condition;
+pub mod variation_info;
 
 use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Sqlite};

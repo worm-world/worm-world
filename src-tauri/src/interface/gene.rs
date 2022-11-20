@@ -9,7 +9,7 @@ impl InnerDbState {
         match sqlx::query_as!(
             Gene,
             "
-            SELECT name, chromosome, phys_loc, gen_loc FROM genes order by name
+            SELECT name, chromosome, phys_loc, gen_loc FROM genes ORDER BY name
             "
         )
         .fetch_all(&self.conn_pool)
