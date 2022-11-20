@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug, sqlx::FromRow, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, sqlx::FromRow, PartialEq, Eq)]
 pub struct AlleleExpression {
     #[serde(rename = "alleleName")]
     pub allele_name: String,
@@ -17,10 +17,7 @@ impl From<AlleleExpressionDb> for AlleleExpression {
             allele_name: item.allele_name,
             expressing_phenotype_name: item.expressing_phenotype_name,
             expressing_phenotype_wild: item.expressing_phenotype_wild == 1,
-            dominance: match item.dominance {
-                Some(v) => Some(v as u8),
-                None => None,
-            }
+            dominance: item.dominance.map(|v| v as u8),
         }
     }
 }

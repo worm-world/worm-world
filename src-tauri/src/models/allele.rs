@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug, sqlx::FromRow, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, sqlx::FromRow, PartialEq, Eq)]
 pub struct Allele {
     pub name: String,
     pub contents: Option<String>,

@@ -16,7 +16,7 @@ impl InnerDbState {
         .await
         {
             Ok(db_phens) => {
-                Ok(db_phens.into_iter().map(|dp| Phenotype::from(dp)).collect::<Vec<Phenotype>>())
+                Ok(db_phens.into_iter().map(|dp| dp.into()).collect::<Vec<Phenotype>>())
             },
             Err(e) => {
                 eprint!("Get genes error: {e}");

@@ -26,18 +26,9 @@ impl From<PhenotypeDb> for Phenotype {
             short_name: item.short_name, 
             description: item.description, 
             male_mating: item.male_mating,
-            lethal: match item.lethal {
-                Some(v) => Some(v == 1),
-                None => None,
-            },  
-            female_sterile: match item.female_sterile {
-                Some(v) => Some(v == 1),
-                None => None,
-            },  
-            arrested: match item.arrested {
-                Some(v) => Some(v == 1),
-                None => None,
-            },
+            lethal: item.lethal.map(|v| v == 1),
+            female_sterile: item.female_sterile.map(|v| v == 1),
+            arrested: item.arrested.map(|v| v == 1),
             maturation_days: item.maturation_days 
         }
     }

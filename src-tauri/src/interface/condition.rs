@@ -14,7 +14,7 @@ impl InnerDbState {
         .await
         {
             Ok(db_conds) => {
-                Ok(db_conds.into_iter().map(|dp| Condition::from(dp)).collect::<Vec<Condition>>())
+                Ok(db_conds.into_iter().map(|dp| dp.into()).collect::<Vec<Condition>>())
             },
             Err(e) => {
                 eprint!("Get genes error: {e}");
