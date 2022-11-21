@@ -1,15 +1,24 @@
-export default interface Phenotype {
-  shortName: String;
-  name: String;
-  description: String;
+export interface AffectedTraits {
   /** How well the male can mate. 3 denotes max mating capabilities, 0 states worm is incabable of mating  */
-  maleMating: Number;
-  lethal: Boolean;
-  femaleSterile: Boolean;
+  maleMating?: Number;
+  lethal?: Boolean;
+  femaleSterile?: Boolean;
   /** Worm maturation is stunted */
   arrested: Boolean;
   /** Generational time for to be ready to breed */
-  growthRate: Number;
-  /** Requirements for phenotype to be visible (i.e. temperature, chemical, etc) */
-  environmentReq: String;
+  maturationDays?: Number;
+}
+
+export interface Phenotype {
+  name: String;
+  shortName: String;
+  wild: Boolean;
+  traits: AffectedTraits;
+  description?: String;
+}
+
+export interface Condition {
+  name: String;
+  traits: AffectedTraits;
+  description?: String;
 }

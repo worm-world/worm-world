@@ -16,11 +16,21 @@ export class Location {
   getRange = (): [Number, Number] => [this.start, Number(this.end)];
   getLoc = (): Number => this.start;
 }
-export default interface Gene {
+
+export interface Gene {
   name: String;
-  chromosome: String;
+  chromosome?: String;
   /** Physical location of the gene on a chromosome */
   physLoc: Location;
   /** Gene's genetic distance from the middle of a chromosome */
   geneticLoc: Location;
+}
+
+export interface VariationInfo {
+  name: String;
+  chromosome?: String;
+  /** Physical location of the gene on a chromosome */
+  physLoc?: Location;
+  /** Gene's genetic distance from the middle of a chromosome */
+  geneticLoc?: Location;
 }
