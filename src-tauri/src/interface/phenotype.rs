@@ -1,7 +1,5 @@
-use crate::models::{
-    phenotype::{Phenotype, PhenotypeDb},
-};
-use super::{InnerDbState, DbError};
+use super::{DbError, InnerDbState};
+use crate::models::phenotype::{Phenotype, PhenotypeDb};
 use anyhow::Result;
 
 impl InnerDbState {
@@ -9,15 +7,27 @@ impl InnerDbState {
         match sqlx::query_as!(
             PhenotypeDb,
             "
-            SELECT name, wild, short_name, description, male_mating, lethal, female_sterile, arrested, maturation_days FROM phenotypes ORDER BY name, wild
+            SELECT
+                name, 
+                wild,
+                short_name,
+                description, 
+                male_mating,
+                lethal,
+                female_sterile,
+                arrested,
+                maturation_days
+            FROM phenotypes
+            ORDER BY name, wild
             "
         )
         .fetch_all(&self.conn_pool)
         .await
         {
-            Ok(db_phens) => {
-                Ok(db_phens.into_iter().map(|dp| dp.into()).collect::<Vec<Phenotype>>())
-            },
+            Ok(db_phens) => Ok(db_phens
+                .into_iter()
+                .map(|dp| dp.into())
+                .collect::<Vec<Phenotype>>()),
             Err(e) => {
                 eprint!("Get genes error: {e}");
                 Err(DbError::SqlQueryError(e.to_string()))
@@ -57,12 +67,12 @@ mod test {
     use crate::models::phenotype::Phenotype;
     use crate::InnerDbState;
     use anyhow::Result;
+    use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
-    use pretty_assertions::{assert_eq};
 
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_phenotypes(pool: Pool<Sqlite>) -> Result<()> {
-        let state = InnerDbState{conn_pool: pool};
+        let state = InnerDbState { conn_pool: pool };
         let phens = state.get_phenotypes().await?;
 
         let expected_phens = testdata::get_phenotypes();
@@ -72,7 +82,7 @@ mod test {
 
     #[sqlx::test]
     async fn test_insert_phenotype(pool: Pool<Sqlite>) -> Result<()> {
-        let state = InnerDbState{conn_pool: pool};
+        let state = InnerDbState { conn_pool: pool };
         let phens = state.get_phenotypes().await?;
         assert_eq!(phens.len(), 0);
 

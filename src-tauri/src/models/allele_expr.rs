@@ -13,7 +13,7 @@ pub struct AlleleExpression {
 
 impl From<AlleleExpressionDb> for AlleleExpression {
     fn from(item: AlleleExpressionDb) -> AlleleExpression {
-        AlleleExpression{
+        AlleleExpression {
             allele_name: item.allele_name,
             expressing_phenotype_name: item.expressing_phenotype_name,
             expressing_phenotype_wild: item.expressing_phenotype_wild == 1,

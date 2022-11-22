@@ -24,7 +24,7 @@ pub struct ExpressionRelation {
 
 impl From<ExpressionRelationDb> for ExpressionRelation {
     fn from(item: ExpressionRelationDb) -> ExpressionRelation {
-        ExpressionRelation{
+        ExpressionRelation {
             allele_name: item.allele_name,
             expressing_phenotype_name: item.expressing_phenotype_name,
             expressing_phenotype_wild: item.expressing_phenotype_wild == 1,

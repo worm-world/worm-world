@@ -1,7 +1,5 @@
-use crate::models::{
-    gene::Gene,
-};
-use super::{InnerDbState, DbError};
+use super::{DbError, InnerDbState};
+use crate::models::gene::Gene;
 use anyhow::Result;
 
 impl InnerDbState {
@@ -50,8 +48,8 @@ mod test {
     use crate::models::gene::Gene;
     use crate::InnerDbState;
     use anyhow::Result;
+    use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
-    use pretty_assertions::{assert_eq};
 
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_genes(pool: Pool<Sqlite>) -> Result<()> {

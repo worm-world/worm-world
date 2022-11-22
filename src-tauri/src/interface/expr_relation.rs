@@ -176,7 +176,8 @@ mod test {
                 phys_loc: None,
                 gen_loc: None,
             })
-            .await.unwrap();
+            .await
+            .unwrap();
         // oxIs644 Allele
         state
             .insert_allele(&Allele {
@@ -185,7 +186,8 @@ mod test {
                 gene_name: None,
                 variation_name: Some("oxIs644".to_string()),
             })
-            .await.unwrap();
+            .await
+            .unwrap();
 
         // YFP(pharynx) not wild - Phenotype
         state
@@ -200,7 +202,8 @@ mod test {
                 arrested: Some(false),
                 maturation_days: Some(3.0),
             })
-            .await.unwrap();
+            .await
+            .unwrap();
         // Flp wild - Phenotype
         state
             .insert_phenotype(&Phenotype {
@@ -214,7 +217,8 @@ mod test {
                 arrested: Some(false),
                 maturation_days: Some(3.0),
             })
-            .await.unwrap();
+            .await
+            .unwrap();
 
         // oxIs644 -> YFP(pharynx) expr - MISSING
 

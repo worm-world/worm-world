@@ -7,15 +7,25 @@ impl InnerDbState {
         match sqlx::query_as!(
             ConditionDb,
             "
-            SELECT name, description, male_mating, lethal, female_sterile, arrested, maturation_days FROM conditions ORDER BY name
+            SELECT
+                name,
+                description,
+                male_mating,
+                lethal,
+                female_sterile,
+                arrested,
+                maturation_days
+            FROM conditions
+            ORDER BY name
             "
         )
         .fetch_all(&self.conn_pool)
         .await
         {
-            Ok(db_conds) => {
-                Ok(db_conds.into_iter().map(|dp| dp.into()).collect::<Vec<Condition>>())
-            },
+            Ok(db_conds) => Ok(db_conds
+                .into_iter()
+                .map(|dp| dp.into())
+                .collect::<Vec<Condition>>()),
             Err(e) => {
                 eprint!("Get genes error: {e}");
                 Err(DbError::SqlQueryError(e.to_string()))

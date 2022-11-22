@@ -9,6 +9,7 @@ pub struct Phenotype {
     #[serde(rename = "maleMating")]
     pub male_mating: Option<i64>,
     pub lethal: Option<bool>,
+    #[serde(rename = "femaleSterile")]
     pub female_sterile: Option<bool>,
     pub arrested: Option<bool>,
     #[serde(rename = "maturationDays")]
@@ -20,16 +21,16 @@ pub struct Phenotype {
 
 impl From<PhenotypeDb> for Phenotype {
     fn from(item: PhenotypeDb) -> Self {
-        Phenotype { 
-            name: item.name, 
-            wild: item.wild == 1, 
-            short_name: item.short_name, 
-            description: item.description, 
+        Phenotype {
+            name: item.name,
+            wild: item.wild == 1,
+            short_name: item.short_name,
+            description: item.description,
             male_mating: item.male_mating,
             lethal: item.lethal.map(|v| v == 1),
             female_sterile: item.female_sterile.map(|v| v == 1),
             arrested: item.arrested.map(|v| v == 1),
-            maturation_days: item.maturation_days 
+            maturation_days: item.maturation_days,
         }
     }
 }
