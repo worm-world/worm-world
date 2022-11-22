@@ -1,6 +1,42 @@
 {
   "db": "SQLite",
-  "d3472407aeb8ed7e2e578f30bec37bf5e09e851458d739f8611f1648c85b4364": {
+  "1e43e35e4596f73bd110f32ebf1a137d9cad18c4b4a38de3d082506c0fd76076": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "contents",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "gene_name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "variation_name",
+          "ordinal": 3,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT name, contents, gene_name, variation_name FROM alleles ORDER BY name\n            "
+  },
+  "3f53dce438539c25d4d836dafa8412210283576694fd3697c914775aeb3ac60b": {
     "describe": {
       "columns": [],
       "nullable": [],
@@ -8,9 +44,19 @@
         "Right": 4
       }
     },
-    "query": "INSERT INTO genes (name, chromosome, phys_loc, gen_loc)\n            VALUES($1, $2, $3, $4)\n            "
+    "query": "INSERT INTO alleles (name, contents, gene_name, variation_name)\n            VALUES($1, $2, $3, $4)\n            "
   },
-  "d9718d2b454af7cdeb3698eaa61f650c302a1760da84d1e4ea17c99b3cb7adb1": {
+  "5b3c81eb5ee6e7836b6f13fea56dd1433c61e200f487569aa201e26a8c7d3546": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 9
+      }
+    },
+    "query": "INSERT INTO phenotypes (name, wild, short_name, description, male_mating, lethal, female_sterile, arrested, maturation_days)\n            VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)\n            "
+  },
+  "5cee96c1676b87174a71a7af8bf1b8b39ba0aa411bf2b7568da6766c8a7323b1": {
     "describe": {
       "columns": [
         {
@@ -44,6 +90,302 @@
         "Right": 0
       }
     },
-    "query": "\n            select name, chromosome, phys_loc, gen_loc from genes order by name\n            "
+    "query": "\n            SELECT name, chromosome, phys_loc, gen_loc FROM genes ORDER BY name\n            "
+  },
+  "65a6d003c5f250bd50b739608ad3c960464da0bfe9893640254a4789fd68d64a": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 4
+      }
+    },
+    "query": "INSERT INTO variation_info (allele_name, chromosome, phys_loc, gen_loc)\n            VALUES($1, $2, $3, $4)\n            "
+  },
+  "6baa7d74cc45dcd766d9fd616976257368c915b1a4d75172453e31f77de4e73f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "wild",
+          "ordinal": 1,
+          "type_info": "Int64"
+        },
+        {
+          "name": "short_name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "male_mating",
+          "ordinal": 4,
+          "type_info": "Int64"
+        },
+        {
+          "name": "lethal",
+          "ordinal": 5,
+          "type_info": "Int64"
+        },
+        {
+          "name": "female_sterile",
+          "ordinal": 6,
+          "type_info": "Int64"
+        },
+        {
+          "name": "arrested",
+          "ordinal": 7,
+          "type_info": "Int64"
+        },
+        {
+          "name": "maturation_days",
+          "ordinal": 8,
+          "type_info": "Float"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT\n                name, \n                wild,\n                short_name,\n                description, \n                male_mating,\n                lethal,\n                female_sterile,\n                arrested,\n                maturation_days\n            FROM phenotypes\n            ORDER BY name, wild\n            "
+  },
+  "8441cefea899ffb8ae7a1e5cc3c5bd5d059248886ab8af8aa1b2a0da34266b30": {
+    "describe": {
+      "columns": [
+        {
+          "name": "allele_name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "expressing_phenotype_name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "expressing_phenotype_wild",
+          "ordinal": 2,
+          "type_info": "Int64"
+        },
+        {
+          "name": "dominance",
+          "ordinal": 3,
+          "type_info": "Int64"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance \n            FROM allele_exprs \n            ORDER BY allele_name, expressing_phenotype_name, expressing_phenotype_wild\n            "
+  },
+  "89de9146eafad7c2cb5ac9b10041fdd9cf961f8106daf09691e5136b8d92d94a": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "male_mating",
+          "ordinal": 2,
+          "type_info": "Int64"
+        },
+        {
+          "name": "lethal",
+          "ordinal": 3,
+          "type_info": "Int64"
+        },
+        {
+          "name": "female_sterile",
+          "ordinal": 4,
+          "type_info": "Int64"
+        },
+        {
+          "name": "arrested",
+          "ordinal": 5,
+          "type_info": "Int64"
+        },
+        {
+          "name": "maturation_days",
+          "ordinal": 6,
+          "type_info": "Float"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT\n                name,\n                description,\n                male_mating,\n                lethal,\n                female_sterile,\n                arrested,\n                maturation_days\n            FROM conditions\n            ORDER BY name\n            "
+  },
+  "8c0f50f6404d3a0f97b5169f0ad6dfced62cba44bb0b2247ff3924f2376d80b3": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 7
+      }
+    },
+    "query": "INSERT INTO conditions (name, description, male_mating, lethal, female_sterile, arrested, maturation_days)\n            VALUES($1, $2, $3, $4, $5, $6, $7)\n            "
+  },
+  "a6c49d7f3f31457a779095b9edf4120f8de6091fc93eeb457cd65935db423f26": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 4
+      }
+    },
+    "query": "INSERT INTO allele_exprs (allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance)\n            VALUES($1, $2, $3, $4)\n            "
+  },
+  "ace6be8389aab589f538f5afe72b4fa7c59fb368c818b4f24890aa60f50ada93": {
+    "describe": {
+      "columns": [
+        {
+          "name": "allele_name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "chromosome",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "phys_loc",
+          "ordinal": 2,
+          "type_info": "Int64"
+        },
+        {
+          "name": "gen_loc",
+          "ordinal": 3,
+          "type_info": "Float"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT allele_name, chromosome, phys_loc, gen_loc FROM variation_info ORDER BY allele_name\n            "
+  },
+  "c1e43fa299477f63abcf76b9c75bf94de3c769eaaa917790ffbe3829a282c32f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "allele_name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "expressing_phenotype_name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "expressing_phenotype_wild",
+          "ordinal": 2,
+          "type_info": "Int64"
+        },
+        {
+          "name": "altering_phenotype_name",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "altering_phenotype_wild",
+          "ordinal": 4,
+          "type_info": "Int64"
+        },
+        {
+          "name": "altering_condition",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "is_suppressing",
+          "ordinal": 6,
+          "type_info": "Int64"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT\n                allele_name,\n                expressing_phenotype_name,\n                expressing_phenotype_wild,\n                altering_phenotype_name,\n                altering_phenotype_wild,\n                altering_condition,\n                is_suppressing\n            FROM\n                expr_relations\n            ORDER BY\n                allele_name,\n                expressing_phenotype_name,\n                expressing_phenotype_wild,\n                altering_phenotype_name,\n                altering_phenotype_wild,\n                altering_condition\n            "
+  },
+  "d3472407aeb8ed7e2e578f30bec37bf5e09e851458d739f8611f1648c85b4364": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 4
+      }
+    },
+    "query": "INSERT INTO genes (name, chromosome, phys_loc, gen_loc)\n            VALUES($1, $2, $3, $4)\n            "
+  },
+  "f13067dabb927b051246a195865a73d848e506d71ce434dee87f9c4e33216197": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 7
+      }
+    },
+    "query": "INSERT INTO expr_relations (\n                allele_name,\n                expressing_phenotype_name,\n                expressing_phenotype_wild,\n                altering_phenotype_name,\n                altering_phenotype_wild,\n                altering_condition,\n                is_suppressing\n            )\n            VALUES($1, $2, $3, $4, $5, $6, $7)\n            "
   }
 }

@@ -1,25 +1,13 @@
+use super::{DbError, InnerDbState};
 use crate::models::gene::Gene;
 use anyhow::Result;
-use serde::{Deserialize, Serialize};
-use sqlx::{Pool, Sqlite};
-use thiserror::Error;
-
-#[derive(Error, Debug, Serialize, Deserialize)]
-pub enum SqlQueryError {
-    #[error("Failed to execute query: {0}")]
-    SqlQueryError(String),
-}
-
-pub struct InnerDbState {
-    pub conn_pool: Pool<Sqlite>,
-}
 
 impl InnerDbState {
-    pub async fn get_genes(&self) -> Result<Vec<Gene>, SqlQueryError> {
+    pub async fn get_genes(&self) -> Result<Vec<Gene>, DbError> {
         match sqlx::query_as!(
             Gene,
             "
-            select name, chromosome, phys_loc, gen_loc from genes order by name
+            SELECT name, chromosome, phys_loc, gen_loc FROM genes ORDER BY name
             "
         )
         .fetch_all(&self.conn_pool)
@@ -28,11 +16,11 @@ impl InnerDbState {
             Ok(genes) => Ok(genes),
             Err(e) => {
                 eprint!("Get genes error: {e}");
-                Err(SqlQueryError::SqlQueryError(e.to_string()))
+                Err(DbError::SqlQueryError(e.to_string()))
             }
         }
     }
-    pub async fn insert_gene(&self, gene: Gene) -> Result<(), SqlQueryError> {
+    pub async fn insert_gene(&self, gene: &Gene) -> Result<(), DbError> {
         match sqlx::query!(
             "INSERT INTO genes (name, chromosome, phys_loc, gen_loc)
             VALUES($1, $2, $3, $4)
@@ -48,7 +36,7 @@ impl InnerDbState {
             Ok(_) => Ok(()),
             Err(e) => {
                 eprint!("Insert Gene error: {e}");
-                Err(SqlQueryError::SqlQueryError(e.to_string()))
+                Err(DbError::SqlInsertError(e.to_string()))
             }
         }
     }
@@ -60,6 +48,7 @@ mod test {
     use crate::models::gene::Gene;
     use crate::InnerDbState;
     use anyhow::Result;
+    use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
 
     #[sqlx::test(fixtures("dummy"))]
@@ -70,6 +59,26 @@ mod test {
         genes.sort_by(|a, b| (a.name.cmp(&b.name)));
 
         assert_eq!(genes, testdata::get_genes());
+        Ok(())
+    }
+    #[sqlx::test]
+    async fn test_insert_gene(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let genes: Vec<Gene> = state.get_genes().await?;
+        assert_eq!(genes.len(), 0);
+
+        let expected = Gene {
+            name: "unc-119".to_string(),
+            chromosome: Some("III".to_string()),
+            phys_loc: Some(10902641),
+            gen_loc: Some(5.59),
+        };
+
+        state.insert_gene(&expected).await?;
+        let genes: Vec<Gene> = state.get_genes().await?;
+
+        assert_eq!(vec![expected], genes);
         Ok(())
     }
 }

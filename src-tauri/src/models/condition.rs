@@ -1,10 +1,7 @@
 use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub struct Phenotype {
+pub struct Condition {
     pub name: String,
-    pub wild: bool,
-    #[serde(rename = "shortName")]
-    pub short_name: String,
     pub description: Option<String>,
     #[serde(rename = "maleMating")]
     pub male_mating: Option<i64>,
@@ -19,12 +16,10 @@ pub struct Phenotype {
 // This whole section is necessary since SQLite has no boolean type.
 // Like C, it's just integers with values 0 and 1. We want to cast all of those to booleans.
 
-impl From<PhenotypeDb> for Phenotype {
-    fn from(item: PhenotypeDb) -> Self {
-        Phenotype {
+impl From<ConditionDb> for Condition {
+    fn from(item: ConditionDb) -> Self {
+        Condition {
             name: item.name,
-            wild: item.wild == 1,
-            short_name: item.short_name,
             description: item.description,
             male_mating: item.male_mating,
             lethal: item.lethal.map(|v| v == 1),
@@ -36,11 +31,8 @@ impl From<PhenotypeDb> for Phenotype {
 }
 
 #[derive(Serialize, Deserialize, Debug, sqlx::FromRow)]
-pub struct PhenotypeDb {
+pub struct ConditionDb {
     pub name: String,
-    // bool
-    pub wild: i64,
-    pub short_name: String,
     pub description: Option<String>,
     pub male_mating: Option<i64>,
     // bool
