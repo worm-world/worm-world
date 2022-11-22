@@ -2,7 +2,7 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 echo "Running lint"
-npx eslint 'src/**/*.{js,jsx,ts,tsx}'
+npx eslint "src/**/*.{js,jsx,ts,tsx}"
 cd src-tauri && cargo clippy
 
 echo "Testing backend"
