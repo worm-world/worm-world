@@ -13,7 +13,7 @@
     "test-all": "vitest run && cd src-tauri && cargo test",
     "tauri": "tauri",
     "prepare": "husky install",
-    "lint": "npx eslint 'src/**/*.{js,jsx,ts,tsx}' --fix && cd src-tauri && cargo clippy --fix --allow-dirty --allow-staged",
+    "lint": "npx eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix && cd src-tauri && cargo clippy --fix --allow-dirty --allow-staged",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
