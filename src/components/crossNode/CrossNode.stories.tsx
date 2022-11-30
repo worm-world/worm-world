@@ -26,4 +26,3 @@ Secondary.args = testData.crossNode1;
 
 export const Tertiary = Template.bind({});
 Tertiary.args = testData.crossNode2;
-console.log(Tertiary.args)

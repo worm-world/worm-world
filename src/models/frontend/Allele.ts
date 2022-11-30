@@ -101,7 +101,7 @@ export class Allele {
     return {
       name: this.name,
       geneName: this.gene?.name ?? null,
-      variationName: this.variationInfo?.alleleName ?? null,
+      variationName: this.variationInfo?.name ?? null,
       contents: this.contents ?? null,
     };
   };
