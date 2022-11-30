@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+use ts_rs::TS;
+#[derive(Serialize, Deserialize, Debug, PartialEq, TS)]
+#[ts(export, export_to = "../src/models/db/db_Condition.ts")]
 pub struct Condition {
     pub name: String,
     pub description: Option<String>,

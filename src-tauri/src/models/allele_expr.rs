@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
-#[derive(Serialize, Deserialize, Debug, sqlx::FromRow, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, sqlx::FromRow, PartialEq, Eq, TS)]
+#[ts(export, export_to = "../src/models/db/db_AlleleExpression.ts")]
 pub struct AlleleExpression {
     #[serde(rename = "alleleName")]
     pub allele_name: String,
