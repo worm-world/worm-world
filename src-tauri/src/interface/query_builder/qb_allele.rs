@@ -1,18 +1,21 @@
-use crate::models::filter_info::{get_col_name, FilterInfo, RangeType};
+use crate::models::{
+    allele::get_col_name,
+    filters::{allele_filter::AlleleFilter, filter_range::RangeType},
+};
 
-pub fn get_where_clause(filter_info: &FilterInfo) -> String {
-    if filter_info.col_filters.is_empty() && filter_info.col_ranges.is_empty() {
+pub fn get_where_clause(filter: &AlleleFilter) -> String {
+    if filter.col_filters.is_empty() && filter.col_ranges.is_empty() {
         return String::new(); //early exit
     }
 
     let mut statements: Vec<String> = Vec::new();
 
-    for (field_name, values) in &filter_info.col_filters {
+    for (field_name, values) in &filter.col_filters {
         let in_clause = get_col_name(field_name) + " IN ( '" + &values.join("', ") + "' )";
         statements.push(in_clause);
     }
 
-    for (field_name, ranges) in &filter_info.col_ranges {
+    for (field_name, ranges) in &filter.col_ranges {
         for range in ranges {
             if range.range_type == RangeType::GreaterThan {
                 let range_clause = get_col_name(field_name) + " > " + &range.col_value;
@@ -27,7 +30,7 @@ pub fn get_where_clause(filter_info: &FilterInfo) -> String {
     " WHERE ".to_owned() + &statements.join(" AND ")
 }
 
-pub fn get_order_by_clause(filter: &FilterInfo) -> String {
+pub fn get_order_by_clause(filter: &AlleleFilter) -> String {
     if filter.order_by.is_empty() {
         return String::new();
     }

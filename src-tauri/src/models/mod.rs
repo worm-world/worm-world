@@ -3,7 +3,7 @@ pub mod allele_expr;
 pub mod condition;
 pub mod cross;
 pub mod expr_relation;
-pub mod filter_info;
+pub mod filters;
 pub mod gene;
 pub mod phenotype;
 pub mod schedule_tree;

@@ -11,3 +11,21 @@ pub struct Gene {
     #[serde(rename = "geneticLoc")]
     pub gen_loc: Option<f64>,
 }
+
+#[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, TS)]
+#[ts(export, export_to = "../src/models/db/filter/db_GeneFieldName.ts")]
+pub enum GeneFieldName {
+    Name,
+    Chromosome,
+    PhysLoc,
+    GeneticLoc,
+}
+
+pub fn get_col_name(name: &GeneFieldName) -> String {
+    match name {
+        GeneFieldName::Name => "name".to_owned(),
+        GeneFieldName::Chromosome => "chromosome".to_owned(),
+        GeneFieldName::PhysLoc => "phys_loc".to_owned(),
+        GeneFieldName::GeneticLoc => "gen_loc".to_owned(),
+    }
+}

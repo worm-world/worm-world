@@ -34,3 +34,26 @@ pub struct AlleleExpressionDb {
     pub expressing_phenotype_wild: i64,
     pub dominance: Option<i64>,
 }
+
+#[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, TS)]
+#[ts(
+    export,
+    export_to = "../src/models/db/filter/db_AlleleExpressionFieldName.ts"
+)]
+pub enum AlleleExpressionFieldName {
+    AlleleName,
+    ExpressingPhenotypeName,
+    ExpressingPhenotypeWild,
+    Dominance,
+}
+
+pub fn get_col_name(name: &AlleleExpressionFieldName) -> String {
+    match name {
+        AlleleExpressionFieldName::AlleleName => "allele_name".to_owned(),
+        AlleleExpressionFieldName::ExpressingPhenotypeName => {
+            "expressing_phenotype_name".to_owned()
+        }
+        AlleleExpressionFieldName::ExpressingPhenotypeWild => "expressingPhenotypeWild".to_owned(),
+        AlleleExpressionFieldName::Dominance => "dominance".to_owned(),
+    }
+}

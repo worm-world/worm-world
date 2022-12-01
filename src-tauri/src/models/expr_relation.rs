@@ -55,3 +55,34 @@ pub struct ExpressionRelationDb {
 
     pub is_suppressing: i64,
 }
+
+#[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, TS)]
+#[ts(
+    export,
+    export_to = "../src/models/db/filter/db_ExpressionRelationFieldName.ts"
+)]
+pub enum ExpressionRelationFieldName {
+    AlleleName,
+    ExpressingPhenotypeName,
+    ExpressingPhenotypeWild,
+    AlteringPhenotypeName,
+    AlteringPhenotypeWild,
+    AlteringCondition,
+    IsSuppressing,
+}
+
+pub fn get_col_name(name: &ExpressionRelationFieldName) -> String {
+    match name {
+        ExpressionRelationFieldName::AlleleName => "allele_name".to_owned(),
+        ExpressionRelationFieldName::ExpressingPhenotypeName => {
+            "expressing_phenotype_name".to_owned()
+        }
+        ExpressionRelationFieldName::ExpressingPhenotypeWild => {
+            "expressing_phenotype_wild".to_owned()
+        }
+        ExpressionRelationFieldName::AlteringPhenotypeName => "altering_phenotype_name".to_owned(),
+        ExpressionRelationFieldName::AlteringPhenotypeWild => "altering_phenotype_wild".to_owned(),
+        ExpressionRelationFieldName::AlteringCondition => "altering_condition".to_owned(),
+        ExpressionRelationFieldName::IsSuppressing => "is_suppressing".to_owned(),
+    }
+}

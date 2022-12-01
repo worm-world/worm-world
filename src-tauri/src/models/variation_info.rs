@@ -12,3 +12,21 @@ pub struct VariationInfo {
     #[serde(rename = "geneticLoc")]
     pub gen_loc: Option<f64>,
 }
+
+#[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, TS)]
+#[ts(export, export_to = "../src/models/db/filter/db_VariationFieldName.ts")]
+pub enum VariationFieldName {
+    AlleleName,
+    Chromosome,
+    PhysLoc,
+    GenLoc,
+}
+
+pub fn get_col_name(name: &VariationFieldName) -> String {
+    match name {
+        VariationFieldName::AlleleName => "allele_name".to_owned(),
+        VariationFieldName::Chromosome => "chromosome".to_owned(),
+        VariationFieldName::PhysLoc => "phys_loc".to_owned(),
+        VariationFieldName::GenLoc => "gen_loc".to_owned(),
+    }
+}

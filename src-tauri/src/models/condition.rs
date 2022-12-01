@@ -45,3 +45,27 @@ pub struct ConditionDb {
     pub arrested: Option<i64>,
     pub maturation_days: Option<f64>,
 }
+
+#[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, TS)]
+#[ts(export, export_to = "../src/models/db/filter/db_ConditionFieldName.ts")]
+pub enum ConditionFieldName {
+    Name,
+    Description,
+    MaleMating,
+    Lethal,
+    FemaleSterile,
+    Arrested,
+    MaturationDays,
+}
+
+pub fn get_col_name(name: &ConditionFieldName) -> String {
+    match name {
+        ConditionFieldName::Name => "name".to_owned(),
+        ConditionFieldName::Description => "description".to_owned(),
+        ConditionFieldName::MaleMating => "male_mating".to_owned(),
+        ConditionFieldName::Lethal => "lethal".to_owned(),
+        ConditionFieldName::FemaleSterile => "female_sterile".to_owned(),
+        ConditionFieldName::Arrested => "arrested".to_owned(),
+        ConditionFieldName::MaturationDays => "maturation_days".to_owned(),
+    }
+}
