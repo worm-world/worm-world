@@ -273,7 +273,22 @@ pub mod testdata {
             },
         ]
     }
-
+    pub fn get_filtered_allele_exprs() -> Vec<AlleleExpression> {
+        vec![
+            AlleleExpression {
+                allele_name: "cn64".to_string(),
+                expressing_phenotype_name: "dpy-10".to_string(),
+                expressing_phenotype_wild: false,
+                dominance: Some(0),
+            },
+            AlleleExpression {
+                allele_name: "cn64".to_string(),
+                expressing_phenotype_name: "rol".to_string(),
+                expressing_phenotype_wild: false,
+                dominance: Some(1),
+            },
+        ]
+    }
     pub fn get_variation_info() -> Vec<VariationInfo> {
         vec![
             VariationInfo {
