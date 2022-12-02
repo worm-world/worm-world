@@ -4,6 +4,6 @@ import type { SpecialFilter } from './db_SpecialFilter';
 
 export interface ExpressionRelationFilter {
   fieldFilters: Record<ExpressionRelationFieldName, string[]>;
-  fieldRanges: Record<ExpressionRelationFieldName, SpecialFilter[]>;
+  fieldSpecialFilters: Record<ExpressionRelationFieldName, SpecialFilter[]>;
   orderBy: ExpressionRelationFieldName[];
 }

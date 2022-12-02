@@ -4,6 +4,6 @@ import type { SpecialFilter } from './db_SpecialFilter';
 
 export interface GeneFilter {
   fieldFilters: Record<GeneFieldName, string[]>;
-  fieldRanges: Record<GeneFieldName, SpecialFilter[]>;
+  fieldSpecialFilters: Record<GeneFieldName, SpecialFilter[]>;
   orderBy: GeneFieldName[];
 }

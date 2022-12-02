@@ -4,6 +4,6 @@ import type { SpecialFilter } from './db_SpecialFilter';
 
 export interface AlleleFilter {
   fieldFilters: Record<AlleleFieldName, string[]>;
-  fieldRanges: Record<AlleleFieldName, SpecialFilter[]>;
+  fieldSpecialFilters: Record<AlleleFieldName, SpecialFilter[]>;
   orderBy: AlleleFieldName[];
 }

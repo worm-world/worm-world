@@ -13,7 +13,7 @@ pub struct ExpressionRelationFilter {
     // map key is the fieldName, value is the list of filters for that col
     #[serde(rename = "fieldFilters")]
     pub col_filters: HashMap<ExpressionRelationFieldName, Vec<String>>,
-    #[serde(rename = "fieldRanges")]
+    #[serde(rename = "fieldSpecialFilters")]
     pub col_special_filters: HashMap<ExpressionRelationFieldName, Vec<SpecialFilter>>,
     #[serde(rename = "orderBy")]
     pub order_by: Vec<ExpressionRelationFieldName>,

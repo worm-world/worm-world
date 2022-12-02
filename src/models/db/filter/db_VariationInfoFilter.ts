@@ -4,6 +4,6 @@ import type { VariationFieldName } from './db_VariationFieldName';
 
 export interface VariationInfoFilter {
   fieldFilters: Record<VariationFieldName, string[]>;
-  fieldRanges: Record<VariationFieldName, SpecialFilter[]>;
+  fieldSpecialFilters: Record<VariationFieldName, SpecialFilter[]>;
   orderBy: VariationFieldName[];
 }

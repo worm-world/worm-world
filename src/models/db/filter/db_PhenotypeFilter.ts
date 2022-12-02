@@ -4,6 +4,6 @@ import type { SpecialFilter } from './db_SpecialFilter';
 
 export interface PhenotypeFilter {
   fieldFilters: Record<PhenotypeFieldName, string[]>;
-  fieldRanges: Record<PhenotypeFieldName, SpecialFilter[]>;
+  fieldSpecialFilters: Record<PhenotypeFieldName, SpecialFilter[]>;
   orderBy: PhenotypeFieldName[];
 }

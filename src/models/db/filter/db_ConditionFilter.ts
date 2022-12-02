@@ -4,6 +4,6 @@ import type { SpecialFilter } from './db_SpecialFilter';
 
 export interface ConditionFilter {
   fieldFilters: Record<ConditionFieldName, string[]>;
-  fieldRanges: Record<ConditionFieldName, SpecialFilter[]>;
+  fieldSpecialFilters: Record<ConditionFieldName, SpecialFilter[]>;
   orderBy: ConditionFieldName[];
 }
