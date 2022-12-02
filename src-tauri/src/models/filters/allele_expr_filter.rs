@@ -12,8 +12,10 @@ use ts_rs::TS;
 pub struct AlleleExpressionFilter {
     // map key is the fieldName, value is the list of filters for that col
     #[serde(rename = "fieldFilters")]
+    #[ts(type = "Map<AlleleExpressionFieldName, string[]>")]
     pub col_filters: HashMap<AlleleExpressionFieldName, Vec<String>>,
     #[serde(rename = "fieldSpecialFilters")]
+    #[ts(type = "Map<AlleleExpressionFieldName, SpecialFilter[]>")]
     pub col_special_filters: HashMap<AlleleExpressionFieldName, Vec<SpecialFilter>>,
     #[serde(rename = "orderBy")]
     pub order_by: Vec<AlleleExpressionFieldName>,
