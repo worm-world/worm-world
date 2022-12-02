@@ -3,6 +3,7 @@ use ts_rs::TS;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, TS)]
 #[ts(export, export_to = "../src/models/db/db_Phenotype.ts")]
+#[serde(rename = "db_Phenotype")]
 pub struct Phenotype {
     pub name: String,
     pub wild: bool,

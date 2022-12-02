@@ -3,6 +3,7 @@ use ts_rs::TS;
 
 #[derive(Serialize, Deserialize, Debug, sqlx::FromRow, PartialEq, Eq, TS)]
 #[ts(export, export_to = "../src/models/db/db_Allele.ts")]
+#[serde(rename = "db_Allele")]
 pub struct Allele {
     pub name: String,
     pub contents: Option<String>,

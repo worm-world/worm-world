@@ -3,6 +3,7 @@ use ts_rs::TS;
 
 #[derive(Serialize, Deserialize, Debug, sqlx::FromRow, PartialEq, TS)]
 #[ts(export, export_to = "../src/models/db/db_Gene.ts")]
+#[serde(rename = "db_Gene")]
 pub struct Gene {
     pub name: String,
     pub chromosome: Option<String>,

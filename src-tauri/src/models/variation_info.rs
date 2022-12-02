@@ -3,6 +3,7 @@ use ts_rs::TS;
 
 #[derive(Serialize, Deserialize, Debug, sqlx::FromRow, PartialEq, TS)]
 #[ts(export, export_to = "../src/models/db/db_VariationInfo.ts")]
+#[serde(rename = "db_VariationInfo")]
 pub struct VariationInfo {
     #[serde(rename = "alleleName")]
     pub allele_name: String,

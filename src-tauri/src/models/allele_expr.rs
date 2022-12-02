@@ -3,6 +3,7 @@ use ts_rs::TS;
 
 #[derive(Serialize, Deserialize, Debug, sqlx::FromRow, PartialEq, Eq, TS)]
 #[ts(export, export_to = "../src/models/db/db_AlleleExpression.ts")]
+#[serde(rename = "db_AlleleExpression")]
 pub struct AlleleExpression {
     #[serde(rename = "alleleName")]
     pub allele_name: String,
