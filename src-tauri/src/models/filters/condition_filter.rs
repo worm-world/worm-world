@@ -1,4 +1,4 @@
-use super::filter_range::FilterRange;
+use super::special_filter::SpecialFilter;
 use crate::models::condition::ConditionFieldName;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -11,7 +11,7 @@ pub struct ConditionFilter {
     #[serde(rename = "fieldFilters")]
     pub col_filters: HashMap<ConditionFieldName, Vec<String>>,
     #[serde(rename = "fieldRanges")]
-    pub col_ranges: HashMap<ConditionFieldName, Vec<FilterRange>>,
+    pub col_special_filters: HashMap<ConditionFieldName, Vec<SpecialFilter>>,
     #[serde(rename = "orderBy")]
     pub order_by: Vec<ConditionFieldName>,
 }

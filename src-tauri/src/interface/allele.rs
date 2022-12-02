@@ -1,5 +1,8 @@
-use super::{DbError, InnerDbState};
-use crate::models::allele::Allele;
+use super::{
+    query_builder::qb_allele::{get_order_by_clause, get_where_clause},
+    DbError, InnerDbState,
+};
+use crate::models::{allele::Allele, filters::allele_filter::AlleleFilter};
 use anyhow::Result;
 
 impl InnerDbState {
@@ -20,6 +23,27 @@ impl InnerDbState {
             }
         }
     }
+
+    pub async fn get_filtered_alleles(
+        &self,
+        filter: &AlleleFilter,
+    ) -> Result<Vec<Allele>, DbError> {
+        let query = "SELECT name, contents, gene_name, variation_name FROM alleles".to_owned()
+            + &get_where_clause(filter)
+            + &get_order_by_clause(filter);
+
+        match sqlx::query_as::<_, Allele>(&query)
+            .fetch_all(&self.conn_pool)
+            .await
+        {
+            Ok(exprs) => Ok(exprs.into_iter().collect()),
+            Err(e) => {
+                eprint!("Get Filtered Allele error: {e}");
+                Err(DbError::SqlQueryError(e.to_string()))
+            }
+        }
+    }
+
     pub async fn insert_allele(&self, allele: &Allele) -> Result<(), DbError> {
         match sqlx::query!(
             "INSERT INTO alleles (name, contents, gene_name, variation_name)
@@ -44,7 +68,11 @@ impl InnerDbState {
 
 #[cfg(test)]
 mod test {
+    use std::collections::HashMap;
+
     use crate::dummy::testdata;
+    use crate::models::allele::AlleleFieldName;
+    use crate::models::filters::allele_filter::AlleleFilter;
     use crate::models::{allele::Allele, gene::Gene, variation_info::VariationInfo};
     use crate::InnerDbState;
     use anyhow::Result;
@@ -91,6 +119,25 @@ mod test {
         assert_eq!(vec![expected], alleles);
         Ok(())
     }
+
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_alleles(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_alleles(&AlleleFilter {
+                col_filters: HashMap::from([(
+                    AlleleFieldName::GeneName,
+                    vec!["unc-18".to_owned(), "dpy-10".to_owned()],
+                )]),
+                col_special_filters: HashMap::new(),
+                order_by: vec![AlleleFieldName::Name],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::get_filtered_alleles());
+        Ok(())
+    }
+
     #[sqlx::test]
     async fn test_insert_allele_with_variation(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };

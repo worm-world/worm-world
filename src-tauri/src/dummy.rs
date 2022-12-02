@@ -89,6 +89,22 @@ pub mod testdata {
             },
         ]
     }
+    pub fn get_filtered_alleles() -> Vec<Allele> {
+        vec![
+            Allele {
+                name: "cn64".to_string(),
+                contents: None,
+                gene_name: Some("dpy-10".to_string()),
+                variation_name: None,
+            },
+            Allele {
+                name: "md299".to_string(),
+                contents: None,
+                gene_name: Some("unc-18".to_string()),
+                variation_name: None,
+            },
+        ]
+    }
     pub fn get_allele_exprs() -> Vec<AlleleExpression> {
         vec![
             AlleleExpression {
@@ -341,6 +357,22 @@ pub mod testdata {
             },
         ]
     }
+    pub fn get_filtered_variation_info() -> Vec<VariationInfo> {
+        vec![
+            VariationInfo {
+                allele_name: "oxSi1168".to_string(),
+                chromosome: Some("II".to_string()),
+                phys_loc: Some(8420158),
+                gen_loc: Some(0.77),
+            },
+            VariationInfo {
+                allele_name: "oxTi302".to_string(),
+                chromosome: Some("I".to_string()),
+                phys_loc: Some(10166146),
+                gen_loc: Some(4.72),
+            },
+        ]
+    }
     pub fn get_expr_relations() -> Vec<ExpressionRelation> {
         vec![
             ExpressionRelation {
@@ -368,6 +400,28 @@ pub mod testdata {
                 altering_phenotype_name: Some("Flp".to_string()),
                 altering_phenotype_wild: Some(true),
                 altering_condition: None,
+                is_suppressing: false,
+            },
+            ExpressionRelation {
+                allele_name: "tmC5".to_string(),
+                expressing_phenotype_name: "paralyzed".to_string(),
+                expressing_phenotype_wild: false,
+                altering_phenotype_name: None,
+                altering_phenotype_wild: None,
+                altering_condition: Some("Histamine".to_string()),
+                is_suppressing: false,
+            },
+        ]
+    }
+    pub fn get_filtered_expr_relations() -> Vec<ExpressionRelation> {
+        vec![
+            ExpressionRelation {
+                allele_name: "oxEx219999".to_string(),
+                expressing_phenotype_name: "paralyzed".to_string(),
+                expressing_phenotype_wild: false,
+                altering_phenotype_name: None,
+                altering_phenotype_wild: None,
+                altering_condition: Some("Histamine".to_string()),
                 is_suppressing: false,
             },
             ExpressionRelation {
@@ -415,7 +469,28 @@ pub mod testdata {
             },
         ]
     }
-
+    pub fn get_filtered_genes() -> Vec<Gene> {
+        vec![
+            Gene {
+                name: "lin-15B".to_string(),
+                chromosome: Some("X".to_string()),
+                phys_loc: Some(15726123),
+                gen_loc: Some(22.95),
+            },
+            Gene {
+                name: "ox1059".to_string(),
+                chromosome: Some("IV".to_string()),
+                phys_loc: Some(11425742),
+                gen_loc: Some(4.98),
+            },
+            Gene {
+                name: "unc-18".to_string(),
+                chromosome: Some("X".to_string()),
+                phys_loc: Some(7682896),
+                gen_loc: Some(-1.35),
+            },
+        ]
+    }
     pub fn get_conditions() -> Vec<Condition> {
         vec![
             Condition {
@@ -456,7 +531,37 @@ pub mod testdata {
             },
         ]
     }
-
+    pub fn get_filtered_conditions() -> Vec<Condition> {
+        vec![
+            Condition {
+                name: "25C".to_string(),
+                description: None,
+                male_mating: Some(3),
+                lethal: Some(false),
+                female_sterile: Some(false),
+                arrested: Some(false),
+                maturation_days: Some(3.0),
+            },
+            Condition {
+                name: "Histamine".to_string(),
+                description: None,
+                male_mating: Some(3),
+                lethal: Some(false),
+                female_sterile: Some(false),
+                arrested: Some(false),
+                maturation_days: Some(3.0),
+            },
+            Condition {
+                name: "Tetracycline".to_string(),
+                description: None,
+                male_mating: Some(3),
+                lethal: Some(false),
+                female_sterile: Some(false),
+                arrested: Some(false),
+                maturation_days: Some(3.0),
+            },
+        ]
+    }
     pub fn get_phenotypes() -> Vec<Phenotype> {
         vec![
             Phenotype {
@@ -733,6 +838,32 @@ pub mod testdata {
                 female_sterile: Some(false),
                 arrested: Some(false),
                 maturation_days: Some(4.0),
+            },
+        ]
+    }
+    pub fn get_filtered_phenotypes() -> Vec<Phenotype> {
+        vec![
+            Phenotype {
+                name: "lethal".to_string(),
+                wild: false,
+                short_name: "lethal".to_string(),
+                description: None,
+                male_mating: Some(0),
+                lethal: Some(true),
+                female_sterile: Some(false),
+                arrested: Some(false),
+                maturation_days: None,
+            },
+            Phenotype {
+                name: "paralyzed".to_string(),
+                wild: false,
+                short_name: "paralyzed".to_string(),
+                description: None,
+                male_mating: Some(0),
+                lethal: Some(false),
+                female_sterile: Some(false),
+                arrested: Some(false),
+                maturation_days: None,
             },
         ]
     }

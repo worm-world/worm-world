@@ -1,4 +1,4 @@
-use super::filter_range::FilterRange;
+use super::special_filter::SpecialFilter;
 use crate::models::phenotype::PhenotypeFieldName;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -11,7 +11,7 @@ pub struct PhenotypeFilter {
     #[serde(rename = "fieldFilters")]
     pub col_filters: HashMap<PhenotypeFieldName, Vec<String>>,
     #[serde(rename = "fieldRanges")]
-    pub col_ranges: HashMap<PhenotypeFieldName, Vec<FilterRange>>,
+    pub col_special_filters: HashMap<PhenotypeFieldName, Vec<SpecialFilter>>,
     #[serde(rename = "orderBy")]
     pub order_by: Vec<PhenotypeFieldName>,
 }

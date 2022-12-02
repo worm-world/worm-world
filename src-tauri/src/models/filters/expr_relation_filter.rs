@@ -1,4 +1,4 @@
-use super::filter_range::FilterRange;
+use super::special_filter::SpecialFilter;
 use crate::models::expr_relation::ExpressionRelationFieldName;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -14,7 +14,7 @@ pub struct ExpressionRelationFilter {
     #[serde(rename = "fieldFilters")]
     pub col_filters: HashMap<ExpressionRelationFieldName, Vec<String>>,
     #[serde(rename = "fieldRanges")]
-    pub col_ranges: HashMap<ExpressionRelationFieldName, Vec<FilterRange>>,
+    pub col_special_filters: HashMap<ExpressionRelationFieldName, Vec<SpecialFilter>>,
     #[serde(rename = "orderBy")]
     pub order_by: Vec<ExpressionRelationFieldName>,
 }

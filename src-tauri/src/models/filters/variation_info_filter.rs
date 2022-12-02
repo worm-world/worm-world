@@ -1,6 +1,6 @@
 use crate::models::variation_info::VariationFieldName;
 
-use super::filter_range::FilterRange;
+use super::special_filter::SpecialFilter;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use ts_rs::TS;
@@ -15,7 +15,7 @@ pub struct VariationInfoFilter {
     #[serde(rename = "fieldFilters")]
     pub col_filters: HashMap<VariationFieldName, Vec<String>>,
     #[serde(rename = "fieldRanges")]
-    pub col_ranges: HashMap<VariationFieldName, Vec<FilterRange>>,
+    pub col_special_filters: HashMap<VariationFieldName, Vec<SpecialFilter>>,
     #[serde(rename = "orderBy")]
     pub order_by: Vec<VariationFieldName>,
 }

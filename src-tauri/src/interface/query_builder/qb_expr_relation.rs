@@ -1,45 +1,28 @@
+use std::collections::HashMap;
+
 use crate::models::{
     expr_relation::get_col_name,
-    filters::{expr_relation_filter::ExpressionRelationFilter, filter_range::RangeType},
+    filters::{expr_relation_filter::ExpressionRelationFilter, special_filter::SpecialFilter},
 };
 
+use super::generic_qb::{generic_get_order_by_clause, generic_get_where_clause};
+
 pub fn get_where_clause(filter: &ExpressionRelationFilter) -> String {
-    if filter.col_filters.is_empty() && filter.col_ranges.is_empty() {
-        return String::new(); //early exit
+    let mut generic_filters: HashMap<String, &Vec<String>> = HashMap::new();
+    let mut generic_special_filters: HashMap<String, &Vec<SpecialFilter>> = HashMap::new();
+
+    for (field_name, values) in filter.col_filters.iter() {
+        generic_filters.insert(get_col_name(field_name), values);
     }
 
-    let mut statements: Vec<String> = Vec::new();
-
-    for (field_name, values) in &filter.col_filters {
-        let in_clause = get_col_name(field_name) + " IN ( '" + &values.join("', ") + "' )";
-        statements.push(in_clause);
+    for (field_name, special_filters) in filter.col_special_filters.iter() {
+        generic_special_filters.insert(get_col_name(field_name), special_filters);
     }
 
-    for (field_name, ranges) in &filter.col_ranges {
-        for range in ranges {
-            if range.range_type == RangeType::GreaterThan {
-                let range_clause = get_col_name(field_name) + " > " + &range.col_value;
-                statements.push(range_clause)
-            } else {
-                let range_clause = get_col_name(field_name) + " < " + &range.col_value;
-                statements.push(range_clause)
-            }
-        }
-    }
-
-    " WHERE ".to_owned() + &statements.join(" AND ")
+    generic_get_where_clause(generic_filters, generic_special_filters)
 }
 
 pub fn get_order_by_clause(filter: &ExpressionRelationFilter) -> String {
-    if filter.order_by.is_empty() {
-        return String::new();
-    }
-
-    return " ORDER BY ".to_owned()
-        + &filter
-            .order_by
-            .iter()
-            .map(get_col_name)
-            .collect::<Vec<String>>()
-            .join(", ");
+    let order_by = filter.order_by.iter().map(get_col_name).collect();
+    generic_get_order_by_clause(order_by)
 }

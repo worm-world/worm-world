@@ -1,5 +1,11 @@
-use super::{DbError, InnerDbState};
-use crate::models::allele_expr::{AlleleExpression, AlleleExpressionDb};
+use super::{
+    query_builder::qb_allele_expr::{get_order_by_clause, get_where_clause},
+    DbError, InnerDbState,
+};
+use crate::models::{
+    allele_expr::{AlleleExpression, AlleleExpressionDb},
+    filters::allele_expr_filter::AlleleExpressionFilter,
+};
 use anyhow::Result;
 //select allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance from allele_exprs order by allele_name, expressing_phenotype_name, expressing_phenotype_wild
 impl InnerDbState {
@@ -23,26 +29,26 @@ impl InnerDbState {
         }
     }
 
-    // pub async fn get_filtered_allele_exprs(
-    //     &self,
-    //     filter: &FilterInfo,
-    // ) -> Result<Vec<AlleleExpression>, DbError> {
-    //     let query = "SELECT allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance FROM allele_exprs"
-    //     .to_owned()
-    //         + &get_where_clause(filter)
-    //         + &get_order_by_clause(filter);
+    pub async fn get_filtered_allele_exprs(
+        &self,
+        filter: &AlleleExpressionFilter,
+    ) -> Result<Vec<AlleleExpression>, DbError> {
+        let query = "SELECT allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance FROM allele_exprs"
+        .to_owned()
+            + &get_where_clause(filter)
+            + &get_order_by_clause(filter);
 
-    //     match sqlx::query_as::<_, AlleleExpressionDb>(&query)
-    //         .fetch_all(&self.conn_pool)
-    //         .await
-    //     {
-    //         Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
-    //         Err(e) => {
-    //             eprint!("Get Filtered Allele Exprs error: {e}");
-    //             Err(DbError::SqlQueryError(e.to_string()))
-    //         }
-    //     }
-    // }
+        match sqlx::query_as::<_, AlleleExpressionDb>(&query)
+            .fetch_all(&self.conn_pool)
+            .await
+        {
+            Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
+            Err(e) => {
+                eprint!("Get Filtered Allele Exprs error: {e}");
+                Err(DbError::SqlQueryError(e.to_string()))
+            }
+        }
+    }
 
     pub async fn insert_allele_expr(&self, expr: &AlleleExpression) -> Result<(), DbError> {
         match sqlx::query!(
@@ -68,9 +74,12 @@ impl InnerDbState {
 
 #[cfg(test)]
 mod test {
-    
+
+    use std::collections::HashMap;
 
     use crate::dummy::testdata;
+    use crate::models::allele_expr::AlleleExpressionFieldName;
+    use crate::models::filters::allele_expr_filter::AlleleExpressionFilter;
     use crate::models::{
         allele::Allele, allele_expr::AlleleExpression, gene::Gene, phenotype::Phenotype,
     };
@@ -82,31 +91,28 @@ mod test {
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_allele_expr(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
-        // TODO: implement
         let exprs = state.get_allele_exprs().await?;
         assert_eq!(exprs, testdata::get_allele_exprs());
         Ok(())
     }
 
-    // #[sqlx::test(fixtures("dummy"))]
-    // async fn test_get_filtered_allele_expr(pool: Pool<Sqlite>) -> Result<()> {
-    //     println!("entered");
-    //     let state = InnerDbState { conn_pool: pool };
-    //     // TODO: implement
-    //     let exprs = state
-    //         .get_filtered_allele_exprs(&FilterInfo {
-    //             col_filters: HashMap::from([(
-    //                 FieldName::AlleleName,
-    //                 Vec::from(["cn64".to_owned()]),
-    //             )]),
-    //             col_ranges: HashMap::new(),
-    //             order_by: Vec::new(),
-    //         })
-    //         .await?;
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_allele_expr(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_allele_exprs(&AlleleExpressionFilter {
+                col_filters: HashMap::from([(
+                    AlleleExpressionFieldName::AlleleName,
+                    vec!["cn64".to_owned()],
+                )]),
+                col_special_filters: HashMap::new(),
+                order_by: vec![AlleleExpressionFieldName::AlleleName],
+            })
+            .await?;
 
-    //     assert_eq!(exprs, testdata::get_filtered_allele_exprs());
-    //     Ok(())
-    // }
+        assert_eq!(exprs, testdata::get_filtered_allele_exprs());
+        Ok(())
+    }
 
     #[sqlx::test]
     async fn test_insert_allele_expr(pool: Pool<Sqlite>) -> Result<()> {

@@ -1,3 +1,4 @@
+pub mod generic_qb;
 pub mod qb_allele;
 pub mod qb_allele_expr;
 pub mod qb_condition;

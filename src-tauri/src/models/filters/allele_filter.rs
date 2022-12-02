@@ -1,4 +1,4 @@
-use super::filter_range::FilterRange;
+use super::special_filter::SpecialFilter;
 use crate::models::allele::AlleleFieldName;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -11,7 +11,7 @@ pub struct AlleleFilter {
     #[serde(rename = "fieldFilters")]
     pub col_filters: HashMap<AlleleFieldName, Vec<String>>,
     #[serde(rename = "fieldRanges")]
-    pub col_ranges: HashMap<AlleleFieldName, Vec<FilterRange>>,
+    pub col_special_filters: HashMap<AlleleFieldName, Vec<SpecialFilter>>,
     #[serde(rename = "orderBy")]
     pub order_by: Vec<AlleleFieldName>,
 }

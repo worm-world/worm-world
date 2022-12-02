@@ -1,5 +1,11 @@
-use super::{DbError, InnerDbState};
-use crate::models::expr_relation::{ExpressionRelation, ExpressionRelationDb};
+use super::{
+    query_builder::qb_expr_relation::{get_order_by_clause, get_where_clause},
+    DbError, InnerDbState,
+};
+use crate::models::{
+    expr_relation::{ExpressionRelation, ExpressionRelationDb},
+    filters::expr_relation_filter::ExpressionRelationFilter,
+};
 use anyhow::Result;
 
 impl InnerDbState {
@@ -36,6 +42,39 @@ impl InnerDbState {
             }
         }
     }
+
+    pub async fn get_filtered_expr_relations(
+        &self,
+        filter: &ExpressionRelationFilter,
+    ) -> Result<Vec<ExpressionRelation>, DbError> {
+        let mut query = "
+        SELECT
+            allele_name,
+            expressing_phenotype_name,
+            expressing_phenotype_wild,
+            altering_phenotype_name,
+            altering_phenotype_wild,
+            altering_condition,
+            is_suppressing
+        FROM
+            expr_relations"
+            .to_owned();
+
+        query += &get_where_clause(filter);
+        query += &get_order_by_clause(filter);
+
+        match sqlx::query_as::<_, ExpressionRelationDb>(&query)
+            .fetch_all(&self.conn_pool)
+            .await
+        {
+            Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
+            Err(e) => {
+                eprint!("Get Filtered Exprs Relation error: {e}");
+                Err(DbError::SqlQueryError(e.to_string()))
+            }
+        }
+    }
+
     pub async fn insert_expr_relation(&self, relation: &ExpressionRelation) -> Result<(), DbError> {
         match sqlx::query!(
             "INSERT INTO expr_relations (
@@ -71,7 +110,11 @@ impl InnerDbState {
 
 #[cfg(test)]
 mod test {
+    use std::collections::HashMap;
+
     use crate::dummy::testdata;
+    use crate::models::expr_relation::ExpressionRelationFieldName;
+    use crate::models::filters::expr_relation_filter::ExpressionRelationFilter;
     use crate::models::{
         allele::Allele, allele_expr::AlleleExpression, expr_relation::ExpressionRelation,
         phenotype::Phenotype, variation_info::VariationInfo,
@@ -88,6 +131,31 @@ mod test {
         assert_eq!(rels, testdata::get_expr_relations());
         Ok(())
     }
+
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_expr_relations(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_expr_relations(&ExpressionRelationFilter {
+                col_filters: HashMap::from([
+                    (
+                        ExpressionRelationFieldName::AlteringCondition,
+                        vec!["Histamine".to_owned()],
+                    ),
+                    (
+                        ExpressionRelationFieldName::ExpressingPhenotypeName,
+                        vec!["paralyzed".to_owned()],
+                    ),
+                ]),
+                col_special_filters: HashMap::new(),
+                order_by: vec![ExpressionRelationFieldName::AlleleName],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::get_filtered_expr_relations());
+        Ok(())
+    }
+
     #[sqlx::test]
     async fn test_insert_expr_relation(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };

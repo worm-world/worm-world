@@ -1,4 +1,4 @@
-use super::filter_range::FilterRange;
+use super::special_filter::SpecialFilter;
 use crate::models::gene::GeneFieldName;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -11,7 +11,8 @@ pub struct GeneFilter {
     #[serde(rename = "fieldFilters")]
     pub col_filters: HashMap<GeneFieldName, Vec<String>>,
     #[serde(rename = "fieldRanges")]
-    pub col_ranges: HashMap<GeneFieldName, Vec<FilterRange>>,
+    pub col_special_filters: HashMap<GeneFieldName, Vec<SpecialFilter>>,
+
     #[serde(rename = "orderBy")]
     pub order_by: Vec<GeneFieldName>,
 }
