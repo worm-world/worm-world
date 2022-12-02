@@ -1,7 +1,7 @@
 import { Sex } from '../../models/enums';
 import { Location } from '../../models/frontend/Gene';
 
-// Genes that we want to know in all nodes of a crossTree 
+// Genes that we want to know in all nodes of a crossTree
 export const oneGene = [
   {
     name: 'gene1',
