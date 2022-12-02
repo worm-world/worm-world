@@ -10,7 +10,7 @@
     "test-front": "vitest run",
     "test-front-coverage": "vitest run --coverage",
     "test-back": "cd src-tauri && cargo test && npm run lint",
-    "test-all": "vitest run && cd src-tauri && cargo test && npm run lint",
+    "test-all": "npm run test-front && npm run test-back",
     "tauri": "tauri",
     "prepare": "husky install",
     "lint": "npx eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix && cd src-tauri && cargo clippy --fix --allow-dirty --allow-staged",
