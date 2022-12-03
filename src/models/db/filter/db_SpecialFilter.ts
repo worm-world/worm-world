@@ -3,5 +3,5 @@ import type { SpecialFilterType } from './db_SpecialFilterType';
 
 export interface SpecialFilter {
   fieldValue: string;
-  rangeType: SpecialFilterType;
+  specialFilterType: SpecialFilterType;
 }

@@ -6,7 +6,7 @@ use ts_rs::TS;
 pub struct SpecialFilter {
     #[serde(rename = "fieldValue")]
     pub col_value: String,
-    #[serde(rename = "rangeType")]
+    #[serde(rename = "specialFilterType")]
     pub filter_type: SpecialFilterType,
 }
 
