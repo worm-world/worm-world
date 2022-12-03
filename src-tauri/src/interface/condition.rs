@@ -4,6 +4,7 @@ use crate::models::{
     filters::{condition_filter::ConditionFilter, filter_query_builder::FilterQueryBuilder},
 };
 use anyhow::Result;
+use sqlx::{QueryBuilder, Sqlite};
 
 impl InnerDbState {
     pub async fn get_conditions(&self) -> Result<Vec<Condition>, DbError> {
@@ -40,8 +41,8 @@ impl InnerDbState {
         &self,
         filter: &ConditionFilter,
     ) -> Result<Vec<Condition>, DbError> {
-        let query = "
-            SELECT
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "SELECT
             name,
             description,
             male_mating,
@@ -49,11 +50,11 @@ impl InnerDbState {
             female_sterile,
             arrested,
             maturation_days
-            FROM conditions"
-            .to_owned()
-            + &filter.get_filtered_query();
+            FROM conditions",
+        );
+        filter.add_filtered_query(&mut qb);
 
-        match sqlx::query_as::<_, ConditionDb>(&query)
+        match sqlx::query_as::<_, ConditionDb>(&qb.into_sql())
             .fetch_all(&self.conn_pool)
             .await
         {

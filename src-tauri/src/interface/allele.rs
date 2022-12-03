@@ -5,6 +5,7 @@ use crate::models::{
 };
 
 use anyhow::Result;
+use sqlx::{QueryBuilder, Sqlite};
 
 impl InnerDbState {
     pub async fn get_alleles(&self) -> Result<Vec<Allele>, DbError> {
@@ -29,9 +30,11 @@ impl InnerDbState {
         &self,
         filter: &AlleleFilter,
     ) -> Result<Vec<Allele>, DbError> {
-        let query = "SELECT name, contents, gene_name, variation_name FROM alleles".to_owned()
-            + &filter.get_filtered_query();
-        match sqlx::query_as::<_, Allele>(&query)
+        let mut qb: QueryBuilder<Sqlite> =
+            QueryBuilder::new("SELECT name, contents, gene_name, variation_name FROM alleles");
+        filter.add_filtered_query(&mut qb);
+
+        match sqlx::query_as::<_, Allele>(&qb.into_sql())
             .fetch_all(&self.conn_pool)
             .await
         {

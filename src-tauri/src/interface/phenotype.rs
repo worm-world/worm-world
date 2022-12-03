@@ -4,6 +4,7 @@ use crate::models::{
     phenotype::{Phenotype, PhenotypeDb},
 };
 use anyhow::Result;
+use sqlx::{QueryBuilder, Sqlite};
 
 impl InnerDbState {
     pub async fn get_phenotypes(&self) -> Result<Vec<Phenotype>, DbError> {
@@ -42,22 +43,22 @@ impl InnerDbState {
         &self,
         filter: &PhenotypeFilter,
     ) -> Result<Vec<Phenotype>, DbError> {
-        let query = "
-        SELECT
-            name, 
-            wild,
-            short_name,
-            description, 
-            male_mating,
-            lethal,
-            female_sterile,
-            arrested,
-            maturation_days
-        FROM phenotypes"
-            .to_owned()
-            + &filter.get_filtered_query();
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "SELECT
+                name, 
+                wild,
+                short_name,
+                description, 
+                male_mating,
+                lethal,
+                female_sterile,
+                arrested,
+                maturation_days
+            FROM phenotypes",
+        );
+        filter.add_filtered_query(&mut qb);
 
-        match sqlx::query_as::<_, PhenotypeDb>(&query)
+        match sqlx::query_as::<_, PhenotypeDb>(&qb.into_sql())
             .fetch_all(&self.conn_pool)
             .await
         {

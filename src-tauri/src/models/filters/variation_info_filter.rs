@@ -1,10 +1,11 @@
 use crate::models::variation_info::{get_col_name, VariationFieldName};
 
 use super::{
-    filter_query_builder::{generic_get_filtered_query, FilterQueryBuilder},
+    filter_query_builder::{generic_add_filtered_query, FilterQueryBuilder},
     special_filter::SpecialFilter,
 };
 use serde::{Deserialize, Serialize};
+use sqlx::{QueryBuilder, Sqlite};
 use std::collections::HashMap;
 use ts_rs::TS;
 
@@ -26,7 +27,7 @@ pub struct VariationInfoFilter {
 }
 
 impl FilterQueryBuilder for VariationInfoFilter {
-    fn get_filtered_query(&self) -> String {
+    fn add_filtered_query(&self, query: &mut QueryBuilder<Sqlite>) {
         let filters = &self.col_filters;
         let special_filters = &self.col_special_filters;
         let order_by = &self.order_by;
@@ -41,12 +42,10 @@ impl FilterQueryBuilder for VariationInfoFilter {
             .map(|(field_name, values)| (get_col_name(field_name), values.to_owned()))
             .collect();
 
-        let generic_order_by: Vec<String> = order_by
-            .iter()
-            .map(get_col_name)
-            .collect();
+        let generic_order_by: Vec<String> = order_by.iter().map(get_col_name).collect();
 
-        generic_get_filtered_query(
+        generic_add_filtered_query(
+            query,
             generic_filters,
             generic_special_filters,
             generic_order_by,

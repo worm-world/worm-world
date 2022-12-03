@@ -6,6 +6,7 @@ use crate::models::{
     },
 };
 use anyhow::Result;
+use sqlx::{QueryBuilder, Sqlite};
 
 impl InnerDbState {
     pub async fn get_expr_relations(&self) -> Result<Vec<ExpressionRelation>, DbError> {
@@ -46,8 +47,8 @@ impl InnerDbState {
         &self,
         filter: &ExpressionRelationFilter,
     ) -> Result<Vec<ExpressionRelation>, DbError> {
-        let query = "
-            SELECT
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "SELECT
                 allele_name,
                 expressing_phenotype_name,
                 expressing_phenotype_wild,
@@ -56,11 +57,11 @@ impl InnerDbState {
                 altering_condition,
                 is_suppressing
             FROM
-                expr_relations"
-            .to_owned()
-            + &filter.get_filtered_query();
+                expr_relations",
+        );
+        filter.add_filtered_query(&mut qb);
 
-        match sqlx::query_as::<_, ExpressionRelationDb>(&query)
+        match sqlx::query_as::<_, ExpressionRelationDb>(&qb.into_sql())
             .fetch_all(&self.conn_pool)
             .await
         {

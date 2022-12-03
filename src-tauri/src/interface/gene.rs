@@ -4,6 +4,7 @@ use crate::models::{
     gene::Gene,
 };
 use anyhow::Result;
+use sqlx::{QueryBuilder, Sqlite};
 
 impl InnerDbState {
     pub async fn get_genes(&self) -> Result<Vec<Gene>, DbError> {
@@ -25,10 +26,11 @@ impl InnerDbState {
     }
 
     pub async fn get_filtered_genes(&self, filter: &GeneFilter) -> Result<Vec<Gene>, DbError> {
-        let query = "SELECT name, chromosome, phys_loc, gen_loc FROM genes".to_owned()
-            + &filter.get_filtered_query();
+        let mut qb: QueryBuilder<Sqlite> =
+            QueryBuilder::new("SELECT name, chromosome, phys_loc, gen_loc FROM genes");
+        filter.add_filtered_query(&mut qb);
 
-        match sqlx::query_as::<_, Gene>(&query)
+        match sqlx::query_as::<_, Gene>(&qb.into_sql())
             .fetch_all(&self.conn_pool)
             .await
         {

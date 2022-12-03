@@ -6,6 +6,7 @@ use crate::models::{
     },
 };
 use anyhow::Result;
+use sqlx::{QueryBuilder, Sqlite};
 //select allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance from allele_exprs order by allele_name, expressing_phenotype_name, expressing_phenotype_wild
 impl InnerDbState {
     pub async fn get_allele_exprs(&self) -> Result<Vec<AlleleExpression>, DbError> {
@@ -32,10 +33,11 @@ impl InnerDbState {
         &self,
         filter: &AlleleExpressionFilter,
     ) -> Result<Vec<AlleleExpression>, DbError> {
-        let query = "SELECT allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance FROM allele_exprs"
-        .to_owned() + &filter.get_filtered_query();
+        let mut qb: QueryBuilder<Sqlite> =
+            QueryBuilder::new("SELECT allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance FROM allele_exprs");
+        filter.add_filtered_query(&mut qb);
 
-        match sqlx::query_as::<_, AlleleExpressionDb>(&query)
+        match sqlx::query_as::<_, AlleleExpressionDb>(&qb.into_sql())
             .fetch_all(&self.conn_pool)
             .await
         {

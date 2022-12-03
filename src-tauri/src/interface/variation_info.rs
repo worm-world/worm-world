@@ -6,6 +6,7 @@ use crate::models::{
     variation_info::VariationInfo,
 };
 use anyhow::Result;
+use sqlx::{QueryBuilder, Sqlite};
 
 impl InnerDbState {
     pub async fn get_variation_info(&self) -> Result<Vec<VariationInfo>, DbError> {
@@ -30,11 +31,12 @@ impl InnerDbState {
         &self,
         filter: &VariationInfoFilter,
     ) -> Result<Vec<VariationInfo>, DbError> {
-        let query = "SELECT allele_name, chromosome, phys_loc, gen_loc FROM variation_info"
-            .to_owned()
-            + &filter.get_filtered_query();
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "SELECT allele_name, chromosome, phys_loc, gen_loc FROM variation_info",
+        );
+        filter.add_filtered_query(&mut qb);
 
-        match sqlx::query_as::<_, VariationInfo>(&query)
+        match sqlx::query_as::<_, VariationInfo>(&qb.into_sql())
             .fetch_all(&self.conn_pool)
             .await
         {
