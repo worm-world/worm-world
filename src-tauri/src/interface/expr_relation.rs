@@ -1,10 +1,9 @@
-use super::{
-    query_builder::qb_expr_relation::{get_order_by_clause, get_where_clause},
-    DbError, InnerDbState,
-};
+use super::{DbError, InnerDbState};
 use crate::models::{
     expr_relation::{ExpressionRelation, ExpressionRelationDb},
-    filters::expr_relation_filter::ExpressionRelationFilter,
+    filters::{
+        expr_relation_filter::ExpressionRelationFilter, filter_query_builder::FilterQueryBuilder,
+    },
 };
 use anyhow::Result;
 
@@ -47,21 +46,19 @@ impl InnerDbState {
         &self,
         filter: &ExpressionRelationFilter,
     ) -> Result<Vec<ExpressionRelation>, DbError> {
-        let mut query = "
-        SELECT
-            allele_name,
-            expressing_phenotype_name,
-            expressing_phenotype_wild,
-            altering_phenotype_name,
-            altering_phenotype_wild,
-            altering_condition,
-            is_suppressing
-        FROM
-            expr_relations"
-            .to_owned();
-
-        query += &get_where_clause(filter);
-        query += &get_order_by_clause(filter);
+        let query = "
+            SELECT
+                allele_name,
+                expressing_phenotype_name,
+                expressing_phenotype_wild,
+                altering_phenotype_name,
+                altering_phenotype_wild,
+                altering_condition,
+                is_suppressing
+            FROM
+                expr_relations"
+            .to_owned()
+            + &filter.get_filtered_query();
 
         match sqlx::query_as::<_, ExpressionRelationDb>(&query)
             .fetch_all(&self.conn_pool)

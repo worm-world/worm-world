@@ -1,10 +1,9 @@
-use super::{
-    query_builder::qb_allele_expr::{get_order_by_clause, get_where_clause},
-    DbError, InnerDbState,
-};
+use super::{DbError, InnerDbState};
 use crate::models::{
     allele_expr::{AlleleExpression, AlleleExpressionDb},
-    filters::allele_expr_filter::AlleleExpressionFilter,
+    filters::{
+        allele_expr_filter::AlleleExpressionFilter, filter_query_builder::FilterQueryBuilder,
+    },
 };
 use anyhow::Result;
 //select allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance from allele_exprs order by allele_name, expressing_phenotype_name, expressing_phenotype_wild
@@ -34,9 +33,7 @@ impl InnerDbState {
         filter: &AlleleExpressionFilter,
     ) -> Result<Vec<AlleleExpression>, DbError> {
         let query = "SELECT allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance FROM allele_exprs"
-        .to_owned()
-            + &get_where_clause(filter)
-            + &get_order_by_clause(filter);
+        .to_owned() + &filter.get_filtered_query();
 
         match sqlx::query_as::<_, AlleleExpressionDb>(&query)
             .fetch_all(&self.conn_pool)

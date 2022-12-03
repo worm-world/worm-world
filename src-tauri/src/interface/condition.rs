@@ -1,10 +1,7 @@
-use super::{
-    query_builder::qb_condition::{get_order_by_clause, get_where_clause},
-    DbError, InnerDbState,
-};
+use super::{DbError, InnerDbState};
 use crate::models::{
     condition::{Condition, ConditionDb},
-    filters::condition_filter::ConditionFilter,
+    filters::{condition_filter::ConditionFilter, filter_query_builder::FilterQueryBuilder},
 };
 use anyhow::Result;
 
@@ -54,8 +51,7 @@ impl InnerDbState {
             maturation_days
             FROM conditions"
             .to_owned()
-            + &get_where_clause(filter)
-            + &get_order_by_clause(filter);
+            + &filter.get_filtered_query();
 
         match sqlx::query_as::<_, ConditionDb>(&query)
             .fetch_all(&self.conn_pool)

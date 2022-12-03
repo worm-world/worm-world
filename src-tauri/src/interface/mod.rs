@@ -4,7 +4,6 @@ pub mod condition;
 pub mod expr_relation;
 pub mod gene;
 pub mod phenotype;
-pub mod query_builder;
 pub mod variation_info;
 
 use serde::{Deserialize, Serialize};

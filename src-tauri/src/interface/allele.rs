@@ -1,8 +1,9 @@
-use super::{
-    query_builder::qb_allele::{get_order_by_clause, get_where_clause},
-    DbError, InnerDbState,
+use super::{DbError, InnerDbState};
+use crate::models::{
+    allele::Allele,
+    filters::{allele_filter::AlleleFilter, filter_query_builder::FilterQueryBuilder},
 };
-use crate::models::{allele::Allele, filters::allele_filter::AlleleFilter};
+
 use anyhow::Result;
 
 impl InnerDbState {
@@ -29,9 +30,7 @@ impl InnerDbState {
         filter: &AlleleFilter,
     ) -> Result<Vec<Allele>, DbError> {
         let query = "SELECT name, contents, gene_name, variation_name FROM alleles".to_owned()
-            + &get_where_clause(filter)
-            + &get_order_by_clause(filter);
-
+            + &filter.get_filtered_query();
         match sqlx::query_as::<_, Allele>(&query)
             .fetch_all(&self.conn_pool)
             .await

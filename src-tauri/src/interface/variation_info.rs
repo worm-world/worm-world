@@ -1,9 +1,9 @@
-use super::{
-    query_builder::qb_variation_info::{get_order_by_clause, get_where_clause},
-    DbError, InnerDbState,
-};
+use super::{DbError, InnerDbState};
 use crate::models::{
-    filters::variation_info_filter::VariationInfoFilter, variation_info::VariationInfo,
+    filters::{
+        filter_query_builder::FilterQueryBuilder, variation_info_filter::VariationInfoFilter,
+    },
+    variation_info::VariationInfo,
 };
 use anyhow::Result;
 
@@ -32,8 +32,7 @@ impl InnerDbState {
     ) -> Result<Vec<VariationInfo>, DbError> {
         let query = "SELECT allele_name, chromosome, phys_loc, gen_loc FROM variation_info"
             .to_owned()
-            + &get_where_clause(filter)
-            + &get_order_by_clause(filter);
+            + &filter.get_filtered_query();
 
         match sqlx::query_as::<_, VariationInfo>(&query)
             .fetch_all(&self.conn_pool)

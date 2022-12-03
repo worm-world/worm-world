@@ -1,9 +1,6 @@
-use super::{
-    query_builder::qb_phenotype::{get_order_by_clause, get_where_clause},
-    DbError, InnerDbState,
-};
+use super::{DbError, InnerDbState};
 use crate::models::{
-    filters::phenotype_filter::PhenotypeFilter,
+    filters::{filter_query_builder::FilterQueryBuilder, phenotype_filter::PhenotypeFilter},
     phenotype::{Phenotype, PhenotypeDb},
 };
 use anyhow::Result;
@@ -58,8 +55,7 @@ impl InnerDbState {
             maturation_days
         FROM phenotypes"
             .to_owned()
-            + &get_where_clause(filter)
-            + &get_order_by_clause(filter);
+            + &filter.get_filtered_query();
 
         match sqlx::query_as::<_, PhenotypeDb>(&query)
             .fetch_all(&self.conn_pool)

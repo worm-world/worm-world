@@ -1,8 +1,8 @@
-use super::{
-    query_builder::qb_gene::{get_order_by_clause, get_where_clause},
-    DbError, InnerDbState,
+use super::{DbError, InnerDbState};
+use crate::models::{
+    filters::{filter_query_builder::FilterQueryBuilder, gene_filter::GeneFilter},
+    gene::Gene,
 };
-use crate::models::{filters::gene_filter::GeneFilter, gene::Gene};
 use anyhow::Result;
 
 impl InnerDbState {
@@ -26,8 +26,7 @@ impl InnerDbState {
 
     pub async fn get_filtered_genes(&self, filter: &GeneFilter) -> Result<Vec<Gene>, DbError> {
         let query = "SELECT name, chromosome, phys_loc, gen_loc FROM genes".to_owned()
-            + &get_where_clause(filter)
-            + &get_order_by_clause(filter);
+            + &filter.get_filtered_query();
 
         match sqlx::query_as::<_, Gene>(&query)
             .fetch_all(&self.conn_pool)
