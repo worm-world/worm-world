@@ -12,6 +12,7 @@ const Layout = ({
   children: React.ReactNode;
 }): ReactJSXElement => {
   const [sideNavIsOpen, setsideNavIsOpen] = useState<boolean>(true);
+
   const toggleNavbar = (): void => setsideNavIsOpen(!sideNavIsOpen);
   return (
     <>

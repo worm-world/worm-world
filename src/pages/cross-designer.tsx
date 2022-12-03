@@ -1,21 +1,25 @@
 import Tab from '@mui/material/Tab';
 import React from 'react';
 import { TopNav } from 'components/TopNav/TopNav';
-import { Routes, Route } from 'react-router-dom';
-import Temp from './temp';
+import RightDrawer from '../components/rightDrawer/RightDrawer';
 
 const CrossPage = (): JSX.Element => {
+  const [rightDrawerOpen, setRightDrawerOpen] = React.useState(true)
+
   return (
-    <div>
+    <>
       <TopNav title={'Cross Designer'}>
         <Tab label='New Cross' />
         <Tab label='Open Cross' />
         <Tab label='Export Cross' />
       </TopNav>
-      <Routes>
-        <Route path='/temp' element={<Temp />} />
-      </Routes>
-    </div>
+      <RightDrawer
+        initialDrawerWidth={240}
+        isOpen={rightDrawerOpen}
+        maxWidth={300}
+        close={() => setRightDrawerOpen(false)}
+      ></RightDrawer>
+    </>
   );
 };
 
