@@ -1,0 +1,17 @@
+.leftEdge {
+    width: 5px;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.leftEdge:hover {
+    cursor: col-resize;
+}
+
+.drawerContents {
+    display: flex;
+    padding: 10px;
+    margin: 10px;
+    flex-grow: 1;
+    justify-content: center;
+}

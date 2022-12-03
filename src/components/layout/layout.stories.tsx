@@ -1,5 +1,4 @@
-import React from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import { StoryFn, Meta } from '@storybook/react';
 
 import Layout from './layout';
 
@@ -9,8 +8,8 @@ export default {
   argTypes: {
     backgroundColor: { control: 'color' },
   },
-} as ComponentMeta<typeof Layout>;
+} as Meta<typeof Layout>;
 
-const Template: ComponentStory<typeof Layout> = () => <Layout>{}</Layout>;
+const Template: StoryFn<typeof Layout> = () => <Layout>{}</Layout>;
 
 export const Primary = Template.bind({});
