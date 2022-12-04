@@ -1,6 +1,7 @@
 use super::{DbError, InnerDbState};
 use crate::models::{
     condition::{Condition, ConditionDb, ConditionFieldName},
+    expr_relation::ExpressionRelationFieldName,
     filter::{Filter, FilterQueryBuilder},
 };
 use anyhow::Result;
@@ -62,6 +63,44 @@ impl InnerDbState {
             Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
                 eprint!("Get Filtered Condition error: {e}");
+                Err(DbError::SqlQueryError(e.to_string()))
+            }
+        }
+    }
+
+    pub async fn get_altering_conditions(
+        &self,
+        filter: &Filter<ExpressionRelationFieldName>,
+    ) -> Result<Vec<Condition>, DbError> {
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "SELECT DISTINCT
+            c.name,
+            c.description,
+            c.male_mating,
+            c.lethal,
+            c.female_sterile,
+            c.arrested,
+            c.maturation_days
+          FROM
+            (
+              SELECT
+                altering_condition AS ac
+              FROM
+                expr_relations",
+        );
+        filter.add_filtered_query(&mut qb);
+        qb.push(
+            ") JOIN conditions AS c 
+            ON c.name == ac",
+        );
+
+        match sqlx::query_as::<_, ConditionDb>(&qb.into_sql())
+            .fetch_all(&self.conn_pool)
+            .await
+        {
+            Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
+            Err(e) => {
+                eprint!("Get altering conditions error: {e}");
                 Err(DbError::SqlQueryError(e.to_string()))
             }
         }

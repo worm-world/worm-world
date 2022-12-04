@@ -57,7 +57,7 @@ impl FieldNameEnum for AlleleExpressionFieldName {
                 "expressing_phenotype_name".to_owned()
             }
             AlleleExpressionFieldName::ExpressingPhenotypeWild => {
-                "expressingPhenotypeWild".to_owned()
+                "expressing_phenotype_wild".to_owned()
             }
             AlleleExpressionFieldName::Dominance => "dominance".to_owned(),
         }

@@ -1,5 +1,7 @@
 use super::{DbError, InnerDbState};
 use crate::models::{
+    allele_expr::AlleleExpressionFieldName,
+    expr_relation::ExpressionRelationFieldName,
     filter::{Filter, FilterQueryBuilder},
     phenotype::{Phenotype, PhenotypeDb, PhenotypeFieldName},
 };
@@ -65,6 +67,48 @@ impl InnerDbState {
             Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
                 eprint!("Get Filtered Phenotype error: {e}");
+                Err(DbError::SqlQueryError(e.to_string()))
+            }
+        }
+    }
+
+    pub async fn get_altering_phenotypes(
+        &self,
+        filter: &Filter<ExpressionRelationFieldName>,
+    ) -> Result<Vec<Phenotype>, DbError> {
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "SELECT DISTINCT
+            p.name,
+            p.wild,
+            p.short_name,
+            p.description,
+            p.male_mating,
+            p.lethal,
+            p.female_sterile,
+            p.arrested,
+            p.maturation_days
+            FROM
+                (
+                SELECT
+                    altering_phenotype_name AS pn,
+                    altering_phenotype_wild AS pw
+                FROM
+                    expr_relations",
+        );
+        filter.add_filtered_query(&mut qb);
+        qb.push(
+            ") JOIN phenotypes AS p 
+            ON p.name == pn
+            AND p.wild == pw",
+        );
+
+        match sqlx::query_as::<_, PhenotypeDb>(&qb.into_sql())
+            .fetch_all(&self.conn_pool)
+            .await
+        {
+            Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
+            Err(e) => {
+                eprint!("Get altering phenotypes error: {e}");
                 Err(DbError::SqlQueryError(e.to_string()))
             }
         }
