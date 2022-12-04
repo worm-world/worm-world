@@ -1,9 +1,8 @@
 use super::{DbError, InnerDbState};
+use crate::models::filter::FilterQueryBuilder;
 use crate::models::{
-    filters::{
-        filter_query_builder::FilterQueryBuilder, variation_info_filter::VariationInfoFilter,
-    },
-    variation_info::VariationInfo,
+    filter::Filter,
+    variation_info::{VariationFieldName, VariationInfo},
 };
 use anyhow::Result;
 use sqlx::{QueryBuilder, Sqlite};
@@ -29,7 +28,7 @@ impl InnerDbState {
 
     pub async fn get_filtered_variation_info(
         &self,
-        filter: &VariationInfoFilter,
+        filter: &Filter<VariationFieldName>,
     ) -> Result<Vec<VariationInfo>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT allele_name, chromosome, phys_loc, gen_loc FROM variation_info",
@@ -74,10 +73,10 @@ impl InnerDbState {
 mod test {
     use std::collections::HashMap;
 
-    use crate::models::filters::special_filter::{SpecialFilter, SpecialFilterType};
+    use crate::dummy::testdata;
+    use crate::models::filter::{Filter, SpecialFilter, SpecialFilterType};
     use crate::models::variation_info::{VariationFieldName, VariationInfo};
     use crate::InnerDbState;
-    use crate::{dummy::testdata, models::filters::variation_info_filter::VariationInfoFilter};
     use anyhow::Result;
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
@@ -94,31 +93,30 @@ mod test {
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_filtered_variation_info(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
-        let exprs = state
-            .get_filtered_variation_info(&VariationInfoFilter {
-                col_filters: HashMap::new(),
-                col_special_filters: HashMap::from([
-                    (
-                        VariationFieldName::Chromosome,
-                        vec![SpecialFilter {
-                            col_value: "".to_string(),
-                            filter_type: SpecialFilterType::NotNull,
-                        }],
-                    ),
-                    (
-                        VariationFieldName::PhysLoc,
-                        vec![SpecialFilter {
-                            col_value: "".to_string(),
-                            filter_type: SpecialFilterType::NotNull,
-                        }],
-                    ),
-                ]),
-                order_by: vec![
-                    VariationFieldName::AlleleName,
+        let filter = Filter::<VariationFieldName> {
+            col_filters: HashMap::new(),
+            col_special_filters: HashMap::from([
+                (
                     VariationFieldName::Chromosome,
-                ],
-            })
-            .await?;
+                    vec![SpecialFilter {
+                        col_value: "".to_string(),
+                        filter_type: SpecialFilterType::NotNull,
+                    }],
+                ),
+                (
+                    VariationFieldName::PhysLoc,
+                    vec![SpecialFilter {
+                        col_value: "".to_string(),
+                        filter_type: SpecialFilterType::NotNull,
+                    }],
+                ),
+            ]),
+            order_by: vec![
+                VariationFieldName::AlleleName,
+                VariationFieldName::Chromosome,
+            ],
+        };
+        let exprs = state.get_filtered_variation_info(&filter).await?;
 
         assert_eq!(exprs, testdata::get_filtered_variation_info());
         Ok(())

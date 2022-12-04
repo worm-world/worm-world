@@ -1,7 +1,7 @@
 use super::{DbError, InnerDbState};
 use crate::models::{
-    condition::{Condition, ConditionDb},
-    filters::{condition_filter::ConditionFilter, filter_query_builder::FilterQueryBuilder},
+    condition::{Condition, ConditionDb, ConditionFieldName},
+    filter::{Filter, FilterQueryBuilder},
 };
 use anyhow::Result;
 use sqlx::{QueryBuilder, Sqlite};
@@ -39,7 +39,7 @@ impl InnerDbState {
 
     pub async fn get_filtered_conditions(
         &self,
-        filter: &ConditionFilter,
+        filter: &Filter<ConditionFieldName>,
     ) -> Result<Vec<Condition>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT
@@ -95,10 +95,10 @@ impl InnerDbState {
 mod test {
     use std::collections::HashMap;
 
+    use crate::dummy::testdata;
     use crate::models::condition::{Condition, ConditionFieldName};
-    use crate::models::filters::special_filter::{SpecialFilter, SpecialFilterType};
+    use crate::models::filter::{Filter, SpecialFilter, SpecialFilterType};
     use crate::InnerDbState;
-    use crate::{dummy::testdata, models::filters::condition_filter::ConditionFilter};
     use anyhow::Result;
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
@@ -117,7 +117,7 @@ mod test {
     async fn test_get_filtered_conditions(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_conditions(&ConditionFilter {
+            .get_filtered_conditions(&Filter::<ConditionFieldName> {
                 col_filters: HashMap::new(),
                 col_special_filters: HashMap::from([(
                     ConditionFieldName::MaturationDays,

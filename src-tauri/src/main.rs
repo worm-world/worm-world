@@ -15,19 +15,14 @@ mod dummy;
 mod models;
 
 use models::{
-    allele::Allele,
-    allele_expr::AlleleExpression,
-    condition::Condition,
-    expr_relation::ExpressionRelation,
-    filters::{
-        allele_expr_filter::AlleleExpressionFilter, allele_filter::AlleleFilter,
-        condition_filter::ConditionFilter, expr_relation_filter::ExpressionRelationFilter,
-        gene_filter::GeneFilter, phenotype_filter::PhenotypeFilter,
-        variation_info_filter::VariationInfoFilter,
-    },
-    gene::Gene,
-    phenotype::Phenotype,
-    variation_info::VariationInfo,
+    allele::{Allele, AlleleFieldName},
+    allele_expr::{AlleleExpression, AlleleExpressionFieldName},
+    condition::{Condition, ConditionFieldName},
+    expr_relation::{ExpressionRelation, ExpressionRelationFieldName},
+    filter::Filter,
+    gene::{Gene, GeneFieldName},
+    phenotype::{Phenotype, PhenotypeFieldName},
+    variation_info::{VariationFieldName, VariationInfo},
 };
 use thiserror::Error;
 use tokio::sync::RwLock;
@@ -119,7 +114,7 @@ async fn get_genes(state: tauri::State<'_, DbState>) -> Result<Vec<Gene>, DbErro
 #[tauri::command]
 async fn get_filtered_genes(
     state: tauri::State<'_, DbState>,
-    filter: GeneFilter,
+    filter: Filter<GeneFieldName>,
 ) -> Result<Vec<Gene>, DbError> {
     let state_guard = state.0.read().await;
     state_guard.get_filtered_genes(&filter).await
@@ -140,7 +135,7 @@ async fn get_conditions(state: tauri::State<'_, DbState>) -> Result<Vec<Conditio
 #[tauri::command]
 async fn get_filtered_conditions(
     state: tauri::State<'_, DbState>,
-    filter: ConditionFilter,
+    filter: Filter<ConditionFieldName>,
 ) -> Result<Vec<Condition>, DbError> {
     let state_guard = state.0.read().await;
     state_guard.get_filtered_conditions(&filter).await
@@ -164,7 +159,7 @@ async fn get_phenotypes(state: tauri::State<'_, DbState>) -> Result<Vec<Phenotyp
 #[tauri::command]
 async fn get_filtered_phenotypes(
     state: tauri::State<'_, DbState>,
-    filter: PhenotypeFilter,
+    filter: Filter<PhenotypeFieldName>,
 ) -> Result<Vec<Phenotype>, DbError> {
     let state_guard = state.0.read().await;
     state_guard.get_filtered_phenotypes(&filter).await
@@ -190,7 +185,7 @@ async fn get_variation_info(
 #[tauri::command]
 async fn get_filtered_variation_info(
     state: tauri::State<'_, DbState>,
-    filter: VariationInfoFilter,
+    filter: Filter<VariationFieldName>,
 ) -> Result<Vec<VariationInfo>, DbError> {
     let state_guard = state.0.read().await;
     state_guard.get_filtered_variation_info(&filter).await
@@ -216,7 +211,7 @@ async fn get_allele_exprs(
 #[tauri::command]
 async fn get_filtered_allele_exprs(
     state: tauri::State<'_, DbState>,
-    filter: AlleleExpressionFilter,
+    filter: Filter<AlleleExpressionFieldName>,
 ) -> Result<Vec<AlleleExpression>, DbError> {
     let state_guard = state.0.read().await;
     state_guard.get_filtered_allele_exprs(&filter).await
@@ -240,7 +235,7 @@ async fn get_alleles(state: tauri::State<'_, DbState>) -> Result<Vec<Allele>, Db
 #[tauri::command]
 async fn get_filtered_alleles(
     state: tauri::State<'_, DbState>,
-    filter: AlleleFilter,
+    filter: Filter<AlleleFieldName>,
 ) -> Result<Vec<Allele>, DbError> {
     let state_guard = state.0.read().await;
     state_guard.get_filtered_alleles(&filter).await
@@ -263,7 +258,7 @@ async fn get_expr_relations(
 #[tauri::command]
 async fn get_filtered_expr_relations(
     state: tauri::State<'_, DbState>,
-    filter: ExpressionRelationFilter,
+    filter: Filter<ExpressionRelationFieldName>,
 ) -> Result<Vec<ExpressionRelation>, DbError> {
     let state_guard = state.0.read().await;
     state_guard.get_filtered_expr_relations(&filter).await

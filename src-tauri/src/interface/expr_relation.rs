@@ -1,9 +1,7 @@
 use super::{DbError, InnerDbState};
 use crate::models::{
-    expr_relation::{ExpressionRelation, ExpressionRelationDb},
-    filters::{
-        expr_relation_filter::ExpressionRelationFilter, filter_query_builder::FilterQueryBuilder,
-    },
+    expr_relation::{ExpressionRelation, ExpressionRelationDb, ExpressionRelationFieldName},
+    filter::{Filter, FilterQueryBuilder},
 };
 use anyhow::Result;
 use sqlx::{QueryBuilder, Sqlite};
@@ -45,7 +43,7 @@ impl InnerDbState {
 
     pub async fn get_filtered_expr_relations(
         &self,
-        filter: &ExpressionRelationFilter,
+        filter: &Filter<ExpressionRelationFieldName>,
     ) -> Result<Vec<ExpressionRelation>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT
@@ -112,7 +110,7 @@ mod test {
 
     use crate::dummy::testdata;
     use crate::models::expr_relation::ExpressionRelationFieldName;
-    use crate::models::filters::expr_relation_filter::ExpressionRelationFilter;
+    use crate::models::filter::Filter;
     use crate::models::{
         allele::Allele, allele_expr::AlleleExpression, expr_relation::ExpressionRelation,
         phenotype::Phenotype, variation_info::VariationInfo,
@@ -134,7 +132,7 @@ mod test {
     async fn test_get_filtered_expr_relations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_expr_relations(&ExpressionRelationFilter {
+            .get_filtered_expr_relations(&Filter::<ExpressionRelationFieldName> {
                 col_filters: HashMap::from([
                     (
                         ExpressionRelationFieldName::AlteringCondition,

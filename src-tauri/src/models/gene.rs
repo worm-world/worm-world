@@ -1,3 +1,4 @@
+use super::FieldNameEnum;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
@@ -22,11 +23,13 @@ pub enum GeneFieldName {
     GeneticLoc,
 }
 
-pub fn get_col_name(name: &GeneFieldName) -> String {
-    match name {
-        GeneFieldName::Name => "name".to_owned(),
-        GeneFieldName::Chromosome => "chromosome".to_owned(),
-        GeneFieldName::PhysLoc => "phys_loc".to_owned(),
-        GeneFieldName::GeneticLoc => "gen_loc".to_owned(),
+impl FieldNameEnum for GeneFieldName {
+    fn get_col_name(self: &GeneFieldName) -> String {
+        match self {
+            GeneFieldName::Name => "name".to_owned(),
+            GeneFieldName::Chromosome => "chromosome".to_owned(),
+            GeneFieldName::PhysLoc => "phys_loc".to_owned(),
+            GeneFieldName::GeneticLoc => "gen_loc".to_owned(),
+        }
     }
 }

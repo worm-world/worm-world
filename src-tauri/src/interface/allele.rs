@@ -1,7 +1,7 @@
 use super::{DbError, InnerDbState};
 use crate::models::{
-    allele::Allele,
-    filters::{allele_filter::AlleleFilter, filter_query_builder::FilterQueryBuilder},
+    allele::{Allele, AlleleFieldName},
+    filter::{Filter, FilterQueryBuilder},
 };
 
 use anyhow::Result;
@@ -28,7 +28,7 @@ impl InnerDbState {
 
     pub async fn get_filtered_alleles(
         &self,
-        filter: &AlleleFilter,
+        filter: &Filter<AlleleFieldName>,
     ) -> Result<Vec<Allele>, DbError> {
         let mut qb: QueryBuilder<Sqlite> =
             QueryBuilder::new("SELECT name, contents, gene_name, variation_name FROM alleles");
@@ -74,7 +74,7 @@ mod test {
 
     use crate::dummy::testdata;
     use crate::models::allele::AlleleFieldName;
-    use crate::models::filters::allele_filter::AlleleFilter;
+    use crate::models::filter::Filter;
     use crate::models::{allele::Allele, gene::Gene, variation_info::VariationInfo};
     use crate::InnerDbState;
     use anyhow::Result;
@@ -126,7 +126,7 @@ mod test {
     async fn test_get_filtered_alleles(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_alleles(&AlleleFilter {
+            .get_filtered_alleles(&Filter::<AlleleFieldName> {
                 col_filters: HashMap::from([(
                     AlleleFieldName::GeneName,
                     vec!["unc-18".to_owned(), "dpy-10".to_owned()],

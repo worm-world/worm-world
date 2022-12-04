@@ -1,3 +1,4 @@
+use super::FieldNameEnum;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
@@ -72,18 +73,24 @@ pub enum ExpressionRelationFieldName {
     IsSuppressing,
 }
 
-pub fn get_col_name(name: &ExpressionRelationFieldName) -> String {
-    match name {
-        ExpressionRelationFieldName::AlleleName => "allele_name".to_owned(),
-        ExpressionRelationFieldName::ExpressingPhenotypeName => {
-            "expressing_phenotype_name".to_owned()
+impl FieldNameEnum for ExpressionRelationFieldName {
+    fn get_col_name(self: &ExpressionRelationFieldName) -> String {
+        match self {
+            ExpressionRelationFieldName::AlleleName => "allele_name".to_owned(),
+            ExpressionRelationFieldName::ExpressingPhenotypeName => {
+                "expressing_phenotype_name".to_owned()
+            }
+            ExpressionRelationFieldName::ExpressingPhenotypeWild => {
+                "expressing_phenotype_wild".to_owned()
+            }
+            ExpressionRelationFieldName::AlteringPhenotypeName => {
+                "altering_phenotype_name".to_owned()
+            }
+            ExpressionRelationFieldName::AlteringPhenotypeWild => {
+                "altering_phenotype_wild".to_owned()
+            }
+            ExpressionRelationFieldName::AlteringCondition => "altering_condition".to_owned(),
+            ExpressionRelationFieldName::IsSuppressing => "is_suppressing".to_owned(),
         }
-        ExpressionRelationFieldName::ExpressingPhenotypeWild => {
-            "expressing_phenotype_wild".to_owned()
-        }
-        ExpressionRelationFieldName::AlteringPhenotypeName => "altering_phenotype_name".to_owned(),
-        ExpressionRelationFieldName::AlteringPhenotypeWild => "altering_phenotype_wild".to_owned(),
-        ExpressionRelationFieldName::AlteringCondition => "altering_condition".to_owned(),
-        ExpressionRelationFieldName::IsSuppressing => "is_suppressing".to_owned(),
     }
 }

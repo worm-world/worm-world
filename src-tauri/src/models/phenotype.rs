@@ -1,3 +1,4 @@
+use super::FieldNameEnum;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
@@ -69,17 +70,18 @@ pub enum PhenotypeFieldName {
     Arrested,
     MaturationDays,
 }
-
-pub fn get_col_name(name: &PhenotypeFieldName) -> String {
-    match name {
-        PhenotypeFieldName::Name => "name".to_owned(),
-        PhenotypeFieldName::Wild => "wild".to_owned(),
-        PhenotypeFieldName::ShortName => "short_name".to_owned(),
-        PhenotypeFieldName::Description => "description".to_owned(),
-        PhenotypeFieldName::MaleMating => "male_mating".to_owned(),
-        PhenotypeFieldName::Lethal => "lethal".to_owned(),
-        PhenotypeFieldName::FemaleSterile => "female_sterile".to_owned(),
-        PhenotypeFieldName::Arrested => "arrested".to_owned(),
-        PhenotypeFieldName::MaturationDays => "maturation_days".to_owned(),
+impl FieldNameEnum for PhenotypeFieldName {
+    fn get_col_name(self: &PhenotypeFieldName) -> String {
+        match self {
+            PhenotypeFieldName::Name => "name".to_owned(),
+            PhenotypeFieldName::Wild => "wild".to_owned(),
+            PhenotypeFieldName::ShortName => "short_name".to_owned(),
+            PhenotypeFieldName::Description => "description".to_owned(),
+            PhenotypeFieldName::MaleMating => "male_mating".to_owned(),
+            PhenotypeFieldName::Lethal => "lethal".to_owned(),
+            PhenotypeFieldName::FemaleSterile => "female_sterile".to_owned(),
+            PhenotypeFieldName::Arrested => "arrested".to_owned(),
+            PhenotypeFieldName::MaturationDays => "maturation_days".to_owned(),
+        }
     }
 }

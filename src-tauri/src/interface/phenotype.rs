@@ -1,7 +1,7 @@
 use super::{DbError, InnerDbState};
 use crate::models::{
-    filters::{filter_query_builder::FilterQueryBuilder, phenotype_filter::PhenotypeFilter},
-    phenotype::{Phenotype, PhenotypeDb},
+    filter::{Filter, FilterQueryBuilder},
+    phenotype::{Phenotype, PhenotypeDb, PhenotypeFieldName},
 };
 use anyhow::Result;
 use sqlx::{QueryBuilder, Sqlite};
@@ -41,7 +41,7 @@ impl InnerDbState {
 
     pub async fn get_filtered_phenotypes(
         &self,
-        filter: &PhenotypeFilter,
+        filter: &Filter<PhenotypeFieldName>,
     ) -> Result<Vec<Phenotype>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT
@@ -101,10 +101,10 @@ impl InnerDbState {
 mod test {
     use std::collections::HashMap;
 
-    use crate::models::filters::special_filter::{SpecialFilter, SpecialFilterType};
+    use crate::dummy::testdata;
+    use crate::models::filter::{Filter, SpecialFilter, SpecialFilterType};
     use crate::models::phenotype::{Phenotype, PhenotypeFieldName};
     use crate::InnerDbState;
-    use crate::{dummy::testdata, models::filters::phenotype_filter::PhenotypeFilter};
     use anyhow::Result;
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
@@ -123,7 +123,7 @@ mod test {
     async fn test_get_filtered_phenotypes(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_phenotypes(&PhenotypeFilter {
+            .get_filtered_phenotypes(&Filter::<PhenotypeFieldName> {
                 col_filters: HashMap::new(),
                 col_special_filters: HashMap::from([
                     (
