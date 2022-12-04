@@ -50,7 +50,7 @@ pub enum AlleleExpressionFieldName {
 }
 
 impl FieldNameEnum for AlleleExpressionFieldName {
-    fn get_col_name(self: &Self) -> String {
+    fn get_col_name(&self) -> String {
         match self {
             AlleleExpressionFieldName::AlleleName => "allele_name".to_owned(),
             AlleleExpressionFieldName::ExpressingPhenotypeName => {

@@ -24,7 +24,7 @@ pub enum AlleleFieldName {
 }
 
 impl FieldNameEnum for AlleleFieldName {
-    fn get_col_name(self: &Self) -> String {
+    fn get_col_name(&self) -> String {
         match self {
             AlleleFieldName::Name => "name".to_owned(),
             AlleleFieldName::Contents => "contents".to_owned(),
