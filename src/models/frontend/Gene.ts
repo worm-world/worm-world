@@ -1,40 +1,42 @@
-import db_Gene from 'models/db/db_Gene';
-import db_VariationInfo from 'models/db/db_VariationInfo';
+import { db_Gene } from 'models/db/db_Gene';
 
 /**
  * @summary Locations for a gene can be represented as a single number OR as a range between two numbers
  * @param start Start of range
  * @param end End of range. Leave blank if location is not a range
  */
-export class Location {
-  private readonly start: Number;
-  private readonly end?: Number;
+export class GeneLocation {
+  private readonly start?: number;
+  private readonly end?: number;
 
-  public constructor(start: Number, end?: Number) {
-    this.start = start;
-    this.end = end;
+  public constructor(
+    start: number | bigint | null,
+    end?: number | bigint | null
+  ) {
+    this.start = start !== null ? Number(start) : undefined;
+    this.end = end !== null ? Number(end) : undefined;
   }
 
   isRange = (): boolean => this.end !== undefined;
-  getRange = (): [Number, Number] => [this.start, Number(this.end)];
-  getLoc = (): Number => this.start;
+  getRange = (): [number, number] => [Number(this.start), Number(this.end)];
+  getLoc = (): number | undefined => this.start;
 }
 
 interface IGene {
-  name: String;
-  chromosome?: String;
+  name: string;
+  chromosome?: string;
   /** Physical location of the gene on a chromosome */
-  physLoc: Location;
+  physLoc: GeneLocation;
   /** Gene's genetic distance from the middle of a chromosome */
-  geneticLoc: Location;
+  geneticLoc: GeneLocation;
 }
 export class Gene {
-  name: String = '';
-  chromosome?: String;
+  name: string = '';
+  chromosome?: string;
   /** Physical location of the gene on a chromosome */
-  physLoc: Location = new Location(0);
+  physLoc?: GeneLocation;
   /** Gene's genetic distance from the middle of a chromosome */
-  geneticLoc: Location = new Location(0);
+  geneticLoc?: GeneLocation;
 
   constructor(fields: IGene) {
     Object.assign(this, fields);
@@ -43,58 +45,19 @@ export class Gene {
   static createFromRecord(record: db_Gene): Gene {
     return new Gene({
       name: record.name,
-      physLoc: new Location(record.physLoc),
-      geneticLoc: new Location(record.geneticLoc),
-      chromosome: record.chromosome,
+      physLoc: new GeneLocation(record.physLoc),
+      geneticLoc: new GeneLocation(record.geneticLoc),
+      chromosome: record.chromosome ?? undefined,
     });
   }
 
   generateRecord = (): db_Gene => {
+    const phys = this.physLoc?.getLoc();
     return {
       name: this.name,
-      physLoc: this.physLoc.getLoc(),
-      geneticLoc: this.geneticLoc.getLoc(),
-      chromosome: this.chromosome,
-    };
-  };
-}
-
-interface IVariationInfo {
-  alleleName: String;
-  physLoc?: Location;
-  geneticLoc?: Location;
-  chromosome?: String;
-}
-
-export class VariationInfo {
-  alleleName: String = '';
-  /** Physical location of the variation on a chromosome */
-  physLoc?: Location;
-  /** Variation's genetic distance from the middle of a chromosome */
-  geneticLoc?: Location;
-  chromosome?: String;
-
-  constructor(fields: IVariationInfo) {
-    Object.assign(this, fields);
-  }
-
-  static createFromRecord(record: db_VariationInfo): VariationInfo {
-    return new VariationInfo({
-      alleleName: record.alleleName,
-      physLoc:
-        record.physLoc != null ? new Location(record.physLoc) : undefined,
-      geneticLoc:
-        record.geneticLoc != null ? new Location(record.geneticLoc) : undefined,
-      chromosome: record.chromosome,
-    });
-  }
-
-  generateRecord = (): db_VariationInfo => {
-    return {
-      alleleName: this.alleleName,
-      physLoc: this.physLoc?.getLoc(),
-      geneticLoc: this.geneticLoc?.getLoc(),
-      chromosome: this.chromosome,
+      physLoc: phys !== undefined ? BigInt(phys) : null,
+      geneticLoc: this.geneticLoc?.getLoc() ?? null,
+      chromosome: this.chromosome ?? null,
     };
   };
 }

@@ -1,6 +1,5 @@
 use super::{DbError, InnerDbState};
 use crate::models::{
-    allele_expr::AlleleExpressionFieldName,
     expr_relation::ExpressionRelationFieldName,
     filter::{Filter, FilterQueryBuilder},
     phenotype::{Phenotype, PhenotypeDb, PhenotypeFieldName},
