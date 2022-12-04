@@ -1,9 +1,7 @@
 use super::{DbError, InnerDbState};
 use crate::models::{
-    allele_expr::{AlleleExpression, AlleleExpressionDb},
-    filters::{
-        allele_expr_filter::AlleleExpressionFilter, filter_query_builder::FilterQueryBuilder,
-    },
+    allele_expr::{AlleleExpression, AlleleExpressionDb, AlleleExpressionFieldName},
+    filter::{Filter, FilterQueryBuilder},
 };
 use anyhow::Result;
 use sqlx::{QueryBuilder, Sqlite};
@@ -31,7 +29,7 @@ impl InnerDbState {
 
     pub async fn get_filtered_allele_exprs(
         &self,
-        filter: &AlleleExpressionFilter,
+        filter: &Filter<AlleleExpressionFieldName>,
     ) -> Result<Vec<AlleleExpression>, DbError> {
         let mut qb: QueryBuilder<Sqlite> =
             QueryBuilder::new("SELECT allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance FROM allele_exprs");
@@ -78,7 +76,7 @@ mod test {
 
     use crate::dummy::testdata;
     use crate::models::allele_expr::AlleleExpressionFieldName;
-    use crate::models::filters::allele_expr_filter::AlleleExpressionFilter;
+    use crate::models::filter::Filter;
     use crate::models::{
         allele::Allele, allele_expr::AlleleExpression, gene::Gene, phenotype::Phenotype,
     };
@@ -99,7 +97,7 @@ mod test {
     async fn test_get_filtered_allele_expr(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_allele_exprs(&AlleleExpressionFilter {
+            .get_filtered_allele_exprs(&Filter::<AlleleExpressionFieldName> {
                 col_filters: HashMap::from([(
                     AlleleExpressionFieldName::AlleleName,
                     vec!["cn64".to_owned()],

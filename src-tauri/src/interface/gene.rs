@@ -1,7 +1,7 @@
 use super::{DbError, InnerDbState};
 use crate::models::{
-    filters::{filter_query_builder::FilterQueryBuilder, gene_filter::GeneFilter},
-    gene::Gene,
+    filter::{Filter, FilterQueryBuilder},
+    gene::{Gene, GeneFieldName},
 };
 use anyhow::Result;
 use sqlx::{QueryBuilder, Sqlite};
@@ -25,7 +25,10 @@ impl InnerDbState {
         }
     }
 
-    pub async fn get_filtered_genes(&self, filter: &GeneFilter) -> Result<Vec<Gene>, DbError> {
+    pub async fn get_filtered_genes(
+        &self,
+        filter: &Filter<GeneFieldName>,
+    ) -> Result<Vec<Gene>, DbError> {
         let mut qb: QueryBuilder<Sqlite> =
             QueryBuilder::new("SELECT name, chromosome, phys_loc, gen_loc FROM genes");
         filter.add_filtered_query(&mut qb);
@@ -70,7 +73,7 @@ mod test {
 
     use crate::models::gene::{Gene, GeneFieldName};
     use crate::InnerDbState;
-    use crate::{dummy::testdata, models::filters::gene_filter::GeneFilter};
+    use crate::{dummy::testdata, models::filter::Filter};
     use anyhow::Result;
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
@@ -90,7 +93,7 @@ mod test {
     async fn test_get_filtered_genes(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_genes(&GeneFilter {
+            .get_filtered_genes(&Filter::<GeneFieldName> {
                 col_filters: HashMap::from([(
                     GeneFieldName::Chromosome,
                     vec!["X".to_owned(), "IV".to_owned()],

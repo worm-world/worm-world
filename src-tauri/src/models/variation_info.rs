@@ -1,3 +1,4 @@
+use super::FieldNameEnum;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
@@ -22,12 +23,13 @@ pub enum VariationFieldName {
     PhysLoc,
     GenLoc,
 }
-
-pub fn get_col_name(name: &VariationFieldName) -> String {
-    match name {
-        VariationFieldName::AlleleName => "allele_name".to_owned(),
-        VariationFieldName::Chromosome => "chromosome".to_owned(),
-        VariationFieldName::PhysLoc => "phys_loc".to_owned(),
-        VariationFieldName::GenLoc => "gen_loc".to_owned(),
+impl FieldNameEnum for VariationFieldName {
+    fn get_col_name(self: &VariationFieldName) -> String {
+        match self {
+            VariationFieldName::AlleleName => "allele_name".to_owned(),
+            VariationFieldName::Chromosome => "chromosome".to_owned(),
+            VariationFieldName::PhysLoc => "phys_loc".to_owned(),
+            VariationFieldName::GenLoc => "gen_loc".to_owned(),
+        }
     }
 }

@@ -1,3 +1,4 @@
+use super::FieldNameEnum;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
@@ -48,13 +49,17 @@ pub enum AlleleExpressionFieldName {
     Dominance,
 }
 
-pub fn get_col_name(name: &AlleleExpressionFieldName) -> String {
-    match name {
-        AlleleExpressionFieldName::AlleleName => "allele_name".to_owned(),
-        AlleleExpressionFieldName::ExpressingPhenotypeName => {
-            "expressing_phenotype_name".to_owned()
+impl FieldNameEnum for AlleleExpressionFieldName {
+    fn get_col_name(self: &Self) -> String {
+        match self {
+            AlleleExpressionFieldName::AlleleName => "allele_name".to_owned(),
+            AlleleExpressionFieldName::ExpressingPhenotypeName => {
+                "expressing_phenotype_name".to_owned()
+            }
+            AlleleExpressionFieldName::ExpressingPhenotypeWild => {
+                "expressingPhenotypeWild".to_owned()
+            }
+            AlleleExpressionFieldName::Dominance => "dominance".to_owned(),
         }
-        AlleleExpressionFieldName::ExpressingPhenotypeWild => "expressingPhenotypeWild".to_owned(),
-        AlleleExpressionFieldName::Dominance => "dominance".to_owned(),
     }
 }
