@@ -57,8 +57,7 @@ impl InnerDbState {
             FROM phenotypes",
         );
         filter.add_filtered_query(&mut qb);
-
-        match sqlx::query_as::<_, PhenotypeDb>(&qb.into_sql())
+        match qb.build_query_as::<PhenotypeDb>()
             .fetch_all(&self.conn_pool)
             .await
         {
@@ -102,7 +101,7 @@ mod test {
     use std::collections::HashMap;
 
     use crate::dummy::testdata;
-    use crate::models::filter::{Filter, SpecialFilter, SpecialFilterType};
+    use crate::models::filter::{Filter, FilterType};
     use crate::models::phenotype::{Phenotype, PhenotypeFieldName};
     use crate::InnerDbState;
     use anyhow::Result;
@@ -124,21 +123,14 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_phenotypes(&Filter::<PhenotypeFieldName> {
-                col_filters: HashMap::new(),
-                col_special_filters: HashMap::from([
+                col_filters: HashMap::from([
                     (
                         PhenotypeFieldName::MaleMating,
-                        vec![SpecialFilter {
-                            col_value: "2".to_string(),
-                            filter_type: SpecialFilterType::LessThan,
-                        }],
+                        vec![FilterType::LessThan("2".to_owned(), false)],
                     ),
                     (
                         PhenotypeFieldName::MaturationDays,
-                        vec![SpecialFilter {
-                            col_value: "".to_string(),
-                            filter_type: SpecialFilterType::Null,
-                        }],
+                        vec![FilterType::Null],
                     ),
                 ]),
                 order_by: vec![PhenotypeFieldName::Name],

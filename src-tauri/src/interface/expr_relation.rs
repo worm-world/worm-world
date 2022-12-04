@@ -59,7 +59,7 @@ impl InnerDbState {
         );
         filter.add_filtered_query(&mut qb);
 
-        match sqlx::query_as::<_, ExpressionRelationDb>(&qb.into_sql())
+        match qb.build_query_as::<ExpressionRelationDb>()
             .fetch_all(&self.conn_pool)
             .await
         {
@@ -110,7 +110,7 @@ mod test {
 
     use crate::dummy::testdata;
     use crate::models::expr_relation::ExpressionRelationFieldName;
-    use crate::models::filter::Filter;
+    use crate::models::filter::{Filter, FilterType};
     use crate::models::{
         allele::Allele, allele_expr::AlleleExpression, expr_relation::ExpressionRelation,
         phenotype::Phenotype, variation_info::VariationInfo,
@@ -136,14 +136,13 @@ mod test {
                 col_filters: HashMap::from([
                     (
                         ExpressionRelationFieldName::AlteringCondition,
-                        vec!["Histamine".to_owned()],
+                        vec![FilterType::Equal("Histamine".to_owned())],
                     ),
                     (
                         ExpressionRelationFieldName::ExpressingPhenotypeName,
-                        vec!["paralyzed".to_owned()],
+                        vec![FilterType::Equal("paralyzed".to_owned())],
                     ),
                 ]),
-                col_special_filters: HashMap::new(),
                 order_by: vec![ExpressionRelationFieldName::AlleleName],
             })
             .await?;

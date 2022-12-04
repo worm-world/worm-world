@@ -33,8 +33,7 @@ impl InnerDbState {
         let mut qb: QueryBuilder<Sqlite> =
             QueryBuilder::new("SELECT name, contents, gene_name, variation_name FROM alleles");
         filter.add_filtered_query(&mut qb);
-
-        match sqlx::query_as::<_, Allele>(&qb.into_sql())
+        match qb.build_query_as::<Allele>()
             .fetch_all(&self.conn_pool)
             .await
         {
@@ -74,7 +73,7 @@ mod test {
 
     use crate::dummy::testdata;
     use crate::models::allele::AlleleFieldName;
-    use crate::models::filter::Filter;
+    use crate::models::filter::{Filter, FilterType};
     use crate::models::{allele::Allele, gene::Gene, variation_info::VariationInfo};
     use crate::InnerDbState;
     use anyhow::Result;
@@ -129,9 +128,11 @@ mod test {
             .get_filtered_alleles(&Filter::<AlleleFieldName> {
                 col_filters: HashMap::from([(
                     AlleleFieldName::GeneName,
-                    vec!["unc-18".to_owned(), "dpy-10".to_owned()],
+                    vec![
+                        FilterType::Equal("unc-18".to_owned()),
+                        FilterType::Equal("dpy-10".to_owned()),
+                    ],
                 )]),
-                col_special_filters: HashMap::new(),
                 order_by: vec![AlleleFieldName::Name],
             })
             .await?;

@@ -54,7 +54,7 @@ impl InnerDbState {
         );
         filter.add_filtered_query(&mut qb);
 
-        match sqlx::query_as::<_, ConditionDb>(&qb.into_sql())
+        match qb.build_query_as::<ConditionDb>()
             .fetch_all(&self.conn_pool)
             .await
         {
@@ -97,7 +97,7 @@ mod test {
 
     use crate::dummy::testdata;
     use crate::models::condition::{Condition, ConditionFieldName};
-    use crate::models::filter::{Filter, SpecialFilter, SpecialFilterType};
+    use crate::models::filter::{Filter, FilterType};
     use crate::InnerDbState;
     use anyhow::Result;
     use pretty_assertions::assert_eq;
@@ -118,13 +118,9 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_conditions(&Filter::<ConditionFieldName> {
-                col_filters: HashMap::new(),
-                col_special_filters: HashMap::from([(
+                col_filters: HashMap::from([(
                     ConditionFieldName::MaturationDays,
-                    vec![SpecialFilter {
-                        col_value: "4".to_owned(),
-                        filter_type: SpecialFilterType::LessThan,
-                    }],
+                    vec![FilterType::LessThan("4".to_owned(), false)],
                 )]),
                 order_by: vec![ConditionFieldName::Name],
             })

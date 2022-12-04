@@ -34,8 +34,7 @@ impl InnerDbState {
             "SELECT allele_name, chromosome, phys_loc, gen_loc FROM variation_info",
         );
         filter.add_filtered_query(&mut qb);
-
-        match sqlx::query_as::<_, VariationInfo>(&qb.into_sql())
+        match qb.build_query_as::<VariationInfo>()
             .fetch_all(&self.conn_pool)
             .await
         {
@@ -74,7 +73,7 @@ mod test {
     use std::collections::HashMap;
 
     use crate::dummy::testdata;
-    use crate::models::filter::{Filter, SpecialFilter, SpecialFilterType};
+    use crate::models::filter::{Filter, FilterType};
     use crate::models::variation_info::{VariationFieldName, VariationInfo};
     use crate::InnerDbState;
     use anyhow::Result;
@@ -94,22 +93,15 @@ mod test {
     async fn test_get_filtered_variation_info(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let filter = Filter::<VariationFieldName> {
-            col_filters: HashMap::new(),
-            col_special_filters: HashMap::from([
-                (
-                    VariationFieldName::Chromosome,
-                    vec![SpecialFilter {
-                        col_value: "".to_string(),
-                        filter_type: SpecialFilterType::NotNull,
-                    }],
-                ),
-                (
-                    VariationFieldName::PhysLoc,
-                    vec![SpecialFilter {
-                        col_value: "".to_string(),
-                        filter_type: SpecialFilterType::NotNull,
-                    }],
-                ),
+            col_filters: HashMap::from([
+                (VariationFieldName::PhysLoc,
+                vec![
+                    FilterType::NotNull,
+                ]),
+                (VariationFieldName::Chromosome,
+                vec![
+                    FilterType::NotNull,
+                ]),
             ]),
             order_by: vec![
                 VariationFieldName::AlleleName,
