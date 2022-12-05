@@ -59,7 +59,8 @@ impl InnerDbState {
         );
         filter.add_filtered_query(&mut qb);
 
-        match qb.build_query_as::<ExpressionRelationDb>()
+        match qb
+            .build_query_as::<ExpressionRelationDb>()
             .fetch_all(&self.conn_pool)
             .await
         {
@@ -106,7 +107,6 @@ impl InnerDbState {
 
 #[cfg(test)]
 mod test {
-    use std::collections::HashMap;
 
     use crate::dummy::testdata;
     use crate::models::expr_relation::ExpressionRelationFieldName;
@@ -133,16 +133,16 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_expr_relations(&Filter::<ExpressionRelationFieldName> {
-                col_filters: HashMap::from([
+                filters: vec![vec![
                     (
                         ExpressionRelationFieldName::AlteringCondition,
-                        vec![FilterType::Equal("Histamine".to_owned())],
+                        FilterType::Equal("Histamine".to_owned()),
                     ),
                     (
                         ExpressionRelationFieldName::ExpressingPhenotypeName,
-                        vec![FilterType::Equal("paralyzed".to_owned())],
+                        FilterType::Equal("paralyzed".to_owned()),
                     ),
-                ]),
+                ]],
                 order_by: vec![ExpressionRelationFieldName::AlleleName],
             })
             .await?;

@@ -33,10 +33,7 @@ impl InnerDbState {
             QueryBuilder::new("SELECT name, chromosome, phys_loc, gen_loc FROM genes");
         filter.add_filtered_query(&mut qb);
 
-        match qb.build_query_as::<Gene>()
-            .fetch_all(&self.conn_pool)
-            .await
-        {
+        match qb.build_query_as::<Gene>().fetch_all(&self.conn_pool).await {
             Ok(exprs) => Ok(exprs.into_iter().collect()),
             Err(e) => {
                 eprint!("Get Filtered Gene error: {e}");
@@ -69,7 +66,6 @@ impl InnerDbState {
 
 #[cfg(test)]
 mod test {
-    use std::collections::HashMap;
 
     use crate::models::gene::{Gene, GeneFieldName};
     use crate::InnerDbState;
@@ -97,13 +93,13 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_genes(&Filter::<GeneFieldName> {
-                col_filters: HashMap::from([(
-                    GeneFieldName::Chromosome,
-                    vec![
-                        FilterType::Equal("X".to_owned()),
+                filters: vec![
+                    vec![(GeneFieldName::Chromosome, FilterType::Equal("X".to_owned()))],
+                    vec![(
+                        GeneFieldName::Chromosome,
                         FilterType::Equal("IV".to_owned()),
-                    ],
-                )]),
+                    )],
+                ],
                 order_by: vec![GeneFieldName::Name],
             })
             .await?;

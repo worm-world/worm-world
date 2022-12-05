@@ -34,7 +34,8 @@ impl InnerDbState {
             "SELECT allele_name, chromosome, phys_loc, gen_loc FROM variation_info",
         );
         filter.add_filtered_query(&mut qb);
-        match qb.build_query_as::<VariationInfo>()
+        match qb
+            .build_query_as::<VariationInfo>()
             .fetch_all(&self.conn_pool)
             .await
         {
@@ -70,7 +71,6 @@ impl InnerDbState {
 
 #[cfg(test)]
 mod test {
-    use std::collections::HashMap;
 
     use crate::dummy::testdata;
     use crate::models::filter::{Filter, FilterType};
@@ -93,16 +93,10 @@ mod test {
     async fn test_get_filtered_variation_info(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let filter = Filter::<VariationFieldName> {
-            col_filters: HashMap::from([
-                (VariationFieldName::PhysLoc,
-                vec![
-                    FilterType::NotNull,
-                ]),
-                (VariationFieldName::Chromosome,
-                vec![
-                    FilterType::NotNull,
-                ]),
-            ]),
+            filters: vec![vec![
+                (VariationFieldName::PhysLoc, FilterType::NotNull),
+                (VariationFieldName::Chromosome, FilterType::NotNull),
+            ]],
             order_by: vec![
                 VariationFieldName::AlleleName,
                 VariationFieldName::Chromosome,

@@ -1,34 +1,11 @@
 use super::FieldNameEnum;
 use serde::{Deserialize, Serialize};
 use sqlx::{QueryBuilder, Sqlite};
-use std::collections::HashMap;
 use ts_rs::TS;
 
 pub trait FilterQueryBuilder {
     fn add_filtered_query(&self, query: &mut QueryBuilder<Sqlite>);
 }
-
-// #[derive(Serialize, Deserialize, Debug, TS)]
-// #[ts(export, export_to = "../src/models/db/filter/SpecialFilter.ts")]
-// pub struct SpecialFilter {
-//     #[serde(rename = "fieldValue")]
-//     pub col_value: String,
-//     #[serde(rename = "specialFilterType")]
-//     pub filter_type: SpecialFilterType,
-// }
-
-// #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, TS)]
-// #[ts(export, export_to = "../src/models/db/filter/SpecialFilterType.ts")]
-// pub enum SpecialFilterType {
-//     LessThan,
-//     LessThanOrEqual,
-//     GreaterThan,
-//     GreaterThanOrEqual,
-//     Null,
-//     NotNull,
-//     True,
-//     False,
-// }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, TS)]
 #[ts(export, export_to = "../src/models/db/filter/FilterType.ts")]
@@ -109,36 +86,72 @@ pub struct Filter<T>
 where
     T: TS + std::cmp::Eq + std::hash::Hash,
 {
-    /// map key is the fieldName, value is the list of filters for that col
-    #[serde(rename = "fieldFilters")]
-    pub col_filters: HashMap<T, Vec<FilterType>>,
+    /**
+     * Nested vectors allow AND / OR statements
+     * To create chained AND statements: add tuples in the INNER-MOST vectors
+     * To create chained OR statements: add multiple vectors with a single tuple in each
+     * To create mixed AND / OR statements: any combination of the above 2 lines
+     *
+     * -----------------------------------------------
+     *
+     * For example:
+     * [
+     *   [(col1, val1), (col2, val2), (col3, val3)]
+     * ]
+     *
+     * ^ would generate: WHERE (col1 == val1 AND col2 == val2 AND col3 == val3);
+     *
+     * -----------------------------------------------
+     *
+     * [
+     *   [(col1, val1)],
+     *   [(col1, val2)],
+     *   [(col2, val3)],
+     * ]
+     *
+     * ^ would generate: WHERE (col1 == val1) OR (col1 == val2) OR (col2 == val3);
+     *
+     * -----------------------------------------------
+     *
+     * [
+     *   [(col1, val1), (col2, val2), (col3, val3)],
+     *   [(col1, val1), (col4, val4)],
+     *   [(col5, val5)],
+     * ]
+     *
+     * ^ would generate: WHERE (col1 == val1 AND col2 == val2 AND col3 == and val3) OR
+     *                         (col1 == val1 AND col4 == val4) OR
+     *                         (col5 == val5);
+     */
+    pub filters: Vec<Vec<(T, FilterType)>>,
     #[serde(rename = "orderBy")]
     pub order_by: Vec<T>,
 }
 
 impl<T: FieldNameEnum> FilterQueryBuilder for Filter<T> {
     fn add_filtered_query(&self, qb: &mut QueryBuilder<Sqlite>) {
-        if self.col_filters.is_empty() {
+        if self.filters.is_empty() {
             return; //early exit
         }
         // WHERE
         qb.push(" WHERE \n");
 
         // all comparisons
-        for (i, (field_name, filter_list)) in self.col_filters.iter().enumerate() {
-            let col_name = field_name.get_col_name();
+        for (i, inner_filters) in self.filters.iter().enumerate() {
             if i > 0 {
-                qb.push(" AND ");
+                qb.push(" OR ");
             }
-            for (j, f) in filter_list.iter().enumerate() {
-                if j > 0 {
-                    qb.push(" OR ");
-                }
-                f.add_to_query(&col_name, qb);
-            }
-        }
 
-        qb.push(" \n");
+            qb.push(" ( ");
+            for (j, (field_name, filter)) in inner_filters.iter().enumerate() {
+                if j > 0 {
+                    qb.push(" AND ");
+                }
+                let col_name = field_name.get_col_name();
+                filter.add_to_query(&col_name, qb);
+            }
+            qb.push(" ) \n");
+        }
 
         // ORDER BY
         if !self.order_by.is_empty() {

@@ -54,7 +54,8 @@ impl InnerDbState {
         );
         filter.add_filtered_query(&mut qb);
 
-        match qb.build_query_as::<ConditionDb>()
+        match qb
+            .build_query_as::<ConditionDb>()
             .fetch_all(&self.conn_pool)
             .await
         {
@@ -93,7 +94,6 @@ impl InnerDbState {
 
 #[cfg(test)]
 mod test {
-    use std::collections::HashMap;
 
     use crate::dummy::testdata;
     use crate::models::condition::{Condition, ConditionFieldName};
@@ -118,10 +118,10 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_conditions(&Filter::<ConditionFieldName> {
-                col_filters: HashMap::from([(
+                filters: vec![vec![(
                     ConditionFieldName::MaturationDays,
-                    vec![FilterType::LessThan("4".to_owned(), false)],
-                )]),
+                    FilterType::LessThan("4".to_owned(), false),
+                )]],
                 order_by: vec![ConditionFieldName::Name],
             })
             .await?;
