@@ -35,7 +35,8 @@ impl InnerDbState {
             QueryBuilder::new("SELECT allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance FROM allele_exprs");
         filter.add_filtered_query(&mut qb);
 
-        match sqlx::query_as::<_, AlleleExpressionDb>(&qb.into_sql())
+        match qb
+            .build_query_as::<AlleleExpressionDb>()
             .fetch_all(&self.conn_pool)
             .await
         {
@@ -71,12 +72,9 @@ impl InnerDbState {
 
 #[cfg(test)]
 mod test {
-
-    use std::collections::HashMap;
-
     use crate::dummy::testdata;
     use crate::models::allele_expr::AlleleExpressionFieldName;
-    use crate::models::filter::Filter;
+    use crate::models::filter::{Filter, FilterType};
     use crate::models::{
         allele::Allele, allele_expr::AlleleExpression, gene::Gene, phenotype::Phenotype,
     };
@@ -98,11 +96,10 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_allele_exprs(&Filter::<AlleleExpressionFieldName> {
-                col_filters: HashMap::from([(
+                filters: vec![vec![(
                     AlleleExpressionFieldName::AlleleName,
-                    vec!["cn64".to_owned()],
-                )]),
-                col_special_filters: HashMap::new(),
+                    FilterType::Equal("cn64".to_owned()),
+                )]],
                 order_by: vec![AlleleExpressionFieldName::AlleleName],
             })
             .await?;

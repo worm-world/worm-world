@@ -33,10 +33,7 @@ impl InnerDbState {
             QueryBuilder::new("SELECT name, chromosome, phys_loc, gen_loc FROM genes");
         filter.add_filtered_query(&mut qb);
 
-        match sqlx::query_as::<_, Gene>(&qb.into_sql())
-            .fetch_all(&self.conn_pool)
-            .await
-        {
+        match qb.build_query_as::<Gene>().fetch_all(&self.conn_pool).await {
             Ok(exprs) => Ok(exprs.into_iter().collect()),
             Err(e) => {
                 eprint!("Get Filtered Gene error: {e}");
@@ -69,11 +66,13 @@ impl InnerDbState {
 
 #[cfg(test)]
 mod test {
-    use std::collections::HashMap;
 
     use crate::models::gene::{Gene, GeneFieldName};
     use crate::InnerDbState;
-    use crate::{dummy::testdata, models::filter::Filter};
+    use crate::{
+        dummy::testdata,
+        models::filter::{Filter, FilterType},
+    };
     use anyhow::Result;
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
@@ -94,11 +93,13 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_genes(&Filter::<GeneFieldName> {
-                col_filters: HashMap::from([(
-                    GeneFieldName::Chromosome,
-                    vec!["X".to_owned(), "IV".to_owned()],
-                )]),
-                col_special_filters: HashMap::new(),
+                filters: vec![
+                    vec![(GeneFieldName::Chromosome, FilterType::Equal("X".to_owned()))],
+                    vec![(
+                        GeneFieldName::Chromosome,
+                        FilterType::Equal("IV".to_owned()),
+                    )],
+                ],
                 order_by: vec![GeneFieldName::Name],
             })
             .await?;
