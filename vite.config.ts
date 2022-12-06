@@ -13,15 +13,6 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/tests/setupTests.ts',
   },
-
-  resolve: {
-    alias: [
-      {
-        find: 'components',
-        replacement: path.resolve(__dirname, 'src/components'),
-      },
-    ],
-  },
   // Vite optons tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   // prevent vite from obscuring rust errors
   clearScreen: false,
