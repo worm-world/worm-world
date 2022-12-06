@@ -1,5 +1,6 @@
 use super::{DbError, InnerDbState};
 use crate::models::{
+    expr_relation::ExpressionRelationFieldName,
     filter::{Filter, FilterQueryBuilder},
     phenotype::{Phenotype, PhenotypeDb, PhenotypeFieldName},
 };
@@ -70,6 +71,51 @@ impl InnerDbState {
         }
     }
 
+    pub async fn get_altering_phenotypes(
+        &self,
+        expr_relation_filter: &Filter<ExpressionRelationFieldName>,
+        phenotype_filter: &Filter<PhenotypeFieldName>,
+    ) -> Result<Vec<Phenotype>, DbError> {
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "SELECT DISTINCT
+            p.name,
+            p.wild,
+            p.short_name,
+            p.description,
+            p.male_mating,
+            p.lethal,
+            p.female_sterile,
+            p.arrested,
+            p.maturation_days
+            FROM
+                (
+                SELECT
+                    altering_phenotype_name AS pn,
+                    altering_phenotype_wild AS pw
+                FROM
+                    expr_relations",
+        );
+        expr_relation_filter.add_filtered_query(&mut qb);
+        qb.push(
+            ") JOIN phenotypes AS p 
+            ON p.name == pn
+            AND p.wild == pw\n",
+        );
+        phenotype_filter.add_filtered_query(&mut qb);
+
+        match qb
+            .build_query_as::<PhenotypeDb>()
+            .fetch_all(&self.conn_pool)
+            .await
+        {
+            Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
+            Err(e) => {
+                eprint!("Get Altering Phenotypes error: {e}");
+                Err(DbError::SqlQueryError(e.to_string()))
+            }
+        }
+    }
+
     pub async fn insert_phenotype(&self, phenotype: &Phenotype) -> Result<(), DbError> {
         match sqlx::query!(
             "INSERT INTO phenotypes (name, wild, short_name, description, male_mating, lethal, female_sterile, arrested, maturation_days)
@@ -101,6 +147,7 @@ impl InnerDbState {
 mod test {
 
     use crate::dummy::testdata;
+    use crate::models::expr_relation::ExpressionRelationFieldName;
     use crate::models::filter::{Filter, FilterType};
     use crate::models::phenotype::{Phenotype, PhenotypeFieldName};
     use crate::InnerDbState;
@@ -135,6 +182,50 @@ mod test {
             .await?;
 
         assert_eq!(exprs, testdata::get_filtered_phenotypes());
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_altering_phenotypes(pool: Pool<Sqlite>) -> Result<()> {
+        let expr_relation_filter = Filter::<ExpressionRelationFieldName> {
+            filters: vec![vec![
+                (
+                    ExpressionRelationFieldName::AlleleName,
+                    FilterType::Equal("oxIs644".to_owned()),
+                ),
+                (
+                    ExpressionRelationFieldName::ExpressingPhenotypeName,
+                    FilterType::Equal("YFP(pharynx)".to_owned()),
+                ),
+                (
+                    ExpressionRelationFieldName::ExpressingPhenotypeWild,
+                    FilterType::False,
+                ),
+                (
+                    ExpressionRelationFieldName::IsSuppressing,
+                    FilterType::False,
+                ),
+            ]],
+            order_by: vec![],
+        };
+
+        let phenotype_filter = Filter::<PhenotypeFieldName> {
+            filters: vec![vec![
+                (PhenotypeFieldName::Wild, FilterType::True),
+                (
+                    PhenotypeFieldName::MaturationDays,
+                    FilterType::GreaterThan("3".to_owned(), true),
+                ),
+            ]],
+            order_by: vec![],
+        };
+
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_altering_phenotypes(&expr_relation_filter, &phenotype_filter)
+            .await?;
+
+        assert_eq!(exprs, testdata::get_altering_phenotypes());
         Ok(())
     }
 

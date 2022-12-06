@@ -46,9 +46,11 @@ async fn main() {
             insert_gene,
             get_conditions,
             get_filtered_conditions,
+            get_altering_conditions,
             insert_condition,
             get_phenotypes,
             get_filtered_phenotypes,
+            get_altering_phenotypes,
             insert_phenotype,
             get_variation_info,
             get_filtered_variation_info,
@@ -142,6 +144,18 @@ async fn get_filtered_conditions(
 }
 
 #[tauri::command]
+async fn get_altering_conditions(
+    state: tauri::State<'_, DbState>,
+    expr_relation_filter: Filter<ExpressionRelationFieldName>,
+    condition_filter: Filter<ConditionFieldName>,
+) -> Result<Vec<Condition>, DbError> {
+    let state_guard = state.0.read().await;
+    state_guard
+        .get_altering_conditions(&expr_relation_filter, &condition_filter)
+        .await
+}
+
+#[tauri::command]
 async fn insert_condition(
     state: tauri::State<'_, DbState>,
     condition: Condition,
@@ -163,6 +177,18 @@ async fn get_filtered_phenotypes(
 ) -> Result<Vec<Phenotype>, DbError> {
     let state_guard = state.0.read().await;
     state_guard.get_filtered_phenotypes(&filter).await
+}
+
+#[tauri::command]
+async fn get_altering_phenotypes(
+    state: tauri::State<'_, DbState>,
+    expr_relation_filter: Filter<ExpressionRelationFieldName>,
+    phenotype_filter: Filter<PhenotypeFieldName>,
+) -> Result<Vec<Phenotype>, DbError> {
+    let state_guard = state.0.read().await;
+    state_guard
+        .get_altering_phenotypes(&expr_relation_filter, &phenotype_filter)
+        .await
 }
 
 #[tauri::command]

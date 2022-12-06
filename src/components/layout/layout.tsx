@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import SideNav from '../sideNav/sideNav';
+import SideNav from 'components/sideNav/sideNav';
 import { Button } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';

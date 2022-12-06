@@ -1,6 +1,7 @@
 use super::{DbError, InnerDbState};
 use crate::models::{
     condition::{Condition, ConditionDb, ConditionFieldName},
+    expr_relation::ExpressionRelationFieldName,
     filter::{Filter, FilterQueryBuilder},
 };
 use anyhow::Result;
@@ -67,6 +68,47 @@ impl InnerDbState {
         }
     }
 
+    pub async fn get_altering_conditions(
+        &self,
+        expr_relation_filter: &Filter<ExpressionRelationFieldName>,
+        condition_filter: &Filter<ConditionFieldName>,
+    ) -> Result<Vec<Condition>, DbError> {
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "SELECT DISTINCT
+            c.name,
+            c.description,
+            c.male_mating,
+            c.lethal,
+            c.female_sterile,
+            c.arrested,
+            c.maturation_days
+          FROM
+            (
+              SELECT
+                altering_condition AS ac
+              FROM
+                expr_relations",
+        );
+        expr_relation_filter.add_filtered_query(&mut qb);
+        qb.push(
+            ") JOIN conditions AS c 
+            ON c.name == ac\n",
+        );
+        condition_filter.add_filtered_query(&mut qb);
+
+        match qb
+            .build_query_as::<ConditionDb>()
+            .fetch_all(&self.conn_pool)
+            .await
+        {
+            Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
+            Err(e) => {
+                eprint!("Get Altering Conditions error: {e}");
+                Err(DbError::SqlQueryError(e.to_string()))
+            }
+        }
+    }
+
     pub async fn insert_condition(&self, condition: &Condition) -> Result<(), DbError> {
         match sqlx::query!(
             "INSERT INTO conditions (name, description, male_mating, lethal, female_sterile, arrested, maturation_days)
@@ -97,6 +139,7 @@ mod test {
 
     use crate::dummy::testdata;
     use crate::models::condition::{Condition, ConditionFieldName};
+    use crate::models::expr_relation::ExpressionRelationFieldName;
     use crate::models::filter::{Filter, FilterType};
     use crate::InnerDbState;
     use anyhow::Result;
@@ -127,6 +170,43 @@ mod test {
             .await?;
 
         assert_eq!(exprs, testdata::get_filtered_conditions());
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_altering_conditions(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let expr_relation_filter = Filter::<ExpressionRelationFieldName> {
+            filters: vec![vec![
+                (
+                    ExpressionRelationFieldName::AlleleName,
+                    FilterType::Equal("n765".to_owned()),
+                ),
+                (
+                    ExpressionRelationFieldName::ExpressingPhenotypeName,
+                    FilterType::Equal("lin-15B".to_owned()),
+                ),
+                (
+                    ExpressionRelationFieldName::ExpressingPhenotypeWild,
+                    FilterType::False,
+                ),
+                (
+                    ExpressionRelationFieldName::IsSuppressing,
+                    FilterType::False,
+                ),
+            ]],
+            order_by: vec![],
+        };
+        let condition_filter = Filter::<ConditionFieldName> {
+            filters: vec![],
+            order_by: vec![ConditionFieldName::Name],
+        };
+
+        let conditions = state
+            .get_altering_conditions(&expr_relation_filter, &condition_filter)
+            .await?;
+
+        assert_eq!(conditions, testdata::get_altering_conditions());
         Ok(())
     }
 

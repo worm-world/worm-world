@@ -1,7 +1,7 @@
 import Tab from '@mui/material/Tab';
 import React from 'react';
-import { TopNav } from '../components/TopNav/TopNav';
-import Paths from '../routes/frontend';
+import { TopNav } from 'components/TopNav/TopNav';
+import Paths from 'routes/frontend';
 import { Routes, Route } from 'react-router-dom';
 import Temp from './tempPage';
 

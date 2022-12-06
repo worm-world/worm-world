@@ -1,22 +1,95 @@
-import { Dominance } from '../enums';
-import Phenotype from './Phenotype';
+import { getFilteredAlleleExpressions } from 'api/alleleExpressions';
+import { getGene } from 'api/gene';
+import { getVariation } from 'api/variationInfo';
+import { db_Allele } from 'models/db/db_Allele';
+import { AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
+import { Filter } from 'models/db/filter/filter';
+import { DBError } from 'models/error';
+import { AlleleExpression } from 'models/frontend/AlleleExpression';
+import { Gene } from 'models/frontend/Gene';
+import { VariationInfo } from 'models/frontend/VariationInfo';
 
-export interface Allele {
-  name: String;
-  geneName: String;
-  contents: String;
+interface IAllele {
+  name: string;
+  geneName?: string;
+  contents?: string;
 }
 
-/**
- * @summary Relationship between an allele and the phenotypes it is able to exhibit
- */
-export interface AlleleExpression {
-  allele: Allele;
-  /** Phenotype attached to the allele that will be expressed */
-  expressingPhenotype: Phenotype;
-  /** Phenotypes that need to be present for the expressing phenotype to be visible */
-  expressionRequirements: Phenotype[];
-  /** Phenotypes that "cover up" the visibility of the expressing phenotype */
-  suppressingPhenotypes: Phenotype[];
-  dominance: Dominance;
+export class Allele {
+  name: string;
+  gene?: Gene;
+  variationInfo?: VariationInfo;
+  alleleExpressions: AlleleExpression[] = [];
+  contents?: string;
+
+  constructor(fields: IAllele) {
+    this.name = fields.name;
+    this.contents = fields.contents;
+    this.setGeneOrVariation(fields).catch((err) =>
+      console.error('error generating gene / variation', err)
+    );
+
+    this.setAlleleExpressions(fields.name).catch((err) =>
+      console.error('error generating allele expressions: ', err)
+    );
+  }
+
+  private readonly setGene = async (geneName: string): Promise<void> => {
+    const dbGene = await getGene(geneName);
+    if (dbGene instanceof DBError) return; // return if error
+    this.gene = Gene.createFromRecord(dbGene);
+  };
+
+  private readonly setVariation = async (alleleName: string): Promise<void> => {
+    const dbVariation = await getVariation(alleleName);
+    if (!(dbVariation instanceof DBError))
+      this.variationInfo = VariationInfo.createFromRecord(dbVariation);
+  };
+
+  private readonly setGeneOrVariation = async (
+    fields: IAllele
+  ): Promise<void> => {
+    fields.geneName !== undefined
+      ? await this.setGene(fields.geneName)
+      : await this.setVariation(fields.name);
+  };
+
+  private readonly setAlleleExpressions = async (
+    alleleName: string
+  ): Promise<void> => {
+    const filter = this.getAlleleExpressionsFilter(alleleName);
+    const dbAlleleExprs = await getFilteredAlleleExpressions(filter);
+    if (dbAlleleExprs instanceof DBError) return;
+
+    this.alleleExpressions = dbAlleleExprs.map((record) =>
+      AlleleExpression.createFromRecord(record)
+    );
+  };
+
+  private readonly getAlleleExpressionsFilter = (
+    alleleName: string
+  ): Filter<AlleleExpressionFieldName> => {
+    const filter: Filter<AlleleExpressionFieldName> = {
+      filters: [[['AlleleName', { Equal: alleleName }]]],
+      orderBy: [],
+    };
+    return filter;
+  };
+
+  static createFromRecord(record: db_Allele): Allele {
+    return new Allele({
+      name: record.name,
+      geneName: record.geneName ?? undefined,
+      contents: record.contents ?? undefined,
+    });
+  }
+
+  generateRecord = (): db_Allele => {
+    return {
+      name: this.name,
+      geneName: this.gene?.name ?? null,
+      variationName: this.variationInfo?.alleleName ?? null,
+      contents: this.contents ?? null,
+    };
+  };
 }

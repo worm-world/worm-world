@@ -58,3 +58,8 @@ export interface Filter<T> {
    */
   orderBy: T[];
 }
+
+type dbBool = 'True' | 'False';
+export const getDbBoolean = (val: boolean): dbBool => {
+  return val ? 'True' : 'False';
+};
