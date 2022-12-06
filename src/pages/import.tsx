@@ -1,8 +1,8 @@
 import { Tab } from '@mui/material';
 import React from 'react';
-import { TopNav } from '../components/TopNav/TopNav';
+import { TopNav } from 'components/TopNav/TopNav';
 import { Routes, Route } from 'react-router-dom';
-import Paths from '../routes/frontend';
+import Paths from 'routes/frontend';
 import Temp from './tempPage';
 
 const Import = (): JSX.Element => {

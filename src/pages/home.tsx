@@ -1,12 +1,12 @@
 import React from 'react';
-import { getGene } from '../api/gene';
+import { getGene } from 'api/gene';
 import { TopNav } from 'components/TopNav/TopNav';
-import { getAlleles } from '../api/allele';
-import { getAlleleExpressions } from '../api/alleleExpressions';
-import { getAlteringConditions, getConditions } from '../api/condition';
-import { getAlteringPhenotypes, getPhenotypes } from '../api/phenotype';
-import { getVariations } from '../api/variationInfo';
-import { Gene } from '../models/frontend/Gene';
+import { getAlleles } from 'api/allele';
+import { getAlleleExpressions } from 'api/alleleExpressions';
+import { getAlteringConditions, getConditions } from 'api/condition';
+import { getAlteringPhenotypes, getPhenotypes } from 'api/phenotype';
+import { getVariations } from 'api/variationInfo';
+import { Gene } from 'models/frontend/Gene';
 
 const Home = (): JSX.Element => {
   return (

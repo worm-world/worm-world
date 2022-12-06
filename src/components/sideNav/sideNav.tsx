@@ -1,5 +1,5 @@
 import { Link, To } from 'react-router-dom';
-import Paths from '../../routes/frontend';
+import Paths from 'routes/frontend';
 import {
   List,
   ListItem,

@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/tauri';
 import { db_AlleleExpression } from 'models/db/db_AlleleExpression';
 import { AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
-import { Filter, getDbBoolean } from '../models/db/filter/filter';
+import { Filter, getDbBoolean } from 'models/db/filter/filter';
 
 export const getAlleleExpressions = async (): Promise<
   db_AlleleExpression[]

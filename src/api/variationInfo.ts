@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/tauri';
 import { db_VariationInfo } from 'models/db/db_VariationInfo';
 import { VariationFieldName } from 'models/db/filter/db_VariationFieldName';
-import { Filter } from '../models/db/filter/filter';
+import { Filter } from 'models/db/filter/filter';
 
 export const getVariations = async (): Promise<db_VariationInfo[]> => {
   try {

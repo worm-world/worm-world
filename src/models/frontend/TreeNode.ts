@@ -1,4 +1,4 @@
-import { Sex } from '../enums';
+import { Sex } from 'models/enums';
 import Strain from './Strain';
 
 export default interface TreeNode {

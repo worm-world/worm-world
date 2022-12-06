@@ -2,7 +2,7 @@ import { invoke } from '@tauri-apps/api/tauri';
 import { db_Phenotype } from 'models/db/db_Phenotype';
 import { ExpressionRelationFieldName } from 'models/db/filter/db_ExpressionRelationFieldName';
 import { PhenotypeFieldName } from 'models/db/filter/db_PhenotypeFieldName';
-import { Filter, getDbBoolean } from '../models/db/filter/filter';
+import { Filter, getDbBoolean } from 'models/db/filter/filter';
 
 export const getPhenotypes = async (): Promise<db_Phenotype[]> => {
   try {

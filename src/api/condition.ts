@@ -2,7 +2,7 @@ import { invoke } from '@tauri-apps/api/tauri';
 import { db_Condition } from 'models/db/db_Condition';
 import { ConditionFieldName } from 'models/db/filter/db_ConditionFieldName';
 import { ExpressionRelationFieldName } from 'models/db/filter/db_ExpressionRelationFieldName';
-import { Filter, getDbBoolean } from '../models/db/filter/filter';
+import { Filter, getDbBoolean } from 'models/db/filter/filter';
 
 export const getConditions = async (): Promise<db_Condition[]> => {
   try {
