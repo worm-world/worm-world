@@ -130,27 +130,26 @@ where
 
 impl<T: FieldNameEnum> FilterQueryBuilder for Filter<T> {
     fn add_filtered_query(&self, qb: &mut QueryBuilder<Sqlite>) {
-        if self.filters.is_empty() {
-            return; //early exit
-        }
-        // WHERE
-        qb.push(" WHERE \n");
+        if !self.filters.is_empty() {
+            // WHERE
+            qb.push(" WHERE \n");
 
-        // all comparisons
-        for (i, inner_filters) in self.filters.iter().enumerate() {
-            if i > 0 {
-                qb.push(" OR ");
-            }
-
-            qb.push(" ( ");
-            for (j, (field_name, filter)) in inner_filters.iter().enumerate() {
-                if j > 0 {
-                    qb.push(" AND ");
+            // all comparisons
+            for (i, inner_filters) in self.filters.iter().enumerate() {
+                if i > 0 {
+                    qb.push(" OR ");
                 }
-                let col_name = field_name.get_col_name();
-                filter.add_to_query(&col_name, qb);
+
+                qb.push(" ( ");
+                for (j, (field_name, filter)) in inner_filters.iter().enumerate() {
+                    if j > 0 {
+                        qb.push(" AND ");
+                    }
+                    let col_name = field_name.get_col_name();
+                    filter.add_to_query(&col_name, qb);
+                }
+                qb.push(" ) \n");
             }
-            qb.push(" ) \n");
         }
 
         // ORDER BY

@@ -51,7 +51,7 @@ export const getAlteringPhenotypes = async (
   phenotypeWild: boolean,
   isSuppressing: boolean
 ): Promise<db_Phenotype[]> => {
-  const filter: Filter<ExpressionRelationFieldName> = {
+  const exprRelationFilter: Filter<ExpressionRelationFieldName> = {
     filters: [
       [
         ['AlleleName', { Equal: alleleName }],
@@ -62,10 +62,15 @@ export const getAlteringPhenotypes = async (
     ],
     orderBy: [],
   };
+  const phenotypeFilter: Filter<PhenotypeFieldName> = {
+    filters: [],
+    orderBy: [],
+  };
 
   try {
     const res = await invoke('get_altering_phenotypes', {
-      filter,
+      exprRelationFilter,
+      phenotypeFilter,
     });
     return res as db_Phenotype[];
   } catch (err) {

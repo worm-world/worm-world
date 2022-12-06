@@ -73,7 +73,8 @@ impl InnerDbState {
 
     pub async fn get_altering_phenotypes(
         &self,
-        filter: &Filter<ExpressionRelationFieldName>,
+        expr_relation_filter: &Filter<ExpressionRelationFieldName>,
+        phenotype_filter: &Filter<PhenotypeFieldName>,
     ) -> Result<Vec<Phenotype>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT DISTINCT
@@ -94,12 +95,13 @@ impl InnerDbState {
                 FROM
                     expr_relations",
         );
-        filter.add_filtered_query(&mut qb);
+        expr_relation_filter.add_filtered_query(&mut qb);
         qb.push(
             ") JOIN phenotypes AS p 
             ON p.name == pn
-            AND p.wild == pw",
+            AND p.wild == pw\n",
         );
+        phenotype_filter.add_filtered_query(&mut qb);
 
         match qb
             .build_query_as::<PhenotypeDb>()
@@ -185,29 +187,42 @@ mod test {
 
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_altering_phenotypes(pool: Pool<Sqlite>) -> Result<()> {
+        let expr_relation_filter = Filter::<ExpressionRelationFieldName> {
+            filters: vec![vec![
+                (
+                    ExpressionRelationFieldName::AlleleName,
+                    FilterType::Equal("oxIs644".to_owned()),
+                ),
+                (
+                    ExpressionRelationFieldName::ExpressingPhenotypeName,
+                    FilterType::Equal("YFP(pharynx)".to_owned()),
+                ),
+                (
+                    ExpressionRelationFieldName::ExpressingPhenotypeWild,
+                    FilterType::False,
+                ),
+                (
+                    ExpressionRelationFieldName::IsSuppressing,
+                    FilterType::False,
+                ),
+            ]],
+            order_by: vec![],
+        };
+
+        let phenotype_filter = Filter::<PhenotypeFieldName> {
+            filters: vec![vec![
+                (PhenotypeFieldName::Wild, FilterType::True),
+                (
+                    PhenotypeFieldName::MaturationDays,
+                    FilterType::GreaterThan("3".to_owned(), true),
+                ),
+            ]],
+            order_by: vec![],
+        };
+
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_altering_phenotypes(&Filter::<ExpressionRelationFieldName> {
-                filters: vec![vec![
-                    (
-                        ExpressionRelationFieldName::AlleleName,
-                        FilterType::Equal("oxIs644".to_owned()),
-                    ),
-                    (
-                        ExpressionRelationFieldName::ExpressingPhenotypeName,
-                        FilterType::Equal("YFP(pharynx)".to_owned()),
-                    ),
-                    (
-                        ExpressionRelationFieldName::ExpressingPhenotypeWild,
-                        FilterType::False,
-                    ),
-                    (
-                        ExpressionRelationFieldName::IsSuppressing,
-                        FilterType::False,
-                    ),
-                ]],
-                order_by: vec![],
-            })
+            .get_altering_phenotypes(&expr_relation_filter, &phenotype_filter)
             .await?;
 
         assert_eq!(exprs, testdata::get_altering_phenotypes());

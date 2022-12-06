@@ -146,10 +146,13 @@ async fn get_filtered_conditions(
 #[tauri::command]
 async fn get_altering_conditions(
     state: tauri::State<'_, DbState>,
-    filter: Filter<ExpressionRelationFieldName>,
+    expr_relation_filter: Filter<ExpressionRelationFieldName>,
+    condition_filter: Filter<ConditionFieldName>,
 ) -> Result<Vec<Condition>, DbError> {
     let state_guard = state.0.read().await;
-    state_guard.get_altering_conditions(&filter).await
+    state_guard
+        .get_altering_conditions(&expr_relation_filter, &condition_filter)
+        .await
 }
 
 #[tauri::command]
@@ -179,10 +182,13 @@ async fn get_filtered_phenotypes(
 #[tauri::command]
 async fn get_altering_phenotypes(
     state: tauri::State<'_, DbState>,
-    filter: Filter<ExpressionRelationFieldName>,
+    expr_relation_filter: Filter<ExpressionRelationFieldName>,
+    phenotype_filter: Filter<PhenotypeFieldName>,
 ) -> Result<Vec<Phenotype>, DbError> {
     let state_guard = state.0.read().await;
-    state_guard.get_altering_phenotypes(&filter).await
+    state_guard
+        .get_altering_phenotypes(&expr_relation_filter, &phenotype_filter)
+        .await
 }
 
 #[tauri::command]

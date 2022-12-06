@@ -45,7 +45,7 @@ export const getAlteringConditions = async (
   isSuppressing: boolean
 ): Promise<db_Condition[]> => {
   // Build expression relation filter
-  const filter: Filter<ExpressionRelationFieldName> = {
+  const exprRelationFilter: Filter<ExpressionRelationFieldName> = {
     filters: [
       [
         ['AlleleName', { Equal: alleleName }],
@@ -57,9 +57,15 @@ export const getAlteringConditions = async (
     orderBy: [],
   };
 
+  const conditionFilter: Filter<ConditionFieldName> = {
+    filters: [],
+    orderBy: [],
+  };
+
   try {
     const res = await invoke('get_altering_conditions', {
-      filter,
+      exprRelationFilter,
+      conditionFilter,
     });
     return res as db_Condition[];
   } catch (err) {

@@ -70,7 +70,8 @@ impl InnerDbState {
 
     pub async fn get_altering_conditions(
         &self,
-        filter: &Filter<ExpressionRelationFieldName>,
+        expr_relation_filter: &Filter<ExpressionRelationFieldName>,
+        condition_filter: &Filter<ConditionFieldName>,
     ) -> Result<Vec<Condition>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT DISTINCT
@@ -88,11 +89,12 @@ impl InnerDbState {
               FROM
                 expr_relations",
         );
-        filter.add_filtered_query(&mut qb);
+        expr_relation_filter.add_filtered_query(&mut qb);
         qb.push(
             ") JOIN conditions AS c 
-            ON c.name == ac",
+            ON c.name == ac\n",
         );
+        condition_filter.add_filtered_query(&mut qb);
 
         match qb
             .build_query_as::<ConditionDb>()
@@ -174,31 +176,37 @@ mod test {
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_altering_conditions(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
-        let exprs = state
-            .get_altering_conditions(&Filter::<ExpressionRelationFieldName> {
-                filters: vec![vec![
-                    (
-                        ExpressionRelationFieldName::AlleleName,
-                        FilterType::Equal("n765".to_owned()),
-                    ),
-                    (
-                        ExpressionRelationFieldName::ExpressingPhenotypeName,
-                        FilterType::Equal("lin-15B".to_owned()),
-                    ),
-                    (
-                        ExpressionRelationFieldName::ExpressingPhenotypeWild,
-                        FilterType::False,
-                    ),
-                    (
-                        ExpressionRelationFieldName::IsSuppressing,
-                        FilterType::False,
-                    ),
-                ]],
-                order_by: vec![ExpressionRelationFieldName::AlleleName],
-            })
+        let expr_relation_filter = Filter::<ExpressionRelationFieldName> {
+            filters: vec![vec![
+                (
+                    ExpressionRelationFieldName::AlleleName,
+                    FilterType::Equal("n765".to_owned()),
+                ),
+                (
+                    ExpressionRelationFieldName::ExpressingPhenotypeName,
+                    FilterType::Equal("lin-15B".to_owned()),
+                ),
+                (
+                    ExpressionRelationFieldName::ExpressingPhenotypeWild,
+                    FilterType::False,
+                ),
+                (
+                    ExpressionRelationFieldName::IsSuppressing,
+                    FilterType::False,
+                ),
+            ]],
+            order_by: vec![],
+        };
+        let condition_filter = Filter::<ConditionFieldName> {
+            filters: vec![],
+            order_by: vec![ConditionFieldName::Name],
+        };
+
+        let conditions = state
+            .get_altering_conditions(&expr_relation_filter, &condition_filter)
             .await?;
 
-        assert_eq!(exprs, testdata::get_altering_conditions());
+        assert_eq!(conditions, testdata::get_altering_conditions());
         Ok(())
     }
 
