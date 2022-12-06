@@ -4,6 +4,7 @@ import { getVariation } from 'api/variationInfo';
 import { db_Allele } from 'models/db/db_Allele';
 import { AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
 import { Filter } from 'models/db/filter/filter';
+import { DBError } from 'models/error';
 import { AlleleExpression } from 'models/frontend/AlleleExpression';
 import { Gene } from 'models/frontend/Gene';
 import { VariationInfo } from 'models/frontend/VariationInfo';
@@ -35,12 +36,13 @@ export class Allele {
 
   private readonly setGene = async (geneName: string): Promise<void> => {
     const dbGene = await getGene(geneName);
-    if (dbGene != null) this.gene = Gene.createFromRecord(dbGene);
+    if (dbGene instanceof DBError) return; // return if error
+    this.gene = Gene.createFromRecord(dbGene);
   };
 
   private readonly setVariation = async (alleleName: string): Promise<void> => {
     const dbVariation = await getVariation(alleleName);
-    if (dbVariation != null)
+    if (!(dbVariation instanceof DBError))
       this.variationInfo = VariationInfo.createFromRecord(dbVariation);
   };
 
@@ -57,6 +59,8 @@ export class Allele {
   ): Promise<void> => {
     const filter = this.getAlleleExpressionsFilter(alleleName);
     const dbAlleleExprs = await getFilteredAlleleExpressions(filter);
+    if (dbAlleleExprs instanceof DBError) return;
+
     this.alleleExpressions = dbAlleleExprs.map((record) =>
       AlleleExpression.createFromRecord(record)
     );
