@@ -48,7 +48,7 @@ export interface Filter<T> {
    *                         (field1 == val1 AND field4 == val4) OR
    *                         (field5 == val5);
    */
-  filters: [[FilterTuple<T>]];
+  filters: Array<Array<FilterTuple<T>>>;
   /**
    * @overview Allows ordering based on fieldNames
    * @example
