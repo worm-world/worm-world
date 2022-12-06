@@ -1,12 +1,7 @@
 import { invoke } from '@tauri-apps/api/tauri';
 import { db_AlleleExpression } from 'models/db/db_AlleleExpression';
 import { AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
-import { SpecialFilter } from 'models/db/filter/db_SpecialFilter';
-import {
-  Filter,
-  getDbBoolean,
-  prepareFilter,
-} from '../models/db/filter/filter';
+import { Filter, getDbBoolean } from '../models/db/filter/filter';
 
 export const getAlleleExpressions = async (): Promise<
   db_AlleleExpression[]
@@ -24,9 +19,7 @@ export const getFilteredAlleleExpressions = async (
   filter: Filter<AlleleExpressionFieldName>
 ): Promise<db_AlleleExpression[]> => {
   try {
-    const res = await invoke('get_filtered_allele_exprs', {
-      filter: prepareFilter(filter),
-    });
+    const res = await invoke('get_filtered_allele_exprs', { filter });
     return res as db_AlleleExpression[];
   } catch (err) {
     console.error('Unable to get filtered genes from db', err);
@@ -39,25 +32,16 @@ export const getAlleleExpression = async (
   expressingPhenotypeName: string,
   expressingPhenotypeWild: boolean
 ): Promise<db_AlleleExpression | undefined> => {
-  const fieldFilters = new Map<AlleleExpressionFieldName, string[]>();
-  fieldFilters.set('AlleleName', [alleleName]);
-  fieldFilters.set('ExpressingPhenotypeName', [expressingPhenotypeName]);
-
-  const fieldSpecialFilters = new Map<
-    AlleleExpressionFieldName,
-    SpecialFilter[]
-  >();
-  fieldSpecialFilters.set('ExpressingPhenotypeWild', [
-    {
-      fieldValue: '',
-      specialFilterType: getDbBoolean(expressingPhenotypeWild),
-    },
-  ]);
-
   const filter: Filter<AlleleExpressionFieldName> = {
-    fieldFilters,
-    fieldSpecialFilters,
+    filters: [
+      [
+        ['AlleleName', { Equal: alleleName }],
+        ['ExpressingPhenotypeName', { Equal: expressingPhenotypeName }],
+        ['ExpressingPhenotypeWild', getDbBoolean(expressingPhenotypeWild)],
+      ],
+    ],
     orderBy: [],
   };
+
   return (await getFilteredAlleleExpressions(filter))[0];
 };

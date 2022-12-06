@@ -101,13 +101,14 @@ impl InnerDbState {
             AND p.wild == pw",
         );
 
-        match sqlx::query_as::<_, PhenotypeDb>(&qb.into_sql())
+        match qb
+            .build_query_as::<PhenotypeDb>()
             .fetch_all(&self.conn_pool)
             .await
         {
             Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
-                eprint!("Get altering phenotypes error: {e}");
+                eprint!("Get Altering Phenotypes error: {e}");
                 Err(DbError::SqlQueryError(e.to_string()))
             }
         }
@@ -144,6 +145,7 @@ impl InnerDbState {
 mod test {
 
     use crate::dummy::testdata;
+    use crate::models::expr_relation::ExpressionRelationFieldName;
     use crate::models::filter::{Filter, FilterType};
     use crate::models::phenotype::{Phenotype, PhenotypeFieldName};
     use crate::InnerDbState;
@@ -178,6 +180,37 @@ mod test {
             .await?;
 
         assert_eq!(exprs, testdata::get_filtered_phenotypes());
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_altering_phenotypes(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_altering_phenotypes(&Filter::<ExpressionRelationFieldName> {
+                filters: vec![vec![
+                    (
+                        ExpressionRelationFieldName::AlleleName,
+                        FilterType::Equal("oxIs644".to_owned()),
+                    ),
+                    (
+                        ExpressionRelationFieldName::ExpressingPhenotypeName,
+                        FilterType::Equal("YFP(pharynx)".to_owned()),
+                    ),
+                    (
+                        ExpressionRelationFieldName::ExpressingPhenotypeWild,
+                        FilterType::False,
+                    ),
+                    (
+                        ExpressionRelationFieldName::IsSuppressing,
+                        FilterType::False,
+                    ),
+                ]],
+                order_by: vec![],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::get_altering_phenotypes());
         Ok(())
     }
 

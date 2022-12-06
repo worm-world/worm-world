@@ -59,14 +59,6 @@ export interface Filter<T> {
   orderBy: T[];
 }
 
-export function prepareFilter<T>(filter: Filter<T>): object {
-  return {
-    fieldFilters: Object.fromEntries(filter.fieldFilters),
-    fieldSpecialFilters: Object.fromEntries(filter.fieldSpecialFilters),
-    orderBy: filter.orderBy,
-  };
-}
-
 type dbBool = 'True' | 'False';
 export const getDbBoolean = (val: boolean): dbBool => {
   return val ? 'True' : 'False';

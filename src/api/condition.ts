@@ -2,12 +2,7 @@ import { invoke } from '@tauri-apps/api/tauri';
 import { db_Condition } from 'models/db/db_Condition';
 import { ConditionFieldName } from 'models/db/filter/db_ConditionFieldName';
 import { ExpressionRelationFieldName } from 'models/db/filter/db_ExpressionRelationFieldName';
-import { SpecialFilter } from 'models/db/filter/db_SpecialFilter';
-import {
-  Filter,
-  getDbBoolean,
-  prepareFilter,
-} from '../models/db/filter/filter';
+import { Filter, getDbBoolean } from '../models/db/filter/filter';
 
 export const getConditions = async (): Promise<db_Condition[]> => {
   try {
@@ -24,7 +19,7 @@ export const getFilteredConditions = async (
 ): Promise<db_Condition[]> => {
   try {
     const res = await invoke('get_filtered_conditions', {
-      filter: prepareFilter(filter),
+      filter,
     });
     return res as db_Condition[];
   } catch (err) {
@@ -36,12 +31,8 @@ export const getFilteredConditions = async (
 export const getCondition = async (
   name: string
 ): Promise<db_Condition | undefined> => {
-  const fieldFilters = new Map<ConditionFieldName, string[]>();
-  fieldFilters.set('Name', [name]);
-  const fieldSpecialFilters = new Map<ConditionFieldName, SpecialFilter[]>();
   const filter: Filter<ConditionFieldName> = {
-    fieldFilters,
-    fieldSpecialFilters,
+    filters: [[['Name', { Equal: name }]]],
     orderBy: [],
   };
   return (await getFilteredConditions(filter))[0];
@@ -54,34 +45,21 @@ export const getAlteringConditions = async (
   isSuppressing: boolean
 ): Promise<db_Condition[]> => {
   // Build expression relation filter
-  const exprFilters = new Map<ExpressionRelationFieldName, string[]>();
-  exprFilters.set('AlleleName', [alleleName]);
-  exprFilters.set('ExpressingPhenotypeName', [phenotypeName]);
-  const specialFilters = new Map<
-    ExpressionRelationFieldName,
-    SpecialFilter[]
-  >();
-  specialFilters.set('ExpressingPhenotypeWild', [
-    {
-      fieldValue: '',
-      specialFilterType: getDbBoolean(phenotypeWild),
-    },
-  ]);
-  specialFilters.set('IsSuppressing', [
-    {
-      fieldValue: '',
-      specialFilterType: getDbBoolean(isSuppressing),
-    },
-  ]);
-  const exprFilter: Filter<ExpressionRelationFieldName> = {
-    fieldFilters: exprFilters,
-    fieldSpecialFilters: specialFilters,
+  const filter: Filter<ExpressionRelationFieldName> = {
+    filters: [
+      [
+        ['AlleleName', { Equal: alleleName }],
+        ['ExpressingPhenotypeName', { Equal: phenotypeName }],
+        ['ExpressingPhenotypeWild', getDbBoolean(phenotypeWild)],
+        ['IsSuppressing', getDbBoolean(isSuppressing)],
+      ],
+    ],
     orderBy: [],
   };
 
   try {
     const res = await invoke('get_altering_conditions', {
-      filter: prepareFilter(exprFilter),
+      filter,
     });
     return res as db_Condition[];
   } catch (err) {

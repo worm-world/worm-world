@@ -1,8 +1,7 @@
 import { invoke } from '@tauri-apps/api/tauri';
 import { db_VariationInfo } from 'models/db/db_VariationInfo';
-import { SpecialFilter } from 'models/db/filter/db_SpecialFilter';
 import { VariationFieldName } from 'models/db/filter/db_VariationFieldName';
-import { Filter, prepareFilter } from '../models/db/filter/filter';
+import { Filter } from '../models/db/filter/filter';
 
 export const getVariations = async (): Promise<db_VariationInfo[]> => {
   try {
@@ -19,7 +18,7 @@ export const getFilteredVariations = async (
 ): Promise<db_VariationInfo[]> => {
   try {
     const res = await invoke('get_filtered_variation_info', {
-      filter: prepareFilter(filter),
+      filter,
     });
     return res as db_VariationInfo[];
   } catch (err) {
@@ -31,12 +30,8 @@ export const getFilteredVariations = async (
 export const getVariation = async (
   alleleName: string
 ): Promise<db_VariationInfo | undefined> => {
-  const fieldFilters = new Map<VariationFieldName, string[]>();
-  fieldFilters.set('AlleleName', [alleleName]);
-  const fieldSpecialFilters = new Map<VariationFieldName, SpecialFilter[]>();
   const filter: Filter<VariationFieldName> = {
-    fieldFilters,
-    fieldSpecialFilters,
+    filters: [[['AlleleName', { Equal: alleleName }]]],
     orderBy: [],
   };
   return (await getFilteredVariations(filter))[0];

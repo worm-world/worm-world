@@ -1,11 +1,12 @@
 import React from 'react';
-import { getGenes } from '../api/gene';
+import { getGene } from '../api/gene';
 import { TopNav } from 'components/TopNav/TopNav';
 import { getAlleles } from '../api/allele';
 import { getAlleleExpressions } from '../api/alleleExpressions';
 import { getAlteringConditions, getConditions } from '../api/condition';
 import { getAlteringPhenotypes, getPhenotypes } from '../api/phenotype';
 import { getVariations } from '../api/variationInfo';
+import { Gene } from '../models/frontend/Gene';
 
 const Home = (): JSX.Element => {
   return (
@@ -13,8 +14,14 @@ const Home = (): JSX.Element => {
       <TopNav title={'Home'} />
       <button
         onClick={() => {
-          getGenes()
-            .then((res) => console.log(res))
+          getGene('unc-119')
+            .then((res) => {
+              if (res != null) {
+                const gene = Gene.createFromRecord(res);
+
+                console.log(gene);
+              }
+            })
             .catch((err) => err);
         }}
       >

@@ -1,8 +1,8 @@
 import { getFilteredAlleleExpressions } from 'api/alleleExpressions';
 import { getGene } from 'api/gene';
 import { getVariation } from 'api/variationInfo';
+import { db_Allele } from 'models/db/db_Allele';
 import { AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
-import { SpecialFilter } from 'models/db/filter/db_SpecialFilter';
 import { Filter } from 'models/db/filter/filter';
 import { AlleleExpression } from 'models/frontend/AlleleExpression';
 import { Gene } from 'models/frontend/Gene';
@@ -23,47 +23,69 @@ export class Allele {
 
   constructor(fields: IAllele) {
     this.name = fields.name;
-    fields.geneName !== undefined // Sets gene or variationInfo
-      ? getGene(fields.geneName)
-          .then((res) => {
-            if (res != null) this.gene = Gene.createFromRecord(res);
-          })
-          .catch((err) => console.error('error generating gene: ', err))
-      : getVariation(fields.name)
-          .then((res) => {
-            if (res != null)
-              this.variationInfo = VariationInfo.createFromRecord(res);
-          })
-          .catch((err) => console.error('error generating variation: ', err));
-
-    const filter = this.getAlleleExpressionsFilter(fields.name);
-    getFilteredAlleleExpressions(filter)
-      .then((res) => {
-        this.alleleExpressions = res.map((record) =>
-          AlleleExpression.createFromRecord(record)
-        );
-      })
-      .catch((err) =>
-        console.error('error generating allele expressions: ', err)
-      );
     this.contents = fields.contents;
+    this.setGeneOrVariation(fields).catch((err) =>
+      console.error('error generating gene / variation', err)
+    );
+
+    this.setAlleleExpressions(fields.name).catch((err) =>
+      console.error('error generating allele expressions: ', err)
+    );
   }
+
+  private readonly setGene = async (geneName: string): Promise<void> => {
+    const dbGene = await getGene(geneName);
+    if (dbGene != null) this.gene = Gene.createFromRecord(dbGene);
+  };
+
+  private readonly setVariation = async (alleleName: string): Promise<void> => {
+    const dbVariation = await getVariation(alleleName);
+    if (dbVariation != null)
+      this.variationInfo = VariationInfo.createFromRecord(dbVariation);
+  };
+
+  private readonly setGeneOrVariation = async (
+    fields: IAllele
+  ): Promise<void> => {
+    fields.geneName !== undefined
+      ? await this.setGene(fields.geneName)
+      : await this.setVariation(fields.name);
+  };
+
+  private readonly setAlleleExpressions = async (
+    alleleName: string
+  ): Promise<void> => {
+    const filter = this.getAlleleExpressionsFilter(alleleName);
+    const dbAlleleExprs = await getFilteredAlleleExpressions(filter);
+    this.alleleExpressions = dbAlleleExprs.map((record) =>
+      AlleleExpression.createFromRecord(record)
+    );
+  };
 
   private readonly getAlleleExpressionsFilter = (
     alleleName: string
   ): Filter<AlleleExpressionFieldName> => {
-    const filters = new Map<AlleleExpressionFieldName, string[]>();
-    filters.set('AlleleName', [alleleName]);
-    const specialFilters = new Map<
-      AlleleExpressionFieldName,
-      SpecialFilter[]
-    >();
     const filter: Filter<AlleleExpressionFieldName> = {
-      fieldFilters: filters,
-      fieldSpecialFilters: specialFilters,
+      filters: [[['AlleleName', { Equal: alleleName }]]],
       orderBy: [],
     };
-
     return filter;
+  };
+
+  static createFromRecord(record: db_Allele): Allele {
+    return new Allele({
+      name: record.name,
+      geneName: record.geneName ?? undefined,
+      contents: record.contents ?? undefined,
+    });
+  }
+
+  generateRecord = (): db_Allele => {
+    return {
+      name: this.name,
+      geneName: this.gene?.name ?? null,
+      variationName: this.variationInfo?.alleleName ?? null,
+      contents: this.contents ?? null,
+    };
   };
 }
