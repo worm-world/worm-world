@@ -1,6 +1,10 @@
+use super::FieldNameEnum;
 use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
-#[derive(Serialize, Deserialize, Debug, sqlx::FromRow, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, sqlx::FromRow, PartialEq, Eq, TS)]
+#[ts(export, export_to = "../src/models/db/db_AlleleExpression.ts")]
+#[serde(rename = "db_AlleleExpression")]
 pub struct AlleleExpression {
     #[serde(rename = "alleleName")]
     pub allele_name: String,
@@ -31,4 +35,31 @@ pub struct AlleleExpressionDb {
     #[serde(rename = "expressingPhenotypeWild")]
     pub expressing_phenotype_wild: i64,
     pub dominance: Option<i64>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, TS)]
+#[ts(
+    export,
+    export_to = "../src/models/db/filter/db_AlleleExpressionFieldName.ts"
+)]
+pub enum AlleleExpressionFieldName {
+    AlleleName,
+    ExpressingPhenotypeName,
+    ExpressingPhenotypeWild,
+    Dominance,
+}
+
+impl FieldNameEnum for AlleleExpressionFieldName {
+    fn get_col_name(&self) -> String {
+        match self {
+            AlleleExpressionFieldName::AlleleName => "allele_name".to_owned(),
+            AlleleExpressionFieldName::ExpressingPhenotypeName => {
+                "expressing_phenotype_name".to_owned()
+            }
+            AlleleExpressionFieldName::ExpressingPhenotypeWild => {
+                "expressingPhenotypeWild".to_owned()
+            }
+            AlleleExpressionFieldName::Dominance => "dominance".to_owned(),
+        }
+    }
 }

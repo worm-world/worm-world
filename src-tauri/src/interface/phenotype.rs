@@ -1,6 +1,10 @@
 use super::{DbError, InnerDbState};
-use crate::models::phenotype::{Phenotype, PhenotypeDb};
+use crate::models::{
+    filter::{Filter, FilterQueryBuilder},
+    phenotype::{Phenotype, PhenotypeDb, PhenotypeFieldName},
+};
 use anyhow::Result;
+use sqlx::{QueryBuilder, Sqlite};
 
 impl InnerDbState {
     pub async fn get_phenotypes(&self) -> Result<Vec<Phenotype>, DbError> {
@@ -34,6 +38,38 @@ impl InnerDbState {
             }
         }
     }
+
+    pub async fn get_filtered_phenotypes(
+        &self,
+        filter: &Filter<PhenotypeFieldName>,
+    ) -> Result<Vec<Phenotype>, DbError> {
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "SELECT
+                name, 
+                wild,
+                short_name,
+                description, 
+                male_mating,
+                lethal,
+                female_sterile,
+                arrested,
+                maturation_days
+            FROM phenotypes",
+        );
+        filter.add_filtered_query(&mut qb);
+        match qb
+            .build_query_as::<PhenotypeDb>()
+            .fetch_all(&self.conn_pool)
+            .await
+        {
+            Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
+            Err(e) => {
+                eprint!("Get Filtered Phenotype error: {e}");
+                Err(DbError::SqlQueryError(e.to_string()))
+            }
+        }
+    }
+
     pub async fn insert_phenotype(&self, phenotype: &Phenotype) -> Result<(), DbError> {
         match sqlx::query!(
             "INSERT INTO phenotypes (name, wild, short_name, description, male_mating, lethal, female_sterile, arrested, maturation_days)
@@ -63,8 +99,10 @@ impl InnerDbState {
 
 #[cfg(test)]
 mod test {
+
     use crate::dummy::testdata;
-    use crate::models::phenotype::Phenotype;
+    use crate::models::filter::{Filter, FilterType};
+    use crate::models::phenotype::{Phenotype, PhenotypeFieldName};
     use crate::InnerDbState;
     use anyhow::Result;
     use pretty_assertions::assert_eq;
@@ -77,6 +115,26 @@ mod test {
 
         let expected_phens = testdata::get_phenotypes();
         assert_eq!(phens, expected_phens);
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_phenotypes(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_phenotypes(&Filter::<PhenotypeFieldName> {
+                filters: vec![vec![
+                    (
+                        PhenotypeFieldName::MaleMating,
+                        FilterType::LessThan("2".to_owned(), false),
+                    ),
+                    (PhenotypeFieldName::MaturationDays, FilterType::Null),
+                ]],
+                order_by: vec![PhenotypeFieldName::Name],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::get_filtered_phenotypes());
         Ok(())
     }
 

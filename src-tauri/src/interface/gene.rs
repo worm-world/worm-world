@@ -1,6 +1,10 @@
 use super::{DbError, InnerDbState};
-use crate::models::gene::Gene;
+use crate::models::{
+    filter::{Filter, FilterQueryBuilder},
+    gene::{Gene, GeneFieldName},
+};
 use anyhow::Result;
+use sqlx::{QueryBuilder, Sqlite};
 
 impl InnerDbState {
     pub async fn get_genes(&self) -> Result<Vec<Gene>, DbError> {
@@ -20,6 +24,24 @@ impl InnerDbState {
             }
         }
     }
+
+    pub async fn get_filtered_genes(
+        &self,
+        filter: &Filter<GeneFieldName>,
+    ) -> Result<Vec<Gene>, DbError> {
+        let mut qb: QueryBuilder<Sqlite> =
+            QueryBuilder::new("SELECT name, chromosome, phys_loc, gen_loc FROM genes");
+        filter.add_filtered_query(&mut qb);
+
+        match qb.build_query_as::<Gene>().fetch_all(&self.conn_pool).await {
+            Ok(exprs) => Ok(exprs.into_iter().collect()),
+            Err(e) => {
+                eprint!("Get Filtered Gene error: {e}");
+                Err(DbError::SqlQueryError(e.to_string()))
+            }
+        }
+    }
+
     pub async fn insert_gene(&self, gene: &Gene) -> Result<(), DbError> {
         match sqlx::query!(
             "INSERT INTO genes (name, chromosome, phys_loc, gen_loc)
@@ -44,9 +66,13 @@ impl InnerDbState {
 
 #[cfg(test)]
 mod test {
-    use crate::dummy::testdata;
-    use crate::models::gene::Gene;
+
+    use crate::models::gene::{Gene, GeneFieldName};
     use crate::InnerDbState;
+    use crate::{
+        dummy::testdata,
+        models::filter::{Filter, FilterType},
+    };
     use anyhow::Result;
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
@@ -61,6 +87,27 @@ mod test {
         assert_eq!(genes, testdata::get_genes());
         Ok(())
     }
+
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_genes(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_genes(&Filter::<GeneFieldName> {
+                filters: vec![
+                    vec![(GeneFieldName::Chromosome, FilterType::Equal("X".to_owned()))],
+                    vec![(
+                        GeneFieldName::Chromosome,
+                        FilterType::Equal("IV".to_owned()),
+                    )],
+                ],
+                order_by: vec![GeneFieldName::Name],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::get_filtered_genes());
+        Ok(())
+    }
+
     #[sqlx::test]
     async fn test_insert_gene(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };

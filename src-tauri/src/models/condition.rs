@@ -1,5 +1,10 @@
+use super::FieldNameEnum;
 use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+use ts_rs::TS;
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, TS)]
+#[ts(export, export_to = "../src/models/db/db_Condition.ts")]
+#[serde(rename = "db_Condition")]
 pub struct Condition {
     pub name: String,
     pub description: Option<String>,
@@ -42,4 +47,30 @@ pub struct ConditionDb {
     // bool
     pub arrested: Option<i64>,
     pub maturation_days: Option<f64>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, TS)]
+#[ts(export, export_to = "../src/models/db/filter/db_ConditionFieldName.ts")]
+pub enum ConditionFieldName {
+    Name,
+    Description,
+    MaleMating,
+    Lethal,
+    FemaleSterile,
+    Arrested,
+    MaturationDays,
+}
+
+impl FieldNameEnum for ConditionFieldName {
+    fn get_col_name(self: &ConditionFieldName) -> String {
+        match self {
+            ConditionFieldName::Name => "name".to_owned(),
+            ConditionFieldName::Description => "description".to_owned(),
+            ConditionFieldName::MaleMating => "male_mating".to_owned(),
+            ConditionFieldName::Lethal => "lethal".to_owned(),
+            ConditionFieldName::FemaleSterile => "female_sterile".to_owned(),
+            ConditionFieldName::Arrested => "arrested".to_owned(),
+            ConditionFieldName::MaturationDays => "maturation_days".to_owned(),
+        }
+    }
 }

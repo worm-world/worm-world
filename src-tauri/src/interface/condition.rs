@@ -1,6 +1,10 @@
 use super::{DbError, InnerDbState};
-use crate::models::condition::{Condition, ConditionDb};
+use crate::models::{
+    condition::{Condition, ConditionDb, ConditionFieldName},
+    filter::{Filter, FilterQueryBuilder},
+};
 use anyhow::Result;
+use sqlx::{QueryBuilder, Sqlite};
 
 impl InnerDbState {
     pub async fn get_conditions(&self) -> Result<Vec<Condition>, DbError> {
@@ -32,6 +36,37 @@ impl InnerDbState {
             }
         }
     }
+
+    pub async fn get_filtered_conditions(
+        &self,
+        filter: &Filter<ConditionFieldName>,
+    ) -> Result<Vec<Condition>, DbError> {
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "SELECT
+            name,
+            description,
+            male_mating,
+            lethal,
+            female_sterile,
+            arrested,
+            maturation_days
+            FROM conditions",
+        );
+        filter.add_filtered_query(&mut qb);
+
+        match qb
+            .build_query_as::<ConditionDb>()
+            .fetch_all(&self.conn_pool)
+            .await
+        {
+            Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
+            Err(e) => {
+                eprint!("Get Filtered Condition error: {e}");
+                Err(DbError::SqlQueryError(e.to_string()))
+            }
+        }
+    }
+
     pub async fn insert_condition(&self, condition: &Condition) -> Result<(), DbError> {
         match sqlx::query!(
             "INSERT INTO conditions (name, description, male_mating, lethal, female_sterile, arrested, maturation_days)
@@ -59,8 +94,10 @@ impl InnerDbState {
 
 #[cfg(test)]
 mod test {
+
     use crate::dummy::testdata;
-    use crate::models::condition::Condition;
+    use crate::models::condition::{Condition, ConditionFieldName};
+    use crate::models::filter::{Filter, FilterType};
     use crate::InnerDbState;
     use anyhow::Result;
     use pretty_assertions::assert_eq;
@@ -73,6 +110,23 @@ mod test {
 
         let expected_conds = testdata::get_conditions();
         assert_eq!(conds, expected_conds);
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_conditions(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_conditions(&Filter::<ConditionFieldName> {
+                filters: vec![vec![(
+                    ConditionFieldName::MaturationDays,
+                    FilterType::LessThan("4".to_owned(), false),
+                )]],
+                order_by: vec![ConditionFieldName::Name],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::get_filtered_conditions());
         Ok(())
     }
 

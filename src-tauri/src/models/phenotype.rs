@@ -1,5 +1,10 @@
+use super::FieldNameEnum;
 use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+use ts_rs::TS;
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, TS)]
+#[ts(export, export_to = "../src/models/db/db_Phenotype.ts")]
+#[serde(rename = "db_Phenotype")]
 pub struct Phenotype {
     pub name: String,
     pub wild: bool,
@@ -50,4 +55,33 @@ pub struct PhenotypeDb {
     // bool
     pub arrested: Option<i64>,
     pub maturation_days: Option<f64>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, TS)]
+#[ts(export, export_to = "../src/models/db/filter/db_PhenotypeFieldName.ts")]
+pub enum PhenotypeFieldName {
+    Name,
+    Wild,
+    ShortName,
+    Description,
+    MaleMating,
+    Lethal,
+    FemaleSterile,
+    Arrested,
+    MaturationDays,
+}
+impl FieldNameEnum for PhenotypeFieldName {
+    fn get_col_name(self: &PhenotypeFieldName) -> String {
+        match self {
+            PhenotypeFieldName::Name => "name".to_owned(),
+            PhenotypeFieldName::Wild => "wild".to_owned(),
+            PhenotypeFieldName::ShortName => "short_name".to_owned(),
+            PhenotypeFieldName::Description => "description".to_owned(),
+            PhenotypeFieldName::MaleMating => "male_mating".to_owned(),
+            PhenotypeFieldName::Lethal => "lethal".to_owned(),
+            PhenotypeFieldName::FemaleSterile => "female_sterile".to_owned(),
+            PhenotypeFieldName::Arrested => "arrested".to_owned(),
+            PhenotypeFieldName::MaturationDays => "maturation_days".to_owned(),
+        }
+    }
 }

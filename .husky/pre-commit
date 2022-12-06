@@ -1,12 +1,11 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-echo "Running lint"
-npx eslint "src/**/*.{js,jsx,ts,tsx}"
-cd src-tauri && cargo clippy
-
 echo "Testing backend"
 npm run test-back
 
 echo "Testing frontend"
 npm run test-front
+
+echo "Committing auto-generated files"
+git add src/models/db/*
