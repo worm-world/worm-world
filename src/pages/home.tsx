@@ -12,7 +12,7 @@ import { AlleleExpression } from 'models/frontend/AlleleExpression';
 import { Condition } from 'models/frontend/Condition';
 import { Phenotype } from 'models/frontend/Phenotype';
 import { VariationInfo } from 'models/frontend/VariationInfo';
-import { DBError } from 'models/error';
+import { DBError, isDbError } from 'models/error';
 
 const Home = (): JSX.Element => {
   return (
@@ -24,7 +24,10 @@ const Home = (): JSX.Element => {
           onClick={() => {
             getGenes()
               .then((res) => {
-                if (res instanceof DBError) return;
+                if (isDbError(res)) {
+                  console.log(res);
+                  return;
+                }
                 const genes = res.map((record) =>
                   Gene.createFromRecord(record)
                 );

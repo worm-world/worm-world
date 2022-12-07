@@ -1,43 +1,39 @@
 import { invoke } from '@tauri-apps/api/tauri';
 import { db_Condition } from 'models/db/db_Condition';
+import { db_Error } from 'models/db/db_Error';
 import { ConditionFieldName } from 'models/db/filter/db_ConditionFieldName';
 import { ExpressionRelationFieldName } from 'models/db/filter/db_ExpressionRelationFieldName';
-import { Filter, getDbBoolean } from 'models/db/filter/filter';
-import { DBError } from 'models/error';
+import {
+  Filter,
+  getDbBoolean,
+  getSingleRecordOrError,
+} from 'models/db/filter/Filter';
 
-export const getConditions = async (): Promise<db_Condition[] | DBError> => {
-  try {
-    const res = await invoke('get_conditions');
-    return res as db_Condition[];
-  } catch (err) {
-    return new DBError('Unable to get conditions from db');
-  }
+export const getConditions = async (): Promise<db_Condition[] | db_Error> => {
+  return await invoke('get_conditions');
 };
 
 export const getFilteredConditions = async (
   filter: Filter<ConditionFieldName>
-): Promise<db_Condition[] | DBError> => {
-  try {
-    const res = await invoke('get_filtered_conditions', {
-      filter,
-    });
-    return res as db_Condition[];
-  } catch (err) {
-    return new DBError('Unable to get filtered conditions from db');
-  }
+): Promise<db_Condition[] | db_Error> => {
+  return await invoke('get_filtered_conditions', {
+    filter,
+  });
 };
 
 export const getCondition = async (
   name: string
-): Promise<db_Condition | DBError> => {
+): Promise<db_Condition | db_Error> => {
   const filter: Filter<ConditionFieldName> = {
     filters: [[['Name', { Equal: name }]]],
     orderBy: [],
   };
-  const filterRes = await getFilteredConditions(filter);
-  return !(filterRes instanceof DBError) && filterRes.length > 0
-    ? filterRes[0]
-    : new DBError('Unable to get specified condition from db');
+
+  const res = await getFilteredConditions(filter);
+  return getSingleRecordOrError(
+    res,
+    `Unable to find a condition with the name: ${name}`
+  );
 };
 
 export const getAlteringConditions = async (
@@ -45,7 +41,7 @@ export const getAlteringConditions = async (
   phenotypeName: string,
   phenotypeWild: boolean,
   isSuppressing: boolean
-): Promise<db_Condition[] | DBError> => {
+): Promise<db_Condition[] | db_Error> => {
   // Build expression relation filter
   const exprRelationFilter: Filter<ExpressionRelationFieldName> = {
     filters: [
@@ -64,13 +60,8 @@ export const getAlteringConditions = async (
     orderBy: [],
   };
 
-  try {
-    const res = await invoke('get_altering_conditions', {
-      exprRelationFilter,
-      conditionFilter,
-    });
-    return res as db_Condition[];
-  } catch (err) {
-    return new DBError('Unable to get altering conditions from db');
-  }
+  return await invoke('get_altering_conditions', {
+    exprRelationFilter,
+    conditionFilter,
+  });
 };

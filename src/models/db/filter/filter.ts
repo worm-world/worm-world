@@ -1,4 +1,6 @@
+import { db_Error } from 'models/db/db_Error';
 import { FilterType } from 'models/db/filter/FilterType';
+import { isDbError } from 'models/error';
 
 export type FilterTuple<T> = [T, FilterType];
 /**
@@ -59,7 +61,32 @@ export interface Filter<T> {
   orderBy: T[];
 }
 
+/**
+ * Representation for backend booleean type
+ */
 type dbBool = 'True' | 'False';
+
+/**
+ * @param val frontend boolean
+ * @returns backend boolean conversion
+ */
 export const getDbBoolean = (val: boolean): dbBool => {
   return val ? 'True' : 'False';
+};
+
+/**
+ * Given an array of db records (or db_Error), returns the first element
+ * @param T type of the db_table you are querying
+ * @param response response from tauri db invokation
+ * @param error optional error message you would like to display if there are no records
+ * @returns
+ */
+export const getSingleRecordOrError = <T>(
+  response: T[] | db_Error,
+  error = 'unable to get a single record from db'
+): T | db_Error => {
+  if (isDbError(response)) return response; // already db_error
+  if (response.length > 0) return response[0];
+
+  return { SqlQueryError: error }; // no records, return db_error
 };
