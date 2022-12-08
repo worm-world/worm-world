@@ -3,11 +3,7 @@ import { db_Error } from 'models/db/db_Error';
 import { db_Phenotype } from 'models/db/db_Phenotype';
 import { ExpressionRelationFieldName } from 'models/db/filter/db_ExpressionRelationFieldName';
 import { PhenotypeFieldName } from 'models/db/filter/db_PhenotypeFieldName';
-import {
-  Filter,
-  getDbBoolean,
-  getSingleRecordOrError,
-} from 'models/db/filter/Filter';
+import { Filter, getDbBoolean, getSingleRecordOrError } from 'models/db/Filter';
 import { isDbError } from 'models/error';
 import { Phenotype } from 'models/frontend/Phenotype';
 

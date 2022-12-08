@@ -3,7 +3,7 @@ import { getGene } from 'api/gene';
 import { getVariation } from 'api/variationInfo';
 import { db_Allele } from 'models/db/db_Allele';
 import { AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
-import { Filter } from 'models/db/filter/Filter';
+import { Filter } from 'models/db/Filter';
 import { isDbError } from 'models/error';
 import { AlleleExpression } from 'models/frontend/AlleleExpression';
 import { Gene } from 'models/frontend/Gene';

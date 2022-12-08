@@ -2,7 +2,7 @@ import { invoke } from '@tauri-apps/api/tauri';
 import { db_Error } from 'models/db/db_Error';
 import { db_VariationInfo } from 'models/db/db_VariationInfo';
 import { VariationFieldName } from 'models/db/filter/db_VariationFieldName';
-import { Filter, getSingleRecordOrError } from 'models/db/filter/Filter';
+import { Filter, getSingleRecordOrError } from 'models/db/Filter';
 import { isDbError } from 'models/error';
 import { VariationInfo } from 'models/frontend/VariationInfo';
 

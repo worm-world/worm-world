@@ -3,11 +3,7 @@ import { db_Condition } from 'models/db/db_Condition';
 import { db_Error } from 'models/db/db_Error';
 import { ConditionFieldName } from 'models/db/filter/db_ConditionFieldName';
 import { ExpressionRelationFieldName } from 'models/db/filter/db_ExpressionRelationFieldName';
-import {
-  Filter,
-  getDbBoolean,
-  getSingleRecordOrError,
-} from 'models/db/filter/Filter';
+import { Filter, getDbBoolean, getSingleRecordOrError } from 'models/db/Filter';
 import { isDbError } from 'models/error';
 import { Condition } from 'models/frontend/Condition';
 
