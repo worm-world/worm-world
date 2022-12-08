@@ -12,7 +12,7 @@ import { AlleleExpression } from 'models/frontend/AlleleExpression';
 import { Condition } from 'models/frontend/Condition';
 import { Phenotype } from 'models/frontend/Phenotype';
 import { VariationInfo } from 'models/frontend/VariationInfo';
-import { DBError, isDbError } from 'models/error';
+import { isDbError } from 'models/error';
 
 const Home = (): JSX.Element => {
   return (
@@ -42,7 +42,10 @@ const Home = (): JSX.Element => {
           onClick={() => {
             getAlleles()
               .then((res) => {
-                if (res instanceof DBError) return;
+                if (isDbError(res)) {
+                  console.log(res);
+                  return;
+                }
                 const alleles = res.map((record) =>
                   Allele.createFromRecord(record)
                 );
@@ -57,7 +60,10 @@ const Home = (): JSX.Element => {
           onClick={() => {
             getAlleleExpressions()
               .then((res) => {
-                if (res instanceof DBError) return;
+                if (isDbError(res)) {
+                  console.log(res);
+                  return;
+                }
                 const alleleExpressions = res.map((record) =>
                   AlleleExpression.createFromRecord(record)
                 );
@@ -72,7 +78,10 @@ const Home = (): JSX.Element => {
           onClick={() => {
             getConditions()
               .then((res) => {
-                if (res instanceof DBError) return;
+                if (isDbError(res)) {
+                  console.log(res);
+                  return;
+                }
                 const conditions = res.map((record) =>
                   Condition.createFromRecord(record)
                 );
@@ -87,7 +96,10 @@ const Home = (): JSX.Element => {
           onClick={() => {
             getPhenotypes()
               .then((res) => {
-                if (res instanceof DBError) return;
+                if (isDbError(res)) {
+                  console.log(res);
+                  return;
+                }
                 const phenotypes = res.map((record) =>
                   Phenotype.createFromRecord(record)
                 );
@@ -102,7 +114,10 @@ const Home = (): JSX.Element => {
           onClick={() => {
             getVariations()
               .then((res) => {
-                if (res instanceof DBError) return;
+                if (isDbError(res)) {
+                  console.log(res);
+                  return;
+                }
                 const varations = res.map((record) =>
                   VariationInfo.createFromRecord(record)
                 );
@@ -117,7 +132,10 @@ const Home = (): JSX.Element => {
           onClick={() => {
             getAlteringPhenotypes('oxIs644', 'YFP(pharynx)', false, false)
               .then((res) => {
-                if (res instanceof DBError) return;
+                if (isDbError(res)) {
+                  console.log(res);
+                  return;
+                }
                 const alteringPhenotypes = res.map((record) =>
                   Phenotype.createFromRecord(record)
                 );
@@ -132,7 +150,10 @@ const Home = (): JSX.Element => {
           onClick={() => {
             getAlteringConditions('n765', 'lin-15B', false, false)
               .then((res) => {
-                if (res instanceof DBError) return;
+                if (isDbError(res)) {
+                  console.log(res);
+                  return;
+                }
                 const alteringConditions = res.map((record) =>
                   Condition.createFromRecord(record)
                 );
