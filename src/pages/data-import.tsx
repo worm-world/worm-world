@@ -2,8 +2,7 @@ import { Tab } from '@mui/material';
 import React from 'react';
 import { TopNav } from 'components/TopNav/TopNav';
 import { Routes, Route } from 'react-router-dom';
-import Paths from 'routes/frontend';
-import Temp from './tempPage';
+import Temp from './temp';
 
 const Import = (): JSX.Element => {
   return (
@@ -15,7 +14,7 @@ const Import = (): JSX.Element => {
         <Tab label='Strain' />
       </TopNav>
       <Routes>
-        <Route path={Paths.Temp} element={<Temp />} />
+        <Route path='/temp' element={<Temp />} />
       </Routes>
     </div>
   );

@@ -1,10 +1,10 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
 import Layout from 'components/layout/layout';
+import { BrowserRouter } from 'react-router-dom';
 
 const renderComponent = (): void => {
-  render(<Layout />, {
-    wrapper: BrowserRouter, // Need this wrapper since the component uses the react router
+  render(<Layout>{}</Layout>, {
+    wrapper: BrowserRouter,
   });
 };
 

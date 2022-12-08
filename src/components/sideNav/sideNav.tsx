@@ -1,5 +1,4 @@
 import { Link, To } from 'react-router-dom';
-import Paths from 'routes/frontend';
 import {
   List,
   ListItem,
@@ -14,6 +13,7 @@ import DataSetIcon from '@mui/icons-material/Dataset';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import { Key } from 'react';
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
+import { Upload } from '@mui/icons-material';
 
 interface SideNavProps {
   isOpen: boolean;
@@ -29,16 +29,16 @@ interface SideNavItem {
 const SideNavItems: SideNavItem[] = [
   {
     name: 'Cross Designer',
-    path: Paths.CrossDesignerPath,
+    path: '/cross-designer',
     icon: <AccountTreeIcon />,
   },
-  { name: 'Scheduler', path: Paths.TodoPath, icon: <EventNoteIcon /> },
-  { name: 'Data Manager', path: Paths.ImportPath, icon: <DataSetIcon /> },
+  { name: 'Scheduler', path: '/scheduler', icon: <EventNoteIcon /> },
+  { name: 'Data Import', path: 'data-import', icon: <Upload /> },
 ];
 
 const navHeader = (): ReactJSXElement => {
   return (
-    <Link to={Paths.HomePath as To}>
+    <Link to={'/' as To}>
       <Typography variant='h4' align='center'>
         WormWorld
       </Typography>

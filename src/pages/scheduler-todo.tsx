@@ -2,8 +2,7 @@ import { Tab } from '@mui/material';
 import React from 'react';
 import { TopNav } from 'components/TopNav/TopNav';
 import { Routes, Route } from 'react-router-dom';
-import Paths from 'routes/frontend';
-import Temp from './tempPage';
+import Temp from './temp';
 
 const Todo = (): JSX.Element => {
   return (
@@ -14,7 +13,7 @@ const Todo = (): JSX.Element => {
         <Tab label='Import Cross' />
       </TopNav>
       <Routes>
-        <Route path={Paths.Temp} element={<Temp />} />
+        <Route path='/temp' element={<Temp />} />
       </Routes>
     </div>
   );
