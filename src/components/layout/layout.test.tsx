@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 
 const renderComponent = (): void => {
   render(<Layout>{}</Layout>, {
-    wrapper: BrowserRouter
+    wrapper: BrowserRouter,
   });
 };
 
