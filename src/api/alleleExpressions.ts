@@ -1,22 +1,22 @@
 import { invoke } from '@tauri-apps/api/tauri';
 import { db_AlleleExpression } from 'models/db/db_AlleleExpression';
-import { db_Error } from 'models/db/db_Error';
 import { AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
 import {
   Filter,
   getDbBoolean,
-  getSingleRecordOrError,
+  getSingleRecordOrThrow,
 } from 'models/db/filter/Filter';
+import { AlleleExpression } from 'models/frontend/AlleleExpression';
 
 export const getAlleleExpressions = async (): Promise<
-  db_AlleleExpression[] | db_Error
+  db_AlleleExpression[]
 > => {
   return await invoke('get_allele_exprs');
 };
 
 export const getFilteredAlleleExpressions = async (
   filter: Filter<AlleleExpressionFieldName>
-): Promise<db_AlleleExpression[] | db_Error> => {
+): Promise<db_AlleleExpression[]> => {
   return await invoke('get_filtered_allele_exprs', { filter });
 };
 
@@ -24,7 +24,7 @@ export const getAlleleExpression = async (
   alleleName: string,
   expressingPhenotypeName: string,
   expressingPhenotypeWild: boolean
-): Promise<db_AlleleExpression | db_Error> => {
+): Promise<db_AlleleExpression> => {
   const filter: Filter<AlleleExpressionFieldName> = {
     filters: [
       [
@@ -37,5 +37,17 @@ export const getAlleleExpression = async (
   };
 
   const res = await getFilteredAlleleExpressions(filter);
-  return getSingleRecordOrError(res, 'Unable to find the allele expression');
+  return getSingleRecordOrThrow(res, 'Unable to find the allele expression');
+};
+
+export const insertAlleleExpression = async (
+  alleleExpr: AlleleExpression
+): Promise<void> => {
+  await insertDbAlleleExpression(alleleExpr.generateRecord());
+};
+
+export const insertDbAlleleExpression = async (
+  record: db_AlleleExpression
+): Promise<void> => {
+  await invoke('insert_allele_expr', { alleleExpr: record });
 };

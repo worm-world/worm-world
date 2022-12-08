@@ -74,6 +74,7 @@
     "vitest": "^0.24.3"
   },
   "optionalDependencies": {
-    "@tauri-apps/cli-win32-x64-msvc": "^1.2.0"
+    "@tauri-apps/cli-win32-x64-msvc": "^1.2.0",
+    "esbuild-darwin-arm": "*"
   }
 }

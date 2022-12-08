@@ -2,7 +2,10 @@ import React from 'react';
 import { getGenes } from 'api/gene';
 import { TopNav } from 'components/TopNav/TopNav';
 import { getAlleles } from 'api/allele';
-import { getAlleleExpressions } from 'api/alleleExpressions';
+import {
+  getAlleleExpressions,
+  insertDbAlleleExpression,
+} from 'api/alleleExpressions';
 import { getAlteringConditions, getConditions } from 'api/condition';
 import { getAlteringPhenotypes, getPhenotypes } from 'api/phenotype';
 import { getVariations } from 'api/variationInfo';
@@ -12,7 +15,8 @@ import { AlleleExpression } from 'models/frontend/AlleleExpression';
 import { Condition } from 'models/frontend/Condition';
 import { Phenotype } from 'models/frontend/Phenotype';
 import { VariationInfo } from 'models/frontend/VariationInfo';
-import { DBError, isDbError } from 'models/error';
+import { db_AlleleExpression } from 'models/db/db_AlleleExpression';
+import { Dominance } from 'models/enums';
 
 const Home = (): JSX.Element => {
   return (
@@ -24,10 +28,6 @@ const Home = (): JSX.Element => {
           onClick={() => {
             getGenes()
               .then((res) => {
-                if (isDbError(res)) {
-                  console.log(res);
-                  return;
-                }
                 const genes = res.map((record) =>
                   Gene.createFromRecord(record)
                 );
@@ -42,7 +42,6 @@ const Home = (): JSX.Element => {
           onClick={() => {
             getAlleles()
               .then((res) => {
-                if (res instanceof DBError) return;
                 const alleles = res.map((record) =>
                   Allele.createFromRecord(record)
                 );
@@ -57,7 +56,6 @@ const Home = (): JSX.Element => {
           onClick={() => {
             getAlleleExpressions()
               .then((res) => {
-                if (res instanceof DBError) return;
                 const alleleExpressions = res.map((record) =>
                   AlleleExpression.createFromRecord(record)
                 );
@@ -70,9 +68,23 @@ const Home = (): JSX.Element => {
         </button>
         <button
           onClick={() => {
+            const toInsert: db_AlleleExpression = {
+              alleleName: 'oxTi75',
+              expressingPhenotypeName: 'dpy-10',
+              expressingPhenotypeWild: false,
+              dominance: Dominance.Dominant,
+            };
+            insertDbAlleleExpression(toInsert).catch((err) => {
+              console.log('noooooo', err);
+            });
+          }}
+        >
+          insert Allele expression (may have already been inserted)
+        </button>
+        <button
+          onClick={() => {
             getConditions()
               .then((res) => {
-                if (res instanceof DBError) return;
                 const conditions = res.map((record) =>
                   Condition.createFromRecord(record)
                 );
@@ -87,7 +99,6 @@ const Home = (): JSX.Element => {
           onClick={() => {
             getPhenotypes()
               .then((res) => {
-                if (res instanceof DBError) return;
                 const phenotypes = res.map((record) =>
                   Phenotype.createFromRecord(record)
                 );
@@ -102,7 +113,6 @@ const Home = (): JSX.Element => {
           onClick={() => {
             getVariations()
               .then((res) => {
-                if (res instanceof DBError) return;
                 const varations = res.map((record) =>
                   VariationInfo.createFromRecord(record)
                 );
@@ -117,7 +127,6 @@ const Home = (): JSX.Element => {
           onClick={() => {
             getAlteringPhenotypes('oxIs644', 'YFP(pharynx)', false, false)
               .then((res) => {
-                if (res instanceof DBError) return;
                 const alteringPhenotypes = res.map((record) =>
                   Phenotype.createFromRecord(record)
                 );
@@ -132,7 +141,6 @@ const Home = (): JSX.Element => {
           onClick={() => {
             getAlteringConditions('n765', 'lin-15B', false, false)
               .then((res) => {
-                if (res instanceof DBError) return;
                 const alteringConditions = res.map((record) =>
                   Condition.createFromRecord(record)
                 );
