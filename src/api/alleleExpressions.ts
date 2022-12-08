@@ -2,7 +2,11 @@ import { invoke } from '@tauri-apps/api/tauri';
 import { db_AlleleExpression } from 'models/db/db_AlleleExpression';
 import { db_Error } from 'models/db/db_Error';
 import { AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
-import { Filter, getDbBoolean, getSingleRecordOrError } from 'models/db/Filter';
+import {
+  Filter,
+  getDbBoolean,
+  getSingleRecordOrError,
+} from 'models/db/filter/Filter';
 import { isDbError } from 'models/error';
 import { AlleleExpression } from 'models/frontend/AlleleExpression';
 

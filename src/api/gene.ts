@@ -2,7 +2,7 @@ import { invoke } from '@tauri-apps/api/tauri';
 import { db_Error } from 'models/db/db_Error';
 import { db_Gene } from 'models/db/db_Gene';
 import { GeneFieldName } from 'models/db/filter/db_GeneFieldName';
-import { Filter, getSingleRecordOrError } from 'models/db/Filter';
+import { Filter, getSingleRecordOrError } from 'models/db/filter/Filter';
 import { isDbError } from 'models/error';
 import { Gene } from 'models/frontend/Gene';
 
