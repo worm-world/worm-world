@@ -1,8 +1,5 @@
-export class DBError extends Error {
-  msg: string;
+import { db_Error } from 'models/db/db_Error';
 
-  constructor(msg: string) {
-    super();
-    this.msg = msg;
-  }
-}
+export const isDbError = (res: any | db_Error): res is db_Error => {
+  return res?.SqlQueryError !== undefined || res?.SqlInsertError !== undefined;
+};

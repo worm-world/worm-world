@@ -9,8 +9,11 @@ pub mod variation_info;
 use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Sqlite};
 use thiserror::Error;
+use ts_rs::TS;
 
-#[derive(Error, Debug, Serialize, Deserialize)]
+#[derive(Error, Debug, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/models/db/db_Error.ts")]
+#[serde(rename = "db_Error")]
 pub enum DbError {
     #[error("Failed to execute query: {0}")]
     SqlQueryError(String),

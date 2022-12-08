@@ -1,36 +1,30 @@
 import { invoke } from '@tauri-apps/api/tauri';
+import { db_Error } from 'models/db/db_Error';
 import { db_Phenotype } from 'models/db/db_Phenotype';
 import { ExpressionRelationFieldName } from 'models/db/filter/db_ExpressionRelationFieldName';
 import { PhenotypeFieldName } from 'models/db/filter/db_PhenotypeFieldName';
-import { Filter, getDbBoolean } from 'models/db/filter/filter';
-import { DBError } from 'models/error';
+import {
+  Filter,
+  getDbBoolean,
+  getSingleRecordOrError,
+} from 'models/db/filter/Filter';
 
-export const getPhenotypes = async (): Promise<db_Phenotype[] | DBError> => {
-  try {
-    const res = await invoke('get_phenotypes');
-    return res as db_Phenotype[];
-  } catch (err) {
-    return new DBError('Unable to get phenotypes from db');
-  }
+export const getPhenotypes = async (): Promise<db_Phenotype[] | db_Error> => {
+  return await invoke('get_phenotypes');
 };
 
 export const getFilteredPhenotypes = async (
   filter: Filter<PhenotypeFieldName>
-): Promise<db_Phenotype[] | DBError> => {
-  try {
-    const res = await invoke('get_filtered_phenotypes', {
-      filter,
-    });
-    return res as db_Phenotype[];
-  } catch (err) {
-    return new DBError('Unable to get filtered phenotypes from db');
-  }
+): Promise<db_Phenotype[] | db_Error> => {
+  return await invoke('get_filtered_phenotypes', {
+    filter,
+  });
 };
 
 export const getPhenotype = async (
   name: string,
   wild: boolean
-): Promise<db_Phenotype | DBError> => {
+): Promise<db_Phenotype | db_Error> => {
   const filter: Filter<PhenotypeFieldName> = {
     filters: [
       [
@@ -41,8 +35,10 @@ export const getPhenotype = async (
     orderBy: [],
   };
   const res = await getFilteredPhenotypes(filter);
-  const canUseRes = !(res instanceof DBError) && res.length > 0;
-  return canUseRes ? res[0] : new DBError('Unable to get specified phenotype');
+  return getSingleRecordOrError(
+    res,
+    `Unable to find any phenotypes with the name: ${name} and wild: ${wild}`
+  );
 };
 
 export const getAlteringPhenotypes = async (
@@ -50,7 +46,7 @@ export const getAlteringPhenotypes = async (
   phenotypeName: string,
   phenotypeWild: boolean,
   isSuppressing: boolean
-): Promise<db_Phenotype[] | DBError> => {
+): Promise<db_Phenotype[] | db_Error> => {
   const exprRelationFilter: Filter<ExpressionRelationFieldName> = {
     filters: [
       [
@@ -67,13 +63,8 @@ export const getAlteringPhenotypes = async (
     orderBy: [],
   };
 
-  try {
-    const res = await invoke('get_altering_phenotypes', {
-      exprRelationFilter,
-      phenotypeFilter,
-    });
-    return res as db_Phenotype[];
-  } catch (err) {
-    return new DBError('Unable to get altering phenotypes from db');
-  }
+  return await invoke('get_altering_phenotypes', {
+    exprRelationFilter,
+    phenotypeFilter,
+  });
 };

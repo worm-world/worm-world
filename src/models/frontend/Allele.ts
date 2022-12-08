@@ -3,8 +3,8 @@ import { getGene } from 'api/gene';
 import { getVariation } from 'api/variationInfo';
 import { db_Allele } from 'models/db/db_Allele';
 import { AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
-import { Filter } from 'models/db/filter/filter';
-import { DBError } from 'models/error';
+import { Filter } from 'models/db/filter/Filter';
+import { isDbError } from 'models/error';
 import { AlleleExpression } from 'models/frontend/AlleleExpression';
 import { Gene } from 'models/frontend/Gene';
 import { VariationInfo } from 'models/frontend/VariationInfo';
@@ -35,15 +35,14 @@ export class Allele {
   }
 
   private readonly setGene = async (geneName: string): Promise<void> => {
-    const dbGene = await getGene(geneName);
-    if (dbGene instanceof DBError) return; // return if error
-    this.gene = Gene.createFromRecord(dbGene);
+    const res = await getGene(geneName);
+    if (!isDbError(res)) this.gene = Gene.createFromRecord(res);
   };
 
   private readonly setVariation = async (alleleName: string): Promise<void> => {
-    const dbVariation = await getVariation(alleleName);
-    if (!(dbVariation instanceof DBError))
-      this.variationInfo = VariationInfo.createFromRecord(dbVariation);
+    const res = await getVariation(alleleName);
+    if (!isDbError(res))
+      this.variationInfo = VariationInfo.createFromRecord(res);
   };
 
   private readonly setGeneOrVariation = async (
@@ -58,10 +57,10 @@ export class Allele {
     alleleName: string
   ): Promise<void> => {
     const filter = this.getAlleleExpressionsFilter(alleleName);
-    const dbAlleleExprs = await getFilteredAlleleExpressions(filter);
-    if (dbAlleleExprs instanceof DBError) return;
+    const res = await getFilteredAlleleExpressions(filter);
+    if (isDbError(res)) return;
 
-    this.alleleExpressions = dbAlleleExprs.map((record) =>
+    this.alleleExpressions = res.map((record) =>
       AlleleExpression.createFromRecord(record)
     );
   };

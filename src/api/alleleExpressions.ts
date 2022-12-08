@@ -1,36 +1,30 @@
 import { invoke } from '@tauri-apps/api/tauri';
 import { db_AlleleExpression } from 'models/db/db_AlleleExpression';
+import { db_Error } from 'models/db/db_Error';
 import { AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
-import { Filter, getDbBoolean } from 'models/db/filter/filter';
-import { DBError } from 'models/error';
+import {
+  Filter,
+  getDbBoolean,
+  getSingleRecordOrError,
+} from 'models/db/filter/Filter';
 
 export const getAlleleExpressions = async (): Promise<
-  db_AlleleExpression[] | DBError
+  db_AlleleExpression[] | db_Error
 > => {
-  try {
-    const res = await invoke('get_allele_exprs');
-    return res as db_AlleleExpression[];
-  } catch (err) {
-    return new DBError('Unable to get allele expressions from db');
-  }
+  return await invoke('get_allele_exprs');
 };
 
 export const getFilteredAlleleExpressions = async (
   filter: Filter<AlleleExpressionFieldName>
-): Promise<db_AlleleExpression[] | DBError> => {
-  try {
-    const res = await invoke('get_filtered_allele_exprs', { filter });
-    return res as db_AlleleExpression[];
-  } catch (err) {
-    return new DBError('Unable to get filtered genes from db');
-  }
+): Promise<db_AlleleExpression[] | db_Error> => {
+  return await invoke('get_filtered_allele_exprs', { filter });
 };
 
 export const getAlleleExpression = async (
   alleleName: string,
   expressingPhenotypeName: string,
   expressingPhenotypeWild: boolean
-): Promise<db_AlleleExpression | DBError> => {
+): Promise<db_AlleleExpression | db_Error> => {
   const filter: Filter<AlleleExpressionFieldName> = {
     filters: [
       [
@@ -41,9 +35,7 @@ export const getAlleleExpression = async (
     ],
     orderBy: [],
   };
+
   const res = await getFilteredAlleleExpressions(filter);
-  const canUseRes = !(res instanceof DBError) && res.length > 0;
-  return canUseRes
-    ? res[0]
-    : new DBError('Unable to get specified allele expression');
+  return getSingleRecordOrError(res, 'Unable to find the allele expression');
 };
