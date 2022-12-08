@@ -1,10 +1,28 @@
-import React from 'react';
+import React, { Suspense, FC} from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
-import './style.css';
+import 'styles/global.css';
+import Layout from 'components/layout/layout';
+import { BrowserRouter as Router, useRoutes } from 'react-router-dom';
+
+import routes from '~react-pages';
+
+// eslint-disable-next-line no-console
+console.log(routes);
+
+const App : FC = () => {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <main>
+        <Layout>{useRoutes(routes)}</Layout>
+      </main>
+    </Suspense>
+  );
+};
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <App />
+    <Router>
+      <App />
+    </Router>
   </React.StrictMode>
 );
