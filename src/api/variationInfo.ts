@@ -1,20 +1,16 @@
 import { invoke } from '@tauri-apps/api/tauri';
-import { db_Error } from 'models/db/db_Error';
 import { db_VariationInfo } from 'models/db/db_VariationInfo';
 import { VariationFieldName } from 'models/db/filter/db_VariationFieldName';
-import { Filter, getSingleRecordOrError } from 'models/db/filter/Filter';
-import { isDbError } from 'models/error';
+import { Filter, getSingleRecordOrThrow } from 'models/db/filter/Filter';
 import { VariationInfo } from 'models/frontend/VariationInfo';
 
-export const getVariations = async (): Promise<
-  db_VariationInfo[] | db_Error
-> => {
+export const getVariations = async (): Promise<db_VariationInfo[]> => {
   return await invoke('get_variation_info');
 };
 
 export const getFilteredVariations = async (
   filter: Filter<VariationFieldName>
-): Promise<db_VariationInfo[] | db_Error> => {
+): Promise<db_VariationInfo[]> => {
   return await invoke('get_filtered_variation_info', {
     filter,
   });
@@ -22,25 +18,23 @@ export const getFilteredVariations = async (
 
 export const getVariation = async (
   alleleName: string
-): Promise<db_VariationInfo | db_Error> => {
+): Promise<db_VariationInfo> => {
   const filter: Filter<VariationFieldName> = {
     filters: [[['AlleleName', { Equal: alleleName }]]],
     orderBy: [],
   };
   const res = await getFilteredVariations(filter);
-  return getSingleRecordOrError(res, 'Unable to get specified variation');
+  return getSingleRecordOrThrow(res, 'Unable to get specified variation');
 };
 
-export const insertVariationInfo = async (
+export const insertVariation = async (
   variation: VariationInfo
-): Promise<undefined | db_Error> => {
-  const res = await insertDbPhenotype(variation.generateRecord());
-  if (isDbError(res)) return res;
+): Promise<void> => {
+  await insertDbVariation(variation.generateRecord());
 };
 
-export const insertDbPhenotype = async (
+export const insertDbVariation = async (
   record: db_VariationInfo
-): Promise<undefined | db_Error> => {
-  const res = await invoke('insert_variation_info', { variation_info: record });
-  if (isDbError(res)) return res;
+): Promise<void> => {
+  return await invoke('insert_variation_info', { variation_info: record });
 };
