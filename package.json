@@ -50,7 +50,6 @@
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@vitejs/plugin-react": "^2.0.0",
     "babel-loader": "^8.3.0",
-    "esbuild-darwin-arm64": "^0.15.18",
     "eslint": "^8.27.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.5.0",
@@ -75,6 +74,7 @@
     "vitest": "^0.24.3"
   },
   "optionalDependencies": {
-    "@tauri-apps/cli-win32-x64-msvc": "^1.2.0"
+    "@tauri-apps/cli-win32-x64-msvc": "^1.2.0",
+    "esbuild-darwin-arm": "*"
   }
 }
