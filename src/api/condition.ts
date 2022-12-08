@@ -8,6 +8,8 @@ import {
   getDbBoolean,
   getSingleRecordOrError,
 } from 'models/db/filter/Filter';
+import { isDbError } from 'models/error';
+import { Condition } from 'models/frontend/Condition';
 
 export const getConditions = async (): Promise<db_Condition[] | db_Error> => {
   return await invoke('get_conditions');
@@ -64,4 +66,18 @@ export const getAlteringConditions = async (
     exprRelationFilter,
     conditionFilter,
   });
+};
+
+export const insertCondition = async (
+  condition: Condition
+): Promise<undefined | db_Error> => {
+  const res = await insertDbCondition(condition.generateRecord());
+  if (isDbError(res)) return res;
+};
+
+export const insertDbCondition = async (
+  record: db_Condition
+): Promise<undefined | db_Error> => {
+  const res = await invoke('insert_condition', { condition: record });
+  if (isDbError(res)) return res;
 };

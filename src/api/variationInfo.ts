@@ -3,6 +3,8 @@ import { db_Error } from 'models/db/db_Error';
 import { db_VariationInfo } from 'models/db/db_VariationInfo';
 import { VariationFieldName } from 'models/db/filter/db_VariationFieldName';
 import { Filter, getSingleRecordOrError } from 'models/db/filter/Filter';
+import { isDbError } from 'models/error';
+import { VariationInfo } from 'models/frontend/VariationInfo';
 
 export const getVariations = async (): Promise<
   db_VariationInfo[] | db_Error
@@ -27,4 +29,18 @@ export const getVariation = async (
   };
   const res = await getFilteredVariations(filter);
   return getSingleRecordOrError(res, 'Unable to get specified variation');
+};
+
+export const insertVariationInfo = async (
+  variation: VariationInfo
+): Promise<undefined | db_Error> => {
+  const res = await insertDbPhenotype(variation.generateRecord());
+  if (isDbError(res)) return res;
+};
+
+export const insertDbPhenotype = async (
+  record: db_VariationInfo
+): Promise<undefined | db_Error> => {
+  const res = await invoke('insert_variation_info', { variation_info: record });
+  if (isDbError(res)) return res;
 };

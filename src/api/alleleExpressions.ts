@@ -7,6 +7,8 @@ import {
   getDbBoolean,
   getSingleRecordOrError,
 } from 'models/db/filter/Filter';
+import { isDbError } from 'models/error';
+import { AlleleExpression } from 'models/frontend/AlleleExpression';
 
 export const getAlleleExpressions = async (): Promise<
   db_AlleleExpression[] | db_Error
@@ -38,4 +40,18 @@ export const getAlleleExpression = async (
 
   const res = await getFilteredAlleleExpressions(filter);
   return getSingleRecordOrError(res, 'Unable to find the allele expression');
+};
+
+export const insertAlleleExpression = async (
+  alleleExpr: AlleleExpression
+): Promise<undefined | db_Error> => {
+  const res = await insertDbAlleleExpression(alleleExpr.generateRecord());
+  if (isDbError(res)) return res;
+};
+
+export const insertDbAlleleExpression = async (
+  record: db_AlleleExpression
+): Promise<undefined | db_Error> => {
+  const res = await invoke('insert_allele_expr', { alleleExpr: record });
+  if (isDbError(res)) return res;
 };

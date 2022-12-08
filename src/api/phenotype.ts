@@ -8,6 +8,8 @@ import {
   getDbBoolean,
   getSingleRecordOrError,
 } from 'models/db/filter/Filter';
+import { isDbError } from 'models/error';
+import { Phenotype } from 'models/frontend/Phenotype';
 
 export const getPhenotypes = async (): Promise<db_Phenotype[] | db_Error> => {
   return await invoke('get_phenotypes');
@@ -67,4 +69,18 @@ export const getAlteringPhenotypes = async (
     exprRelationFilter,
     phenotypeFilter,
   });
+};
+
+export const insertPhenotype = async (
+  phenotype: Phenotype
+): Promise<undefined | db_Error> => {
+  const res = await insertDbPhenotype(phenotype.generateRecord());
+  if (isDbError(res)) return res;
+};
+
+export const insertDbPhenotype = async (
+  record: db_Phenotype
+): Promise<undefined | db_Error> => {
+  const res = await invoke('insert_phenotype', { phenotype: record });
+  if (isDbError(res)) return res;
 };

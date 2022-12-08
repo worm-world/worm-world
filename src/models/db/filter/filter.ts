@@ -56,7 +56,7 @@ export interface Filter<T> {
    * @example
    * [field1, field2] would generate the the following statement:
    *
-   * <select query> ... ORDER BY field1, field2
+   * <select query> ... ORDER BY field1, field2;
    */
   orderBy: T[];
 }
