@@ -17,13 +17,17 @@ import { Phenotype } from 'models/frontend/Phenotype';
 import { VariationInfo } from 'models/frontend/VariationInfo';
 import { db_AlleleExpression } from 'models/db/db_AlleleExpression';
 import { Dominance } from 'models/enums';
+import 'styles/index.css';
+import { toast } from 'react-toastify';
 
 const Home = (): JSX.Element => {
   return (
     <div>
       <TopNav title={'Home'} />
-      <h1>To see these buttons in action, open up the console output</h1>
-      <div>
+      <h1 className='mt-6 mb-4'>
+        To see these buttons in action, open up the console output
+      </h1>
+      <div className='example-btns px-6'>
         <button
           onClick={() => {
             getGenes()
@@ -150,6 +154,25 @@ const Home = (): JSX.Element => {
           }}
         >
           get required required conditions
+        </button>
+      </div>
+      <h1 className='pt-6 pb-4'>Toast Buttons</h1>
+      <div className='toast-btns px-6'>
+        <button
+          className='bg-rose-800'
+          onClick={() => {
+            toast.error('Example error');
+          }}
+        >
+          error toast
+        </button>
+        <button
+          className='bg-green-800'
+          onClick={() => {
+            toast.success('Example success');
+          }}
+        >
+          success toast
         </button>
       </div>
     </div>

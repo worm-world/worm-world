@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer components {
+  h1 {
+    @apply text-2xl !important;
+  }
+  .example-btns > button {
+    @apply px-3 py-2 m-2 bg-zinc-800;
+  }
+  .toast-btns > button {
+    @apply px-3 py-2 m-2;
+  }
+}

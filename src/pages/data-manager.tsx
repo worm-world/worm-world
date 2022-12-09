@@ -23,7 +23,9 @@ const Import = (): JSX.Element => {
           to='expression-relation'
         />
       </TopNav>
-      <Outlet />
+      <div className='px-6'>
+        <Outlet />
+      </div>
     </div>
   );
 };
