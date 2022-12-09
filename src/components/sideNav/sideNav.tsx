@@ -12,7 +12,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import { Key } from 'react';
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
-import { Upload } from '@mui/icons-material';
+import { Dataset } from '@mui/icons-material';
 
 interface SideNavProps {
   isOpen: boolean;
@@ -32,7 +32,7 @@ const SideNavItems: SideNavItem[] = [
     icon: <AccountTreeIcon />,
   },
   { name: 'Scheduler', path: '/scheduler', icon: <EventNoteIcon /> },
-  { name: 'Data Import', path: 'data-import', icon: <Upload /> },
+  { name: 'Data Manager', path: '/data-manager', icon: <Dataset /> },
 ];
 
 const navHeader = (): ReactJSXElement => {

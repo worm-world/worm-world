@@ -4,7 +4,7 @@ import styles from './TopNav.module.css';
 interface iTopNavInputProps {
   title: string;
   children?: any;
-  tabIndex?: number;
+  tabIndex?: number | false;
 }
 
 export function TopNav(props: iTopNavInputProps): JSX.Element {
