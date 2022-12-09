@@ -38,7 +38,7 @@ const SideNavItems: SideNavItem[] = [
 const navHeader = (): ReactJSXElement => {
   return (
     <Link to={'/' as To}>
-      <Typography variant='h4' align='center'>
+      <Typography variant='h4' align='center' className='pt-6 pb-4'>
         WormWorld
       </Typography>
     </Link>

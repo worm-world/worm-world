@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 import { db_Phenotype } from 'models/db/db_Phenotype';
 import { Table, ColumnDefinitionType } from 'components/Table/Table';
 import { getFilteredPhenotypes } from 'api/phenotype';
@@ -26,16 +25,17 @@ const DataPage = (): JSX.Element => {
       orderBy: [],
     })
       .then((ds) => setData(ds))
-      .catch((e: Error) => toast('Unable to get Phenotypes: ' + e.message));
+      .catch((e: Error) =>
+        toast.error('Unable to get phenotypes: ' + e.message, {
+          toastId: 'phenotypes',
+        })
+      );
   }, []);
 
   return (
     <div>
       <h1 className='data-table-title'>Phenotypes</h1>
-      <ToastContainer />
-      <div className='px-4'>
-        <Table data={data} columns={cols} />
-      </div>
+      <Table data={data} columns={cols} />
     </div>
   );
 };

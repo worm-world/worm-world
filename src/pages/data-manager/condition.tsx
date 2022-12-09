@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 import { db_Condition } from 'models/db/db_Condition';
 import { Table, ColumnDefinitionType } from 'components/Table/Table';
 import { getFilteredConditions } from 'api/condition';
@@ -24,16 +23,17 @@ const DataPage = (): JSX.Element => {
       orderBy: [],
     })
       .then((ds) => setData(ds))
-      .catch((e: Error) => toast('Unable to get conditions: ' + e.message));
+      .catch((e: Error) =>
+        toast.error('Unable to get conditions: ' + e.message, {
+          toastId: 'conditions',
+        })
+      );
   }, []);
 
   return (
     <div>
       <h1 className='data-table-title'>Conditions</h1>
-      <ToastContainer />
-      <div className='px-4'>
-        <Table data={data} columns={cols} />
-      </div>
+      <Table data={data} columns={cols} />
     </div>
   );
 };

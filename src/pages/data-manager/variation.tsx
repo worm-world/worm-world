@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getFilteredVariations } from 'api/variationInfo';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 import { db_VariationInfo } from 'models/db/db_VariationInfo';
 import { Table, ColumnDefinitionType } from 'components/Table/Table';
 
@@ -21,16 +20,17 @@ const DataPage = (): JSX.Element => {
       orderBy: [],
     })
       .then((ds) => setData(ds))
-      .catch((e: Error) => toast('Unable to get variations: ' + e.message));
+      .catch((e: Error) =>
+        toast.error('Unable to get variations: ' + e.message, {
+          toastId: 'variations',
+        })
+      );
   }, []);
 
   return (
     <div>
       <h1 className='data-table-title'>Variations</h1>
-      <ToastContainer />
-      <div className='px-4'>
-        <Table data={data} columns={cols} />
-      </div>
+      <Table data={data} columns={cols} />
     </div>
   );
 };

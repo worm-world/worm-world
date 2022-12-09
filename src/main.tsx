@@ -2,17 +2,26 @@ import React, { Suspense, FC } from 'react';
 import ReactDOM from 'react-dom/client';
 import 'styles/global.css';
 import Layout from 'components/layout/layout';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { BrowserRouter as Router, useRoutes } from 'react-router-dom';
 
 import routes from '~react-pages';
 
 const App: FC = () => {
   return (
-    <Suspense fallback={<p>Loading...</p>}>
-      <main>
-        <Layout>{useRoutes(routes)}</Layout>
-      </main>
-    </Suspense>
+    <>
+      <Suspense fallback={<p>Loading...</p>}>
+        <main>
+          <Layout>{useRoutes(routes)}</Layout>
+        </main>
+      </Suspense>
+      <ToastContainer
+        autoClose={3000}
+        hideProgressBar
+        position='bottom-right'
+      />
+    </>
   );
 };
 
