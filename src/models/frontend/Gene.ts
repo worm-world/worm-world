@@ -22,6 +22,8 @@ export class GeneLocation {
   getLoc = (): number | undefined => this.start;
 }
 
+export const chromosomeOptions = ['I', 'II', 'III', 'IV', 'V', 'VI', 'X'];
+
 interface IGene {
   name: string;
   chromosome?: string;

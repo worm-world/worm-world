@@ -20,7 +20,7 @@ const TableHeader = <T,>({ columns }: TableHeaderProps<T>): JSX.Element => {
     return (
       <th
         key={`headCell-${index}`}
-        className='text-2xl font-normal border border-2 border-zinc-600 px-2 py-1 bg-zinc-900'
+        className='text-2xl font-normal border border-2 border-zinc-600 px-2 py-1'
       >
         {column.header}
       </th>
@@ -54,9 +54,7 @@ const TableRows = <T,>({ data, columns }: TableRowsProps<T>): JSX.Element => {
           return (
             <td
               key={`cell-${index2}`}
-              className={`border border-2 border-zinc-600 px-2 py-1 ${
-                row[column.key] == null ? 'bg-zinc-800' : ''
-              }`}
+              className={`border border-2 border-zinc-600 px-2 py-1`}
             >
               {formatData(row[column.key])}
             </td>

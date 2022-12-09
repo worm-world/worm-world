@@ -1,0 +1,33 @@
+.modal-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.modal-box {
+    width: 600px;
+    height: 650px;
+}
+
+.modal-form-container{
+    padding: 10px;
+    margin: 24px;
+    background-color: rgb(250, 250, 250);
+    border: 2px solid rgb(163, 163, 163);
+    border-radius: 2%;
+}
+
+.modal-form-title{
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.form-checkbox-container{
+    padding:10px
+}
+
+.form-text-container{
+    padding:10px
+}
