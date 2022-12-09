@@ -1,6 +1,6 @@
 import { StoryFn, Meta } from '@storybook/react';
-import CrossNode from './CrossNode';
-import * as testData from './CrossNodeTestData';
+import CrossNode from 'components/crossNode/CrossNode';
+import * as testData from 'components/crossNode/CrossNode.data';
 
 export default {
   title: 'Components/Cross Node',
@@ -22,7 +22,8 @@ export const Primary = Template.bind({});
 Primary.args = testData.wildCrossNode;
 
 export const Secondary = Template.bind({});
-Secondary.args = testData.crossNodeOnTwoGenes;
+Secondary.args = testData.crossNode1;
 
 export const Tertiary = Template.bind({});
-Tertiary.args = testData.crossNodeOnThreeGenes;
+Tertiary.args = testData.crossNode2;
+console.log(Tertiary.args)
