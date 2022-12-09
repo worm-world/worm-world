@@ -36,5 +36,5 @@ export const insertVariation = async (
 export const insertDbVariation = async (
   record: db_VariationInfo
 ): Promise<void> => {
-  return await invoke('insert_variation_info', { variation_info: record });
+  return await invoke('insert_variation_info', { variationInfo: record });
 };
