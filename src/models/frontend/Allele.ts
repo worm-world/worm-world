@@ -36,8 +36,11 @@ export class Allele {
     this.contents = fields.contents;
 
     // Type guard
-    if ((fields as FullAllele).gene || (fields as FullAllele).variationInfo) {
-      this.gene = (fields as FullAllele).gene
+    if (
+      (fields as FullAllele).gene != null ||
+      (fields as FullAllele).variationInfo != null
+    ) {
+      this.gene = (fields as FullAllele).gene;
       this.variationInfo = (fields as FullAllele).variationInfo;
       return;
     }

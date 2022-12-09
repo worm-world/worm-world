@@ -4,8 +4,7 @@ import { Box, Typography, Button } from '@mui/material';
 import CrossNode from 'models/frontend/CrossNode';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { Allele } from 'models/frontend/Allele';
-import { getSexIcon } from 'models/enums';
-import { Sex } from 'models/enums';
+import { getSexIcon, Sex } from 'models/enums';
 import { Locus } from 'models/frontend/Locus';
 import { Gene } from 'models/frontend/Gene';
 import { VariationInfo } from 'models/frontend/VariationInfo';
@@ -63,10 +62,10 @@ function fillGenotypeWithAlleles(genotype: Genotype, alleles: Allele[]): void {
     }
 
     const chromosome = locus?.chromosome ?? exChrom;
-    let allelesAtLocus = genotype.get(chromosome);
+    const allelesAtLocus = genotype.get(chromosome);
     if (allelesAtLocus === undefined) {
       throw Error(
-        `The allele ${allele} exists on a chromosome (or exChrom) not referenced in list of Genes or VariationInfos.`
+        `The allele ${allele.name} exists on a chromosome (or exChrom) not referenced in list of Genes or VariationInfos.`
       );
     }
 
@@ -129,7 +128,10 @@ const getCrossNodeBody = (genotype: Genotype): ReactJSXElement => {
 const getFractionsForChromosome = (
   AllelesAtLocus: AllelesAtLocus
 ): ReactJSXElement[] => {
-  const allelesAtLocusNames: AllelesAtLocusNames = new Map<LocusName, AlleleName[]>();
+  const allelesAtLocusNames: AllelesAtLocusNames = new Map<
+    LocusName,
+    AlleleName[]
+  >();
   for (const locus of AllelesAtLocus.keys()) {
     const alleles = AllelesAtLocus.get(locus) ?? [];
     allelesAtLocusNames.set(locus.name, [

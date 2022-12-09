@@ -1,4 +1,5 @@
 import { db_Gene } from 'models/db/db_Gene';
+import { Locus } from './Locus';
 
 /**
  * @summary Locations for a gene can be represented as a single number OR as a range between two numbers
@@ -42,7 +43,7 @@ export class Gene {
   /** Gene's genetic distance from the middle of a chromosome */
   geneticLoc?: GeneLocation;
 
-  constructor(fields: IGene) {
+  constructor(fields: Locus) {
     Object.assign(this, fields);
   }
 

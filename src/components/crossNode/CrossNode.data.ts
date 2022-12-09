@@ -64,7 +64,7 @@ export const crossNode1: CrossNode = {
       new Allele({
         name: 'variation1_allele1',
         variationInfo: variation1,
-      })
+      }),
     ],
     notes: '',
   },
@@ -80,27 +80,27 @@ export const crossNode2: CrossNode = {
     alleles: [
       new Allele({
         name: 'gene1_allele1',
-        gene: gene1
+        gene: gene1,
       }),
       new Allele({
         name: 'gene1_allele2',
-        gene: gene1
+        gene: gene1,
       }),
       new Allele({
         name: 'gene2a_allele1',
-        gene: gene2a
+        gene: gene2a,
       }),
       new Allele({
         name: 'gene2b_allele1',
-        gene: gene2b
+        gene: gene2b,
       }),
       new Allele({
         name: 'gene2b_allele2',
-        gene: gene2b
+        gene: gene2b,
       }),
       new Allele({
         name: 'gene3_allele1',
-        gene: gene3
+        gene: gene3,
       }),
     ],
     notes: '',
@@ -117,7 +117,7 @@ export const crossNode3: CrossNode = {
       new Allele({
         name: 'gene1_allele1',
         gene: gene1,
-      })
+      }),
     ],
     notes: '',
   },
