@@ -37,10 +37,7 @@ const Fields = <T,>(props: iFieldsProps<T>): JSX.Element => {
       {fieldList?.map((field: FieldType<T>) => {
         if (field.type === 'boolean') {
           return (
-            <div
-              className='my-6'
-              key={'key-' + field.name.toString()}
-            >
+            <div className='my-6' key={'key-' + field.name.toString()}>
               <FormControlLabel
                 key={'key-' + field.name.toString()}
                 name={field.name.toString()}
@@ -51,10 +48,7 @@ const Fields = <T,>(props: iFieldsProps<T>): JSX.Element => {
           );
         } else if (field.type === 'select') {
           return (
-            <div
-              className='my-6'
-              key={'key-' + field.name.toString()}
-            >
+            <div className='my-6' key={'key-' + field.name.toString()}>
               <InputLabel id={field.name.toString()}>{field.title}</InputLabel>
               <Select
                 labelId={field.name.toString()}
@@ -74,10 +68,7 @@ const Fields = <T,>(props: iFieldsProps<T>): JSX.Element => {
           );
         } else {
           return (
-            <div
-              className='my-6'
-              key={'key-' + field.name.toString()}
-            >
+            <div className='my-6' key={'key-' + field.name.toString()}>
               <TextField
                 type={'text'}
                 label={field.title}
@@ -139,12 +130,15 @@ const DataImportForm = <T,>(props: iDataImportFormProps<T>): JSX.Element => {
               <Typography variant='h4' className='text-center'>
                 {'New ' + props.dataName}
               </Typography>
-              <hr className='my-2'/>
+              <hr className='my-2' />
               <form onSubmit={handleSubmit}>
                 <Fields fieldList={props.fields}></Fields>
-                <hr className='my-8'/>
+                <hr className='my-8' />
                 <div className='flex flex-row justify-center w-full'>
-                  <button type='submit' className='bg-zinc-100 hover:bg-zinc-200 transition-all shadow-sm'>
+                  <button
+                    type='submit'
+                    className='bg-zinc-100 hover:bg-zinc-200 transition-all shadow-sm'
+                  >
                     Insert Into Database
                   </button>
                 </div>

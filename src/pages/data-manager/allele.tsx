@@ -44,7 +44,9 @@ const DataPage = (): JSX.Element => {
         refresh();
       })
       .catch((e: Error) => {
-        toast.error('An error has occured when inserting data: ' + JSON.stringify(e));
+        toast.error(
+          'An error has occured when inserting data: ' + JSON.stringify(e)
+        );
       });
   };
   const refresh = (): void => {
@@ -53,7 +55,7 @@ const DataPage = (): JSX.Element => {
       orderBy: [],
     })
       .then((ds) => setData(ds))
-      .catch(e =>
+      .catch((e) =>
         toast.error('Unable to get alleles: ' + JSON.stringify(e), {
           toastId: 'alleles',
         })

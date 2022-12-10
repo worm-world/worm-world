@@ -70,7 +70,9 @@ const DataPage = (): JSX.Element => {
         refresh();
       })
       .catch((e: Error) => {
-        toast.error('An error has occured when inserting data: ' + JSON.stringify(e));
+        toast.error(
+          'An error has occured when inserting data: ' + JSON.stringify(e)
+        );
       });
   };
 
@@ -80,10 +82,13 @@ const DataPage = (): JSX.Element => {
       orderBy: [],
     })
       .then((ds) => setData(ds))
-      .catch(e =>
-        toast.error('Unable to get expression relations: ' + JSON.stringify(e), {
-          toastId: 'expression-relations',
-        })
+      .catch((e) =>
+        toast.error(
+          'Unable to get expression relations: ' + JSON.stringify(e),
+          {
+            toastId: 'expression-relations',
+          }
+        )
       );
   };
 
