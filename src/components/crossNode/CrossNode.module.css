@@ -1,0 +1,64 @@
+.crossNode {
+  display: flex;
+  flex-direction: column;
+  border-radius: 4px;
+  max-width: 250px;
+  box-shadow: 0px 2px 1px -1px rgb(0 0 0 / 20%),
+    0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%);
+}
+
+.crossNode:hover {
+  cursor: grab;
+}
+
+.crossNodeHeader {
+  height: 25px;
+  display: flex;
+  justify-content: space-between;
+}
+
+hr {
+  margin: 1px 0 1px 0;
+}
+
+.sex {
+  padding: 0 10px 0 10px;
+}
+
+.crossNodeBody {
+  display: flex;
+  margin: auto;
+  padding-bottom: 10px;
+  margin: 0 10px 0 10px;
+  overflow: auto;
+  font-size: small;
+}
+
+.chromosomeBox {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 10px 0 10px;
+}
+
+.chromosomeLabel {
+  font-weight: bold;
+}
+
+.chromosomeFractionBox {
+  display: flex;
+  flex-direction: row;
+}
+
+.chromosomeFraction {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.fractionAllele {
+  text-align: center;
+  padding-left: 10px;
+  padding-right: 10px;
+}

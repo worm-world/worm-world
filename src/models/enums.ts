@@ -9,3 +9,19 @@ export enum Sex {
   Female,
   Hermaphrodite,
 }
+
+export const getSexIcon = (sex: Sex): string => {
+  let icon;
+  switch (sex) {
+    case Sex.Male:
+      icon = '♂';
+      break;
+    case Sex.Hermaphrodite:
+      icon = '⚥';
+      break;
+    case Sex.Female:
+      icon = '♀';
+      break;
+  }
+  return icon;
+};

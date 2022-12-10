@@ -22,16 +22,27 @@ export class GeneLocation {
   getLoc = (): number | undefined => this.start;
 }
 
-export const chromosomeOptions = ['I', 'II', 'III', 'IV', 'V', 'VI', 'X'];
+// I to V are five somatic chromosomes, X is sex chromosome, 
+// and ECA is extra-chromosomal array
+export const chromosomeOptions = [
+  'I',
+  'II',
+  'III',
+  'IV',
+  'V',
+  'X',
+  'ECA',
+];
 
 interface IGene {
   name: string;
   chromosome?: string;
   /** Physical location of the gene on a chromosome */
-  physLoc: GeneLocation;
+  physLoc?: GeneLocation;
   /** Gene's genetic distance from the middle of a chromosome */
-  geneticLoc: GeneLocation;
+  geneticLoc?: GeneLocation;
 }
+
 export class Gene {
   name: string = '';
   chromosome?: string;

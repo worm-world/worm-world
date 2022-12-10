@@ -1,5 +1,5 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react';
-import SideNav from './sideNav';
+import { StoryFn, Meta } from '@storybook/react';
+import SideNav from './SideNav';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -9,10 +9,10 @@ export default {
   argTypes: {
     backgroundColor: { control: 'color' },
   },
-} as ComponentMeta<typeof SideNav>;
+} as Meta<typeof SideNav>;
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-const Template: ComponentStory<typeof SideNav> = ({
+const Template: StoryFn<typeof SideNav> = ({
   isOpen = true,
   drawerWidth = 240,
 }) => <SideNav isOpen={isOpen} drawerWidth={drawerWidth} />;

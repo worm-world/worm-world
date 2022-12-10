@@ -14,6 +14,16 @@ interface IAllele {
   contents?: string;
 }
 
+// Useful in testing (avoids api calls)
+export interface FullAllele {
+  name: string;
+  gene?: Gene;
+  variationInfo?: VariationInfo;
+  alleleExpressions?: AlleleExpression[];
+  contents?: string;
+}
+
+// Allele should always have exactly one of (1) gene or (2) variationInfo
 export class Allele {
   name: string;
   gene?: Gene;
@@ -21,9 +31,20 @@ export class Allele {
   alleleExpressions: AlleleExpression[] = [];
   contents?: string;
 
-  constructor(fields: IAllele) {
+  constructor(fields: IAllele | FullAllele) {
     this.name = fields.name;
     this.contents = fields.contents;
+
+    // Type guard
+    if (
+      (fields as FullAllele).gene != null ||
+      (fields as FullAllele).variationInfo != null
+    ) {
+      this.gene = (fields as FullAllele).gene;
+      this.variationInfo = (fields as FullAllele).variationInfo;
+      return;
+    }
+
     this.setGeneOrVariation(fields).catch((err) =>
       console.error('error generating gene / variation', err)
     );
@@ -83,7 +104,7 @@ export class Allele {
     return {
       name: this.name,
       geneName: this.gene?.name ?? null,
-      variationName: this.variationInfo?.alleleName ?? null,
+      variationName: this.variationInfo?.name ?? null,
       contents: this.contents ?? null,
     };
   };

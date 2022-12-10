@@ -42,7 +42,7 @@
  */
 
 import { render, screen } from '@testing-library/react';
-import SideNav from 'components/sideNav/sideNav';
+import SideNav from 'components/sideNav/SideNav';
 import { BrowserRouter } from 'react-router-dom';
 
 /**

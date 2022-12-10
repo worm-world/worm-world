@@ -1,8 +1,7 @@
 import Tab from '@mui/material/Tab';
-import React from 'react';
 import { TopNav } from 'components/TopNav/TopNav';
-import { Routes, Route } from 'react-router-dom';
-import Temp from './temp';
+import CrossNode from 'components/crossNode/CrossNode';
+import * as testData from 'components/crossNode/CrossNode.data';
 
 const CrossPage = (): JSX.Element => {
   return (
@@ -12,9 +11,7 @@ const CrossPage = (): JSX.Element => {
         <Tab label='Open Cross' />
         <Tab label='Export Cross' />
       </TopNav>
-      <Routes>
-        <Route path='/temp' element={<Temp />} />
-      </Routes>
+      <CrossNode {...testData.crossNode1}></CrossNode>
     </div>
   );
 };
