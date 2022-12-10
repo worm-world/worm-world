@@ -137,7 +137,7 @@ const DataImportForm = <T,>(props: iDataImportFormProps<T>): JSX.Element => {
                 <div className='flex flex-row justify-center w-full'>
                   <button
                     type='submit'
-                    className='bg-zinc-100 hover:bg-zinc-200 transition-all shadow-sm'
+                    className='bg-zinc-100 hover:bg-zinc-200 p-2 transition-all shadow-sm'
                   >
                     Insert Into Database
                   </button>

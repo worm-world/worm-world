@@ -17,12 +17,12 @@ import { Phenotype } from 'models/frontend/Phenotype';
 import { VariationInfo } from 'models/frontend/VariationInfo';
 import { db_AlleleExpression } from 'models/db/db_AlleleExpression';
 import { Dominance } from 'models/enums';
-import 'styles/index.css';
+import 'styles/home.css';
 import { toast } from 'react-toastify';
 
 const Home = (): JSX.Element => {
   return (
-    <div>
+    <div className='home'>
       <TopNav title={'Home'} />
       <h1 className='mt-6 mb-4'>
         To see these buttons in action, open up the console output

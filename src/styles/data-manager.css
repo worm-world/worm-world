@@ -2,10 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 @layer components {
-  h1 {
+  .data-manager h1 {
     @apply text-4xl py-4 font-bold;
   }
-  button {
+  .data-manager button {
     @apply bg-zinc-100 hover:bg-zinc-200 transition-colors p-2 px-3;
   }
 }

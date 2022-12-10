@@ -2,8 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 @layer components {
-  h1 {
-    @apply text-xl;
+  .home h1 {
+    @apply text-2xl;
   }
   .example-btns > button {
     @apply px-3 py-2 m-2 bg-zinc-100 hover:bg-zinc-200 transition-colors;

@@ -6,6 +6,9 @@
   button {
     @apply rounded-md drop-shadow-md p-2;
   }
+  h1 {
+    @apply text-xl;
+  }
 }
 
 :root {

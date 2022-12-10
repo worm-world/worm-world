@@ -5,7 +5,7 @@ import 'styles/data-manager.css';
 
 const Import = (): JSX.Element => {
   return (
-    <div>
+    <div className='data-manager'>
       <TopNav title={'Data Manager'} tabIndex={false}>
         <Tab label='Gene' component={Link} to='gene' />
         <Tab label='Variation' component={Link} to='variation' />
@@ -23,7 +23,7 @@ const Import = (): JSX.Element => {
           to='expression-relation'
         />
       </TopNav>
-      <div className='px-6'>
+      <div className='px-6 pt-2'>
         <Outlet />
       </div>
     </div>

@@ -8,11 +8,6 @@ import Pages from 'vite-plugin-pages';
 export default defineConfig({
   plugins: [react(), tsconfigPaths(), Pages()],
 
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/tests/setupTests.ts',
-  },
   // Vite optons tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   // prevent vite from obscuring rust errors
   clearScreen: false,
