@@ -22,14 +22,14 @@ export class GeneLocation {
   getLoc = (): number | undefined => this.start;
 }
 
-// I to V are five somatic chromosomes, X is sex chromosome, and ECA is extra-chromosomal array
+// I to V are five somatic chromosomes, X is sex chromosome, 
+// and ECA is extra-chromosomal array
 export const chromosomeOptions = [
   'I',
   'II',
   'III',
   'IV',
   'V',
-  'VI',
   'X',
   'ECA',
 ];

@@ -1,5 +1,5 @@
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
-import styles from './CrossNode.module.css';
+import styles from  'components/crossNode/CrossNode.module.css';
 import { Box, Typography, Button } from '@mui/material';
 import CrossNode from 'models/frontend/CrossNode';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
@@ -106,7 +106,7 @@ const getCrossNodeHeader = (sex: Sex): ReactJSXElement => {
       <Typography sx={{ fontSize: '1.2em' }} className={styles.sex}>
         {getSexIcon(sex)}
       </Typography>
-      <Button>
+      <Button sx={{boxShadow: 'none'}}>
         <MoreHorizIcon />{' '}
       </Button>
     </>
