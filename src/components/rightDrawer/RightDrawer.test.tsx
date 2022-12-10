@@ -2,7 +2,6 @@ import { render, screen } from '@testing-library/react';
 import RightDrawer from 'components/rightDrawer/RightDrawer';
 
 const testPropsOpen = {
-  role: 'RightDrawer',
   initialDrawerWidth: 200,
   maxWidth: 300,
   isOpen: true,
@@ -10,7 +9,6 @@ const testPropsOpen = {
 };
 
 const testPropsClosed = {
-  role: 'RightDrawer',
   initialDrawerWidth: 200,
   maxWidth: 300,
   isOpen: false,
