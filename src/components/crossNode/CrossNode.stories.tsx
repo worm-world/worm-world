@@ -18,11 +18,15 @@ const Template: StoryFn<typeof CrossNode> = (args) => {
   return <CrossNode {...args}></CrossNode>;
 };
 
-export const Primary = Template.bind({});
-Primary.args = testData.wildCrossNode;
+export const wildCrossNode = Template.bind({});
+wildCrossNode.args = testData.wildCrossNode;
 
-export const Secondary = Template.bind({});
-Secondary.args = testData.crossNode1;
+export const Example1 = Template.bind({});
+Example1.args = testData.crossNode1;
 
-export const Tertiary = Template.bind({});
-Tertiary.args = testData.crossNode2;
+export const Example2 = Template.bind({});
+Example2.args = testData.crossNode2;
+
+export const Example3 = Template.bind({});
+Example3.args = testData.crossNode3;
+

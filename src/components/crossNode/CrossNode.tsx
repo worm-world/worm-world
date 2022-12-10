@@ -30,7 +30,7 @@ function getGenotype(crossNode: CrossNode): Genotype {
 
   const alleles = crossNode.strain.alleles;
   fillGenotypeWithAlleles(genotype, alleles);
-
+  
   return genotype;
 }
 
@@ -57,6 +57,7 @@ function fillGenotypeWithAlleles(genotype: Genotype, alleles: Allele[]): void {
     if (mutation === undefined) {
       console.error(`The allele ${allele.name} has no associated gene or variation info. 
       This violates a consistency expectation. A dummy variation is being assigned.`);
+      // Arbitrarily choose variation info for allele's mutation (instead of gene)
       mutation = new VariationInfo({ name: `dummy_variation_${allele.name}` });
       allele.variationInfo = mutation;
     }
@@ -65,10 +66,13 @@ function fillGenotypeWithAlleles(genotype: Genotype, alleles: Allele[]): void {
     let allelesOfMutation = genotype.get(chromosome);
     if (allelesOfMutation === undefined) {
       console.error(
-        `The allele ${allele.name} exists on a chromosome or extrachromosomal array not referenced in list of Genes or VariationInfos.
-         A chromosome has been added for this node, but it will not necessarily be in other nodes.`
+        `The allele ${allele.name} exists on a chromosome or extrachromosomal array 
+         not referenced in list of Genes or VariationInfos.
+         A chromosome has been added for this node, 
+         but it will not necessarily be displayed in other nodes.`
       );
       allelesOfMutation = new Map<Mutation, Allele[]>();
+      allelesOfMutation.set(mutation as Mutation, []);
       genotype.set(chromosome, allelesOfMutation);
     }
 

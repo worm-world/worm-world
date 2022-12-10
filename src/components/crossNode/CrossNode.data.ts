@@ -8,36 +8,33 @@ import { VariationInfo } from 'models/frontend/VariationInfo';
 const gene1 = new Gene({
   name: 'gene1',
   chromosome: 'I',
-  physLoc: new GeneLocation(0),
-  geneticLoc: new GeneLocation(0),
 });
+
 const gene2a = new Gene({
   name: 'gene2a',
   chromosome: 'II',
-  physLoc: new GeneLocation(0),
-  geneticLoc: new GeneLocation(0),
 });
 
 const gene2b = new Gene({
   name: 'gene2b',
   chromosome: 'II',
-  physLoc: new GeneLocation(0),
-  geneticLoc: new GeneLocation(0),
 });
 
 const gene3 = new Gene({
   name: 'gene3',
   chromosome: 'III',
-  physLoc: new GeneLocation(0),
-  geneticLoc: new GeneLocation(0),
+});
+
+const gene4 = new Gene({
+  name: 'gene4',
+  chromosome: 'X',
 });
 
 // Variations
 
 const variation1 = new VariationInfo({
-  name: 'gene3',
-  physLoc: new GeneLocation(0),
-  geneticLoc: new GeneLocation(0),
+  name: 'allele3',
+  chromosome: '?',
 });
 
 // CrossNodes
@@ -123,11 +120,19 @@ export const crossNode3: CrossNode = {
         name: 'gene1_allele1',
         gene: gene1,
       }),
+      new Allele({
+        name: 'gene4_allele1',
+        gene: gene4,
+      }),
+      new Allele({
+        name: 'variation1_allele1',
+        variationInfo: variation1,
+      }),
     ],
     notes: '',
   },
   isSelected: false,
-  genes: [gene1],
+  genes: [gene1, gene4],
   parents: [],
-  variations: [],
+  variations: [variation1],
 };
