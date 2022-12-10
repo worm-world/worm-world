@@ -20,6 +20,7 @@ const App: FC = () => {
         autoClose={3000}
         hideProgressBar
         position='bottom-right'
+        closeOnClick={false}
       />
     </>
   );

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getFilteredGenes, insertDbGene } from 'api/gene';
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { db_Gene } from 'models/db/db_Gene';
 import { Table, ColumnDefinitionType } from 'components/Table/Table';
 import DataImportForm, {
@@ -48,7 +47,7 @@ const DataPage = (): JSX.Element => {
         refresh();
       })
       .catch((e: Error) => {
-        toast(`An error has occured when inserting data: ${e}`);
+        toast.error('An error has occured when inserting data: ' + JSON.stringify(e));
       });
   };
 
@@ -58,8 +57,8 @@ const DataPage = (): JSX.Element => {
       orderBy: [],
     })
       .then((ds) => setData(ds))
-      .catch((e: Error) =>
-        toast.error('Unable to get genes: ' + e.message, { toastId: 'genes' })
+      .catch(e =>
+        toast.error('Unable to get genes: ' + JSON.stringify(e), { toastId: 'genes' })
       );
   };
 
@@ -69,13 +68,15 @@ const DataPage = (): JSX.Element => {
 
   return (
     <div>
-      <h1 className='data-table-title'>Gene</h1>
-      <DataImportForm
-        dataName='Gene'
-        fields={fields as Array<FieldType<db_Gene>>}
-        onSubmitCallback={onRecordInsertionFormSubmission}
-      ></DataImportForm>
-      <br />
+      <div className='grid grid-cols-3 items-center px-6 place-items-center'>
+        <h1 className='data-table-title col-start-2'>Genes</h1>
+        <DataImportForm
+          className='justify-self-end'
+          dataName='Gene'
+          fields={fields as Array<FieldType<db_Gene>>}
+          onSubmitCallback={onRecordInsertionFormSubmission}
+        ></DataImportForm>
+      </div>
       <div className='px-4'>
         <Table data={data} columns={cols} />
       </div>

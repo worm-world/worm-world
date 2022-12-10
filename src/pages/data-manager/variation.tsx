@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getFilteredVariations, insertDbVariation } from 'api/variationInfo';
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { db_VariationInfo } from 'models/db/db_VariationInfo';
 import { Table, ColumnDefinitionType } from 'components/Table/Table';
 import DataImportForm, {
@@ -48,7 +47,7 @@ const DataPage = (): JSX.Element => {
         refresh();
       })
       .catch((e: Error) => {
-        toast(`An error has occured when inserting data: ${e}`);
+        toast.error('An error has occured when inserting data: ' + JSON.stringify(e));
       });
   };
 
@@ -58,8 +57,8 @@ const DataPage = (): JSX.Element => {
       orderBy: [],
     })
       .then((ds) => setData(ds))
-      .catch((e: Error) =>
-        toast.error('Unable to get variations: ' + e.message, {
+      .catch(e =>
+        toast.error(<div>{'Unable to get variations:' + JSON.stringify(e)}</div>, {
           toastId: 'variations',
         })
       );
@@ -71,13 +70,15 @@ const DataPage = (): JSX.Element => {
 
   return (
     <div>
-      <h1 className='data-table-title'>Variations</h1>
-      <DataImportForm
-        dataName='Variation'
-        fields={fields as Array<FieldType<db_VariationInfo>>}
-        onSubmitCallback={onRecordInsertionFormSubmission}
-      ></DataImportForm>
-      <br />
+      <div className='grid grid-cols-3 items-center px-6 place-items-center'>
+        <h1 className='data-table-title col-start-2'>Variations</h1>
+        <DataImportForm
+          className='justify-self-end'
+          dataName='Variation'
+          fields={fields as Array<FieldType<db_VariationInfo>>}
+          onSubmitCallback={onRecordInsertionFormSubmission}
+        ></DataImportForm>
+      </div>
       <Table data={data} columns={cols} />
     </div>
   );

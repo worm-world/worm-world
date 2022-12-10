@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getFilteredAlleles, insertDbAllele } from 'api/allele';
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { db_Allele } from 'models/db/db_Allele';
 import { Table, ColumnDefinitionType } from 'components/Table/Table';
 import DataImportForm, {
@@ -45,7 +44,7 @@ const DataPage = (): JSX.Element => {
         refresh();
       })
       .catch((e: Error) => {
-        toast(`An error has occured when inserting data: ${e}`);
+        toast.error('An error has occured when inserting data: ' + JSON.stringify(e));
       });
   };
   const refresh = (): void => {
@@ -54,8 +53,8 @@ const DataPage = (): JSX.Element => {
       orderBy: [],
     })
       .then((ds) => setData(ds))
-      .catch((e: Error) =>
-        toast.error('Unable to get alleles: ' + e.message, {
+      .catch(e =>
+        toast.error('Unable to get alleles: ' + JSON.stringify(e), {
           toastId: 'alleles',
         })
       );
@@ -67,13 +66,15 @@ const DataPage = (): JSX.Element => {
 
   return (
     <div>
-      <h1 className='data-table-title'>Alleles</h1>
-      <DataImportForm
-        dataName='Allele'
-        fields={fields as Array<FieldType<db_Allele>>}
-        onSubmitCallback={onRecordInsertionFormSubmission}
-      ></DataImportForm>
-      <br />
+      <div className='grid grid-cols-3 items-center px-6 place-items-center'>
+        <h1 className='data-table-title col-start-2'>Alleles</h1>
+        <DataImportForm
+          className='justify-self-end'
+          dataName='Allele'
+          fields={fields as Array<FieldType<db_Allele>>}
+          onSubmitCallback={onRecordInsertionFormSubmission}
+        ></DataImportForm>
+      </div>
       <Table data={data} columns={cols} />
     </div>
   );

@@ -63,7 +63,7 @@ const DataPage = (): JSX.Element => {
         refresh();
       })
       .catch((e: Error) => {
-        toast(`An error has occured when inserting data: ${e}`);
+        toast.error('An error has occured when inserting data: ' + JSON.stringify(e));
       });
   };
 
@@ -73,8 +73,8 @@ const DataPage = (): JSX.Element => {
       orderBy: [],
     })
       .then((ds) => setData(ds))
-      .catch((e: Error) =>
-        toast.error('Unable to get conditions: ' + e.message, {
+      .catch(e =>
+        toast.error('Unable to get conditions: ' + JSON.stringify(e), {
           toastId: 'conditions',
         })
       );
@@ -86,14 +86,15 @@ const DataPage = (): JSX.Element => {
 
   return (
     <div>
-      <h1 className='data-table-title'>Conditions</h1>
-      <DataImportForm
-        dataName='Condition'
-        fields={fields as Array<FieldType<db_Condition>>}
-        onSubmitCallback={onRecordInsertionFormSubmission}
-      ></DataImportForm>
-      <br />
-
+      <div className='grid grid-cols-3 items-center px-6 place-items-center'>
+        <h1 className='data-table-title col-start-2'>Conditions</h1>
+        <DataImportForm
+          className='justify-self-end'
+          dataName='Condition'
+          fields={fields as Array<FieldType<db_Condition>>}
+          onSubmitCallback={onRecordInsertionFormSubmission}
+        ></DataImportForm>
+      </div>
       <Table data={data} columns={cols} />
     </div>
   );
