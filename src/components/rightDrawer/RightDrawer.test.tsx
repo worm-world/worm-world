@@ -1,28 +1,28 @@
 import { render, screen } from '@testing-library/react';
-import RightDrawer, { RightDrawerProps } from './RightDrawer';
+import RightDrawer from 'components/rightDrawer/RightDrawer';
 
-const renderComponent = (props: RightDrawerProps): void => {
-  render(<RightDrawer {...props} />, {});
+const testPropsOpen = {
+  role: 'RightDrawer',
+  initialDrawerWidth: 200,
+  maxWidth: 300,
+  isOpen: true,
+  close: () => alert('close button pressed'),
 };
+
+const testPropsClosed = {
+  role: 'RightDrawer',
+  initialDrawerWidth: 200,
+  maxWidth: 300,
+  isOpen: false,
+  close: () => alert('close button pressed'),
+};
+
+const childElement = <div>RightDrawer Child Element</div>;
 
 describe('RightDrawer', () => {
   // Initial open drawer
   test('renders RightDrawer component', () => {
-    renderComponent({
-
-    });
-    screen.getByRole('list'); // Throws an error if the element can't be found
-    const buttons = screen.getAllByRole('button');
-    expect(buttons.length).toBeGreaterThan(1);
-  });
-
-  // Initial close drawer
-  test('closed SideNav is not visible', () => {
-    renderComponent({ isOpen: false });
-
-    const buttons = screen.queryAllByRole('button'); // We use queryBy to check the non-existance of an element
-    expect(buttons).toHaveLength(0); // None of the sidenav buttons are visible/clickable
-    const sideNav = screen.queryByRole('list');
-    expect(sideNav).toBeNull();
+    render(<RightDrawer {...testPropsOpen}>{childElement}</RightDrawer>, {});
+    screen.getByText('RightDrawer Child Element');
   });
 });
