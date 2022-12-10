@@ -30,7 +30,7 @@ function getGenotype(crossNode: CrossNode): Genotype {
 
   const alleles = crossNode.strain.alleles;
   fillGenotypeWithAlleles(genotype, alleles);
-  
+
   return genotype;
 }
 
@@ -58,7 +58,10 @@ function fillGenotypeWithAlleles(genotype: Genotype, alleles: Allele[]): void {
       console.error(`The allele ${allele.name} has no associated gene or variation info. 
       This violates a consistency expectation. A dummy variation is being assigned.`);
       // Arbitrarily choose variation info for allele's mutation (instead of gene)
-      mutation = new VariationInfo({ name: `dummy_variation_${allele.name}` });
+      mutation = new VariationInfo({
+        name: `dummy_variation_${allele.name}`,
+        chromosome: UNKNOWN_CHROM,
+      });
       allele.variationInfo = mutation;
     }
 
@@ -100,7 +103,7 @@ const CrossNodeElement = (props: CrossNode): ReactJSXElement => {
 const getCrossNodeHeader = (sex: Sex): ReactJSXElement => {
   return (
     <>
-      <Typography sx={{ 'font-size': '1.2em' }} className={styles.sex}>
+      <Typography sx={{ fontSize: '1.2em' }} className={styles.sex}>
         {getSexIcon(sex)}
       </Typography>
       <Button>

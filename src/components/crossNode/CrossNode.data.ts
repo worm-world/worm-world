@@ -1,5 +1,5 @@
 import { Sex } from 'models/enums';
-import { Gene, GeneLocation } from 'models/frontend/Gene';
+import { Gene } from 'models/frontend/Gene';
 import CrossNode from 'models/frontend/CrossNode';
 import { Allele } from 'models/frontend/Allele';
 import { VariationInfo } from 'models/frontend/VariationInfo';
