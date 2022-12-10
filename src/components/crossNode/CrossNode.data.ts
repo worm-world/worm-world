@@ -50,6 +50,8 @@ export const wildCrossNode: CrossNode = {
   },
   isSelected: false,
   genes: [gene1],
+  parents: [],
+  variations: [],
 };
 
 export const crossNode1: CrossNode = {
@@ -71,6 +73,7 @@ export const crossNode1: CrossNode = {
   isSelected: false,
   genes: [gene1],
   variations: [variation1],
+  parents: [],
 };
 
 export const crossNode2: CrossNode = {
@@ -107,6 +110,8 @@ export const crossNode2: CrossNode = {
   },
   isSelected: false,
   genes: [gene1, gene2a, gene2b, gene3],
+  parents: [],
+  variations: [],
 };
 
 export const crossNode3: CrossNode = {
@@ -123,4 +128,6 @@ export const crossNode3: CrossNode = {
   },
   isSelected: false,
   genes: [gene1],
+  parents: [],
+  variations: [],
 };

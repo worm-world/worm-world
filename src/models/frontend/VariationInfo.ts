@@ -1,16 +1,22 @@
 import { db_VariationInfo } from 'models/db/db_VariationInfo';
 import { GeneLocation } from 'models/frontend/Gene';
-import { Locus } from 'models/frontend/Locus';
+
+interface IVariationInfo {
+  name: string;
+  physLoc?: GeneLocation;
+  geneticLoc?: GeneLocation;
+  chromosome?: string;
+}
 
 export class VariationInfo {
-  name: string = ''; // Usually the name of the allele
+  name: string = ''; // Same as allele name (but 'name' allows type intersection with Gene)
   /** Physical location of the variation on a chromosome */
   physLoc?: GeneLocation;
   /** Variation's genetic distance from the middle of a chromosome */
   geneticLoc?: GeneLocation;
   chromosome?: string;
 
-  constructor(fields: Locus) {
+  constructor(fields: IVariationInfo) {
     Object.assign(this, fields);
   }
 

@@ -5,28 +5,27 @@ import CrossNode from 'models/frontend/CrossNode';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { Allele } from 'models/frontend/Allele';
 import { getSexIcon, Sex } from 'models/enums';
-import { Locus } from 'models/frontend/Locus';
 import { Gene } from 'models/frontend/Gene';
 import { VariationInfo } from 'models/frontend/VariationInfo';
 
-// Used as "chromosome name" when not given
-// (e.g., for extrachromosomal arrays)
-const exChrom = 'ex-chrom';
+const UNKNOWN_CHROM = '?';
+
+type Mutation = Gene & VariationInfo; // Relative to wild type
 
 type ChromosomeName = string;
-type LocusName = string;
+type MutationName = string;
 type AlleleName = string;
 
-type Genotype = Map<ChromosomeName, AllelesAtLocus>;
-type AllelesAtLocus = Map<Locus, Allele[]>;
-type AllelesAtLocusNames = Map<LocusName, AlleleName[]>;
+type Genotype = Map<ChromosomeName, AllelesOfMutation>;
+type AllelesOfMutation = Map<Mutation, Allele[]>;
+type AllelesOfMutationName = Map<MutationName, AlleleName[]>;
 
 // Data format transformation to get hierarchical map: chromosome -> gene/variation -> alleles
 function getGenotype(crossNode: CrossNode): Genotype {
-  const genotype: Genotype = new Map<ChromosomeName, AllelesAtLocus>();
+  const genotype: Genotype = new Map<ChromosomeName, AllelesOfMutation>();
 
-  const genes = crossNode.genes ?? [];
-  const variations = crossNode.variations ?? [];
+  const genes = crossNode.genes;
+  const variations = crossNode.variations;
   fillGenotypeWithChromosomes(genotype, genes, variations);
 
   const alleles = crossNode.strain.alleles;
@@ -41,35 +40,39 @@ function fillGenotypeWithChromosomes(
   genes: Gene[],
   variations: VariationInfo[]
 ): void {
-  const loci = (genes as Locus[]).concat(variations as Locus[]);
-  for (const locus of loci) {
-    const chromosomeName = locus.chromosome ?? exChrom;
+  const loci = (genes as Mutation[]).concat(variations as Mutation[]);
+  for (const mutation of loci) {
+    const chromosomeName = mutation.chromosome ?? UNKNOWN_CHROM;
     if (!genotype.has(chromosomeName)) {
-      genotype.set(chromosomeName, new Map<Locus, Allele[]>());
+      genotype.set(chromosomeName, new Map<Mutation, Allele[]>());
     }
-    const allelesAtLocus = genotype.get(chromosomeName);
-    (allelesAtLocus as AllelesAtLocus).set(locus, []);
+    const allelesAtMutation = genotype.get(chromosomeName);
+    (allelesAtMutation as AllelesOfMutation).set(mutation, []);
   }
 }
 
 function fillGenotypeWithAlleles(genotype: Genotype, alleles: Allele[]): void {
   for (const allele of alleles) {
-    const locus = allele.gene ?? allele.variationInfo;
-    if (locus === undefined) {
-      throw Error(
-        `The locus ${locus} does not have an associated gene or variation.`
-      );
+    let mutation = allele.gene ?? allele.variationInfo;
+    if (mutation === undefined) {
+      console.error(`The allele ${allele.name} has no associated gene or variation info. 
+      This violates a consistency expectation. A dummy variation is being assigned.`);
+      mutation = new VariationInfo({ name: `dummy_variation_${allele.name}` });
+      allele.variationInfo = mutation;
     }
 
-    const chromosome = locus?.chromosome ?? exChrom;
-    const allelesAtLocus = genotype.get(chromosome);
-    if (allelesAtLocus === undefined) {
-      throw Error(
-        `The allele ${allele.name} exists on a chromosome (or exChrom) not referenced in list of Genes or VariationInfos.`
+    const chromosome = mutation.chromosome ?? UNKNOWN_CHROM;
+    let allelesOfMutation = genotype.get(chromosome);
+    if (allelesOfMutation === undefined) {
+      console.error(
+        `The allele ${allele.name} exists on a chromosome or extrachromosomal array not referenced in list of Genes or VariationInfos.
+         A chromosome has been added for this node, but it will not necessarily be in other nodes.`
       );
+      allelesOfMutation = new Map<Mutation, Allele[]>();
+      genotype.set(chromosome, allelesOfMutation);
     }
 
-    const alleleList = allelesAtLocus.get(locus as Locus);
+    const alleleList = allelesOfMutation.get(mutation as Mutation);
     alleleList?.push(allele);
   }
 }
@@ -112,7 +115,7 @@ const getCrossNodeBody = (genotype: Genotype): ReactJSXElement => {
             <label className={styles.chromosomeLabel}>{chromosomeName}</label>
             <Box className={styles.chromosomeFractionBox}>
               {getFractionsForChromosome(
-                genotype.get(chromosomeName) ?? new Map()
+                genotype.get(chromosomeName) ?? new Map<Mutation, Allele[]>()
               )}
             </Box>
           </Box>
@@ -126,32 +129,30 @@ const getCrossNodeBody = (genotype: Genotype): ReactJSXElement => {
  * @returns Array of allele-pairs formatted like fractions
  */
 const getFractionsForChromosome = (
-  AllelesAtLocus: AllelesAtLocus
+  allelesOfMutation: AllelesOfMutation
 ): ReactJSXElement[] => {
-  const allelesAtLocusNames: AllelesAtLocusNames = new Map<
-    LocusName,
+  const allelesOfMutationNames: AllelesOfMutationName = new Map<
+    MutationName,
     AlleleName[]
   >();
-  for (const locus of AllelesAtLocus.keys()) {
-    const alleles = AllelesAtLocus.get(locus) ?? [];
-    allelesAtLocusNames.set(locus.name, [
-      alleles?.length > 0 ? alleles[0].name : '+',
-      alleles?.length > 1 ? alleles[1].name : '+',
+  for (const mutation of allelesOfMutation.keys()) {
+    const alleles = allelesOfMutation.get(mutation) ?? [];
+    allelesOfMutationNames.set(mutation.name, [
+      alleles.length > 0 ? alleles[0].name : '+',
+      alleles.length > 1 ? alleles[1].name : '+',
     ]);
   }
 
-  // console.log(AllelesAtLocusNames)
-
-  return Array.from(allelesAtLocusNames.keys()).map((locusName) => (
-    <Box key={locusName} className={styles.chromosomeFraction}>
+  return Array.from(allelesOfMutationNames.keys()).map((mutationName) => (
+    <Box key={mutationName} className={styles.chromosomeFraction}>
       <div className={styles.fractionAllele}>
-        {allelesAtLocusNames.get(locusName)?.at(0)}
+        {allelesOfMutationNames.get(mutationName)?.at(0)}
       </div>
       <div>
         <hr className={styles.fractionBar} />
       </div>
       <div className={styles.fractionAllele}>
-        {allelesAtLocusNames.get(locusName)?.at(1)}
+        {allelesOfMutationNames.get(mutationName)?.at(1)}
       </div>
     </Box>
   ));
