@@ -2,7 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 @layer components {
-  .data-table-title {
-    @apply text-4xl pt-6 pb-4 font-bold;
+  .data-manager h1 {
+    @apply text-4xl py-4 font-bold;
+  }
+  .data-manager button {
+    @apply bg-zinc-100 hover:bg-zinc-200 transition-colors p-2 px-3;
   }
 }

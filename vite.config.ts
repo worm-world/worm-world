@@ -1,18 +1,13 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
-import react from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react-swc';
 import Pages from 'vite-plugin-pages';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), tsconfigPaths(), Pages()],
 
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/tests/setupTests.ts',
-  },
   // Vite optons tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   // prevent vite from obscuring rust errors
   clearScreen: false,

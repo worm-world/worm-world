@@ -17,12 +17,12 @@ import { Phenotype } from 'models/frontend/Phenotype';
 import { VariationInfo } from 'models/frontend/VariationInfo';
 import { db_AlleleExpression } from 'models/db/db_AlleleExpression';
 import { Dominance } from 'models/enums';
-import 'styles/index.css';
+import 'styles/home.css';
 import { toast } from 'react-toastify';
 
 const Home = (): JSX.Element => {
   return (
-    <div>
+    <div className='home'>
       <TopNav title={'Home'} />
       <h1 className='mt-6 mb-4'>
         To see these buttons in action, open up the console output
@@ -159,7 +159,7 @@ const Home = (): JSX.Element => {
       <h1 className='pt-6 pb-4'>Toast Buttons</h1>
       <div className='toast-btns px-6'>
         <button
-          className='bg-rose-800'
+          className='bg-rose-700 text-white'
           onClick={() => {
             toast.error('Example error');
           }}
@@ -167,7 +167,7 @@ const Home = (): JSX.Element => {
           error toast
         </button>
         <button
-          className='bg-green-800'
+          className='bg-green-700 text-white'
           onClick={() => {
             toast.success('Example success');
           }}

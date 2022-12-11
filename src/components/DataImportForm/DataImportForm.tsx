@@ -11,7 +11,6 @@ import Checkbox from '@mui/material/Checkbox';
 import Modal from '@mui/material/Modal';
 import React from 'react';
 import { toast } from 'react-toastify';
-import styles from './DataImportForm.module.css';
 
 export interface FieldType<T> {
   name: keyof T;
@@ -21,6 +20,7 @@ export interface FieldType<T> {
 }
 
 interface iDataImportFormProps<T> {
+  className?: string;
   dataName: string;
   fields: Array<FieldType<T>>;
   onSubmitCallback: (arg0: T) => void;
@@ -37,10 +37,7 @@ const Fields = <T,>(props: iFieldsProps<T>): JSX.Element => {
       {fieldList?.map((field: FieldType<T>) => {
         if (field.type === 'boolean') {
           return (
-            <div
-              key={'key-' + field.name.toString()}
-              className={styles['form-checkbox-container']}
-            >
+            <div className='my-6' key={'key-' + field.name.toString()}>
               <FormControlLabel
                 key={'key-' + field.name.toString()}
                 name={field.name.toString()}
@@ -51,10 +48,7 @@ const Fields = <T,>(props: iFieldsProps<T>): JSX.Element => {
           );
         } else if (field.type === 'select') {
           return (
-            <div
-              key={'key-' + field.name.toString()}
-              className={styles['form-text-container']}
-            >
+            <div className='my-6' key={'key-' + field.name.toString()}>
               <InputLabel id={field.name.toString()}>{field.title}</InputLabel>
               <Select
                 labelId={field.name.toString()}
@@ -74,10 +68,7 @@ const Fields = <T,>(props: iFieldsProps<T>): JSX.Element => {
           );
         } else {
           return (
-            <div
-              key={'key-' + field.name.toString()}
-              className={styles['form-text-container']}
-            >
+            <div className='my-6' key={'key-' + field.name.toString()}>
               <TextField
                 type={'text'}
                 label={field.title}
@@ -90,7 +81,6 @@ const Fields = <T,>(props: iFieldsProps<T>): JSX.Element => {
           );
         }
       })}
-      <button type='submit'>Insert Into Database</button>
     </div>
   );
 };
@@ -131,17 +121,27 @@ const DataImportForm = <T,>(props: iDataImportFormProps<T>): JSX.Element => {
   };
 
   return (
-    <div>
+    <div className={props.className}>
       <button onClick={handleOpen}>{'Add New ' + props.dataName}</button>
       <Modal open={isFormOpen} onClose={handleClose}>
-        <div className={styles['modal-container']}>
-          <Card>
-            <div className={styles['modal-form-container']}>
-              <Typography className={styles['modal-form-title']} variant='h4'>
-                {'Add New ' + props.dataName}
+        <div>
+          <Card className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-10 px-20'>
+            <div>
+              <Typography variant='h4' className='text-center'>
+                {'New ' + props.dataName}
               </Typography>
-              <form className={styles['modal-box']} onSubmit={handleSubmit}>
+              <hr className='my-2' />
+              <form onSubmit={handleSubmit}>
                 <Fields fieldList={props.fields}></Fields>
+                <hr className='my-8' />
+                <div className='flex flex-row justify-center w-full'>
+                  <button
+                    type='submit'
+                    className='bg-zinc-100 hover:bg-zinc-200 p-2 transition-all shadow-sm'
+                  >
+                    Insert Into Database
+                  </button>
+                </div>
               </form>
             </div>
           </Card>

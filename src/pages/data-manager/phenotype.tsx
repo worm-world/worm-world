@@ -75,7 +75,9 @@ const DataPage = (): JSX.Element => {
         refresh();
       })
       .catch((e: Error) => {
-        toast(`An error has occured when inserting data: ${e}`);
+        toast.error(
+          'An error has occured when inserting data: ' + JSON.stringify(e)
+        );
       });
   };
 
@@ -85,8 +87,8 @@ const DataPage = (): JSX.Element => {
       orderBy: [],
     })
       .then((ds) => setData(ds))
-      .catch((e: Error) =>
-        toast.error('Unable to get phenotypes: ' + e.message, {
+      .catch((e) =>
+        toast.error('Unable to get phenotypes: ' + JSON.stringify(e), {
           toastId: 'phenotypes',
         })
       );
@@ -98,13 +100,15 @@ const DataPage = (): JSX.Element => {
 
   return (
     <div>
-      <h1 className='data-table-title'>Phenotypes</h1>
-      <DataImportForm
-        dataName='Phenotype'
-        fields={fields as Array<FieldType<db_Phenotype>>}
-        onSubmitCallback={onRecordInsertionFormSubmission}
-      ></DataImportForm>
-      <br />
+      <div className='grid grid-cols-3 items-center px-6 place-items-center'>
+        <h1 className='data-table-title col-start-2'>Phenotypes</h1>
+        <DataImportForm
+          className='justify-self-end'
+          dataName='Phenotype'
+          fields={fields as Array<FieldType<db_Phenotype>>}
+          onSubmitCallback={onRecordInsertionFormSubmission}
+        ></DataImportForm>
+      </div>
       <Table data={data} columns={cols} />
     </div>
   );
