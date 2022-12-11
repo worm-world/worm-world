@@ -1,6 +1,5 @@
 import { StoryFn, Meta } from '@storybook/react';
-
-import Layout from './Layout';
+import Layout from 'components/Layout/Layout';
 
 export default {
   title: 'Components/Layout',
