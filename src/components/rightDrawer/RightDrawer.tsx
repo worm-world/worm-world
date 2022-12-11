@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 
 export interface RightDrawerProps {
+  className?: string;
   initialDrawerWidth: number;
   maxWidth: number;
   isOpen: boolean;
@@ -45,6 +46,7 @@ const RightDrawer = (props: RightDrawerProps): ReactJSXElement => {
 
   return (
     <Drawer
+      className={props.className}
       sx={{
         width: drawerWidth,
         flexShrink: 0,

@@ -20,16 +20,19 @@ type Genotype = Map<ChromosomeName, AllelesOfMutation>;
 type AllelesOfMutation = Map<Mutation, Allele[]>;
 type AllelesOfMutationName = Map<MutationName, AlleleName[]>;
 
-const CrossNodeElement = (props: CrossNode): ReactJSXElement => {
-  const genotype = getGenotype(props);
+interface iCrossNodeProps {
+  data: CrossNode;
+}
 
+const CrossNodeElement = (props: iCrossNodeProps): ReactJSXElement => {
+  const genotype = getGenotype(props.data);
   return (
     <Box
-      sx={props.isSelected ? { border: '1px solid blue' } : {}}
-      className={styles.crossNode}
+      sx={props.data.isSelected ? { border: '1px solid blue' } : {}}
+      className={styles.crossNode + ' bg-white'}
     >
       <Box className={styles.crossNodeHeader}>
-        {getCrossNodeHeader(props.sex)}
+        {getCrossNodeHeader(props.data.sex)}
       </Box>
       <Box className={styles.crossNodeBody}>{getCrossNodeBody(genotype)}</Box>
     </Box>
