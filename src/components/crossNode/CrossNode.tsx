@@ -119,7 +119,9 @@ const getCrossNodeBody = (genotype: Genotype): ReactJSXElement => {
       {Array.from(genotype.keys()).map((chromosomeName) => {
         return (
           <Box key={chromosomeName} className={styles.chromosomeBox}>
-            <Typography className={styles.chromosomeLabel}>{chromosomeName}</Typography>
+            <Typography className={styles.chromosomeLabel}>
+              {chromosomeName}
+            </Typography>
             <Box className={styles.chromosomeFractionBox}>
               {getFractionsForChromosome(
                 genotype.get(chromosomeName) ?? new Map<Mutation, Allele[]>()
