@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import SideNav from 'components/sideNav/sideNav';
-import { Button } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
 
@@ -13,11 +13,18 @@ const Layout = ({
 }): ReactJSXElement => {
   const [sideNavIsOpen, setsideNavIsOpen] = useState<boolean>(true);
 
+  const sideNavOpenStyles = {
+    width: `100% - ${drawerWidth}`,
+    height: '100%',
+    marginLeft: drawerWidth,
+  };
+  const sideNavClosedStyles = { width: '100%', height: '100%' };
   const toggleNavbar = (): void => setsideNavIsOpen(!sideNavIsOpen);
+
   return (
     <>
       <SideNav drawerWidth={drawerWidth} isOpen={sideNavIsOpen} />
-      <main style={{ marginLeft: sideNavIsOpen ? drawerWidth : 0 }}>
+      <Box style={sideNavIsOpen ? sideNavOpenStyles : sideNavClosedStyles}>
         <Button
           style={{
             paddingTop: '35px',
@@ -31,7 +38,7 @@ const Layout = ({
           <MenuIcon />
         </Button>
         {children}
-      </main>
+      </Box>
     </>
   );
 };

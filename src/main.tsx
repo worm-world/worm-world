@@ -12,7 +12,7 @@ const App: FC = () => {
   return (
     <>
       <Suspense fallback={<p>Loading...</p>}>
-        <main>
+        <main style={{ width: '100%', height: '100%' }}>
           <Layout>{useRoutes(routes)}</Layout>
         </main>
       </Suspense>
