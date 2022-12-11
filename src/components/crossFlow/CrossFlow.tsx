@@ -1,4 +1,4 @@
-import CrossNodeElement from 'components/crossNode/CrossNode';
+import CrossNodeElement from 'components/CrossNode/CrossNode';
 import CrossNode from 'models/frontend/CrossNode';
 import { useMemo } from 'react';
 import ReactFlow, {
@@ -13,7 +13,7 @@ import {
   crossNode1,
   crossNode2,
   crossNode3,
-} from 'components/crossNode/CrossNode.data';
+} from 'components/CrossNode/CrossNode.data';
 
 const initialNodes: Array<Node<CrossNode>> = [
   {

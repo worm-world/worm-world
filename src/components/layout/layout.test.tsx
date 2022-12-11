@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import Layout from 'components/layout/layout';
+import Layout from 'components/layout/Layout';
 import { BrowserRouter } from 'react-router-dom';
 
 const renderComponent = (): void => {

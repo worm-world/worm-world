@@ -1,6 +1,6 @@
 import { StoryFn, Meta } from '@storybook/react';
-import CrossNode from 'components/crossNode/CrossNode';
-import * as testData from 'components/crossNode/CrossNode.data';
+import CrossNode from 'components/CrossNode/CrossNode';
+import * as testData from 'components/CrossNode/CrossNode.data';
 
 export default {
   title: 'Components/Cross Node',

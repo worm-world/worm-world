@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import SideNav from 'components/sideNav/sideNav';
+import SideNav from 'components/SideNav/SideNav';
 import { Button } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';

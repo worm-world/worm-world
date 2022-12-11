@@ -1,8 +1,8 @@
 import Tab from '@mui/material/Tab';
 import { TopNav } from 'components/TopNav/TopNav';
-import RightDrawer from 'components/rightDrawer/RightDrawer';
+import RightDrawer from 'components/RightDrawer/RightDrawer';
 import React from 'react';
-import CrossFlow from 'components/crossFlow/CrossFlow';
+import CrossFlow from 'components/CrossFlow/CrossFlow';
 import { Box, Divider } from '@mui/material';
 
 const CrossPage = (): JSX.Element => {
