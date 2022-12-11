@@ -20,7 +20,7 @@ type Genotype = Map<ChromosomeName, AllelesOfMutation>;
 type AllelesOfMutation = Map<Mutation, Allele[]>;
 type AllelesOfMutationName = Map<MutationName, AlleleName[]>;
 
-interface iCrossNodeProps {
+export interface iCrossNodeProps {
   data: CrossNode;
 }
 
