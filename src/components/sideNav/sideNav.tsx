@@ -12,7 +12,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import { Key } from 'react';
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
-import { Dataset, Upload } from '@mui/icons-material';
+import { Dataset } from '@mui/icons-material';
 import styles from './sideNav.module.css';
 
 interface SideNavProps {

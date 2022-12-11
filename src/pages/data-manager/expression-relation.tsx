@@ -9,7 +9,6 @@ import { Table, ColumnDefinitionType } from 'components/Table/Table';
 import DataImportForm, {
   FieldType,
 } from 'components/DataImportForm/DataImportForm';
-import { db_Error } from 'models/db/db_Error';
 import ToastInfo from 'components/ToastInfo/ToastInfo';
 
 export const cols: Array<ColumnDefinitionType<db_ExpressionRelation>> = [
@@ -71,7 +70,10 @@ const DataPage = (): JSX.Element => {
       })
       .catch((e: Error) => {
         toast.error(
-          'An error has occured when inserting data: ' + JSON.stringify(e)
+          <ToastInfo
+            message='An error has occured when inserting data.'
+            moreInfo={JSON.stringify(e)}
+          />
         );
       });
   };
