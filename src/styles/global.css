@@ -91,6 +91,7 @@ button {
 
 html, body, #root {
   width: 100%;
+  height: 200vh;
   margin: auto;
   padding: 0;
 }
