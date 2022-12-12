@@ -14,25 +14,32 @@ import {
   crossNode2,
   crossNode3,
 } from 'components/CrossNode/CrossNode.data';
+import { XNode } from 'components/XNode/XNode';
 
-const initialNodes: Array<Node<CrossNode>> = [
+const initialNodes: Array<Node<CrossNode | {}>> = [
   {
     id: 'node1',
     type: 'crossNode',
-    position: { x: -300, y: -100 },
+    position: { x: -150, y: -100 },
     data: crossNode1,
   },
   {
     id: 'node2',
     type: 'crossNode',
-    position: { x: 0, y: -100 },
+    position: { x: 150, y: -100 },
     data: crossNode2,
   },
   {
     id: 'node3',
     type: 'crossNode',
-    position: { x: -150, y: 100 },
+    position: { x: 0, y: 150 },
     data: crossNode3,
+  },
+  {
+    id: 'xNode1',
+    type: 'xNode',
+    position: { x: 75, y: 50 },
+    data: {},
   },
 ];
 
@@ -41,7 +48,10 @@ interface iCrossFlowProps {
 }
 
 const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
-  const nodeTypes = useMemo(() => ({ crossNode: CrossNodeElement }), []);
+  const nodeTypes = useMemo(
+    () => ({ crossNode: CrossNodeElement, xNode: XNode }),
+    []
+  );
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
 
   return (
