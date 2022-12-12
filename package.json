@@ -29,8 +29,7 @@
     "react-dom": "^18.2.0",
     "react-flow-renderer": "^10.3.17",
     "react-router-dom": "^6.4.3",
-    "react-toastify": "^9.1.1",
-    "reactflow": "^11.3.3"
+    "react-toastify": "^9.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.2",
@@ -51,6 +50,7 @@
     "@types/react-dom": "^18.0.6",
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@vitejs/plugin-react": "^2.0.0",
+    "@vitejs/plugin-react-swc": "^3.0.0",
     "autoprefixer": "^10.4.13",
     "babel-loader": "^8.3.0",
     "eslint": "^8.27.0",

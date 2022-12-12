@@ -1,7 +1,7 @@
 import React, { Suspense, FC } from 'react';
 import ReactDOM from 'react-dom/client';
 import 'styles/global.css';
-import Layout from 'components/Layout/Layout';
+import Layout from 'components/layout/layout';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { BrowserRouter as Router, useRoutes } from 'react-router-dom';
@@ -12,7 +12,9 @@ const App: FC = () => {
   return (
     <>
       <Suspense fallback={<p>Loading...</p>}>
-        <Layout>{useRoutes(routes)}</Layout>
+        <main>
+          <Layout>{useRoutes(routes)}</Layout>
+        </main>
       </Suspense>
       <ToastContainer
         autoClose={3000}

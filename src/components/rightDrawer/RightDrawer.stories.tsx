@@ -1,5 +1,5 @@
 import { StoryFn, Meta } from '@storybook/react';
-import RightDrawer from 'components/RightDrawer/RightDrawer';
+import RightDrawer from './RightDrawer';
 import React from 'react';
 
 export default {

@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import Layout from 'components/Layout/Layout';
+import Layout from 'components/layout/layout';
 import { BrowserRouter } from 'react-router-dom';
 
 const renderComponent = (): void => {
@@ -17,7 +17,7 @@ describe('Layout', () => {
   test('clicking menu toggles sideNav', () => {
     renderComponent();
 
-    const menu = screen.getByTestId('layout-menu');
+    const menu = screen.getByRole('main');
 
     // Side nav visible when margin left is > 0
     let navMarginLeft = parseInt(
