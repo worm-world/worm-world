@@ -1,5 +1,5 @@
 import { StoryFn, Meta } from '@storybook/react';
-import SideNav from './SideNav';
+import SideNav from 'components/SideNav/SideNav';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {

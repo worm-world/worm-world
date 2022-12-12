@@ -1,4 +1,3 @@
-import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
 import styles from 'components/crossNode/CrossNode.module.css';
 import { Box, Typography, Button } from '@mui/material';
 import CrossNode from 'models/frontend/CrossNode';
@@ -7,6 +6,8 @@ import { Allele } from 'models/frontend/Allele';
 import { getSexIcon, Sex } from 'models/enums';
 import { Gene } from 'models/frontend/Gene';
 import { VariationInfo } from 'models/frontend/VariationInfo';
+import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
+import { Handle, Position } from 'reactflow';
 
 const UNKNOWN_CHROM = '?';
 
@@ -19,6 +20,27 @@ type AlleleName = string;
 type Genotype = Map<ChromosomeName, AllelesOfMutation>;
 type AllelesOfMutation = Map<Mutation, Allele[]>;
 type AllelesOfMutationName = Map<MutationName, AlleleName[]>;
+
+export interface iCrossNodeProps {
+  data: CrossNode;
+}
+
+const CrossNodeElement = (props: iCrossNodeProps): ReactJSXElement => {
+  const genotype = getGenotype(props.data);
+  return (
+    <Box
+      sx={props.data.isSelected ? { border: '1px solid blue' } : {}}
+      className={styles.crossNode + ' bg-white'}
+    >
+      <Handle type='target' position={Position.Top} />
+      <Box className={styles.crossNodeHeader}>
+        {getCrossNodeHeader(props.data.sex)}
+      </Box>
+      <Box className={styles.crossNodeBody}>{getCrossNodeBody(genotype)}</Box>
+      <Handle type='source' position={Position.Bottom} />
+    </Box>
+  );
+};
 
 // Data format transformation to get hierarchical map: chromosome -> gene/variation -> alleles
 function getGenotype(crossNode: CrossNode): Genotype {
@@ -84,22 +106,6 @@ function fillGenotypeWithAlleles(genotype: Genotype, alleles: Allele[]): void {
   }
 }
 
-const CrossNodeElement = (props: CrossNode): ReactJSXElement => {
-  const genotype = getGenotype(props);
-
-  return (
-    <Box
-      sx={props.isSelected ? { border: '1px solid blue' } : {}}
-      className={styles.crossNode}
-    >
-      <Box className={styles.crossNodeHeader}>
-        {getCrossNodeHeader(props.sex)}
-      </Box>
-      <Box className={styles.crossNodeBody}>{getCrossNodeBody(genotype)}</Box>
-    </Box>
-  );
-};
-
 const getCrossNodeHeader = (sex: Sex): ReactJSXElement => {
   return (
     <>
@@ -119,7 +125,9 @@ const getCrossNodeBody = (genotype: Genotype): ReactJSXElement => {
       {Array.from(genotype.keys()).map((chromosomeName) => {
         return (
           <Box key={chromosomeName} className={styles.chromosomeBox}>
-            <label className={styles.chromosomeLabel}>{chromosomeName}</label>
+            <Typography className={styles.chromosomeLabel}>
+              {chromosomeName}
+            </Typography>
             <Box className={styles.chromosomeFractionBox}>
               {getFractionsForChromosome(
                 genotype.get(chromosomeName) ?? new Map<Mutation, Allele[]>()

@@ -1,17 +1,10 @@
 import { render, screen } from '@testing-library/react';
-import RightDrawer from 'components/rightDrawer/RightDrawer';
+import RightDrawer from 'components/RightDrawer/RightDrawer';
 
 const testPropsOpen = {
   initialDrawerWidth: 200,
   maxWidth: 300,
   isOpen: true,
-  close: () => alert('close button pressed'),
-};
-
-const testPropsClosed = {
-  initialDrawerWidth: 200,
-  maxWidth: 300,
-  isOpen: false,
   close: () => alert('close button pressed'),
 };
 
