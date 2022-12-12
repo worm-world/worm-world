@@ -1,6 +1,7 @@
 import { StoryFn, Meta } from '@storybook/react';
 import CrossNode, { iCrossNodeProps } from 'components/CrossNode/CrossNode';
 import * as testData from 'components/CrossNode/CrossNode.data';
+import { ReactFlowProvider } from 'reactflow';
 
 export default {
   title: 'Components/Cross Node',
@@ -15,7 +16,11 @@ export default {
 } as Meta<typeof CrossNode>;
 
 const Template: StoryFn<typeof CrossNode> = (args: iCrossNodeProps) => {
-  return <CrossNode {...args}></CrossNode>;
+  return (
+    <ReactFlowProvider>
+      <CrossNode {...args}></CrossNode>;
+    </ReactFlowProvider>
+  )
 };
 
 export const wildCrossNode = Template.bind({});

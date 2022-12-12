@@ -18,7 +18,7 @@ const CrossPage = (): JSX.Element => {
       <Divider />
       <div className='grow'>
         <div className='pb-2 w-full h-full'>
-          <CrossFlow className={'border-b-2 p'} />
+          <CrossFlow className={'border-b-2 p bg-zinc-50'} />
         </div>
         <RightDrawer
           className={'shrink'}
