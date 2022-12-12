@@ -7,6 +7,7 @@ import { getSexIcon, Sex } from 'models/enums';
 import { Gene } from 'models/frontend/Gene';
 import { VariationInfo } from 'models/frontend/VariationInfo';
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
+import { Handle, Position } from 'reactflow';
 
 const UNKNOWN_CHROM = '?';
 
@@ -31,10 +32,12 @@ const CrossNodeElement = (props: iCrossNodeProps): ReactJSXElement => {
       sx={props.data.isSelected ? { border: '1px solid blue' } : {}}
       className={styles.crossNode + ' bg-white'}
     >
+      <Handle type='target' position={Position.Top} />
       <Box className={styles.crossNodeHeader}>
         {getCrossNodeHeader(props.data.sex)}
       </Box>
       <Box className={styles.crossNodeBody}>{getCrossNodeBody(genotype)}</Box>
+      <Handle type='source' position={Position.Bottom} />
     </Box>
   );
 };
