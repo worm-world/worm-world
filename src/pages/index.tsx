@@ -9,12 +9,12 @@ import {
 import { getAlteringConditions, getConditions } from 'api/condition';
 import { getAlteringPhenotypes, getPhenotypes } from 'api/phenotype';
 import { getVariations } from 'api/variationInfo';
-import { Gene } from 'models/frontend/Gene';
-import { Allele } from 'models/frontend/Allele';
+import { Gene } from 'models/frontend/Gene/Gene';
+import { Allele } from 'models/frontend/Allele/Allele';
 import { AlleleExpression } from 'models/frontend/AlleleExpression';
 import { Condition } from 'models/frontend/Condition';
 import { Phenotype } from 'models/frontend/Phenotype';
-import { VariationInfo } from 'models/frontend/VariationInfo';
+import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
 import { db_AlleleExpression } from 'models/db/db_AlleleExpression';
 import { Dominance } from 'models/enums';
 import 'styles/home.css';

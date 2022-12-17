@@ -6,7 +6,7 @@ import { Table, ColumnDefinitionType } from 'components/Table/Table';
 import DataImportForm, {
   FieldType,
 } from 'components/DataImportForm/DataImportForm';
-import { chromosomeOptions } from 'models/frontend/Gene';
+import { chromosomeOptions } from 'models/frontend/Gene/Gene';
 
 export const cols: Array<ColumnDefinitionType<db_Gene>> = [
   { key: 'name', header: 'Name' },

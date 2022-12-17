@@ -1,5 +1,5 @@
 import CrossNodeElement from 'components/CrossNode/CrossNode';
-import CrossNode from 'models/frontend/CrossNode';
+import CrossNode from 'models/frontend/CrossNode/CrossNode';
 import { useCallback, useMemo } from 'react';
 import ReactFlow, {
   MiniMap,
@@ -12,7 +12,6 @@ import ReactFlow, {
   Connection,
   Edge,
   updateEdge,
-  MarkerType,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import {
@@ -53,25 +52,25 @@ const initialNodes: Array<Node<CrossNode | {}>> = [
   },
 ];
 
-const initialEdges : Edge[] = [
+const initialEdges: Edge[] = [
   {
     id: 'edge1',
     source: 'node1',
     target: 'xNode1',
-    className: "stroke-2 stroke-red-400",
-    style: {'strokeWidth': 2},
+    className: 'stroke-2 stroke-red-400',
+    style: { strokeWidth: 2 },
   },
   {
     id: 'edge2',
     source: 'node2',
     target: 'xNode1',
-    style: {'strokeWidth': 2},
+    style: { strokeWidth: 2 },
   },
   {
     id: 'edge3',
     source: 'xNode1',
     target: 'node3',
-    style: {'strokeWidth': 2},
+    style: { strokeWidth: 2 },
   },
 ];
 
@@ -84,7 +83,7 @@ const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
     () => ({ crossNode: CrossNodeElement, xNode: XNode }),
     []
   );
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [nodes, _, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const onEdgeUpdate = useCallback(
     (oldEdge: Edge<any>, newConnection: Connection) =>
