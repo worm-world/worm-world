@@ -1,4 +1,4 @@
-import { Allele } from 'models/frontend/Allele';
+import { Allele } from 'models/frontend/Allele/Allele';
 
 export default interface Strain {
   name: String;

@@ -1,6 +1,6 @@
 import { StoryFn, Meta } from '@storybook/react';
 import CrossNode, { iCrossNodeProps } from 'components/CrossNode/CrossNode';
-import * as testData from 'components/CrossNode/CrossNode.data';
+import * as testData from 'components/CrossNode/genotype/genotype.mock';
 import { ReactFlowProvider } from 'reactflow';
 
 export default {

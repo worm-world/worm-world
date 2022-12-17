@@ -2,7 +2,7 @@ import { invoke } from '@tauri-apps/api/tauri';
 import { db_Gene } from 'models/db/db_Gene';
 import { GeneFieldName } from 'models/db/filter/db_GeneFieldName';
 import { Filter, getSingleRecordOrThrow } from 'models/db/filter/Filter';
-import { Gene } from 'models/frontend/Gene';
+import { Gene } from 'models/frontend/Gene/Gene';
 
 export const getGenes = async (): Promise<db_Gene[]> => {
   return await invoke('get_genes');
