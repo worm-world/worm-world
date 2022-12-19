@@ -21,15 +21,3 @@ const Template: StoryFn<typeof CrossNode> = (args: iCrossNodeProps) => {
     </ReactFlowProvider>
   )
 };
-
-// export const wildCrossNode = Template.bind({});
-// wildCrossNode.args = { data: testData.wildCrossNode };
-
-// export const Example1 = Template.bind({});
-// Example1.args = { data: testData.crossNode1 };
-
-// export const Example2 = Template.bind({});
-// Example2.args = { data: testData.crossNode2 };
-
-// export const Example3 = Template.bind({});
-// Example3.args = { data: testData.crossNode3 };
