@@ -1,6 +1,6 @@
 import styles from 'components/crossNode/CrossNode.module.css';
 import { Box, Typography, Button } from '@mui/material';
-import CrossNode from 'models/frontend/CrossNode/CrossNode';
+import CrossNode from 'models/frontend/CrossNode';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { getSexIcon, Sex } from 'models/enums';
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';

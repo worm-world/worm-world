@@ -1,5 +1,5 @@
 import CrossNodeElement from 'components/CrossNode/CrossNode';
-import CrossNode from 'models/frontend/CrossNode/CrossNode';
+import CrossNode from 'models/frontend/CrossNode';
 import { useCallback, useMemo } from 'react';
 import ReactFlow, {
   MiniMap,
@@ -14,11 +14,6 @@ import ReactFlow, {
   updateEdge,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import {
-  crossNode1,
-  crossNode2,
-  crossNode3,
-} from 'components/CrossNode/CrossNode.data';
 import { XNode } from 'components/XNode/XNode';
 
 const initialNodes: Array<Node<CrossNode | {}>> = [
