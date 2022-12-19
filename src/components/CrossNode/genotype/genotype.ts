@@ -4,7 +4,7 @@
  * (chromosome -> gene -> allele)
  */
 
-import CrossNode from 'models/frontend/CrossNode/CrossNode';
+import CrossNode from 'models/frontend/CrossNode';
 import { Allele } from 'models/frontend/Allele/Allele';
 import { Gene } from 'models/frontend/Gene/Gene';
 import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
@@ -52,7 +52,7 @@ function fillWithChromosomes(
       genotype.set(chromosome, new Map<Mutation, Allele[]>());
     }
 
-    // Guaranteed to have chromosome by above
+    // Guaranteed to have chromosome by option of UNKNOWN_CHROM above.
     const mutations = genotype.get(chromosome);
     (mutations as Mutations).set(mutation, []);
   }
@@ -68,10 +68,15 @@ function fillWithAlleles(genotype: Genotype, alleles: Allele[]): void {
       mutation = recoverFromUnspecifiedMutation(allele);
     }
 
-    const chromosome = mutation.chromosome ?? UNKNOWN_CHROM;
+    const chromosome = mutation.chromosome ?? UNKNOWN_CHROM; // Unknown chrom represented by NULL in DB or undefined in code
     let mutations = genotype.get(chromosome);
     if (mutations === undefined) {
-      mutations = recoverFromUnplannedChromosome(genotype, chromosome, allele);
+      mutations = recoverFromUnplannedChromosome(
+        genotype,
+        chromosome,
+        allele,
+        mutation
+      );
     }
 
     const alleles = mutations.get(mutation);
@@ -95,17 +100,19 @@ const fillWithWildAlleles = (genotype: Genotype): void => {
 function recoverFromUnplannedChromosome(
   genotype: Genotype,
   chromosome: Chromosome,
-  allele: Allele
+  allele: Allele,
+  mutation: Mutation
 ): Mutations {
   console.error(
-    `The allele ${allele.name} exists on a chromosome or extrachromosomal array 
+    `The allele "${allele.name}" exists on a chromosome or extrachromosomal array 
      not referenced in list of Genes or VariationInfos.
-     A chromosome has been added for this node, 
+     The chromosome "${chromosome}" has been added for this node, 
      but it will not necessarily be displayed in other nodes.
-     Future alleles may not show this error because the unplanned chromosome is being added`
+     Remaining alleles may not show this error because the unplanned chromosome is being added.`
   );
 
   const mutations = new Map<Mutation, Allele[]>();
+  mutations.set(mutation, []);
   genotype.set(chromosome, mutations);
   return mutations;
 }
@@ -113,12 +120,13 @@ function recoverFromUnplannedChromosome(
 function recoverFromUnspecifiedMutation(allele: Allele): Mutation {
   console.error(
     `The allele ${allele.name} has no associated gene or variation. 
-     This violates a consistency expectation. A dummy variation is being assigned`
+     This violates a consistency expectation. A dummy variation on unknown chromosome '?'
+     is being assigned.`
   );
 
   // Arbitrarily choose variation info for allele's mutation (instead of gene)
   const mutation = new VariationInfo({
-    name: `dummy_variation_${allele.name}`,
+    name: `dummyVariation_${allele.name}`,
     chromosome: UNKNOWN_CHROM,
     ploidy: 1,
   });

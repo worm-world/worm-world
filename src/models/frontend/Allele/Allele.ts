@@ -69,7 +69,7 @@ export class Allele {
       await Allele.setVariation(partialAllele, fields.variationName);
     } else {
       console.error(
-        `Neither geneName nor variationName was provided for allele ${fields.name}`
+        `Neither geneName nor variationName was provided for allele "${fields.name}"`
       );
     }
   };

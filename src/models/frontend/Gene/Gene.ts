@@ -1,7 +1,5 @@
 import { db_Gene } from 'models/db/db_Gene';
-import Mutation, {
-  MutationLocation,
-} from 'models/frontend/Mutation';
+import Mutation, { MutationLocation } from 'models/frontend/Mutation';
 
 export class Gene implements Mutation {
   name: string = '';
