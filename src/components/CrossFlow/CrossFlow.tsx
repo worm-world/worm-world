@@ -1,5 +1,5 @@
 import CrossNodeElement from 'components/CrossNode/CrossNode';
-import CrossNode from 'models/frontend/CrossNode';
+import CrossNode from 'models/frontend/CrossNode/CrossNode';
 import { useCallback, useMemo } from 'react';
 import ReactFlow, {
   MiniMap,
@@ -17,34 +17,34 @@ import 'reactflow/dist/style.css';
 import { XNode } from 'components/XNode/XNode';
 
 const initialNodes: Array<Node<CrossNode | {}>> = [
-  {
-    id: 'node1',
-    type: 'crossNode',
-    position: { x: -150, y: -100 },
-    data: crossNode1,
-    connectable: true,
-  },
-  {
-    id: 'node2',
-    type: 'crossNode',
-    position: { x: 150, y: -100 },
-    data: crossNode2,
-    connectable: true,
-  },
-  {
-    id: 'node3',
-    type: 'crossNode',
-    position: { x: 0, y: 200 },
-    data: crossNode3,
-    connectable: true,
-  },
-  {
-    id: 'xNode1',
-    type: 'xNode',
-    position: { x: 95, y: 75 },
-    data: {},
-    connectable: true,
-  },
+  // {
+  //   id: 'node1',
+  //   type: 'crossNode',
+  //   position: { x: -150, y: -100 },
+  //   data: crossNode1,
+  //   connectable: true,
+  // },
+  // {
+  //   id: 'node2',
+  //   type: 'crossNode',
+  //   position: { x: 150, y: -100 },
+  //   data: crossNode2,
+  //   connectable: true,
+  // },
+  // {
+  //   id: 'node3',
+  //   type: 'crossNode',
+  //   position: { x: 0, y: 200 },
+  //   data: crossNode3,
+  //   connectable: true,
+  // },
+  // {
+  //   id: 'xNode1',
+  //   type: 'xNode',
+  //   position: { x: 95, y: 75 },
+  //   data: {},
+  //   connectable: true,
+  // },
 ];
 
 const initialEdges: Edge[] = [
@@ -78,7 +78,7 @@ const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
     () => ({ crossNode: CrossNodeElement, xNode: XNode }),
     []
   );
-  const [nodes, _, onNodesChange] = useNodesState(initialNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const onEdgeUpdate = useCallback(
     (oldEdge: Edge<any>, newConnection: Connection) =>

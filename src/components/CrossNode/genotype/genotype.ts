@@ -4,7 +4,7 @@
  * (chromosome -> gene -> allele)
  */
 
-import CrossNode from 'models/frontend/CrossNode';
+import CrossNode from 'models/frontend/CrossNode/CrossNode';
 import { Allele } from 'models/frontend/Allele/Allele';
 import { Gene } from 'models/frontend/Gene/Gene';
 import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
@@ -12,6 +12,7 @@ import Mutation, { Chromosome, UNKNOWN_CHROM } from 'models/frontend/Mutation';
 
 export const WILD_ALLELE = new Allele({
   name: '+',
+  // implied any mutation
 });
 
 // Genetic identity formatted for display
@@ -30,7 +31,6 @@ const getGenotype = (crossNode: CrossNode): Genotype => {
 
   const alleles = crossNode.strain.alleles;
   fillWithAlleles(genotype, alleles);
-
   fillWithWildAlleles(genotype);
 
   return genotype;
@@ -68,7 +68,8 @@ function fillWithAlleles(genotype: Genotype, alleles: Allele[]): void {
       mutation = recoverFromUnspecifiedMutation(allele);
     }
 
-    const chromosome = mutation.chromosome ?? UNKNOWN_CHROM; // Unknown chrom represented by NULL in DB or undefined in code
+    // Unknown chrom represented by NULL in DB or undefined in code
+    const chromosome = mutation.chromosome ?? UNKNOWN_CHROM; 
     let mutations = genotype.get(chromosome);
     if (mutations === undefined) {
       mutations = recoverFromUnplannedChromosome(
@@ -97,6 +98,10 @@ const fillWithWildAlleles = (genotype: Genotype): void => {
   }
 };
 
+/**  
+ * If an allele has a mutation on a chromosome, but that chromosome was not included
+ * in the list to display.
+*/
 function recoverFromUnplannedChromosome(
   genotype: Genotype,
   chromosome: Chromosome,
@@ -117,6 +122,9 @@ function recoverFromUnplannedChromosome(
   return mutations;
 }
 
+/**
+ * If the allele doesn't have a mutation at all
+ */
 function recoverFromUnspecifiedMutation(allele: Allele): Mutation {
   console.error(
     `The allele ${allele.name} has no associated gene or variation. 
@@ -124,7 +132,6 @@ function recoverFromUnspecifiedMutation(allele: Allele): Mutation {
      is being assigned.`
   );
 
-  // Arbitrarily choose variation info for allele's mutation (instead of gene)
   const mutation = new VariationInfo({
     name: `dummyVariation_${allele.name}`,
     chromosome: UNKNOWN_CHROM,
