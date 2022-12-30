@@ -10,7 +10,6 @@ import { vi } from 'vitest';
 import * as crossNodeMock from 'models/frontend/CrossNode/CrossNode.mock';
 
 describe('CrossNode data with no alleles is transformed correctly', () => {
-
   test('Genotype, given CrossNode model with no alleles or mutations, is empty', () => {
     const crossNode = crossNodeMock.empty;
     const genotype = getGenotype(crossNode);
@@ -18,7 +17,6 @@ describe('CrossNode data with no alleles is transformed correctly', () => {
   });
 
   test('Genotype, given CrossNode model with genes and variations, has only empty alleles', () => {
-
     const crossNode = crossNodeMock.wild;
     const genotype = getGenotype(crossNode);
 
@@ -47,7 +45,6 @@ describe('CrossNode data with no alleles is transformed correctly', () => {
 
 describe('CrossNode data with alleles is transformed correctly', () => {
   test('Genotype, given CrossNode model with alleles, is transformed correctly', () => {
-    
     const crossNode = crossNodeMock.mutated;
     const genotype = getGenotype(crossNode);
 
@@ -146,7 +143,6 @@ describe('CrossNode model recovers from incomplete data.', () => {
   });
 
   test('CrossNode, given alleles with no referenced gene or variation, recovers with dummy variation and gives error message.', () => {
-
     const crossNode = crossNodeMock.badAllele;
     const genotype = getGenotype(crossNode);
 
@@ -154,5 +150,19 @@ describe('CrossNode model recovers from incomplete data.', () => {
     expect(genotype.get(UNKNOWN_CHROM)).toHaveLength(1);
 
     expect(console.error).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('Mutations which can come in one copy (monoid) or two (diploid) are formatted correctly.', () => {
+  test('Monoid allele list has only one entry', () => {
+    const crossNode = crossNodeMock.monoid;
+    const genotype = getGenotype(crossNode);
+    expect(genotype.get('ECA')?.get(mockVariations.chromEcaVariation1)).toHaveLength(1);
+  });
+
+  test('Diploid allele list has exactly two entries. ()', () => {
+    const crossNode = crossNodeMock.diploid;
+    const genotype = getGenotype(crossNode);
+    expect(genotype.get('I')?.get(mockGenes.chrom1Gene1)).toHaveLength(2);
   });
 });
