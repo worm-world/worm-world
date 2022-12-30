@@ -157,7 +157,9 @@ describe('Mutations which can come in one copy (monoid) or two (diploid) are for
   test('Monoid allele list has only one entry', () => {
     const crossNode = crossNodeMock.monoid;
     const genotype = getGenotype(crossNode);
-    expect(genotype.get('ECA')?.get(mockVariations.chromEcaVariation1)).toHaveLength(1);
+    expect(
+      genotype.get('ECA')?.get(mockVariations.chromEcaVariation1)
+    ).toHaveLength(1);
   });
 
   test('Diploid allele list has exactly two entries. ()', () => {

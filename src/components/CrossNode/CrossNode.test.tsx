@@ -26,7 +26,6 @@ describe('Cross node, given cross node model, displays correctly', () => {
 
     const body = screen.getByTestId('crossNodeBody');
     expect(body).not.toBeEmptyDOMElement();
-    
     const chromosomeISection = screen.getByText(/^I$/);
     expect(chromosomeISection).toBeDefined();
 
@@ -38,7 +37,5 @@ describe('Cross node, given cross node model, displays correctly', () => {
 
     const chromosomeECASection = screen.getByText(/^ECA$/);
     expect(chromosomeECASection).toBeDefined();
-
   });
-
 });

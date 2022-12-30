@@ -24,7 +24,9 @@ const CrossNode = (props: iCrossNodeProps): ReactJSXElement => {
       <Box className={styles.crossNodeHeader}>
         {getCrossNodeHeader(props.model.sex)}
       </Box>
-      <Box data-testid="crossNodeBody" className={styles.crossNodeBody}>{getCrossNodeBody(genotype)}</Box>
+      <Box data-testid='crossNodeBody' className={styles.crossNodeBody}>
+        {getCrossNodeBody(genotype)}
+      </Box>
       <Handle type='source' position={Position.Bottom} />
     </Box>
   );
@@ -33,9 +35,7 @@ const CrossNode = (props: iCrossNodeProps): ReactJSXElement => {
 const getCrossNodeHeader = (sex: Sex): ReactJSXElement => {
   return (
     <>
-      <header className={styles.sex}>
-        {getSexIcon(sex)}
-      </header>
+      <header className={styles.sex}>{getSexIcon(sex)}</header>
       <Button sx={{ boxShadow: 'none' }}>
         <MoreHorizIcon />{' '}
       </Button>
@@ -51,9 +51,7 @@ const getCrossNodeBody = (
       {Array.from(genotype).map(([chromosome, mutations]) => {
         return (
           <Box key={chromosome} className={styles.chromosomeBox}>
-            <Box className={styles.chromosomeLabel}>
-              {chromosome}
-            </Box>
+            <Box className={styles.chromosomeLabel}>{chromosome}</Box>
             <Box className={styles.chromosomeFractionBox}>
               {getMutationBoxes(mutations)}
             </Box>
@@ -79,7 +77,7 @@ const getMutationBoxes = (
 
 const getMutationBox = (alleles: Allele[]): ReactJSXElement => {
   if (alleles.length === 1) {
-    return (<div>{alleles[0].name}</div>);
+    return <div>{alleles[0].name}</div>;
   } else
     return (
       <>
@@ -90,6 +88,6 @@ const getMutationBox = (alleles: Allele[]): ReactJSXElement => {
         <div className={styles.fractionAllele}>{alleles[1].name}</div>
       </>
     );
-}
+};
 
 export default CrossNode;
