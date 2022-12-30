@@ -6,7 +6,7 @@ import { Table, ColumnDefinitionType } from 'components/Table/Table';
 import DataImportForm, {
   FieldType,
 } from 'components/DataImportForm/DataImportForm';
-import { chromosomeOptions } from 'models/frontend/Gene/Gene';
+import { chromosomes } from 'models/frontend/Mutation';
 
 export const cols: Array<ColumnDefinitionType<db_VariationInfo>> = [
   { key: 'alleleName', header: 'Allele Name' },
@@ -25,7 +25,7 @@ const fields = [
     name: 'chromosome',
     title: 'Chromosome Number',
     type: 'select',
-    selectOptions: chromosomeOptions,
+    selectOptions: chromosomes,
   },
   {
     name: 'physLoc',
