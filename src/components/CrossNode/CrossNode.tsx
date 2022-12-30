@@ -34,7 +34,7 @@ const CrossNode = (props: CrossNodeProps): ReactJSXElement => {
 const getCrossNodeHeader = (sex: Sex): ReactJSXElement => {
   return (
     <>
-      <header className={styles.sex}>{getSexIcon(sex)}</header>
+      <label className={styles.sex}>{getSexIcon(sex)}</label>
       <Button sx={{ boxShadow: 'none' }}>
         <MoreHorizIcon />{' '}
       </Button>
@@ -59,7 +59,7 @@ const getCrossNodeBody = (
       })}
     </>
   );
-}
+};
 
 /**
  * @returns Array of allele-pairs formatted like fractions
@@ -72,7 +72,7 @@ const getMutationBoxes = (
       {getMutationBox(alleles)}
     </Box>
   ));
-}
+};
 
 const getMutationBox = (alleles: Allele[]): ReactJSXElement => {
   if (alleles.length === 1) {

@@ -1,19 +1,19 @@
 import { db_VariationInfo } from 'models/db/db_VariationInfo';
-import { GeneLocation } from 'models/frontend/Gene';
+import { MutationLocation } from 'models/frontend/Mutation';
 
 interface IVariationInfo {
   name: string;
-  physLoc?: GeneLocation;
-  geneticLoc?: GeneLocation;
+  physLoc?: MutationLocation;
+  geneticLoc?: MutationLocation;
   chromosome?: string;
 }
 
 export class VariationInfo {
   name: string = ''; // Same as allele name (but 'name' allows type intersection with Gene)
   /** Physical location of the variation on a chromosome */
-  physLoc?: GeneLocation;
+  physLoc?: MutationLocation;
   /** Variation's genetic distance from the middle of a chromosome */
-  geneticLoc?: GeneLocation;
+  geneticLoc?: MutationLocation;
   chromosome?: string;
 
   constructor(fields: IVariationInfo) {
@@ -23,8 +23,8 @@ export class VariationInfo {
   static createFromRecord(record: db_VariationInfo): VariationInfo {
     return new VariationInfo({
       name: record.alleleName,
-      physLoc: new GeneLocation(record.physLoc),
-      geneticLoc: new GeneLocation(record.geneticLoc),
+      physLoc: new MutationLocation(record.physLoc),
+      geneticLoc: new MutationLocation(record.geneticLoc),
       chromosome: record.chromosome ?? undefined,
     });
   }
