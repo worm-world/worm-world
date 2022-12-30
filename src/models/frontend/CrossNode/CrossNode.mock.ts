@@ -10,7 +10,7 @@ import { Allele } from '../Allele/Allele';
 
 export const empty: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
-  strain: { name: 'wildStrain', notes: '', alleles: [] },
+  strain: { name: 'empty', notes: '', alleles: [] },
   genes: [],
   variations: [],
   isSelected: false,
@@ -21,7 +21,7 @@ export const empty: CrossNodeModel = {
 
 export const wild: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
-  strain: { name: 'wildStrain', notes: '', alleles: [] },
+  strain: { name: 'wild', notes: '', alleles: [] },
   genes: [
     mockGenes.chrom1Gene1,
     mockGenes.chrom2Gene1,
@@ -36,7 +36,7 @@ export const wild: CrossNodeModel = {
 // Mutated Cross Node  //////////////////////////////////////////////////////////
 
 const mutatedStrain: Strain = {
-  name: 'mutatedStrain',
+  name: 'mutated',
   alleles: [
     mockAlleles.chrom1Gene1Allele1,
     mockAlleles.chrom2Gene1Allele1,
@@ -72,7 +72,7 @@ export const mutated: CrossNodeModel = {
 export const badMutationLists: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
   strain: {
-    name: 'strainReferencingGene',
+    name: 'referencingGene',
     alleles: [
       mockAlleles.chrom1Gene1Allele1,
       mockAlleles.chromEcaVariation1Allele1,
@@ -106,3 +106,38 @@ export const badAllele: CrossNodeModel = {
   isSelected: false,
   parents: [],
 };
+
+// Cross Node Monoid (No Fraction) //////////////////////////////////////////////////////////////////////////////////
+
+export const monoid: CrossNodeModel = {
+    sex: Sex.Hermaphrodite,
+    strain: {
+      name: 'monoid',
+      alleles: [
+        mockAlleles.chromEcaVariation1Allele1, // one copy
+      ],
+      notes: '',
+    },
+    genes: [],
+    variations: [mockVariations.chromEcaVariation1],
+    isSelected: false,
+    parents: [],
+  };
+
+// Cross Node Diploid (Fraction) //////////////////////////////////////////////////////////////////////////////////
+
+export const diploid: CrossNodeModel = {
+    sex: Sex.Hermaphrodite,
+    strain: {
+      name: 'diploid',
+      alleles: [
+        mockAlleles.chrom1Gene1Allele1,
+      ],
+      notes: '',
+    },
+    genes: [mockGenes.chrom1Gene1],
+    variations: [],
+    isSelected: false,
+    parents: [],
+  };
+  

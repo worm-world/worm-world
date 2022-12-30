@@ -69,7 +69,7 @@ function fillWithAlleles(genotype: Genotype, alleles: Allele[]): void {
     }
 
     // Unknown chrom represented by NULL in DB or undefined in code
-    const chromosome = mutation.chromosome ?? UNKNOWN_CHROM; 
+    const chromosome = mutation.chromosome ?? UNKNOWN_CHROM;
     let mutations = genotype.get(chromosome);
     if (mutations === undefined) {
       mutations = recoverFromUnplannedChromosome(
@@ -98,10 +98,10 @@ const fillWithWildAlleles = (genotype: Genotype): void => {
   }
 };
 
-/**  
+/**
  * If an allele has a mutation on a chromosome, but that chromosome was not included
  * in the list to display.
-*/
+ */
 function recoverFromUnplannedChromosome(
   genotype: Genotype,
   chromosome: Chromosome,
