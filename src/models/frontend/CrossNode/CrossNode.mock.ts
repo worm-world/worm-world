@@ -110,21 +110,6 @@ export const badAllele: CrossNodeModel = {
 // Cross Node Monoid (No Fraction) //////////////////////////////////////////////////////////////////////////////////
 
 export const monoid: CrossNodeModel = {
-<<<<<<< HEAD
-    sex: Sex.Hermaphrodite,
-    strain: {
-      name: 'monoid',
-      alleles: [
-        mockAlleles.chromEcaVariation1Allele1, // one copy
-      ],
-      notes: '',
-    },
-    genes: [],
-    variations: [mockVariations.chromEcaVariation1],
-    isSelected: false,
-    parents: [],
-  };
-=======
   sex: Sex.Hermaphrodite,
   strain: {
     name: 'monoid',
@@ -138,27 +123,10 @@ export const monoid: CrossNodeModel = {
   isSelected: false,
   parents: [],
 };
->>>>>>> e6dd46d (feat: cross node component tests)
 
 // Cross Node Diploid (Fraction) //////////////////////////////////////////////////////////////////////////////////
 
 export const diploid: CrossNodeModel = {
-<<<<<<< HEAD
-    sex: Sex.Hermaphrodite,
-    strain: {
-      name: 'diploid',
-      alleles: [
-        mockAlleles.chrom1Gene1Allele1,
-      ],
-      notes: '',
-    },
-    genes: [mockGenes.chrom1Gene1],
-    variations: [],
-    isSelected: false,
-    parents: [],
-  };
-  
-=======
   sex: Sex.Hermaphrodite,
   strain: {
     name: 'diploid',
@@ -170,4 +138,3 @@ export const diploid: CrossNodeModel = {
   isSelected: false,
   parents: [],
 };
->>>>>>> e6dd46d (feat: cross node component tests)

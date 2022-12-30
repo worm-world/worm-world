@@ -6,7 +6,7 @@ import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
 export default interface CrossNode {
   sex: Sex;
   strain: Strain;
-  parents: CrossNode[];
+  parents?: CrossNode[];
   isSelected: boolean;
   genes: Gene[];
   variations: VariationInfo[];

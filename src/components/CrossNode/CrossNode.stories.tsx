@@ -1,5 +1,5 @@
 import { StoryFn, Meta } from '@storybook/react';
-import CrossNode, { iCrossNodeProps } from 'components/CrossNode/CrossNode';
+import CrossNode, { CrossNodeProps } from 'components/CrossNode/CrossNode';
 import { ReactFlowProvider } from 'reactflow';
 import * as crossNodeMock from 'models/frontend/CrossNode/CrossNode.mock';
 
@@ -15,7 +15,7 @@ export default {
   },
 } as Meta<typeof CrossNode>;
 
-const Template: StoryFn<typeof CrossNode> = (args: iCrossNodeProps) => {
+const Template: StoryFn<typeof CrossNode> = (args: CrossNodeProps) => {
   return (
     <ReactFlowProvider>
       <CrossNode {...args}></CrossNode>
@@ -24,22 +24,22 @@ const Template: StoryFn<typeof CrossNode> = (args: iCrossNodeProps) => {
 };
 
 export const empty = Template.bind({});
-empty.args = { model: crossNodeMock.empty };
+empty.args = { data: crossNodeMock.empty };
 
 export const wild = Template.bind({});
-wild.args = { model: crossNodeMock.wild };
+wild.args = { data: crossNodeMock.wild };
 
 export const mutated = Template.bind({});
-mutated.args = { model: crossNodeMock.mutated};
+mutated.args = { data: crossNodeMock.mutated};
 
 export const badMutationLists = Template.bind({});
-badMutationLists.args = { model: crossNodeMock.badMutationLists };
+badMutationLists.args = { data: crossNodeMock.badMutationLists };
 
 export const badAllele = Template.bind({});
-badAllele.args = { model: crossNodeMock.badAllele };
+badAllele.args = { data: crossNodeMock.badAllele };
 
 export const monoid = Template.bind({});
-monoid.args = { model: crossNodeMock.monoid };
+monoid.args = { data: crossNodeMock.monoid };
 
 export const diploid = Template.bind({});
-diploid.args = { model: crossNodeMock.diploid };
+diploid.args = { data: crossNodeMock.diploid };
