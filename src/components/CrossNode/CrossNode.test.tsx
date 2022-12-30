@@ -8,7 +8,7 @@ describe('Cross node, given cross node model, displays correctly', () => {
     const emptyNode = mock.empty;
     render(
       <ReactFlowProvider>
-        <CrossNode model={emptyNode} />
+        <CrossNode data={emptyNode} />
       </ReactFlowProvider>
     );
 
@@ -20,7 +20,7 @@ describe('Cross node, given cross node model, displays correctly', () => {
     const wildNode = mock.wild; // See wild node for details
     render(
       <ReactFlowProvider>
-        <CrossNode model={wildNode} />
+        <CrossNode data={wildNode} />
       </ReactFlowProvider>
     );
 

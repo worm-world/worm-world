@@ -1,5 +1,5 @@
-import CrossNodeElement from 'components/CrossNode/CrossNode';
-import CrossNode from 'models/frontend/CrossNode/CrossNode';
+import CrossNode from 'components/CrossNode/CrossNode';
+import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import { useCallback, useMemo } from 'react';
 import ReactFlow, {
   MiniMap,
@@ -17,7 +17,7 @@ import 'reactflow/dist/style.css';
 import { XNode } from 'components/XNode/XNode';
 import * as mock from 'models/frontend/CrossNode/CrossNode.mock';
 
-const initialNodes: Array<Node<CrossNode | {}>> = [
+const initialNodes: Array<Node<CrossNodeModel | {}>> = [
   {
     id: 'node1',
     type: 'crossNode',
@@ -75,10 +75,7 @@ interface iCrossFlowProps {
 }
 
 const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
-  const nodeTypes = useMemo(
-    () => ({ crossNode: CrossNodeElement, xNode: XNode }),
-    []
-  );
+  const nodeTypes = useMemo(() => ({ crossNode: CrossNode, xNode: XNode }), []);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const onEdgeUpdate = useCallback(

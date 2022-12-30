@@ -1,6 +1,5 @@
 import styles from 'components/crossNode/CrossNode.module.css';
-import SvgIcon from '@mui/material/SvgIcon';
-import { Box, Typography, Button } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { getSexIcon, Sex } from 'models/enums';
@@ -9,20 +8,20 @@ import { Handle, Position } from 'reactflow';
 import getGenotype, * as genotypeTypes from 'components/CrossNode/genotype/genotype';
 import { Allele } from 'models/frontend/Allele/Allele';
 
-export interface iCrossNodeProps {
-  model: CrossNodeModel;
+export interface CrossNodeProps {
+  data: CrossNodeModel;
 }
 
-const CrossNode = (props: iCrossNodeProps): ReactJSXElement => {
-  const genotype = getGenotype(props.model);
+const CrossNode = (props: CrossNodeProps): ReactJSXElement => {
+  const genotype = getGenotype(props.data);
   return (
     <Box
-      sx={props.model.isSelected ? { border: '1px solid blue' } : {}}
+      sx={props.data.isSelected ? { border: '1px solid blue' } : {}}
       className={styles.crossNode + ' bg-white'}
     >
       <Handle type='target' position={Position.Top} />
       <Box className={styles.crossNodeHeader}>
-        {getCrossNodeHeader(props.model.sex)}
+        {getCrossNodeHeader(props.data.sex)}
       </Box>
       <Box data-testid='crossNodeBody' className={styles.crossNodeBody}>
         {getCrossNodeBody(genotype)}

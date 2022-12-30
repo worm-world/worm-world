@@ -16,8 +16,7 @@ export const UNKNOWN_CHROM = '?';
  * Specific to C. Elegans:
  * I to V are five somatic chromosomes,
  * X is sex chromosome,
- * ECA is extra-chromosomal array,
- * ? is unknown
+ * ECA is extra-chromosomal array (not technically chromosome, but treated as one)
  */
 export const chromosomes = ['I', 'II', 'III', 'IV', 'V', 'X', 'ECA'];
 
