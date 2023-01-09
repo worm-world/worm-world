@@ -65,7 +65,9 @@ const RightDrawer = (props: RightDrawerProps): ReactJSXElement => {
       open={props.isOpen}
     >
       <Box
-        className={`${styles.resizerThumb} ${isDragging ? styles.resizerThumbDragging : ''} `}
+        className={`${styles.resizerThumb} ${
+          isDragging ? styles.resizerThumbDragging : ''
+        } `}
         onMouseDown={() => setIsDragging(true)}
       />
       <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
