@@ -3,8 +3,8 @@ import * as mock from 'models/frontend/CrossNode/CrossNode.mock';
 import CrossNode from 'components/CrossNode/CrossNode';
 import { ReactFlowProvider } from 'reactflow';
 
-describe('Cross node, given cross node model, displays correctly', () => {
-  test('Empty cross node shows no mutation sections (fractions or single allele)', () => {
+describe('CrossNode component', () => {
+  test('Empty node shows no sections', () => {
     const emptyNode = mock.empty;
     render(
       <ReactFlowProvider>
@@ -16,7 +16,7 @@ describe('Cross node, given cross node model, displays correctly', () => {
     expect(body).toBeEmptyDOMElement();
   });
 
-  test('Wild cross node shows mutation sections (fractions or single allele)', () => {
+  test('Wild cross node shows sections', () => {
     const wildNode = mock.wild; // See wild node for details
     render(
       <ReactFlowProvider>
