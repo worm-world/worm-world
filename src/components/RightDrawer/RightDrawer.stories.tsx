@@ -1,6 +1,5 @@
 import { StoryFn, Meta } from '@storybook/react';
 import RightDrawer from 'components/RightDrawer/RightDrawer';
-import React from 'react';
 
 export default {
   title: 'Components/RightDrawer',
@@ -13,12 +12,12 @@ export default {
 const Template: StoryFn<typeof RightDrawer> = (args) => {
   args.close = () => alert('close button pressed');
   return <RightDrawer {...args} />;
-}
+};
 export const Primary = Template.bind({});
 Primary.args = {
   initialDrawerWidth: 100,
   maxWidth: 400,
-}
+};
 
 export const WithChildren = Template.bind({});
 WithChildren.args = {
@@ -26,4 +25,4 @@ WithChildren.args = {
   maxWidth: 400,
   isOpen: true,
   children: <div>Children here</div>,
-}
+};

@@ -76,7 +76,7 @@ interface iCrossFlowProps {
 
 const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
   const nodeTypes = useMemo(() => ({ crossNode: CrossNode, xNode: XNode }), []);
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [nodes, , onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const onEdgeUpdate = useCallback(
     (oldEdge: Edge<any>, newConnection: Connection) =>
