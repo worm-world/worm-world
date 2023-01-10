@@ -1,4 +1,3 @@
-import React from 'react';
 import { getGenes } from 'api/gene';
 import { TopNav } from 'components/TopNav/TopNav';
 import { getAlleles } from 'api/allele';
