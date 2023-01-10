@@ -115,6 +115,7 @@ export class Allele {
     return Allele.build({
       name: record.name,
       geneName: record.geneName ?? undefined,
+      variationName: record.variationName ?? undefined,
       contents: record.contents ?? undefined,
     });
   }
