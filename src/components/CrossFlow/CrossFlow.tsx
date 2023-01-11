@@ -1,5 +1,3 @@
-import CrossNode from 'components/CrossNode/CrossNode';
-import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import { useCallback, useMemo } from 'react';
 import ReactFlow, {
   MiniMap,
@@ -16,34 +14,36 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { XNode } from 'components/XNode/XNode';
 import * as mock from 'models/frontend/CrossNode/CrossNode.mock';
+import FlowWrapper from 'components/FlowWrapper/FlowWrapper';
+import CrossNode from 'components/CrossNode/CrossNode';
 
-const initialNodes: Array<Node<CrossNodeModel | {}>> = [
+const initialNodes: Array<Node<JSX.Element>> = [
   {
     id: 'node1',
-    type: 'crossNode',
+    type: 'flowWrapper', // This is the type of our custom node
     position: { x: -150, y: -100 },
-    data: mock.empty,
+    data: <CrossNode model={mock.empty}></CrossNode>, // data = children for flowWrapper
     connectable: true,
   },
   {
     id: 'node2',
-    type: 'crossNode',
+    type: 'flowWrapper',
     position: { x: 150, y: -100 },
-    data: mock.wild,
+    data: <CrossNode model={mock.wild}></CrossNode>,
     connectable: true,
   },
   {
     id: 'node3',
-    type: 'crossNode',
+    type: 'flowWrapper',
     position: { x: 0, y: 200 },
-    data: mock.mutated,
+    data: <CrossNode model={mock.wild}></CrossNode>,
     connectable: true,
   },
   {
     id: 'xNode1',
-    type: 'xNode',
+    type: 'flowWrapper',
     position: { x: 95, y: 75 },
-    data: {},
+    data: <XNode />,
     connectable: true,
   },
 ];
@@ -75,7 +75,7 @@ interface iCrossFlowProps {
 }
 
 const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
-  const nodeTypes = useMemo(() => ({ crossNode: CrossNode, xNode: XNode }), []);
+  const nodeTypes = useMemo(() => ({ flowWrapper: FlowWrapper }), []);
   const [nodes, , onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const onEdgeUpdate = useCallback(
@@ -92,7 +92,6 @@ const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
     <ReactFlow
       className={props.className}
       zoomOnScroll={true}
-      // preventScrolling={false}
       fitView
       nodes={nodes}
       edges={edges}
