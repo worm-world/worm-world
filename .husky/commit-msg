@@ -3,3 +3,12 @@
 
 echo "Checking convention commit"
 npx --no -- commitlint --edit "$1"
+
+echo "Testing backend"
+npm run test-back
+
+echo "Testing frontend"
+npm run test-front
+
+echo "Committing auto-generated files"
+git add src/models/db/*
