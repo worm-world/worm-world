@@ -172,7 +172,7 @@ describe('Genotype with incomplete input data.', () => {
     console.error = vi.fn();
   });
 
-  afterEach(() => {
+  afterAll(() => {
     // Restore original console.error
     console.error = originalFunction;
   });
