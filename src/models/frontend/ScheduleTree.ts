@@ -1,7 +1,7 @@
-import TreeNode from './TreeNode';
+import ScheduleNode from 'models/frontend/ScheduleNode';
 
 export default interface ScheduleTree {
-  crossTree: TreeNode;
+  crossTree: ScheduleNode;
   deadline: Date;
   completed: Boolean;
 }
