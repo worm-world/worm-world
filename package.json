@@ -30,7 +30,7 @@
     "react-flow-renderer": "^10.3.17",
     "react-router-dom": "^6.4.3",
     "react-toastify": "^9.1.1",
-    "reactflow": "^11.3.3"
+    "reactflow": "^11.4.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.2",
