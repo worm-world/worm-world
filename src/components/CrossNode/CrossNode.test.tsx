@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import * as mock from 'models/frontend/CrossNode/CrossNode.mock';
 import CrossNode from 'components/CrossNode/CrossNode';
-import { ReactFlowProvider } from 'reactflow';
 
 describe('CrossNode component', () => {
   test('Empty node shows no sections', () => {

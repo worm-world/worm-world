@@ -20,17 +20,17 @@ const Template: StoryFn<typeof FlowWrapper> = (args: FlowWrapperProps) => {
   );
 };
 
-export const crossNode = Template.bind({});
-crossNode.args = {
+export const wrapperOfCrossNode = Template.bind({});
+wrapperOfCrossNode.args = {
   data: <CrossNode model={crossNodeMock.mutated}></CrossNode>,
 };
 
-export const xNode = Template.bind({});
-xNode.args = {
+export const wrapperOfXNode = Template.bind({});
+wrapperOfXNode.args = {
   data: <XNode />,
 };
 
-export const div = Template.bind({});
-div.args = {
+export const wrapperOfDiv = Template.bind({});
+wrapperOfDiv.args = {
   data: <div>This is a div.</div>,
 };

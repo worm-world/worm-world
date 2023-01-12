@@ -8,7 +8,13 @@ export interface FlowWrapperProps {
 // Container used to wrap components for use in React Flow
 const FlowWrapper = (props: FlowWrapperProps): JSX.Element => {
   return (
-    <Box>
+    <Box
+      sx={{
+        width: 'fit-content',
+        height: 'fit-content',
+        visibility: 'invisible',
+      }}
+    >
       <Handle type='target' position={Position.Top} />
       {props.data}
       <Handle type='source' position={Position.Bottom} />
