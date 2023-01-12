@@ -1,3 +1,4 @@
+import CrossNode from 'components/CrossNode/CrossNode';
 import { useCallback, useMemo } from 'react';
 import ReactFlow, {
   MiniMap,
@@ -15,7 +16,6 @@ import 'reactflow/dist/style.css';
 import { XNode } from 'components/XNode/XNode';
 import * as mock from 'models/frontend/CrossNode/CrossNode.mock';
 import FlowWrapper from 'components/FlowWrapper/FlowWrapper';
-import CrossNode from 'components/CrossNode/CrossNode';
 
 const initialNodes: Array<Node<JSX.Element>> = [
   {

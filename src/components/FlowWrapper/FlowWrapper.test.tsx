@@ -14,11 +14,11 @@ describe('FlowWrapper', () => {
     );
     render(wrapperInFlow);
 
-    let chromI = screen.getByText(/^I$/);
-    let chromII = screen.getByText(/^II$/);
-    let chromX = screen.getByText(/^X$/);
-    let chromECA = screen.getByText(/^ECA$/);
-    let chromUnknown = screen.getByText(/^\?$/);
+    const chromI = screen.getByText(/^I$/);
+    const chromII = screen.getByText(/^II$/);
+    const chromX = screen.getByText(/^X$/);
+    const chromECA = screen.getByText(/^ECA$/);
+    const chromUnknown = screen.getByText(/^\?$/);
 
     expect(chromI).toBeVisible();
     expect(chromII).toBeVisible();
