@@ -35,7 +35,7 @@ const getCrossNodeHeader = (sex: Sex): ReactJSXElement => {
   return (
     <>
       {/* <label className={styles.sex}>{getSexIconUrl(sex)}</label> */}
-      <img className="p-2 w-8 h-8" src={getSexIconUrl(sex)}/>
+      <img className="p-1 py-2 w-7 h-9" src={getSexIconUrl(sex)}/>
       <Button sx={{ boxShadow: 'none' }}>
         <MoreHorizIcon />{' '}
       </Button>
