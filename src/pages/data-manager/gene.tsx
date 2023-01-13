@@ -9,7 +9,8 @@ import DataImportForm, {
 import { chromosomes } from 'models/frontend/Mutation';
 
 export const cols: Array<ColumnDefinitionType<db_Gene>> = [
-  { key: 'name', header: 'Name' },
+  { key: 'sysName', header: 'Systematic Name' },
+  { key: 'descName', header: 'Descriptive Name' },
   { key: 'chromosome', header: 'Chromosome' },
   { key: 'physLoc', header: 'Physical Location' },
   { key: 'geneticLoc', header: 'Genetic Location' },
@@ -17,8 +18,13 @@ export const cols: Array<ColumnDefinitionType<db_Gene>> = [
 
 const fields = [
   {
-    name: 'name',
-    title: 'Name',
+    name: 'sysName',
+    title: 'Systematic Name',
+    type: 'text',
+  },
+  {
+    name: 'descName',
+    title: 'Descriptive Name',
     type: 'text',
   },
   {

@@ -3,6 +3,6 @@
 export interface db_Allele {
   name: string;
   contents: string | null;
-  geneName: string | null;
+  sysGeneName: string | null;
   variationName: string | null;
 }

@@ -3,5 +3,5 @@
 export type AlleleFieldName =
   | 'Name'
   | 'Contents'
-  | 'GeneName'
+  | 'SysGeneName'
   | 'VariationName';

@@ -4,6 +4,11 @@
 echo "Checking convention commit"
 npx --no -- commitlint --edit "$1"
 
+echo "Checking sqlx is in sync"
+cd ./src-tauri
+cargo sqlx prepare --check
+cd ..
+
 echo "Testing backend"
 npm run test-back
 

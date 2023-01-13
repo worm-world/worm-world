@@ -12,7 +12,7 @@ impl InnerDbState {
         match sqlx::query_as!(
             Allele,
             "
-            SELECT name, contents, gene_name, variation_name FROM alleles ORDER BY name
+            SELECT name, contents, systematic_gene_name, variation_name FROM alleles ORDER BY name
             "
         )
         .fetch_all(&self.conn_pool)
@@ -30,8 +30,9 @@ impl InnerDbState {
         &self,
         filter: &Filter<AlleleFieldName>,
     ) -> Result<Vec<Allele>, DbError> {
-        let mut qb: QueryBuilder<Sqlite> =
-            QueryBuilder::new("SELECT name, contents, gene_name, variation_name FROM alleles");
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "SELECT name, contents, systematic_gene_name, variation_name FROM alleles",
+        );
         filter.add_filtered_query(&mut qb);
         match qb
             .build_query_as::<Allele>()
@@ -48,12 +49,12 @@ impl InnerDbState {
 
     pub async fn insert_allele(&self, allele: &Allele) -> Result<(), DbError> {
         match sqlx::query!(
-            "INSERT INTO alleles (name, contents, gene_name, variation_name)
+            "INSERT INTO alleles (name, contents, systematic_gene_name, variation_name)
             VALUES($1, $2, $3, $4)
             ",
             allele.name,
             allele.contents,
-            allele.gene_name,
+            allele.systematic_gene_name,
             allele.variation_name,
         )
         .execute(&self.conn_pool)
@@ -96,7 +97,8 @@ mod test {
         assert_eq!(genes.len(), 0);
 
         let new_gene = Gene {
-            name: "dpy-10".to_string(),
+            systematic_name: "T14B4.7".to_string(),
+            descriptive_name: Some("dpy-10".to_string()),
             chromosome: Some("II".to_string()),
             phys_loc: Some(6710149),
             gen_loc: Some(0.0),
@@ -109,7 +111,7 @@ mod test {
         let expected = Allele {
             name: "cn64".to_string(),
             contents: None,
-            gene_name: Some("dpy-10".to_string()),
+            systematic_gene_name: Some("T14B4.7".to_string()),
             variation_name: None,
         };
 
@@ -127,12 +129,12 @@ mod test {
             .get_filtered_alleles(&Filter::<AlleleFieldName> {
                 filters: vec![
                     vec![(
-                        AlleleFieldName::GeneName,
-                        FilterType::Equal("unc-18".to_owned()),
+                        AlleleFieldName::SysGeneName,
+                        FilterType::Equal("F27D9.1".to_owned()),
                     )],
                     vec![(
-                        AlleleFieldName::GeneName,
-                        FilterType::Equal("dpy-10".to_owned()),
+                        AlleleFieldName::SysGeneName,
+                        FilterType::Equal("T14B4.7".to_owned()),
                     )],
                 ],
                 order_by: vec![AlleleFieldName::Name],
@@ -165,7 +167,7 @@ mod test {
         let expected = Allele {
             name: "oxTi302".to_string(),
             contents: Some("[Peft-3::mCherry; cbr-unc-119(+)]".to_string()),
-            gene_name: None,
+            systematic_gene_name: None,
             variation_name: Some("oxTi302".to_string()),
         };
 
@@ -184,7 +186,7 @@ mod test {
         let expected = Allele {
             name: "cn64".to_string(),
             contents: None,
-            gene_name: Some("dpy-10".to_string()),
+            systematic_gene_name: Some("T14B4.7".to_string()),
             variation_name: None,
         };
 
@@ -199,7 +201,7 @@ mod test {
         let expected = Allele {
             name: "oxTi302".to_string(),
             contents: Some("[Peft-3::mCherry; cbr-unc-119(+)]".to_string()),
-            gene_name: None,
+            systematic_gene_name: None,
             variation_name: Some("oxTi302".to_string()),
         };
 

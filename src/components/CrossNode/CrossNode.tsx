@@ -66,7 +66,7 @@ const getMutationBoxes = (
   mutations: genotypeTypes.Mutations
 ): ReactJSXElement[] => {
   return Array.from(mutations).map(([mutation, alleles]) => (
-    <Box key={mutation.name} className={styles.chromosomeFraction}>
+    <Box key={mutation.chromosome} className={styles.chromosomeFraction}>
       {getMutationBox(alleles)}
     </Box>
   ));

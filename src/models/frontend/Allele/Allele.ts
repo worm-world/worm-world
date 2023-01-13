@@ -10,7 +10,7 @@ import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
 
 interface IAllele {
   name: string;
-  geneName?: string;
+  sysGeneName?: string;
   variationName?: string;
   contents?: string;
   alleleExpressions?: AlleleExpression[];
@@ -63,8 +63,8 @@ export class Allele {
     partialAllele: AlleleState,
     fields: IAllele
   ): Promise<void> => {
-    if (fields.geneName !== undefined) {
-      await Allele.setGene(partialAllele, fields.geneName);
+    if (fields.sysGeneName !== undefined) {
+      await Allele.setGene(partialAllele, fields.sysGeneName);
     } else if (fields.variationName !== undefined) {
       await Allele.setVariation(partialAllele, fields.variationName);
     } else {
@@ -114,7 +114,7 @@ export class Allele {
   static createFromRecord(record: db_Allele): Allele {
     return Allele.build({
       name: record.name,
-      geneName: record.geneName ?? undefined,
+      sysGeneName: record.sysGeneName ?? undefined,
       variationName: record.variationName ?? undefined,
       contents: record.contents ?? undefined,
     });
@@ -123,7 +123,7 @@ export class Allele {
   generateRecord = (): db_Allele => {
     return {
       name: this.name,
-      geneName: this.gene?.name ?? null,
+      sysGeneName: this.gene?.sysName ?? null,
       variationName: this.variation?.name ?? null,
       contents: this.contents ?? null,
     };
