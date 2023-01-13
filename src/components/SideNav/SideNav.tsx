@@ -98,7 +98,7 @@ const SideNav = (props: SideNavProps): JSX.Element => {
           <li key='wormworld'>
             <Link to={'/' as To}>
               <h4 className='pl-2 text-center text-4xl'>
-                <div className={styles.wormworld}>WormWorld</div>
+                <img className="py-4 pl-3 pr-5" src="wormworld_text.png" />
               </h4>
             </Link>
           </li>
