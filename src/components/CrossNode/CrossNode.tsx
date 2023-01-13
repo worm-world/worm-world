@@ -2,7 +2,7 @@ import styles from 'components/crossNode/CrossNode.module.css';
 import { Box, Button } from '@mui/material';
 import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import { getSexIcon, Sex } from 'models/enums';
+import { getSexIconUrl, Sex } from 'models/enums';
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
 import { Handle, Position } from 'reactflow';
 import getGenotype, * as genotypeTypes from 'components/CrossNode/genotype/genotype';
@@ -34,7 +34,8 @@ const CrossNode = (props: CrossNodeProps): ReactJSXElement => {
 const getCrossNodeHeader = (sex: Sex): ReactJSXElement => {
   return (
     <>
-      <label className={styles.sex}>{getSexIcon(sex)}</label>
+      {/* <label className={styles.sex}>{getSexIconUrl(sex)}</label> */}
+      <img className="p-2 w-8 h-8" src={getSexIconUrl(sex)}/>
       <Button sx={{ boxShadow: 'none' }}>
         <MoreHorizIcon />{' '}
       </Button>

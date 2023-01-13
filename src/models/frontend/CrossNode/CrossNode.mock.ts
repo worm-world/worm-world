@@ -50,7 +50,7 @@ const mutatedStrain: Strain = {
 };
 
 export const mutated: CrossNodeModel = {
-  sex: Sex.Hermaphrodite,
+  sex: Sex.Male,
   strain: mutatedStrain,
   genes: [
     mockGenes.chrom1Gene1,
