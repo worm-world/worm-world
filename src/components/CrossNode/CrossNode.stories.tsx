@@ -20,26 +20,26 @@ const Template: StoryFn<typeof CrossNode> = (args: CrossNodeProps) => {
     <ReactFlowProvider>
       <CrossNode {...args}></CrossNode>
     </ReactFlowProvider>
-  )
+  );
 };
 
 export const empty = Template.bind({});
-empty.args = { data: crossNodeMock.empty };
+empty.args = { model: crossNodeMock.empty };
 
 export const wild = Template.bind({});
-wild.args = { data: crossNodeMock.wild };
+wild.args = { model: crossNodeMock.wild };
 
 export const mutated = Template.bind({});
-mutated.args = { data: crossNodeMock.mutated};
+mutated.args = { model: crossNodeMock.mutated };
 
 export const badMutationLists = Template.bind({});
-badMutationLists.args = { data: crossNodeMock.badMutationLists };
+badMutationLists.args = { model: crossNodeMock.badMutationLists };
 
 export const badAllele = Template.bind({});
-badAllele.args = { data: crossNodeMock.badAllele };
+badAllele.args = { model: crossNodeMock.badAllele };
 
 export const monoid = Template.bind({});
-monoid.args = { data: crossNodeMock.monoid };
+monoid.args = { model: crossNodeMock.monoid };
 
 export const diploid = Template.bind({});
-diploid.args = { data: crossNodeMock.diploid };
+diploid.args = { model: crossNodeMock.diploid };

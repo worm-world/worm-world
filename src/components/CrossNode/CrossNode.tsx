@@ -4,29 +4,26 @@ import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { getSexIcon, Sex } from 'models/enums';
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
-import { Handle, Position } from 'reactflow';
 import getGenotype, * as genotypeTypes from 'components/CrossNode/genotype/genotype';
 import { Allele } from 'models/frontend/Allele/Allele';
 
 export interface CrossNodeProps {
-  data: CrossNodeModel;
+  model: CrossNodeModel;
 }
 
 const CrossNode = (props: CrossNodeProps): ReactJSXElement => {
-  const genotype = getGenotype(props.data);
+  const genotype = getGenotype(props.model);
   return (
     <Box
-      sx={props.data.isSelected ? { border: '1px solid blue' } : {}}
+      sx={props.model.isSelected ? { border: '1px solid blue' } : {}}
       className={styles.crossNode + ' bg-white'}
     >
-      <Handle type='target' position={Position.Top} />
       <Box className={styles.crossNodeHeader}>
-        {getCrossNodeHeader(props.data.sex)}
+        {getCrossNodeHeader(props.model.sex)}
       </Box>
       <Box data-testid='crossNodeBody' className={styles.crossNodeBody}>
         {getCrossNodeBody(genotype)}
       </Box>
-      <Handle type='source' position={Position.Bottom} />
     </Box>
   );
 };

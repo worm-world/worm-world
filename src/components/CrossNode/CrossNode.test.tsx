@@ -1,16 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import * as mock from 'models/frontend/CrossNode/CrossNode.mock';
 import CrossNode from 'components/CrossNode/CrossNode';
-import { ReactFlowProvider } from 'reactflow';
 
 describe('CrossNode component', () => {
   test('Empty node shows no sections', () => {
     const emptyNode = mock.empty;
-    render(
-      <ReactFlowProvider>
-        <CrossNode data={emptyNode} />
-      </ReactFlowProvider>
-    );
+    render(<CrossNode model={emptyNode} />);
 
     const body = screen.getByTestId('crossNodeBody');
     expect(body).toBeEmptyDOMElement();
@@ -18,11 +13,7 @@ describe('CrossNode component', () => {
 
   test('Wild cross node shows sections', () => {
     const wildNode = mock.wild; // See wild node for details
-    render(
-      <ReactFlowProvider>
-        <CrossNode data={wildNode} />
-      </ReactFlowProvider>
-    );
+    render(<CrossNode model={wildNode} />);
 
     const body = screen.getByTestId('crossNodeBody');
     expect(body).not.toBeEmptyDOMElement();
