@@ -1,6 +1,9 @@
 import { db_VariationInfo } from 'models/db/db_VariationInfo';
 import Mutation, { MutationLocation } from 'models/frontend/Mutation';
 
+interface iVariation extends Mutation {
+  name: string;
+}
 export class VariationInfo implements Mutation {
   name: string = ''; // Will be, by convention, same as allele name
   chromosome?: string;
@@ -8,7 +11,7 @@ export class VariationInfo implements Mutation {
   geneticLoc?: MutationLocation;
   ploidy: number = 1;
 
-  constructor(fields: Mutation) {
+  constructor(fields: iVariation) {
     Object.assign(this, fields);
   }
 

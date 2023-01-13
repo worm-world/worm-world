@@ -2,7 +2,6 @@
  * A mutation is the (common) state of a Gene or VariationInfo
  */
 export default class Mutation {
-  name: string = '';
   chromosome?: string;
   physLoc?: MutationLocation; // Physical location of the gene on a chromosome
   geneticLoc?: MutationLocation; // Variation's genetic distance from the middle of a chromosome

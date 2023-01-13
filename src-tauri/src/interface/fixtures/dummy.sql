@@ -1,12 +1,12 @@
 BEGIN TRANSACTION;
 
-INSERT INTO genes (name, chromosome, phys_loc, gen_loc)
-VALUES 
-    ("unc-119", "III", 10902641, 5.59),
-    ("lin-15B", "X", 15726123, 22.95),
-    ("unc-18", "X", 7682896, -1.35), 
-    ("dpy-10", "II", 6710149, 0), 
-    ("ox1059", "IV", 11425742, 4.98);
+INSERT INTO genes (systematic_name, descriptive_name, chromosome, phys_loc, gen_loc)
+VALUES
+    ("M142.1", "unc-119", "III", 10902641, 5.59),
+    ("ZK662.4", "lin-15B", "X", 15726123, 22.95),
+    ("F27D9.1", "unc-18", "X", 7682896, -1.35),
+    ("T14B4.7", "dpy-10", "II", 6710149, 0),
+    ("C10C6.1", "kin-4", "IV", 11425742, 4.98);
 
 INSERT INTO variation_info (allele_name, chromosome, phys_loc, gen_loc)
 VALUES
@@ -54,13 +54,13 @@ VALUES
     ("Tetracycline", 3, 0, 0, 0, 3),
     ("Histamine", 3, 0, 0, 0, 3);
 
-INSERT INTO alleles (name, gene_name, variation_name, contents)
+INSERT INTO alleles (name, systematic_gene_name, variation_name, contents)
 VALUES
-    ("ed3", "unc-119", NULL, NULL),
-    ("n765", "lin-15B", NULL, NULL),
-    ("md299", "unc-18", NULL, NULL),
-    ("cn64", "dpy-10", NULL, NULL),
-    ("kin-4", "ox1059", NULL, NULL),
+    ("ed3", "M142.1", NULL, NULL),
+    ("n765", "ZK662.4", NULL, NULL),
+    ("md299", "F27D9.1", NULL, NULL),
+    ("cn64", "T14B4.7", NULL, NULL),
+    ("ox1059", "C10C6.1", NULL, NULL),
     ("oxIs644", NULL, "oxIs644", "[Peft-3::FRT-UTR-FRT::mYFP::unc-54UTR; lin-15(+)]"),
     ("oxIs12", NULL, "oxIs12", "[Punc-47::GFP; lin-15(+)]"),
     ("oxTi302", NULL, "oxTi302", "[Peft-3::mCherry; cbr-unc-119(+)]"),
@@ -77,9 +77,9 @@ VALUES
     ("md299", "unc-18",0, 0),
     ("cn64", "dpy-10",0, 0),
     ("cn64", "rol",0, 1),
-    ("kin-4", "YFP(pharynx)",0, 2),
-    ("kin-4", "lin-15B",1, 2),
-    ("kin-4", "lin-15A",1, 2),
+    ("ox1059", "YFP(pharynx)",0, 2),
+    ("ox1059", "lin-15B",1, 2),
+    ("ox1059", "lin-15A",1, 2),
     ("oxIs644", "mCherry",0, 2),
     ("oxIs644", "unc-119",0, 2),
     ("oxIs644", "YFP(pharynx)",0, 2),

@@ -113,7 +113,8 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         state
             .insert_gene(&Gene {
-                name: "dpy-10".to_string(),
+                systematic_name: "T14B4.7".to_string(),
+                descriptive_name: Some("dpy-10".to_string()),
                 chromosome: Some("II".to_string()),
                 phys_loc: Some(6710149),
                 gen_loc: Some(0.0),
@@ -123,7 +124,7 @@ mod test {
             .insert_allele(&Allele {
                 name: "cn64".to_string(),
                 contents: None,
-                gene_name: Some("dpy-10".to_string()),
+                systematic_gene_name: Some("T14B4.7".to_string()),
                 variation_name: None,
             })
             .await?;

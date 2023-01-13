@@ -8,8 +8,8 @@ use ts_rs::TS;
 pub struct Allele {
     pub name: String,
     pub contents: Option<String>,
-    #[serde(rename = "geneName")]
-    pub gene_name: Option<String>,
+    #[serde(rename = "sysGeneName")]
+    pub systematic_gene_name: Option<String>,
     #[serde(rename = "variationName")]
     pub variation_name: Option<String>,
 }
@@ -19,7 +19,7 @@ pub struct Allele {
 pub enum AlleleFieldName {
     Name,
     Contents,
-    GeneName,
+    SysGeneName,
     VariationName,
 }
 
@@ -28,7 +28,7 @@ impl FieldNameEnum for AlleleFieldName {
         match self {
             AlleleFieldName::Name => "name".to_owned(),
             AlleleFieldName::Contents => "contents".to_owned(),
-            AlleleFieldName::GeneName => "gene_name".to_owned(),
+            AlleleFieldName::SysGeneName => "systematic_gene_name".to_owned(),
             AlleleFieldName::VariationName => "variation_name".to_owned(),
         }
     }

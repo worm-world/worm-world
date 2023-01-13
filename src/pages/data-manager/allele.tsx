@@ -9,7 +9,7 @@ import DataImportForm, {
 
 export const cols: Array<ColumnDefinitionType<db_Allele>> = [
   { key: 'name', header: 'Name' },
-  { key: 'geneName', header: 'Gene Name' },
+  { key: 'sysGeneName', header: 'Systematic Gene Name' },
   { key: 'variationName', header: 'Variation Name' },
   { key: 'contents', header: 'Contents' },
 ];
@@ -25,8 +25,8 @@ const fields = [
     type: 'text',
   },
   {
-    name: 'geneName',
-    title: 'Gene Name',
+    name: 'sysGeneName',
+    title: 'Systematic Gene Name',
     type: 'text',
   },
   {

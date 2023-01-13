@@ -11,7 +11,7 @@ impl InnerDbState {
         match sqlx::query_as!(
             Gene,
             "
-            SELECT name, chromosome, phys_loc, gen_loc FROM genes ORDER BY name
+            SELECT systematic_name, descriptive_name, chromosome, phys_loc, gen_loc FROM genes ORDER BY descriptive_name
             "
         )
         .fetch_all(&self.conn_pool)
@@ -29,8 +29,9 @@ impl InnerDbState {
         &self,
         filter: &Filter<GeneFieldName>,
     ) -> Result<Vec<Gene>, DbError> {
-        let mut qb: QueryBuilder<Sqlite> =
-            QueryBuilder::new("SELECT name, chromosome, phys_loc, gen_loc FROM genes");
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "SELECT systematic_name, descriptive_name, chromosome, phys_loc, gen_loc FROM genes",
+        );
         filter.add_filtered_query(&mut qb);
 
         match qb.build_query_as::<Gene>().fetch_all(&self.conn_pool).await {
@@ -44,10 +45,11 @@ impl InnerDbState {
 
     pub async fn insert_gene(&self, gene: &Gene) -> Result<(), DbError> {
         match sqlx::query!(
-            "INSERT INTO genes (name, chromosome, phys_loc, gen_loc)
-            VALUES($1, $2, $3, $4)
+            "INSERT INTO genes (systematic_name, descriptive_name, chromosome, phys_loc, gen_loc)
+            VALUES($1, $2, $3, $4, $5)
             ",
-            gene.name,
+            gene.systematic_name,
+            gene.descriptive_name,
             gene.chromosome,
             gene.phys_loc,
             gene.gen_loc
@@ -82,7 +84,7 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
 
         let mut genes: Vec<Gene> = state.get_genes().await?;
-        genes.sort_by(|a, b| (a.name.cmp(&b.name)));
+        genes.sort_by(|a, b| (a.descriptive_name.cmp(&b.descriptive_name)));
 
         assert_eq!(genes, testdata::get_genes());
         Ok(())
@@ -100,7 +102,7 @@ mod test {
                         FilterType::Equal("IV".to_owned()),
                     )],
                 ],
-                order_by: vec![GeneFieldName::Name],
+                order_by: vec![GeneFieldName::DescName],
             })
             .await?;
 
@@ -116,7 +118,8 @@ mod test {
         assert_eq!(genes.len(), 0);
 
         let expected = Gene {
-            name: "unc-119".to_string(),
+            systematic_name: "M142.1".to_string(),
+            descriptive_name: Some("unc-119".to_string()),
             chromosome: Some("III".to_string()),
             phys_loc: Some(10902641),
             gen_loc: Some(5.59),

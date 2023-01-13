@@ -168,7 +168,7 @@ mod test {
             .insert_allele(&Allele {
                 name: "oxIs644".to_string(),
                 contents: Some("[Peft-3::FRT-UTR-FRT::mYFP::unc-54UTR; lin-15(+)]".to_string()),
-                gene_name: None,
+                systematic_gene_name: None,
                 variation_name: Some("oxIs644".to_string()),
             })
             .await?;
@@ -246,7 +246,7 @@ mod test {
             .insert_allele(&Allele {
                 name: "oxIs644".to_string(),
                 contents: Some("[Peft-3::FRT-UTR-FRT::mYFP::unc-54UTR; lin-15(+)]".to_string()),
-                gene_name: None,
+                systematic_gene_name: None,
                 variation_name: Some("oxIs644".to_string()),
             })
             .await
