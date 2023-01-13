@@ -74,6 +74,7 @@ impl InnerDbState {
 mod test {
     use crate::dummy::testdata;
     use crate::models::allele_expr::AlleleExpressionFieldName;
+    use crate::models::chromosome::Chromosome;
     use crate::models::filter::{Filter, FilterType};
     use crate::models::{
         allele::Allele, allele_expr::AlleleExpression, gene::Gene, phenotype::Phenotype,
@@ -115,7 +116,7 @@ mod test {
             .insert_gene(&Gene {
                 systematic_name: "T14B4.7".to_string(),
                 descriptive_name: Some("dpy-10".to_string()),
-                chromosome: Some("II".to_string()),
+                chromosome: Some(Chromosome::Ii),
                 phys_loc: Some(6710149),
                 gen_loc: Some(0.0),
             })

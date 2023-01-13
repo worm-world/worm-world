@@ -2,7 +2,7 @@ import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
 
 export const chromUnknownVariation1 = new VariationInfo({
   name: 'chromUnknownVariation1',
-  chromosome: '?',
+  chromosome: undefined,
   ploidy: 1,
 });
 

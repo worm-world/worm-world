@@ -2,10 +2,11 @@ import '@testing-library/jest-dom';
 import * as mockGenes from 'models/frontend/Gene/Gene.mock';
 import * as mockVariations from 'models/frontend/VariationInfo/VariationInfo.mock';
 import * as mockAlleles from 'models/frontend/Allele/Allele.mock';
-import getGenotype, {
+import {
+  getGenotype,
   WILD_ALLELE,
 } from 'components/CrossNode/genotype/genotype';
-import Mutation, { UNKNOWN_CHROM } from 'models/frontend/Mutation';
+import Mutation from 'models/frontend/Mutation';
 import { vi } from 'vitest';
 import * as crossNodeMock from 'models/frontend/CrossNode/CrossNode.mock';
 
@@ -151,14 +152,14 @@ describe('Genotype with complete input data', () => {
     const crossNode = crossNodeMock.mutated;
     const genotype = getGenotype(crossNode);
 
-    expect(genotype.get(UNKNOWN_CHROM)).toBeDefined();
-    expect(genotype.get(UNKNOWN_CHROM)?.size).toBe(1);
+    expect(genotype.get(undefined)).toBeDefined();
+    expect(genotype.get(undefined)?.size).toBe(1);
 
     expect(
-      genotype.get(UNKNOWN_CHROM)?.get(mockVariations.chromUnknownVariation1)
+      genotype.get(undefined)?.get(mockVariations.chromUnknownVariation1)
     ).toHaveLength(1);
     expect(
-      genotype.get(UNKNOWN_CHROM)?.get(mockVariations.chromUnknownVariation1)
+      genotype.get(undefined)?.get(mockVariations.chromUnknownVariation1)
     ).toContain(mockAlleles.chromUnknownVariation1Allele1);
   });
 });
@@ -201,8 +202,8 @@ describe('Genotype with incomplete input data.', () => {
     const genotype = getGenotype(crossNode);
 
     // Assign it to ? chromosome
-    expect(genotype.get(UNKNOWN_CHROM)).toBeDefined();
-    expect(genotype.get(UNKNOWN_CHROM)).toHaveLength(1);
+    expect(genotype.get(undefined)).toBeDefined();
+    expect(genotype.get(undefined)).toHaveLength(1);
 
     expect(console.error).toHaveBeenCalledTimes(2);
   });
