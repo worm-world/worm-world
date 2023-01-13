@@ -1,8 +1,8 @@
 #[cfg(test)]
 pub mod testdata {
     use crate::models::{
-        allele::Allele, allele_expr::AlleleExpression, condition::Condition,
-        expr_relation::ExpressionRelation, gene::Gene, phenotype::Phenotype,
+        allele::Allele, allele_expr::AlleleExpression, chromosome::Chromosome,
+        condition::Condition, expr_relation::ExpressionRelation, gene::Gene, phenotype::Phenotype,
         variation_info::VariationInfo,
     };
     pub fn get_alleles() -> Vec<Allele> {
@@ -321,7 +321,7 @@ pub mod testdata {
             },
             VariationInfo {
                 allele_name: "oxIs12".to_string(),
-                chromosome: Some("X".to_string()),
+                chromosome: Some(Chromosome::X),
                 phys_loc: None,
                 gen_loc: None,
             },
@@ -333,25 +333,25 @@ pub mod testdata {
             },
             VariationInfo {
                 allele_name: "oxSi1168".to_string(),
-                chromosome: Some("II".to_string()),
+                chromosome: Some(Chromosome::Ii),
                 phys_loc: Some(8420158),
                 gen_loc: Some(0.77),
             },
             VariationInfo {
                 allele_name: "oxTi302".to_string(),
-                chromosome: Some("I".to_string()),
+                chromosome: Some(Chromosome::I),
                 phys_loc: Some(10166146),
                 gen_loc: Some(4.72),
             },
             VariationInfo {
                 allele_name: "oxTi75".to_string(),
-                chromosome: Some("II".to_string()),
+                chromosome: Some(Chromosome::Ii),
                 phys_loc: None,
                 gen_loc: Some(-1.46),
             },
             VariationInfo {
                 allele_name: "tmC5".to_string(),
-                chromosome: Some("IV".to_string()),
+                chromosome: Some(Chromosome::Iv),
                 phys_loc: None,
                 gen_loc: None,
             },
@@ -361,13 +361,13 @@ pub mod testdata {
         vec![
             VariationInfo {
                 allele_name: "oxSi1168".to_string(),
-                chromosome: Some("II".to_string()),
+                chromosome: Some(Chromosome::Ii),
                 phys_loc: Some(8420158),
                 gen_loc: Some(0.77),
             },
             VariationInfo {
                 allele_name: "oxTi302".to_string(),
-                chromosome: Some("I".to_string()),
+                chromosome: Some(Chromosome::I),
                 phys_loc: Some(10166146),
                 gen_loc: Some(4.72),
             },
@@ -440,35 +440,35 @@ pub mod testdata {
             Gene {
                 systematic_name: "T14B4.7".to_string(),
                 descriptive_name: Some("dpy-10".to_string()),
-                chromosome: Some("II".to_string()),
+                chromosome: Some(Chromosome::Ii),
                 phys_loc: Some(6710149),
                 gen_loc: Some(0.0),
             },
             Gene {
                 systematic_name: "C10C6.1".to_string(),
                 descriptive_name: Some("kin-4".to_string()),
-                chromosome: Some("IV".to_string()),
+                chromosome: Some(Chromosome::Iv),
                 phys_loc: Some(11425742),
                 gen_loc: Some(4.98),
             },
             Gene {
                 systematic_name: "ZK662.4".to_string(),
                 descriptive_name: Some("lin-15B".to_string()),
-                chromosome: Some("X".to_string()),
+                chromosome: Some(Chromosome::X),
                 phys_loc: Some(15726123),
                 gen_loc: Some(22.95),
             },
             Gene {
                 systematic_name: "M142.1".to_string(),
                 descriptive_name: Some("unc-119".to_string()),
-                chromosome: Some("III".to_string()),
+                chromosome: Some(Chromosome::Iii),
                 phys_loc: Some(10902641),
                 gen_loc: Some(5.59),
             },
             Gene {
                 systematic_name: "F27D9.1".to_string(),
                 descriptive_name: Some("unc-18".to_string()),
-                chromosome: Some("X".to_string()),
+                chromosome: Some(Chromosome::X),
                 phys_loc: Some(7682896),
                 gen_loc: Some(-1.35),
             },
@@ -479,21 +479,21 @@ pub mod testdata {
             Gene {
                 systematic_name: "C10C6.1".to_string(),
                 descriptive_name: Some("kin-4".to_string()),
-                chromosome: Some("IV".to_string()),
+                chromosome: Some(Chromosome::Iv),
                 phys_loc: Some(11425742),
                 gen_loc: Some(4.98),
             },
             Gene {
                 systematic_name: "ZK662.4".to_string(),
                 descriptive_name: Some("lin-15B".to_string()),
-                chromosome: Some("X".to_string()),
+                chromosome: Some(Chromosome::X),
                 phys_loc: Some(15726123),
                 gen_loc: Some(22.95),
             },
             Gene {
                 systematic_name: "F27D9.1".to_string(),
                 descriptive_name: Some("unc-18".to_string()),
-                chromosome: Some("X".to_string()),
+                chromosome: Some(Chromosome::X),
                 phys_loc: Some(7682896),
                 gen_loc: Some(-1.35),
             },

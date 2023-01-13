@@ -1,4 +1,5 @@
 import { db_Gene } from 'models/db/db_Gene';
+import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 import Mutation, { MutationLocation } from 'models/frontend/Mutation';
 
 interface iGene extends Mutation {
@@ -9,7 +10,7 @@ interface iGene extends Mutation {
 export class Gene implements Mutation {
   sysName: string = '';
   descName?: string;
-  chromosome?: string;
+  chromosome?: Chromosome;
   physLoc?: MutationLocation;
   geneticLoc?: MutationLocation;
   ploidy: number = 2;

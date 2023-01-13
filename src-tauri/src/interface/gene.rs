@@ -1,7 +1,7 @@
 use super::{DbError, InnerDbState};
 use crate::models::{
     filter::{Filter, FilterQueryBuilder},
-    gene::{Gene, GeneFieldName},
+    gene::{Gene, GeneDb, GeneFieldName},
 };
 use anyhow::Result;
 use sqlx::{QueryBuilder, Sqlite};
@@ -9,7 +9,7 @@ use sqlx::{QueryBuilder, Sqlite};
 impl InnerDbState {
     pub async fn get_genes(&self) -> Result<Vec<Gene>, DbError> {
         match sqlx::query_as!(
-            Gene,
+            GeneDb,
             "
             SELECT systematic_name, descriptive_name, chromosome, phys_loc, gen_loc FROM genes ORDER BY descriptive_name
             "
@@ -17,7 +17,7 @@ impl InnerDbState {
         .fetch_all(&self.conn_pool)
         .await
         {
-            Ok(genes) => Ok(genes),
+            Ok(genes) => Ok(genes.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
                 eprint!("Get genes error: {e}");
                 Err(DbError::SqlQueryError(e.to_string()))
@@ -34,8 +34,12 @@ impl InnerDbState {
         );
         filter.add_filtered_query(&mut qb);
 
-        match qb.build_query_as::<Gene>().fetch_all(&self.conn_pool).await {
-            Ok(exprs) => Ok(exprs.into_iter().collect()),
+        match qb
+            .build_query_as::<GeneDb>()
+            .fetch_all(&self.conn_pool)
+            .await
+        {
+            Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
                 eprint!("Get Filtered Gene error: {e}");
                 Err(DbError::SqlQueryError(e.to_string()))
@@ -44,13 +48,14 @@ impl InnerDbState {
     }
 
     pub async fn insert_gene(&self, gene: &Gene) -> Result<(), DbError> {
+        let chromosome = gene.chromosome.as_ref().map(|v| v.to_string());
         match sqlx::query!(
             "INSERT INTO genes (systematic_name, descriptive_name, chromosome, phys_loc, gen_loc)
             VALUES($1, $2, $3, $4, $5)
             ",
             gene.systematic_name,
             gene.descriptive_name,
-            gene.chromosome,
+            chromosome,
             gene.phys_loc,
             gene.gen_loc
         )
@@ -69,6 +74,7 @@ impl InnerDbState {
 #[cfg(test)]
 mod test {
 
+    use crate::models::chromosome::Chromosome;
     use crate::models::gene::{Gene, GeneFieldName};
     use crate::InnerDbState;
     use crate::{
@@ -120,9 +126,31 @@ mod test {
         let expected = Gene {
             systematic_name: "M142.1".to_string(),
             descriptive_name: Some("unc-119".to_string()),
-            chromosome: Some("III".to_string()),
+            chromosome: Some(Chromosome::Iii),
             phys_loc: Some(10902641),
             gen_loc: Some(5.59),
+        };
+
+        state.insert_gene(&expected).await?;
+        let genes: Vec<Gene> = state.get_genes().await?;
+
+        assert_eq!(vec![expected], genes);
+        Ok(())
+    }
+
+    #[sqlx::test]
+    async fn test_insert_gene_no_chromosome(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let genes: Vec<Gene> = state.get_genes().await?;
+        assert_eq!(genes.len(), 0);
+
+        let expected = Gene {
+            systematic_name: "FAKE23.4".to_string(),
+            descriptive_name: Some("unc-new".to_string()),
+            chromosome: None,
+            phys_loc: Some(10902633),
+            gen_loc: Some(6.78),
         };
 
         state.insert_gene(&expected).await?;

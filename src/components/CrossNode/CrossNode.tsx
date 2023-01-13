@@ -4,8 +4,12 @@ import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { getSexIconUrl, Sex } from 'models/enums';
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
-import getGenotype, * as genotypeTypes from 'components/CrossNode/genotype/genotype';
 import { Allele } from 'models/frontend/Allele/Allele';
+import {
+  Genotype,
+  getGenotype,
+  Mutations,
+} from 'components/CrossNode/genotype/genotype';
 
 export interface CrossNodeProps {
   model: CrossNodeModel;
@@ -32,7 +36,7 @@ const getCrossNodeHeader = (sex: Sex): ReactJSXElement => {
   return (
     <>
       {/* <label className={styles.sex}>{getSexIconUrl(sex)}</label> */}
-      <img className="p-1 py-2 w-7 h-9" src={getSexIconUrl(sex)}/>
+      <img className='p-1 py-2 w-7 h-9' src={getSexIconUrl(sex)} />
       <Button sx={{ boxShadow: 'none' }}>
         <MoreHorizIcon />{' '}
       </Button>
@@ -40,15 +44,14 @@ const getCrossNodeHeader = (sex: Sex): ReactJSXElement => {
   );
 };
 
-const getCrossNodeBody = (
-  genotype: genotypeTypes.Genotype
-): ReactJSXElement => {
+const getCrossNodeBody = (genotype: Genotype): ReactJSXElement => {
   return (
     <>
       {Array.from(genotype).map(([chromosome, mutations]) => {
+        const displayChrom = chromosome ?? '?'; // undefined chromosomes are represented by: ?
         return (
-          <Box key={chromosome} className={styles.chromosomeBox}>
-            <Box className={styles.chromosomeLabel}>{chromosome}</Box>
+          <Box key={displayChrom} className={styles.chromosomeBox}>
+            <Box className={styles.chromosomeLabel}>{displayChrom}</Box>
             <Box className={styles.chromosomeFractionBox}>
               {getMutationBoxes(mutations)}
             </Box>
@@ -62,11 +65,12 @@ const getCrossNodeBody = (
 /**
  * @returns Array of allele-pairs formatted like fractions
  */
-const getMutationBoxes = (
-  mutations: genotypeTypes.Mutations
-): ReactJSXElement[] => {
-  return Array.from(mutations).map(([mutation, alleles]) => (
-    <Box key={mutation.chromosome} className={styles.chromosomeFraction}>
+const getMutationBoxes = (mutations: Mutations): ReactJSXElement[] => {
+  return Array.from(mutations).map(([mutation, alleles], idx) => (
+    <Box
+      key={`${mutation.chromosome}-${idx}`}
+      className={styles.chromosomeFraction}
+    >
       {getMutationBox(alleles)}
     </Box>
   ));

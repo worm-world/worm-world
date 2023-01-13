@@ -1,4 +1,5 @@
 import { db_VariationInfo } from 'models/db/db_VariationInfo';
+import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 import Mutation, { MutationLocation } from 'models/frontend/Mutation';
 
 interface iVariation extends Mutation {
@@ -6,7 +7,7 @@ interface iVariation extends Mutation {
 }
 export class VariationInfo implements Mutation {
   name: string = ''; // Will be, by convention, same as allele name
-  chromosome?: string;
+  chromosome?: Chromosome;
   physLoc?: MutationLocation;
   geneticLoc?: MutationLocation;
   ploidy: number = 1;

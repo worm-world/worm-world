@@ -5,10 +5,11 @@
  */
 
 import CrossNode from 'models/frontend/CrossNode/CrossNode';
+import Mutation from 'models/frontend/Mutation';
 import { Allele } from 'models/frontend/Allele/Allele';
 import { Gene } from 'models/frontend/Gene/Gene';
 import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
-import Mutation, { Chromosome, UNKNOWN_CHROM } from 'models/frontend/Mutation';
+import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 
 export const WILD_ALLELE = new Allele({
   name: '+',
@@ -16,14 +17,14 @@ export const WILD_ALLELE = new Allele({
 });
 
 // Genetic identity formatted for display
-export type Genotype = Map<Chromosome, Mutations>;
+export type Genotype = Map<Chromosome | undefined, Mutations>;
 
 // Alleles of Genes are paired, but "alleles of variations" are not
 export type Mutations = Map<Mutation, Allele[]>;
 
 // Data format transformation to get hierarchical map: chromosome -> gene/variation -> alleles
-const getGenotype = (crossNode: CrossNode): Genotype => {
-  const genotype: Genotype = new Map<Chromosome, Mutations>();
+export const getGenotype = (crossNode: CrossNode): Genotype => {
+  const genotype: Genotype = new Map<Chromosome | undefined, Mutations>();
 
   const genes = crossNode.genes;
   const variations = crossNode.variations;
@@ -47,42 +48,34 @@ function fillWithChromosomes(
 ): void {
   const loci = (genes as Mutation[]).concat(variations as Mutation[]);
   for (const mutation of loci) {
-    const chromosome = mutation.chromosome ?? UNKNOWN_CHROM;
-    if (!genotype.has(chromosome)) {
-      genotype.set(chromosome, new Map<Mutation, Allele[]>());
+    if (!genotype.has(mutation.chromosome)) {
+      genotype.set(mutation.chromosome, new Map<Mutation, Allele[]>());
     }
-
-    // Guaranteed to have chromosome by option of UNKNOWN_CHROM above.
-    const mutations = genotype.get(chromosome);
-    (mutations as Mutations).set(mutation, []);
+    const mutations = genotype.get(mutation.chromosome);
+    mutations?.set(mutation, []);
   }
 }
 
 /**
  * Populates genotype with alleles indexed by associated mutations in map.
  */
-function fillWithAlleles(genotype: Genotype, alleles: Allele[]): void {
-  for (const allele of alleles) {
-    let mutation = (allele.gene ?? allele.variation) as Mutation;
-    if (mutation === undefined) {
-      mutation = recoverFromUnspecifiedMutation(allele);
-    }
+function fillWithAlleles(genotype: Genotype, allelesToAdd: Allele[]): void {
+  allelesToAdd.forEach((allele) => {
+    const mutation: Mutation =
+      allele.gene ?? allele.variation ?? recoverFromUnspecifiedMutation(allele);
 
-    // Unknown chrom represented by NULL in DB or undefined in code
-    const chromosome = mutation.chromosome ?? UNKNOWN_CHROM;
-    let mutations = genotype.get(chromosome);
-    if (mutations === undefined) {
-      mutations = recoverFromUnplannedChromosome(
+    const mutations =
+      genotype.get(mutation.chromosome) ??
+      recoverFromUnplannedChromosome(
         genotype,
-        chromosome,
+        mutation.chromosome,
         allele,
         mutation
       );
-    }
 
-    const alleles = mutations.get(mutation);
-    (alleles as Allele[]).push(allele); // Guaranteed by recovery
-  }
+    const alleles: Allele[] = mutations.get(mutation) ?? [];
+    alleles.push(allele); // Guaranteed by recovery
+  });
 }
 
 /**
@@ -104,7 +97,7 @@ const fillWithWildAlleles = (genotype: Genotype): void => {
  */
 function recoverFromUnplannedChromosome(
   genotype: Genotype,
-  chromosome: Chromosome,
+  chromosome: Chromosome | undefined,
   allele: Allele,
   mutation: Mutation
 ): Mutations {
@@ -128,17 +121,15 @@ function recoverFromUnplannedChromosome(
 function recoverFromUnspecifiedMutation(allele: Allele): Mutation {
   console.error(
     `The allele ${allele.name} has no associated gene or variation. 
-     This violates a consistency expectation. A dummy variation on unknown chromosome '?'
+     This violates a consistency expectation. A dummy variation on undefined chromosome
      is being assigned.`
   );
 
   const mutation = new VariationInfo({
     name: `dummyVariation_${allele.name}`,
-    chromosome: UNKNOWN_CHROM,
+    chromosome: undefined,
     ploidy: 1,
   });
   allele.variation = mutation;
   return mutation;
 }
-
-export default getGenotype;

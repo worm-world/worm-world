@@ -1,4 +1,4 @@
-use super::FieldNameEnum;
+use super::{chromosome::Chromosome, FieldNameEnum};
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
@@ -6,6 +6,31 @@ use ts_rs::TS;
 #[ts(export, export_to = "../src/models/db/db_Gene.ts")]
 #[serde(rename = "db_Gene")]
 pub struct Gene {
+    #[serde(rename = "sysName")]
+    pub systematic_name: String,
+    #[serde(rename = "descName")]
+    pub descriptive_name: Option<String>,
+    pub chromosome: Option<Chromosome>,
+    #[serde(rename = "physLoc")]
+    pub phys_loc: Option<i64>,
+    #[serde(rename = "geneticLoc")]
+    pub gen_loc: Option<f64>,
+}
+
+impl From<GeneDb> for Gene {
+    fn from(item: GeneDb) -> Gene {
+        Gene {
+            systematic_name: item.systematic_name,
+            descriptive_name: item.descriptive_name,
+            chromosome: item.chromosome.map(|v| v.into()),
+            phys_loc: item.phys_loc,
+            gen_loc: item.gen_loc,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, sqlx::FromRow)]
+pub struct GeneDb {
     #[serde(rename = "sysName")]
     pub systematic_name: String,
     #[serde(rename = "descName")]

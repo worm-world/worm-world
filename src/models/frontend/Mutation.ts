@@ -1,15 +1,14 @@
+import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
+
 /**
  * A mutation is the (common) state of a Gene or VariationInfo
  */
 export default class Mutation {
-  chromosome?: string;
+  chromosome?: Chromosome;
   physLoc?: MutationLocation; // Physical location of the gene on a chromosome
   geneticLoc?: MutationLocation; // Variation's genetic distance from the middle of a chromosome
   ploidy: number = 2; // C. Elegans are diploid => 2 copies of all genes; variations can be solo (but needn't be?)
 }
-
-export type Chromosome = string;
-export const UNKNOWN_CHROM = '?';
 
 /**
  * Specific to C. Elegans:
@@ -17,7 +16,15 @@ export const UNKNOWN_CHROM = '?';
  * X is sex chromosome,
  * ECA is extra-chromosomal array (not technically chromosome, but treated as one)
  */
-export const chromosomes = ['I', 'II', 'III', 'IV', 'V', 'X', 'ECA'];
+export const chromosomes: Chromosome[] = [
+  'I',
+  'II',
+  'III',
+  'IV',
+  'V',
+  'X',
+  'ECA',
+];
 
 /**
  * @summary Locations for a gene can be represented as a single number OR as a range between two numbers

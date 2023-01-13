@@ -73,6 +73,7 @@ impl InnerDbState {
 mod test {
     use crate::dummy::testdata;
     use crate::models::allele::AlleleFieldName;
+    use crate::models::chromosome::Chromosome;
     use crate::models::filter::{Filter, FilterType};
     use crate::models::{allele::Allele, gene::Gene, variation_info::VariationInfo};
     use crate::InnerDbState;
@@ -99,7 +100,7 @@ mod test {
         let new_gene = Gene {
             systematic_name: "T14B4.7".to_string(),
             descriptive_name: Some("dpy-10".to_string()),
-            chromosome: Some("II".to_string()),
+            chromosome: Some(Chromosome::Ii),
             phys_loc: Some(6710149),
             gen_loc: Some(0.0),
         };
@@ -155,7 +156,7 @@ mod test {
 
         let new_vi = VariationInfo {
             allele_name: "oxTi302".to_string(),
-            chromosome: Some("I".to_string()),
+            chromosome: Some(Chromosome::I),
             phys_loc: Some(10166146),
             gen_loc: Some(4.72),
         };

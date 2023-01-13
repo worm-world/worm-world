@@ -1,5 +1,6 @@
 use super::{DbError, InnerDbState};
 use crate::models::filter::FilterQueryBuilder;
+use crate::models::variation_info::VariationInfoDb;
 use crate::models::{
     filter::Filter,
     variation_info::{VariationFieldName, VariationInfo},
@@ -10,7 +11,7 @@ use sqlx::{QueryBuilder, Sqlite};
 impl InnerDbState {
     pub async fn get_variation_info(&self) -> Result<Vec<VariationInfo>, DbError> {
         match sqlx::query_as!(
-            VariationInfo,
+            VariationInfoDb,
             "
             SELECT allele_name, chromosome, phys_loc, gen_loc FROM variation_info ORDER BY allele_name
             "
@@ -18,7 +19,7 @@ impl InnerDbState {
         .fetch_all(&self.conn_pool)
         .await
         {
-            Ok(vi) => Ok(vi),
+            Ok(vi) => Ok(vi.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
                 eprint!("Get variation info error: {e}");
                 Err(DbError::SqlQueryError(e.to_string()))
@@ -35,11 +36,11 @@ impl InnerDbState {
         );
         filter.add_filtered_query(&mut qb);
         match qb
-            .build_query_as::<VariationInfo>()
+            .build_query_as::<VariationInfoDb>()
             .fetch_all(&self.conn_pool)
             .await
         {
-            Ok(exprs) => Ok(exprs.into_iter().collect()),
+            Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
                 eprint!("Get Filtered Gene error: {e}");
                 Err(DbError::SqlQueryError(e.to_string()))
@@ -48,12 +49,13 @@ impl InnerDbState {
     }
 
     pub async fn insert_variation_info(&self, vi: &VariationInfo) -> Result<(), DbError> {
+        let chromosome = vi.chromosome.as_ref().map(|v| v.to_string());
         match sqlx::query!(
             "INSERT INTO variation_info (allele_name, chromosome, phys_loc, gen_loc)
             VALUES($1, $2, $3, $4)
             ",
             vi.allele_name,
-            vi.chromosome,
+            chromosome,
             vi.phys_loc,
             vi.gen_loc
         )
@@ -73,6 +75,7 @@ impl InnerDbState {
 mod test {
 
     use crate::dummy::testdata;
+    use crate::models::chromosome::Chromosome;
     use crate::models::filter::{Filter, FilterType};
     use crate::models::variation_info::{VariationFieldName, VariationInfo};
     use crate::InnerDbState;
@@ -117,7 +120,28 @@ mod test {
 
         let expected = VariationInfo {
             allele_name: "oxIs12".to_string(),
-            chromosome: Some("X".to_string()),
+            chromosome: Some(Chromosome::X),
+            phys_loc: None,
+            gen_loc: None,
+        };
+
+        state.insert_variation_info(&expected).await?;
+        let vis: Vec<VariationInfo> = state.get_variation_info().await?;
+
+        assert_eq!(vec![expected], vis);
+        Ok(())
+    }
+
+    #[sqlx::test]
+    async fn test_insert_variation_info_no_chromosome(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let vis: Vec<VariationInfo> = state.get_variation_info().await?;
+        assert_eq!(vis.len(), 0);
+
+        let expected = VariationInfo {
+            allele_name: "oxIs12_no_chrom".to_string(),
+            chromosome: None,
             phys_loc: None,
             gen_loc: None,
         };
