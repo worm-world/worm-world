@@ -10,18 +10,13 @@ export enum Sex {
   Hermaphrodite,
 }
 
-export const getSexIcon = (sex: Sex): string => {
-  let icon;
+export const getSexIconUrl = (sex: Sex): string => {
   switch (sex) {
     case Sex.Male:
-      icon = '♂';
-      break;
+      return 'male.svg';
     case Sex.Hermaphrodite:
-      icon = '⚥';
-      break;
+      return 'hermaphrodite.svg';
     case Sex.Female:
-      icon = '♀';
-      break;
+      return 'female.svg';
   }
-  return icon;
 };
