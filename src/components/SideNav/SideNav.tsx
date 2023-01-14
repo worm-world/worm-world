@@ -92,7 +92,7 @@ const SideNav = (props: SideNavProps): JSX.Element => {
         htmlFor='nav-drawer'
         className='drawer-overlay bg-transparent'
       ></label>
-      <div className='flex flex-col justify-between bg-base-200 border-r-4 border-r-base-300'>
+      <div className='flex flex-col justify-between border-r-4 border-r-base-300 bg-base-200'>
         <ul className='menu w-full'>
           <li key='wormworld'>
             <Link to={'/' as To}>
