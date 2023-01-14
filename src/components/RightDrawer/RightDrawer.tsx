@@ -47,6 +47,7 @@ const RightDrawer = (props: RightDrawerProps): ReactJSXElement => {
   return (
     <Drawer
       className={props.className}
+      style={{ width: drawerWidth, maxWidth: props.maxWidth }}
       sx={{
         width: drawerWidth,
         flexShrink: 0,
@@ -64,29 +65,22 @@ const RightDrawer = (props: RightDrawerProps): ReactJSXElement => {
       anchor='right'
       open={props.isOpen}
     >
-      <Box
-        className={`${styles.resizerThumb} ${
-          isDragging ? styles.resizerThumbDragging : ''
-        } `}
+      <div
+        className={`${styles.resizerThumb} ${isDragging ? styles.resizerThumbDragging : ''
+          } `}
         onMouseDown={() => setIsDragging(true)}
       />
-      <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <IconButton
+      <div className="flex flex-col w-full">
+        <div className='flex flex-row justify-end'>
+          <button
+            className='m-2'
             onClick={() => props.close()}
-            sx={{ border: 'none', boxShadow: 'none' }}
           >
             <CloseIcon></CloseIcon>
-          </IconButton>
-        </Box>
-        <Box className={styles.drawerContents}>{props.children}</Box>
-      </Box>
+          </button>
+        </div>
+        <div className={styles.drawerContents}>{props.children}</div>
+      </div>
     </Drawer>
   );
 };

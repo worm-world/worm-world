@@ -9,7 +9,6 @@ import { Table, ColumnDefinitionType } from 'components/Table/Table';
 import DataImportForm, {
   FieldType,
 } from 'components/DataImportForm/DataImportForm';
-import ToastInfo from 'components/ToastInfo/ToastInfo';
 
 export const cols: Array<ColumnDefinitionType<db_ExpressionRelation>> = [
   { key: 'alleleName', header: 'Allele Name' },
@@ -70,10 +69,10 @@ const DataPage = (): JSX.Element => {
       })
       .catch((e: Error) => {
         toast.error(
-          <ToastInfo
-            message='An error has occured when inserting data.'
-            moreInfo={JSON.stringify(e)}
-          />
+          'Unable to get expression relations: ' + JSON.stringify(e),
+          {
+            toastId: 'expression-relations',
+          }
         );
       });
   };

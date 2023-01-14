@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Button } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
 import SideNav from 'components/SideNav/SideNav';
@@ -25,24 +24,21 @@ const Layout = ({
 
   return (
     <main>
-      <SideNav drawerWidth={drawerWidth} isOpen={sideNavIsOpen} />
-      <div
-        style={sideNavIsOpen ? sideNavOpenStyles : sideNavClosedStyles}
-        data-testid='layout-menu'
-      >
-        <Button
-          style={{
-            paddingTop: '35px',
-            paddingBottom: '35px',
-            zIndex: 999,
-            boxShadow: 'none',
-            position: 'absolute',
-          }}
-          onClick={toggleNavbar}
-        >
-          <MenuIcon />
-        </Button>
-        {children}
+      <div className='drawer'>
+        <input id="nav-drawer" type="checkbox" className="drawer-toggle" checked={sideNavIsOpen}/>
+        <div className='drawer-content'>
+          <div
+            className='transition-[margin-left]'
+            style={sideNavIsOpen ? sideNavOpenStyles : sideNavClosedStyles}
+            data-testid='layout-menu'
+          >
+            <label className="absolute p-4 z-50 drawer-button" htmlFor="nav-drawer" onClick={() => setTimeout(toggleNavbar, 50)}>
+              <MenuIcon />
+            </label>
+            {children}
+          </div>
+        </div>
+        <SideNav drawerWidth={drawerWidth} isOpen={sideNavIsOpen} />
       </div>
     </main>
   );

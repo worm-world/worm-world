@@ -36,47 +36,55 @@ const SideNavItems: SideNavItem[] = [
   { name: 'Data Manager', path: 'data-manager/gene', icon: <Dataset /> },
 ];
 
-const navHeader = (): ReactJSXElement => {
-  return (
-    <Link to={'/' as To}>
-      <Typography variant='h4' align='center'>
-        <div className={styles.wormworld}>WormWorld</div>
-      </Typography>
-    </Link>
-  );
-};
-
 const getListItems = (): ReactJSXElement[] => {
   return SideNavItems.map((item) => (
-    <Link key={item.name as Key} to={item.path as To}>
-      <ListItem disablePadding>
-        <ListItemButton>
-          <ListItemIcon>{item.icon}</ListItemIcon>
-          <ListItemText primary={item.name} />
-        </ListItemButton>
-      </ListItem>
-    </Link>
+    <li>
+      <Link key={item.name as Key} to={item.path as To}>
+        {item.icon}
+        {item.name}
+      </Link>
+    </li>
   ));
 };
 
+// const SideNav = (props: SideNavProps): ReactJSXElement => {
+//   return (
+//     <Drawer
+//       sx={{
+//         width: props.drawerWidth,
+//         flexShrink: 0,
+//         '& .MuiDrawer-paper': {
+//           width: props.drawerWidth,
+//           boxSizing: 'border-box',
+//         },
+//       }}
+//       variant='persistent'
+//       anchor='left'
+//       open={props.isOpen}
+//     >
+//       {navHeader()}
+//       <ul className="menu bg-base-100 w-full">
+//         {getListItems()}
+//       </ul>
+//     </Drawer>
+//   );
+// };
+
 const SideNav = (props: SideNavProps): ReactJSXElement => {
   return (
-    <Drawer
-      sx={{
-        width: props.drawerWidth,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width: props.drawerWidth,
-          boxSizing: 'border-box',
-        },
-      }}
-      variant='persistent'
-      anchor='left'
-      open={props.isOpen}
-    >
-      {navHeader()}
-      <List>{getListItems()}</List>
-    </Drawer>
+    <div className='drawer-side' style={{ width: props.drawerWidth }}>
+      <label htmlFor="nav-drawer" className="drawer-overlay"></label>
+      <ul className="menu bg-base-100 w-full">
+        <li>
+          <Link to={'/' as To}>
+            <h4 className='text-4xl text-center'>
+              <div className={styles.wormworld}>WormWorld</div>
+            </h4>
+          </Link>
+        </li>
+        {getListItems()}
+      </ul>
+    </div>
   );
 };
 
