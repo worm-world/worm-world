@@ -1,18 +1,6 @@
 import { Link, To } from 'react-router-dom';
-import {
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemButton,
-  ListItemText,
-  Drawer,
-  Typography,
-} from '@mui/material';
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import EventNoteIcon from '@mui/icons-material/EventNote';
+import { BiShareAlt as AccountTreeIcon, BiCalendar as EventNoteIcon, BiData as Dataset  } from 'react-icons/bi';
 import { Key } from 'react';
-import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
-import { Dataset } from '@mui/icons-material';
 import styles from './sideNav.module.css';
 
 interface SideNavProps {
@@ -30,16 +18,16 @@ const SideNavItems: SideNavItem[] = [
   {
     name: 'Cross Designer',
     path: '/cross-designer',
-    icon: <AccountTreeIcon />,
+    icon: <AccountTreeIcon className='text-2xl'/>,
   },
-  { name: 'Scheduler', path: '/scheduler', icon: <EventNoteIcon /> },
-  { name: 'Data Manager', path: 'data-manager/gene', icon: <Dataset /> },
+  { name: 'Scheduler', path: '/scheduler', icon: <EventNoteIcon  className='text-2xl'/> },
+  { name: 'Data Manager', path: 'data-manager/gene', icon: <Dataset className='text-2xl'/> },
 ];
 
-const getListItems = (): ReactJSXElement[] => {
+const getListItems = (): JSX.Element[] => {
   return SideNavItems.map((item) => (
-    <li>
-      <Link key={item.name as Key} to={item.path as To}>
+    <li key={item.name as Key} >
+      <Link to={item.path as To} className='pl-5'>
         {item.icon}
         {item.name}
       </Link>
@@ -47,37 +35,14 @@ const getListItems = (): ReactJSXElement[] => {
   ));
 };
 
-// const SideNav = (props: SideNavProps): ReactJSXElement => {
-//   return (
-//     <Drawer
-//       sx={{
-//         width: props.drawerWidth,
-//         flexShrink: 0,
-//         '& .MuiDrawer-paper': {
-//           width: props.drawerWidth,
-//           boxSizing: 'border-box',
-//         },
-//       }}
-//       variant='persistent'
-//       anchor='left'
-//       open={props.isOpen}
-//     >
-//       {navHeader()}
-//       <ul className="menu bg-base-100 w-full">
-//         {getListItems()}
-//       </ul>
-//     </Drawer>
-//   );
-// };
-
-const SideNav = (props: SideNavProps): ReactJSXElement => {
+const SideNav = (props: SideNavProps): JSX.Element => {
   return (
     <div className='drawer-side' style={{ width: props.drawerWidth }}>
-      <label htmlFor="nav-drawer" className="drawer-overlay"></label>
-      <ul className="menu bg-base-100 w-full">
-        <li>
+      <label htmlFor="nav-drawer" className="drawer-overlay opacity-0"></label>
+      <ul className="menu w-full">
+        <li key="wormworld" >
           <Link to={'/' as To}>
-            <h4 className='text-4xl text-center'>
+            <h4 className='text-4xl pl-2 text-center'>
               <div className={styles.wormworld}>WormWorld</div>
             </h4>
           </Link>

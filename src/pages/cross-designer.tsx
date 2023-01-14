@@ -7,18 +7,24 @@ const CrossPage = (): JSX.Element => {
   const [rightDrawerOpen, setRightDrawerOpen] = React.useState(true);
 
   return (
-    <div className='h-screen flex flex-col'>
-      <TopNav title={'Cross Designer'}>
-        <span>New Cross</span>
-        <span>Open Cross</span>
-        <span>Export Cross</span>
-      </TopNav>
-      <div className='grow'>
-        <div className='pb-2 w-full h-full'>
-          <CrossFlow className={'border-b-2 p bg-zinc-50'} />
+    <div className='drawer drawer-end'>
+      <input id="right-cross-drawer" type="checkbox" className="drawer-toggle" defaultChecked checked={rightDrawerOpen}/>
+      <div className='drawer-content h-screen flex flex-col'>
+        <TopNav title={'Cross Designer'}>
+          <span key="new-cross">New Cross</span>
+          <span key="open-cross">Open Cross</span>
+          <span key="export-cross">Export Cross</span>
+        </TopNav>
+        <div className='grow'>
+          <div className='pb-2 w-full h-full'>
+            <CrossFlow className={''} />
+          </div>
         </div>
+      </div>
+      <div className={'drawer-side drawer-end h-full '}>
+        <label htmlFor="right-cross-drawer" className="drawer-overlay" onClick={() => setRightDrawerOpen(false)}></label>
         <RightDrawer
-          className={'shrink'}
+          // className={'shrink'}
           initialDrawerWidth={240}
           isOpen={rightDrawerOpen}
           maxWidth={400}

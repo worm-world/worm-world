@@ -17,6 +17,15 @@ export const empty: CrossNodeModel = {
   parents: [],
 };
 
+export const emptyMale: CrossNodeModel = {
+  sex: Sex.Male,
+  strain: { name: 'empty', notes: '', alleles: [] },
+  genes: [],
+  variations: [],
+  isSelected: false,
+  parents: [],
+};
+
 // Wild Cross Node ///////////////////////////////////////////////////////////
 
 export const wild: CrossNodeModel = {

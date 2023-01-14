@@ -22,7 +22,7 @@ const initialNodes: Array<Node<JSX.Element>> = [
     id: 'node1',
     type: 'flowWrapper', // This is the type of our custom node
     position: { x: -150, y: -100 },
-    data: <CrossNode model={mock.empty}></CrossNode>, // data = children for flowWrapper
+    data: <CrossNode model={mock.emptyMale}></CrossNode>, // data = children for flowWrapper
     connectable: true,
   },
   {

@@ -1,8 +1,6 @@
-import { Drawer, Box, IconButton } from '@mui/material';
-import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
 import styles from './RightDrawer.module.css';
 import React, { useState } from 'react';
-import CloseIcon from '@mui/icons-material/Close';
+import { BiX as CloseIcon } from 'react-icons/bi';
 
 export interface RightDrawerProps {
   className?: string;
@@ -14,7 +12,7 @@ export interface RightDrawerProps {
   children?: JSX.Element | JSX.Element[];
 }
 
-const RightDrawer = (props: RightDrawerProps): ReactJSXElement => {
+const RightDrawer = (props: RightDrawerProps): JSX.Element => {
   const [isDragging, setIsDragging] = useState(false);
   const [drawerWidth, setDrawerWidth] = useState(props.initialDrawerWidth);
   const [mousePosition, setMousePosition] = React.useState<{
@@ -45,43 +43,28 @@ const RightDrawer = (props: RightDrawerProps): ReactJSXElement => {
   }, [isDragging]);
 
   return (
-    <Drawer
-      className={props.className}
-      style={{ width: drawerWidth, maxWidth: props.maxWidth }}
-      sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width: drawerWidth,
-          boxSizing: 'border-box',
-          display: 'flex',
-          flexDirection: 'row',
-          minWidth: 'fit-content',
-          maxWidth: props.maxWidth,
-          backgroundColor: props.backgroundColor,
-        },
-      }}
-      variant='persistent'
-      anchor='right'
-      open={props.isOpen}
+
+    <div
+      className={"flex flex-row bg-base-100 " + props.className}
+      style={{ width: drawerWidth, minWidth: 'fit-content', maxWidth: props.maxWidth }}
     >
       <div
         className={`${styles.resizerThumb} ${isDragging ? styles.resizerThumbDragging : ''
           } `}
         onMouseDown={() => setIsDragging(true)}
       />
-      <div className="flex flex-col w-full">
+      <div className="flex flex-col w-full justify-start">
         <div className='flex flex-row justify-end'>
           <button
             className='m-2'
             onClick={() => props.close()}
           >
-            <CloseIcon></CloseIcon>
+            <CloseIcon className='pr-2 text-3xl'/>
           </button>
         </div>
         <div className={styles.drawerContents}>{props.children}</div>
       </div>
-    </Drawer>
+    </div>
   );
 };
 

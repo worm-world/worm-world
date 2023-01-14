@@ -1,7 +1,4 @@
-import Tabs from '@mui/material/Tabs';
-import { x } from '@tauri-apps/api/path-e12e0e34';
 import * as React from 'react';
-import styles from './TopNav.module.css';
 interface iTopNavInputProps {
   title: string;
   children?: JSX.Element[];
@@ -23,9 +20,8 @@ export function TopNav(props: iTopNavInputProps): JSX.Element {
     <div className="bg-base-200 flex pt-4 pb-4 flex-row justify-left">
       <h1 className="text-base-content pl-24 text-3xl">{props.title}</h1>
       <div className="pl-10 flex flex-col justify-end">
-        {/* <Tabs value={getTabId} onChange={handleTabChange}> */}
-        <div className="tabs">
-          {props.children?.map(item => <div className='tab'>{item}</div>)}
+        <div className="tabs" role="tablist" aria-label="Tabs">
+          {props.children?.map(item => <div className='tab' key={item.key}>{item}</div>)}
         </div>
       </div>
     </div>
