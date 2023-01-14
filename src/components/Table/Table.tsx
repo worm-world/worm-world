@@ -20,7 +20,7 @@ const TableHeader = <T,>({ columns }: TableHeaderProps<T>): JSX.Element => {
     return (
       <th
         key={`headCell-${index}`}
-        className='text-2xl font-normal border-2 bg-primary text-primary-content border-base-content px-2 py-1 shadow-md'
+        className='border-2 border-base-content bg-primary px-2 py-1 text-2xl font-normal text-primary-content shadow-md'
       >
         {column.header}
       </th>

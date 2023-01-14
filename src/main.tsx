@@ -14,7 +14,7 @@ const App: FC = () => {
     <>
       <Suspense
         fallback={
-          <p className='w-full pt-50 text-center text-5xl'>Loading...</p>
+          <p className='pt-50 w-full text-center text-5xl'>Loading...</p>
         }
       >
         <Layout>{useRoutes(routes)}</Layout>

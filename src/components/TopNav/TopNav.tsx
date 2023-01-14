@@ -17,9 +17,9 @@ export function TopNav(props: iTopNavInputProps): JSX.Element {
   };
 
   return (
-    <div className='bg-base-200 flex pt-4 pb-4 flex-row justify-left'>
-      <h1 className='text-base-content pl-24 text-3xl'>{props.title}</h1>
-      <div className='pl-10 flex flex-col justify-end'>
+    <div className='justify-left flex flex-row bg-base-200 pt-4 pb-4 border-b-4 border-b-base-300'>
+      <h1 className='pl-24 text-3xl text-base-content'>{props.title}</h1>
+      <div className='flex flex-col justify-end pl-10'>
         <div className='tabs' role='tablist' aria-label='Tabs'>
           {props.children?.map((item) => (
             <div className='tab' key={item.key}>

@@ -15,14 +15,14 @@ const CrossPage = (): JSX.Element => {
         defaultChecked
         checked={rightDrawerOpen}
       />
-      <div className='drawer-content h-screen flex flex-col'>
+      <div className='drawer-content flex h-screen flex-col'>
         <TopNav title={'Cross Designer'}>
           <span key='new-cross'>New Cross</span>
           <span key='open-cross'>Open Cross</span>
           <span key='export-cross'>Export Cross</span>
         </TopNav>
         <div className='grow'>
-          <div className='pb-2 w-full h-full'>
+          <div className='h-full w-full'>
             <CrossFlow className={''} />
           </div>
         </div>

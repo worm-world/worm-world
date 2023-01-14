@@ -47,7 +47,7 @@ const Fields = <T,>(props: iFieldsProps<T>): JSX.Element => {
                 <span className='label-text'>{field.title}</span>
               </label>
               <select
-                className='select select-bordered w-full max-w-xs'
+                className='select-bordered select w-full max-w-xs'
                 key={'key-' + field.name.toString()}
                 name={field.name.toString()}
               >
@@ -69,7 +69,7 @@ const Fields = <T,>(props: iFieldsProps<T>): JSX.Element => {
               </label>
               <input
                 type='text'
-                className='input input-bordered w-full max-w-xs'
+                className='input-bordered input w-full max-w-xs'
                 key={'key-' + field.name.toString()}
                 name={field.name.toString()}
               />
@@ -141,7 +141,7 @@ const DataImportForm = <T,>(props: iDataImportFormProps<T>): JSX.Element => {
           <form onSubmit={handleSubmit}>
             <Fields fieldList={props.fields}></Fields>
             <hr className='my-8' />
-            <div className='flex flex-row justify-center w-full'>
+            <div className='flex w-full flex-row justify-center'>
               <label htmlFor={'add-new-' + props.dataName} className='btn'>
                 <input
                   type='submit'

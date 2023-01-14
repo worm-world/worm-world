@@ -3,13 +3,14 @@ import { BiMenu as MenuIcon } from 'react-icons/bi';
 import SideNav from 'components/SideNav/SideNav';
 
 const drawerWidth = 240;
+const drawerWidthAdjusted = drawerWidth - 8;
 
 const Layout = ({ children }: { children: React.ReactNode }): JSX.Element => {
   const [sideNavIsOpen, setsideNavIsOpen] = useState<boolean>(true);
 
   const sideNavOpenStyles = {
     height: '100%',
-    marginLeft: drawerWidth,
+    marginLeft: drawerWidthAdjusted,
   };
   const sideNavClosedStyles = {
     height: '100%',
@@ -34,7 +35,7 @@ const Layout = ({ children }: { children: React.ReactNode }): JSX.Element => {
             data-testid='layout-menu'
           >
             <label
-              className='absolute p-4 z-50 drawer-button'
+              className='drawer-button absolute z-50 p-4'
               htmlFor='nav-drawer'
               onClick={() => setTimeout(toggleNavbar, 50)}
             >

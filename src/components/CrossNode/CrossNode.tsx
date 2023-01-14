@@ -30,7 +30,7 @@ const CrossNode = (props: CrossNodeProps): JSX.Element => {
   return (
     <div
       className={
-        'bg-base-100 w-64 h-28 rounded shadow' +
+        'h-28 w-64 rounded bg-base-100 shadow' +
         (props.model.isSelected ? ' border border-primary' : '')
       }
     >

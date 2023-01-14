@@ -87,16 +87,16 @@ const SideNav = (props: SideNavProps): JSX.Element => {
   }, []);
 
   return (
-    <div className='drawer-side' style={{ width: props.drawerWidth }}>
+    <div className={'drawer-side'} style={{ width: props.drawerWidth }}>
       <label
         htmlFor='nav-drawer'
-        className='drawer-overlay opacity-0 bg-transparent'
+        className='drawer-overlay bg-transparent'
       ></label>
-      <div className='flex flex-col justify-between'>
+      <div className='flex flex-col justify-between bg-base-200 border-r-4 border-r-base-300'>
         <ul className='menu w-full'>
           <li key='wormworld'>
             <Link to={'/' as To}>
-              <h4 className='text-4xl pl-2 text-center'>
+              <h4 className='pl-2 text-center text-4xl'>
                 <div className={styles.wormworld}>WormWorld</div>
               </h4>
             </Link>
@@ -105,7 +105,7 @@ const SideNav = (props: SideNavProps): JSX.Element => {
         </ul>
         <div className='pb-5 pl-5'>
           <label className='label'>Theme</label>
-          <select className='select select-bordered' data-choose-theme>
+          <select className='select-bordered select' data-choose-theme>
             {allThemes.map((theme) => (
               <option key={theme} value={theme}>
                 {theme}
