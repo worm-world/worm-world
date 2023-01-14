@@ -43,23 +43,24 @@ const RightDrawer = (props: RightDrawerProps): JSX.Element => {
   }, [isDragging]);
 
   return (
-
     <div
-      className={"flex flex-row bg-base-100 " + props.className}
-      style={{ width: drawerWidth, minWidth: 'fit-content', maxWidth: props.maxWidth }}
+      className={'flex flex-row bg-base-100 ' + (props.className ?? '')}
+      style={{
+        width: drawerWidth,
+        minWidth: 'fit-content',
+        maxWidth: props.maxWidth,
+      }}
     >
       <div
-        className={`${styles.resizerThumb} ${isDragging ? styles.resizerThumbDragging : ''
-          } `}
+        className={`${styles.resizerThumb} ${
+          isDragging ? styles.resizerThumbDragging : ''
+        } `}
         onMouseDown={() => setIsDragging(true)}
       />
-      <div className="flex flex-col w-full justify-start">
+      <div className='flex flex-col w-full justify-start'>
         <div className='flex flex-row justify-end'>
-          <button
-            className='m-2'
-            onClick={() => props.close()}
-          >
-            <CloseIcon className='pr-2 text-3xl'/>
+          <button className='m-2' onClick={() => props.close()}>
+            <CloseIcon className='pr-2 text-3xl' />
           </button>
         </div>
         <div className={styles.drawerContents}>{props.children}</div>

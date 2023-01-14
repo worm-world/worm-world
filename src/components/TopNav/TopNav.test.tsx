@@ -3,13 +3,11 @@ import { TopNav } from './TopNav';
 
 const renderComponent = ({ title = 'test', tabIndex = 0 }): void => {
   const tabNames = ['tab1', 'tab2', 'tab3'];
-  const children = tabNames.map((name) => <div role="tab" className="tab" key={name} />);
+  const children = tabNames.map((name) => (
+    <div role='tab' className='tab' key={name} />
+  ));
 
-  render(
-    <TopNav title={title}>
-      {children}
-    </TopNav>
-  );
+  render(<TopNav title={title}>{children}</TopNav>);
 };
 
 describe('TopNav', () => {

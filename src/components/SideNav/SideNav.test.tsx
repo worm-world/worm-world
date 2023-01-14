@@ -50,14 +50,21 @@ import { BrowserRouter } from 'react-router-dom';
  */
 const renderComponent = ({ isOpen = true, drawerWidth = 100 }): void => {
   render(
-    <div className="drawer">
-      <input id="my-drawer" type="checkbox" className="drawer-toggle" defaultChecked checked={isOpen} />
-      <div className="drawer-content">foo</div>
+    <div className='drawer'>
+      <input
+        id='my-drawer'
+        type='checkbox'
+        className='drawer-toggle'
+        defaultChecked
+        checked={isOpen}
+      />
+      <div className='drawer-content'>foo</div>
       <SideNav drawerWidth={drawerWidth} isOpen={isOpen} />
-    </div>
-    , {
+    </div>,
+    {
       wrapper: BrowserRouter, // Need this wrapper since the component uses the react router
-    });
+    }
+  );
 };
 
 // Describe sets up a testing "suite" for all the nested tests. You can have nested describe statements

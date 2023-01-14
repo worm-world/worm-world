@@ -1,7 +1,12 @@
 import { Link, To } from 'react-router-dom';
-import { BiShareAlt as AccountTreeIcon, BiCalendar as EventNoteIcon, BiData as Dataset  } from 'react-icons/bi';
-import { Key } from 'react';
+import {
+  BiShareAlt as AccountTreeIcon,
+  BiCalendar as EventNoteIcon,
+  BiData as Dataset,
+} from 'react-icons/bi';
+import { Key, useEffect } from 'react';
 import styles from './sideNav.module.css';
+import { themeChange } from 'theme-change';
 
 interface SideNavProps {
   isOpen: boolean;
@@ -18,15 +23,23 @@ const SideNavItems: SideNavItem[] = [
   {
     name: 'Cross Designer',
     path: '/cross-designer',
-    icon: <AccountTreeIcon className='text-2xl'/>,
+    icon: <AccountTreeIcon className='text-2xl' />,
   },
-  { name: 'Scheduler', path: '/scheduler', icon: <EventNoteIcon  className='text-2xl'/> },
-  { name: 'Data Manager', path: 'data-manager/gene', icon: <Dataset className='text-2xl'/> },
+  {
+    name: 'Scheduler',
+    path: '/scheduler',
+    icon: <EventNoteIcon className='text-2xl' />,
+  },
+  {
+    name: 'Data Manager',
+    path: 'data-manager/gene',
+    icon: <Dataset className='text-2xl' />,
+  },
 ];
 
 const getListItems = (): JSX.Element[] => {
   return SideNavItems.map((item) => (
-    <li key={item.name as Key} >
+    <li key={item.name as Key}>
       <Link to={item.path as To} className='pl-5'>
         {item.icon}
         {item.name}
@@ -35,20 +48,72 @@ const getListItems = (): JSX.Element[] => {
   ));
 };
 
+const allThemes = [
+  'light',
+  'dark',
+  'cupcake',
+  'bumblebee',
+  'emerald',
+  'corporate',
+  'synthwave',
+  'retro',
+  'cyberpunk',
+  'valentine',
+  'halloween',
+  'garden',
+  'forest',
+  'aqua',
+  'lofi',
+  'pastel',
+  'fantasy',
+  'wireframe',
+  'black',
+  'luxury',
+  'dracula',
+  'cmyk',
+  'autumn',
+  'business',
+  'acid',
+  'lemonade',
+  'night',
+  'coffee',
+  'winter',
+];
+
 const SideNav = (props: SideNavProps): JSX.Element => {
+  useEffect(() => {
+    themeChange(false);
+    // 👆 false parameter is required for react project
+  }, []);
+
   return (
     <div className='drawer-side' style={{ width: props.drawerWidth }}>
-      <label htmlFor="nav-drawer" className="drawer-overlay opacity-0"></label>
-      <ul className="menu w-full">
-        <li key="wormworld" >
-          <Link to={'/' as To}>
-            <h4 className='text-4xl pl-2 text-center'>
-              <div className={styles.wormworld}>WormWorld</div>
-            </h4>
-          </Link>
-        </li>
-        {getListItems()}
-      </ul>
+      <label
+        htmlFor='nav-drawer'
+        className='drawer-overlay opacity-0 bg-transparent'
+      ></label>
+      <div className='flex flex-col justify-between'>
+        <ul className='menu w-full'>
+          <li key='wormworld'>
+            <Link to={'/' as To}>
+              <h4 className='text-4xl pl-2 text-center'>
+                <div className={styles.wormworld}>WormWorld</div>
+              </h4>
+            </Link>
+          </li>
+          {getListItems()}
+        </ul>
+        <div className='pb-5 pl-5'>
+          <label className='label'>Theme</label>
+          <select className='select select-bordered' data-choose-theme>
+            {allThemes.map((theme) => (
+              <option key={theme} value={theme}>
+                {theme}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
     </div>
   );
 };

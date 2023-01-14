@@ -4,11 +4,7 @@ import SideNav from 'components/SideNav/SideNav';
 
 const drawerWidth = 240;
 
-const Layout = ({
-  children,
-}: {
-  children: React.ReactNode;
-}): JSX.Element => {
+const Layout = ({ children }: { children: React.ReactNode }): JSX.Element => {
   const [sideNavIsOpen, setsideNavIsOpen] = useState<boolean>(true);
 
   const sideNavOpenStyles = {
@@ -24,16 +20,26 @@ const Layout = ({
   return (
     <main>
       <div className='drawer'>
-        <input id="nav-drawer" type="checkbox" className="drawer-toggle" defaultChecked/>
+        <input
+          id='nav-drawer'
+          type='checkbox'
+          className='drawer-toggle'
+          defaultChecked
+          checked={sideNavIsOpen}
+        />
         <div className='drawer-content'>
           <div
             className='transition-[margin-left]'
             style={sideNavIsOpen ? sideNavOpenStyles : sideNavClosedStyles}
             data-testid='layout-menu'
           >
-            <label className="absolute p-4 z-50 drawer-button" htmlFor="nav-drawer" onClick={() => setTimeout(toggleNavbar, 50)}>
+            <label
+              className='absolute p-4 z-50 drawer-button'
+              htmlFor='nav-drawer'
+              onClick={() => setTimeout(toggleNavbar, 50)}
+            >
               <button>
-                <MenuIcon className='text-2xl'/>
+                <MenuIcon className='text-2xl' />
               </button>
             </label>
             {children}

@@ -28,7 +28,8 @@
     "react-icons": "^4.7.1",
     "react-router-dom": "^6.4.3",
     "react-toastify": "^9.1.1",
-    "reactflow": "^11.4.2"
+    "reactflow": "^11.4.2",
+    "theme-change": "^2.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.2",

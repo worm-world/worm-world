@@ -6,13 +6,27 @@ const Import = (): JSX.Element => {
   return (
     <div className='data-manager'>
       <TopNav title={'Data Manager'} tabIndex={false}>
-        <Link to="gene" className='tab'>Gene</Link>
-        <Link to="variation" className='tab'>Variation</Link>
-        <Link to="allele" className='tab'>Allele</Link>
-        <Link to="phenotype"className='tab'>Phenotype</Link>
-        <Link to="condition" className='tab'>Condition</Link>
-        <Link to="allele-expression" className='tab'>Allele Expression</Link>
-        <Link to="expression-relation" className='tab'>Expression Relation</Link>
+        <Link to='gene' className='tab'>
+          Gene
+        </Link>
+        <Link to='variation' className='tab'>
+          Variation
+        </Link>
+        <Link to='allele' className='tab'>
+          Allele
+        </Link>
+        <Link to='phenotype' className='tab'>
+          Phenotype
+        </Link>
+        <Link to='condition' className='tab'>
+          Condition
+        </Link>
+        <Link to='allele-expression' className='tab'>
+          Allele Expression
+        </Link>
+        <Link to='expression-relation' className='tab'>
+          Expression Relation
+        </Link>
 
         {/* <Tab label='Gene' component={Link} to='gene' />
         <Tab label='Variation' component={Link} to='variation' />

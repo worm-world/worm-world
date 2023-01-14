@@ -8,12 +8,18 @@ const CrossPage = (): JSX.Element => {
 
   return (
     <div className='drawer drawer-end'>
-      <input id="right-cross-drawer" type="checkbox" className="drawer-toggle" defaultChecked checked={rightDrawerOpen}/>
+      <input
+        id='right-cross-drawer'
+        type='checkbox'
+        className='drawer-toggle'
+        defaultChecked
+        checked={rightDrawerOpen}
+      />
       <div className='drawer-content h-screen flex flex-col'>
         <TopNav title={'Cross Designer'}>
-          <span key="new-cross">New Cross</span>
-          <span key="open-cross">Open Cross</span>
-          <span key="export-cross">Export Cross</span>
+          <span key='new-cross'>New Cross</span>
+          <span key='open-cross'>Open Cross</span>
+          <span key='export-cross'>Export Cross</span>
         </TopNav>
         <div className='grow'>
           <div className='pb-2 w-full h-full'>
@@ -22,15 +28,18 @@ const CrossPage = (): JSX.Element => {
         </div>
       </div>
       <div className={'drawer-side drawer-end h-full '}>
-        <label htmlFor="right-cross-drawer" className="drawer-overlay" onClick={() => setRightDrawerOpen(false)}></label>
+        <label
+          htmlFor='right-cross-drawer'
+          className='drawer-overlay'
+          onClick={() => setRightDrawerOpen(false)}
+        ></label>
         <RightDrawer
           // className={'shrink'}
           initialDrawerWidth={240}
           isOpen={rightDrawerOpen}
           maxWidth={400}
           close={() => setRightDrawerOpen(false)}
-        >
-        </RightDrawer>
+        ></RightDrawer>
       </div>
     </div>
   );

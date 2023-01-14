@@ -2,7 +2,7 @@ import styles from 'components/crossNode/CrossNode.module.css';
 import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import { BiDotsHorizontalRounded as MoreHorizIcon } from 'react-icons/bi';
 import { Sex } from 'models/enums';
-import {IoMale, IoFemale, IoMaleFemale} from 'react-icons/io5';
+import { IoMale, IoFemale, IoMaleFemale } from 'react-icons/io5';
 import { Allele } from 'models/frontend/Allele/Allele';
 import {
   Genotype,
@@ -17,23 +17,28 @@ export interface CrossNodeProps {
 const getSexIcon = (sex: Sex, className: string): JSX.Element => {
   switch (sex) {
     case Sex.Male:
-      return <IoMale className={className}/>;
+      return <IoMale className={className} />;
     case Sex.Hermaphrodite:
-      return <IoMaleFemale className={className}/>;
+      return <IoMaleFemale className={className} />;
     case Sex.Female:
-      return <IoFemale className={className}/>;
+      return <IoFemale className={className} />;
   }
-}
+};
 
 const CrossNode = (props: CrossNodeProps): JSX.Element => {
   const genotype = getGenotype(props.model);
   return (
-    <div className={"bg-base-100 w-64 h-28 rounded shadow" + (props.model.isSelected ? " border border-primary" : "")}>
+    <div
+      className={
+        'bg-base-100 w-64 h-28 rounded shadow' +
+        (props.model.isSelected ? ' border border-primary' : '')
+      }
+    >
       <div className={styles.crossNodeHeader}>
         {getSexIcon(props.model.sex, 'pt-1 pl-1 text-2xl')}
-        <label htmlFor="right-cross-drawer" className="drawer-button pr-2">
+        <label htmlFor='right-cross-drawer' className='drawer-button pr-2'>
           <button>
-          <MoreHorizIcon />
+            <MoreHorizIcon />
           </button>
         </label>
       </div>

@@ -1,4 +1,3 @@
-
 export enum Dominance {
   Recessive,
   SemiDominant,

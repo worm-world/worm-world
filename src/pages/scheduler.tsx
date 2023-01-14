@@ -5,16 +5,8 @@ const Todo = (): JSX.Element => {
   return (
     <div>
       <TopNav title={'Scheduler'} tabIndex={1}>
-        <Link
-          to='single-cross-view'
-        >
-          View Single Cross
-        </Link>
-        <Link
-          to='todo'
-        >
-          ToDo
-        </Link>
+        <Link to='single-cross-view'>View Single Cross</Link>
+        <Link to='todo'>ToDo</Link>
       </TopNav>
       <div className='px-6 pt-2'>
         <Outlet />
