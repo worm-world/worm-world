@@ -83,6 +83,7 @@ mod test {
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
 
+    /* #region get_variation tests */
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_variation_info(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -91,7 +92,9 @@ mod test {
         assert_eq!(vis, testdata::get_variation_info());
         Ok(())
     }
+    /* #endregion */
 
+    /* #region get_filtered_variation tests */
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_filtered_variation_info(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -111,6 +114,24 @@ mod test {
         Ok(())
     }
 
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_variation_gen_loc_range(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let filter = Filter::<VariationFieldName> {
+            filters: vec![vec![(
+                VariationFieldName::GenLoc,
+                FilterType::Range("-1.46".to_string(), false, "4.72".to_string(), true),
+            )]],
+            order_by: vec![VariationFieldName::AlleleName],
+        };
+        let exprs = state.get_filtered_variation_info(&filter).await?;
+
+        assert_eq!(exprs, testdata::get_filtered_variation_gen_loc_range());
+        Ok(())
+    }
+    /* #endregion */
+
+    /* #region insert_variation tests */
     #[sqlx::test]
     async fn test_insert_variation_info(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -152,4 +173,5 @@ mod test {
         assert_eq!(vec![expected], vis);
         Ok(())
     }
+    /* #endregion */
 }

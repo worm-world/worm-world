@@ -146,6 +146,7 @@ mod test {
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
 
+    /* #region get_conditions test */
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_conditions(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -155,7 +156,9 @@ mod test {
         assert_eq!(conds, expected_conds);
         Ok(())
     }
+    /* #endregion */
 
+    /* #region get_filtered_conditions tests */
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_filtered_conditions(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -173,6 +176,28 @@ mod test {
         Ok(())
     }
 
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_conditions_not_3_maturation_days(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_conditions(&Filter::<ConditionFieldName> {
+                filters: vec![vec![(
+                    ConditionFieldName::MaturationDays,
+                    FilterType::NotEqual("3".to_owned()),
+                )]],
+                order_by: vec![ConditionFieldName::Name],
+            })
+            .await?;
+
+        assert_eq!(
+            exprs,
+            testdata::get_filtered_conditions_not_3_maturation_days()
+        );
+        Ok(())
+    }
+    /* endregion get_filtered_conditions tests */
+
+    /* #region get_altering_conditions test */
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_altering_conditions(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -209,7 +234,9 @@ mod test {
         assert_eq!(conditions, testdata::get_altering_conditions());
         Ok(())
     }
+    /* #endregion get_altering_conditions tests */
 
+    /* #region insert_condition tests */
     #[sqlx::test]
     async fn test_insert_condition(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -232,4 +259,5 @@ mod test {
         assert_eq!(vec![expected], conds);
         Ok(())
     }
+    /* #endregion */
 }

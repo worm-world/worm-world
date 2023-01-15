@@ -85,6 +85,7 @@ mod test {
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
 
+    /* #region get_genes tests */
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_genes(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -95,17 +96,22 @@ mod test {
         assert_eq!(genes, testdata::get_genes());
         Ok(())
     }
+    /* #endregion */
 
+    /* #region get_filtered_genes tests */
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_filtered_genes(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_genes(&Filter::<GeneFieldName> {
                 filters: vec![
-                    vec![(GeneFieldName::Chromosome, FilterType::Equal("X".to_owned()))],
                     vec![(
                         GeneFieldName::Chromosome,
-                        FilterType::Equal("IV".to_owned()),
+                        FilterType::Equal("X".to_string()),
+                    )],
+                    vec![(
+                        GeneFieldName::Chromosome,
+                        FilterType::Equal("IV".to_string()),
                     )],
                 ],
                 order_by: vec![GeneFieldName::DescName],
@@ -116,6 +122,82 @@ mod test {
         Ok(())
     }
 
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_genes_alternate_ordering(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_genes(&Filter::<GeneFieldName> {
+                filters: vec![
+                    vec![(
+                        GeneFieldName::Chromosome,
+                        FilterType::Equal("X".to_string()),
+                    )],
+                    vec![(
+                        GeneFieldName::Chromosome,
+                        FilterType::Equal("IV".to_string()),
+                    )],
+                ],
+                order_by: vec![GeneFieldName::SysName],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::get_filtered_genes_alternate_ordering());
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_genes_and_clause(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_genes(&Filter::<GeneFieldName> {
+                filters: vec![vec![
+                    (
+                        GeneFieldName::Chromosome,
+                        FilterType::Equal("X".to_string()),
+                    ),
+                    (
+                        GeneFieldName::PhysLoc,
+                        FilterType::Equal("7682896".to_string()),
+                    ),
+                ]],
+                order_by: vec![],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::get_filtered_genes_and_clause());
+        Ok(())
+    }
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_genes_and_with_or_clause(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_genes(&Filter::<GeneFieldName> {
+                filters: vec![
+                    vec![
+                        (
+                            GeneFieldName::Chromosome,
+                            FilterType::Equal("X".to_string()),
+                        ),
+                        (
+                            GeneFieldName::PhysLoc,
+                            FilterType::Equal("7682896".to_string()),
+                        ),
+                    ],
+                    vec![(
+                        GeneFieldName::GeneticLoc,
+                        FilterType::GreaterThan("5".to_string(), true),
+                    )],
+                ],
+                order_by: vec![GeneFieldName::DescName],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::get_filtered_genes_and_or_clause());
+        Ok(())
+    }
+    /* #endregion */
+
+    /* #region insert_gene tests */
     #[sqlx::test]
     async fn test_insert_gene(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -159,4 +241,5 @@ mod test {
         assert_eq!(vec![expected], genes);
         Ok(())
     }
+    /* #endregion */
 }

@@ -155,6 +155,7 @@ mod test {
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
 
+    /* #region get_phenotype tests */
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_phenotypes(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -164,7 +165,9 @@ mod test {
         assert_eq!(phens, expected_phens);
         Ok(())
     }
+    /* #endregion */
 
+    /* #region get_filtered_phenotypes tests */
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_filtered_phenotypes(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -185,6 +188,25 @@ mod test {
         Ok(())
     }
 
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_phenotypes_maturation_less_equal_3(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_phenotypes(&Filter::<PhenotypeFieldName> {
+                filters: vec![vec![(
+                    PhenotypeFieldName::MaturationDays,
+                    FilterType::LessThan("3".to_owned(), true),
+                )]],
+                order_by: vec![PhenotypeFieldName::Name],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::get_phenotypes_maturation_less_equal_3());
+        Ok(())
+    }
+    /* #endregion */
+
+    /* #region get_altering_phenotypes tests */
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_altering_phenotypes(pool: Pool<Sqlite>) -> Result<()> {
         let expr_relation_filter = Filter::<ExpressionRelationFieldName> {
@@ -228,7 +250,9 @@ mod test {
         assert_eq!(exprs, testdata::get_altering_phenotypes());
         Ok(())
     }
+    /* #endregion */
 
+    /* #region insert_phenotype tests */
     #[sqlx::test]
     async fn test_insert_phenotype(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -253,4 +277,5 @@ mod test {
         assert_eq!(vec![expected], phens);
         Ok(())
     }
+    /* #endregion */
 }

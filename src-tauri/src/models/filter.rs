@@ -157,7 +157,7 @@ impl<T: FieldNameEnum> FilterQueryBuilder for Filter<T> {
             qb.push(" ORDER BY ");
             let mut qb_separated = qb.separated(", ");
             for order_field in self.order_by.iter() {
-                qb_separated.push(order_field.get_col_name());
+                qb_separated.push(format!("{} COLLATE NOCASE", order_field.get_col_name()));
             }
             qb_separated.push_unseparated(" ");
         }
