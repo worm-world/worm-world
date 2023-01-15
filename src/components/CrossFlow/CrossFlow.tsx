@@ -22,7 +22,7 @@ const initialNodes: Array<Node<JSX.Element>> = [
     id: 'node1',
     type: 'flowWrapper', // This is the type of our custom node
     position: { x: -150, y: -100 },
-    data: <CrossNode model={mock.empty}></CrossNode>, // data = children for flowWrapper
+    data: <CrossNode model={mock.emptyMale}></CrossNode>, // data = children for flowWrapper
     connectable: true,
   },
   {
@@ -102,9 +102,13 @@ const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
       onConnect={onConnect}
       defaultViewport={{ x: 0, y: 0, zoom: 5 }}
     >
-      <Controls position='top-left' />
-      <MiniMap position='bottom-left' />
-      <Background className='-z-50' color='gray' size={1} gap={16} />
+      <Controls position='top-left' className='bg-base-100' />
+      <MiniMap
+        position='bottom-left'
+        className='bg-base-100'
+        nodeClassName='bg-base-100'
+      />
+      <Background className='-z-50 bg-base-300' size={1} gap={16} />
     </ReactFlow>
   );
 };

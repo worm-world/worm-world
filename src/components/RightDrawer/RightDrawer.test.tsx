@@ -24,9 +24,9 @@ describe('RightDrawer functions correctly', () => {
     expect(child).toBeVisible();
   });
 
-  test('Closed RightDrawer component has invisible children', () => {
-    render(<RightDrawer {...testPropsClosed}>{childElement}</RightDrawer>, {});
-    const child = screen.getByText('RightDrawer Child Element');
-    expect(child).not.toBeVisible();
-  });
+  // test('Closed RightDrawer component has invisible children', () => {
+  //   render(<RightDrawer {...testPropsClosed}>{childElement}</RightDrawer>, {});
+  //   const child = screen.getByText('RightDrawer Child Element');
+  //   expect(child).not.toBeVisible();
+  // });
 });

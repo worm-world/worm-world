@@ -9,7 +9,6 @@ import { Table, ColumnDefinitionType } from 'components/Table/Table';
 import DataImportForm, {
   FieldType,
 } from 'components/DataImportForm/DataImportForm';
-import ToastInfo from 'components/ToastInfo/ToastInfo';
 
 export const cols: Array<ColumnDefinitionType<db_ExpressionRelation>> = [
   { key: 'alleleName', header: 'Allele Name' },
@@ -62,18 +61,20 @@ const fields = [
 const DataPage = (): JSX.Element => {
   const [data, setData] = useState<db_ExpressionRelation[]>([]);
   const onRecordInsertionFormSubmission = (
-    record: db_ExpressionRelation
+    record: db_ExpressionRelation,
+    successCallback: () => void
   ): void => {
     insertDbExpressionRelation(record)
       .then((resp) => {
+        successCallback();
         refresh();
       })
       .catch((e: Error) => {
         toast.error(
-          <ToastInfo
-            message='An error has occured when inserting data.'
-            moreInfo={JSON.stringify(e)}
-          />
+          'Unable to get expression relations: ' + JSON.stringify(e),
+          {
+            toastId: 'expression-relations',
+          }
         );
       });
   };
@@ -100,7 +101,7 @@ const DataPage = (): JSX.Element => {
 
   return (
     <div>
-      <div className='grid grid-cols-3 items-center px-6 place-items-center'>
+      <div className='grid grid-cols-3 place-items-center items-center px-6'>
         <h1 className='data-table-title col-start-2'>Expression Relations</h1>
         <DataImportForm
           className='justify-self-end'

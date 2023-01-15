@@ -69,9 +69,13 @@ const fields = [
 
 const DataPage = (): JSX.Element => {
   const [data, setData] = useState<db_Phenotype[]>([]);
-  const onRecordInsertionFormSubmission = (record: db_Phenotype): void => {
+  const onRecordInsertionFormSubmission = (
+    record: db_Phenotype,
+    successCallback: () => void
+  ): void => {
     insertDbPhenotype(record)
       .then((resp) => {
+        successCallback();
         refresh();
       })
       .catch((e: Error) => {
@@ -100,7 +104,7 @@ const DataPage = (): JSX.Element => {
 
   return (
     <div>
-      <div className='grid grid-cols-3 items-center px-6 place-items-center'>
+      <div className='grid grid-cols-3 place-items-center items-center px-6'>
         <h1 className='data-table-title col-start-2'>Phenotypes</h1>
         <DataImportForm
           className='justify-self-end'

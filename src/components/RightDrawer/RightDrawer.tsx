@@ -1,8 +1,6 @@
-import { Drawer, Box, IconButton } from '@mui/material';
-import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
 import styles from './RightDrawer.module.css';
 import React, { useState } from 'react';
-import CloseIcon from '@mui/icons-material/Close';
+import { BiX as CloseIcon } from 'react-icons/bi';
 
 export interface RightDrawerProps {
   className?: string;
@@ -14,7 +12,7 @@ export interface RightDrawerProps {
   children?: JSX.Element | JSX.Element[];
 }
 
-const RightDrawer = (props: RightDrawerProps): ReactJSXElement => {
+const RightDrawer = (props: RightDrawerProps): JSX.Element => {
   const [isDragging, setIsDragging] = useState(false);
   const [drawerWidth, setDrawerWidth] = useState(props.initialDrawerWidth);
   const [mousePosition, setMousePosition] = React.useState<{
@@ -45,49 +43,29 @@ const RightDrawer = (props: RightDrawerProps): ReactJSXElement => {
   }, [isDragging]);
 
   return (
-    <Drawer
-      className={props.className}
-      sx={{
+    <div
+      className={'flex flex-row bg-base-100 ' + (props.className ?? '')}
+      style={{
         width: drawerWidth,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width: drawerWidth,
-          boxSizing: 'border-box',
-          display: 'flex',
-          flexDirection: 'row',
-          minWidth: 'fit-content',
-          maxWidth: props.maxWidth,
-          backgroundColor: props.backgroundColor,
-        },
+        minWidth: 'fit-content',
+        maxWidth: props.maxWidth,
       }}
-      variant='persistent'
-      anchor='right'
-      open={props.isOpen}
     >
-      <Box
+      <div
         className={`${styles.resizerThumb} ${
           isDragging ? styles.resizerThumbDragging : ''
         } `}
         onMouseDown={() => setIsDragging(true)}
       />
-      <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <IconButton
-            onClick={() => props.close()}
-            sx={{ border: 'none', boxShadow: 'none' }}
-          >
-            <CloseIcon></CloseIcon>
-          </IconButton>
-        </Box>
-        <Box className={styles.drawerContents}>{props.children}</Box>
-      </Box>
-    </Drawer>
+      <div className='flex w-full flex-col justify-start'>
+        <div className='flex flex-row justify-end'>
+          <button className='m-2' onClick={() => props.close()}>
+            <CloseIcon className='pr-2 text-3xl' />
+          </button>
+        </div>
+        <div className={styles.drawerContents}>{props.children}</div>
+      </div>
+    </div>
   );
 };
 

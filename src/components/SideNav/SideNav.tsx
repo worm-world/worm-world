@@ -1,19 +1,12 @@
 import { Link, To } from 'react-router-dom';
 import {
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemButton,
-  ListItemText,
-  Drawer,
-  Typography,
-} from '@mui/material';
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import EventNoteIcon from '@mui/icons-material/EventNote';
-import { Key } from 'react';
-import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
-import { Dataset } from '@mui/icons-material';
+  BiShareAlt as AccountTreeIcon,
+  BiCalendar as EventNoteIcon,
+  BiData as Dataset,
+} from 'react-icons/bi';
+import { Key, useEffect } from 'react';
 import styles from './sideNav.module.css';
+import { themeChange } from 'theme-change';
 
 interface SideNavProps {
   isOpen: boolean;
@@ -30,53 +23,105 @@ const SideNavItems: SideNavItem[] = [
   {
     name: 'Cross Designer',
     path: '/cross-designer',
-    icon: <AccountTreeIcon />,
+    icon: <AccountTreeIcon className='text-2xl' />,
   },
-  { name: 'Scheduler', path: '/scheduler', icon: <EventNoteIcon /> },
-  { name: 'Data Manager', path: 'data-manager/gene', icon: <Dataset /> },
+  {
+    name: 'Scheduler',
+    path: '/scheduler',
+    icon: <EventNoteIcon className='text-2xl' />,
+  },
+  {
+    name: 'Data Manager',
+    path: 'data-manager/gene',
+    icon: <Dataset className='text-2xl' />,
+  },
 ];
 
-const navHeader = (): ReactJSXElement => {
-  return (
-    <Link to={'/' as To}>
-      <Typography variant='h4' align='center'>
-        <div className={styles.wormworld}>WormWorld</div>
-      </Typography>
-    </Link>
-  );
-};
-
-const getListItems = (): ReactJSXElement[] => {
+const getListItems = (): JSX.Element[] => {
   return SideNavItems.map((item) => (
-    <Link key={item.name as Key} to={item.path as To}>
-      <ListItem disablePadding>
-        <ListItemButton>
-          <ListItemIcon>{item.icon}</ListItemIcon>
-          <ListItemText primary={item.name} />
-        </ListItemButton>
-      </ListItem>
-    </Link>
+    <li key={item.name as Key}>
+      <Link to={item.path as To} className='pl-5'>
+        {item.icon}
+        {item.name}
+      </Link>
+    </li>
   ));
 };
 
-const SideNav = (props: SideNavProps): ReactJSXElement => {
+const allThemes = [
+  'light',
+  'dark',
+  'cupcake',
+  'bumblebee',
+  'emerald',
+  'corporate',
+  'synthwave',
+  'retro',
+  'cyberpunk',
+  'valentine',
+  'halloween',
+  'garden',
+  'forest',
+  'aqua',
+  'lofi',
+  'pastel',
+  'fantasy',
+  'wireframe',
+  'black',
+  'luxury',
+  'dracula',
+  'cmyk',
+  'autumn',
+  'business',
+  'acid',
+  'lemonade',
+  'night',
+  'coffee',
+  'winter',
+];
+
+const SideNav = (props: SideNavProps): JSX.Element => {
+  useEffect(() => {
+    themeChange(false);
+    // 👆 false parameter is required for react project
+  }, []);
+
   return (
-    <Drawer
-      sx={{
-        width: props.drawerWidth,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width: props.drawerWidth,
-          boxSizing: 'border-box',
-        },
-      }}
-      variant='persistent'
-      anchor='left'
-      open={props.isOpen}
-    >
-      {navHeader()}
-      <List>{getListItems()}</List>
-    </Drawer>
+    <div className={'drawer-side'} style={{ width: props.drawerWidth }}>
+      <label
+        htmlFor='nav-drawer'
+        className='drawer-overlay bg-transparent'
+        hidden={true}
+      ></label>
+      <div className='flex flex-col justify-between border-r-4 border-r-base-300 bg-base-200'>
+        <ul className='menu w-full'>
+          <li key='wormworld'>
+            <Link to={'/' as To}>
+              <h4 className='pl-2 text-center text-4xl'>
+                <div className={styles.wormworld}>WormWorld</div>
+              </h4>
+            </Link>
+          </li>
+          {getListItems()}
+        </ul>
+        <div className='pb-5 pl-5'>
+          <label className='label'>Theme</label>
+          <select className='select-bordered select' data-choose-theme>
+            {allThemes.map((theme) => (
+              <option key={theme} value={theme}>
+                {theme}
+              </option>
+            ))}
+          </select>
+          <div className='grid grid-cols-4 w-32 pt-2'>
+              <div className='bg-primary w-full h-2'>&nbsp;</div>
+              <div className='bg-secondary w-full h-2'>&nbsp;</div>
+              <div className='bg-accent w-full h-2'>&nbsp;</div>
+              <div className='bg-neutral w-full h-2'>&nbsp;</div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

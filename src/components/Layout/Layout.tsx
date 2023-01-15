@@ -1,21 +1,16 @@
 import { useState } from 'react';
-import { Button } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
+import { BiMenu as MenuIcon } from 'react-icons/bi';
 import SideNav from 'components/SideNav/SideNav';
 
 const drawerWidth = 240;
+const drawerWidthAdjusted = drawerWidth - 8;
 
-const Layout = ({
-  children,
-}: {
-  children: React.ReactNode;
-}): ReactJSXElement => {
+const Layout = ({ children }: { children: React.ReactNode }): JSX.Element => {
   const [sideNavIsOpen, setsideNavIsOpen] = useState<boolean>(true);
 
   const sideNavOpenStyles = {
     height: '100%',
-    marginLeft: drawerWidth,
+    marginLeft: drawerWidthAdjusted,
   };
   const sideNavClosedStyles = {
     height: '100%',
@@ -25,24 +20,33 @@ const Layout = ({
 
   return (
     <main>
-      <SideNav drawerWidth={drawerWidth} isOpen={sideNavIsOpen} />
-      <div
-        style={sideNavIsOpen ? sideNavOpenStyles : sideNavClosedStyles}
-        data-testid='layout-menu'
-      >
-        <Button
-          style={{
-            paddingTop: '35px',
-            paddingBottom: '35px',
-            zIndex: 999,
-            boxShadow: 'none',
-            position: 'absolute',
-          }}
-          onClick={toggleNavbar}
-        >
-          <MenuIcon />
-        </Button>
-        {children}
+      <div className='drawer'>
+        <input
+          id='nav-drawer'
+          type='checkbox'
+          className='drawer-toggle'
+          readOnly
+          checked={sideNavIsOpen}
+        />
+        <div className='drawer-content'>
+          <div
+            className='transition-[margin-left]'
+            style={sideNavIsOpen ? sideNavOpenStyles : sideNavClosedStyles}
+            data-testid='layout-menu'
+          >
+            <label
+              className='drawer-button absolute z-50 p-4'
+              htmlFor='nav-drawer'
+              onClick={() => setTimeout(toggleNavbar, 50)}
+            >
+              <button>
+                <MenuIcon className='text-2xl' />
+              </button>
+            </label>
+            {children}
+          </div>
+        </div>
+        <SideNav drawerWidth={drawerWidth} isOpen={sideNavIsOpen} />
       </div>
     </main>
   );

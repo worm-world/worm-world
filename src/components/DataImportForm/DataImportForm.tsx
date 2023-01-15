@@ -1,14 +1,3 @@
-import {
-  Card,
-  FormControlLabel,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-  Typography,
-} from '@mui/material';
-import Checkbox from '@mui/material/Checkbox';
-import Modal from '@mui/material/Modal';
 import React from 'react';
 import { toast } from 'react-toastify';
 
@@ -23,7 +12,7 @@ interface iDataImportFormProps<T> {
   className?: string;
   dataName: string;
   fields: Array<FieldType<T>>;
-  onSubmitCallback: (arg0: T) => void;
+  onSubmitCallback: (arg0: T, successCallback: () => void) => void;
 }
 
 interface iFieldsProps<T> {
@@ -37,46 +26,53 @@ const Fields = <T,>(props: iFieldsProps<T>): JSX.Element => {
       {fieldList?.map((field: FieldType<T>) => {
         if (field.type === 'boolean') {
           return (
-            <div className='my-6' key={'key-' + field.name.toString()}>
-              <FormControlLabel
-                key={'key-' + field.name.toString()}
-                name={field.name.toString()}
-                control={<Checkbox />}
-                label={field.title}
-              />
+            <div
+              className='form-control my-1'
+              key={'key-' + field.name.toString()}
+            >
+              <label className='label cursor-pointer'>
+                <span className='label-text'>{field.title}</span>
+                <input
+                  type='checkbox'
+                  className='checkbox'
+                  name={field.name.toString()}
+                />
+              </label>
             </div>
           );
         } else if (field.type === 'select') {
           return (
-            <div className='my-6' key={'key-' + field.name.toString()}>
-              <InputLabel id={field.name.toString()}>{field.title}</InputLabel>
-              <Select
-                labelId={field.name.toString()}
-                label={'Test'}
+            <div className='my-1' key={'key-' + field.name.toString()}>
+              <label className='label'>
+                <span className='label-text'>{field.title}</span>
+              </label>
+              <select
+                className='select-bordered select w-full max-w-xs'
                 key={'key-' + field.name.toString()}
                 name={field.name.toString()}
               >
                 {field.selectOptions?.map((option: string) => {
                   return (
-                    <MenuItem key={'key-' + option} value={option}>
+                    <option key={option} value={option}>
                       {option}
-                    </MenuItem>
+                    </option>
                   );
                 })}
-              </Select>
+              </select>
             </div>
           );
         } else {
           return (
-            <div className='my-6' key={'key-' + field.name.toString()}>
-              <TextField
-                type={'text'}
-                label={field.title}
+            <div className='my-1' key={'key-' + field.name.toString()}>
+              <label className='label'>
+                <span className='label-text'>{field.title}</span>
+              </label>
+              <input
+                type='text'
+                className='input-bordered input w-full max-w-xs'
                 key={'key-' + field.name.toString()}
                 name={field.name.toString()}
-              >
-                {field.title}
-              </TextField>
+              />
             </div>
           );
         }
@@ -88,7 +84,6 @@ const Fields = <T,>(props: iFieldsProps<T>): JSX.Element => {
 const DataImportForm = <T,>(props: iDataImportFormProps<T>): JSX.Element => {
   const [isFormOpen, setFormOpen] = React.useState(false);
   const handleOpen = (): void => setFormOpen(true);
-  const handleClose = (): void => setFormOpen(false);
 
   const handleSubmit = (event: React.ChangeEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -116,37 +111,46 @@ const DataImportForm = <T,>(props: iDataImportFormProps<T>): JSX.Element => {
         record[field.name] = datum;
       }
     }
-    props.onSubmitCallback(record);
-    setFormOpen(false);
+    props.onSubmitCallback(record, () => setFormOpen(false));
   };
 
   return (
     <div className={props.className}>
-      <button onClick={handleOpen}>{'Add New ' + props.dataName}</button>
-      <Modal open={isFormOpen} onClose={handleClose}>
-        <div>
-          <Card className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-10 px-20'>
-            <div>
-              <Typography variant='h4' className='text-center'>
-                {'New ' + props.dataName}
-              </Typography>
-              <hr className='my-2' />
-              <form onSubmit={handleSubmit}>
-                <Fields fieldList={props.fields}></Fields>
-                <hr className='my-8' />
-                <div className='flex flex-row justify-center w-full'>
-                  <button
-                    type='submit'
-                    className='bg-zinc-100 hover:bg-zinc-200 p-2 transition-all shadow-sm'
-                  >
-                    Insert Into Database
-                  </button>
-                </div>
-              </form>
+      <label
+        htmlFor={'add-new-' + props.dataName}
+        className='btn'
+        onClick={handleOpen}
+      >
+        {'Add New ' + props.dataName}
+      </label>
+      <input
+        type='checkbox'
+        id={'add-new-' + props.dataName}
+        className='modal-toggle'
+        readOnly
+        checked={isFormOpen}
+      />
+      <div className='modal cursor-pointer'>
+        <div
+          className='absolute h-full w-full'
+          onClick={() => setFormOpen(false)}
+        />
+        <div className='modal-box relative'>
+          <h2 className='text-center text-3xl'>{'New ' + props.dataName}</h2>
+          <hr className='my-2' />
+          <form onSubmit={handleSubmit}>
+            <Fields fieldList={props.fields}></Fields>
+            <hr className='my-8' />
+            <div className='flex w-full flex-row justify-center'>
+              <input
+                className='btn'
+                type='submit'
+                value='Insert Into Database'
+              ></input>
             </div>
-          </Card>
+          </form>
         </div>
-      </Modal>
+      </div>
     </div>
   );
 };

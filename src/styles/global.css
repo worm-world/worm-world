@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 @layer components {
-  button {
+  /* button {
     @apply rounded-md drop-shadow-md p-2;
-  }
+  } */
   h1 {
     @apply text-xl;
   }

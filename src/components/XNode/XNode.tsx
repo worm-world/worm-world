@@ -1,11 +1,10 @@
-import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
-import CloseIcon from '@mui/icons-material/Close';
+import { BiX as CloseIcon } from 'react-icons/bi';
 
-export const XNode = (): ReactJSXElement => {
+export const XNode = (): JSX.Element => {
   return (
-    <div className='rounded-full border-2 shadow bg-white hover:bg-gray-100 h-16 w-16'>
-      <div className='flex justify-center items-center h-full'>
-        <CloseIcon fontSize='large'></CloseIcon>
+    <div className='h-16 w-16 rounded-full bg-primary shadow transition hover:bg-primary-focus'>
+      <div className='flex h-full items-center justify-center'>
+        <CloseIcon className='text-3xl text-primary-content' />
       </div>
     </div>
   );

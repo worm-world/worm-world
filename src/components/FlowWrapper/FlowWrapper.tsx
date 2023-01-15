@@ -1,4 +1,3 @@
-import { Box } from '@mui/material';
 import { Handle, Position } from 'reactflow';
 
 export interface FlowWrapperProps {
@@ -8,17 +7,11 @@ export interface FlowWrapperProps {
 // Container used to wrap components for use in React Flow
 const FlowWrapper = (props: FlowWrapperProps): JSX.Element => {
   return (
-    <Box
-      sx={{
-        width: 'fit-content',
-        height: 'fit-content',
-        visibility: 'invisible',
-      }}
-    >
+    <div className='h-fit w-fit'>
       <Handle type='target' position={Position.Top} />
       {props.data}
       <Handle type='source' position={Position.Bottom} />
-    </Box>
+    </div>
   );
 };
 

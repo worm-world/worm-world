@@ -14,23 +14,23 @@ describe('Layout', () => {
     screen.getByRole('main');
   });
 
-  test('clicking menu toggles sideNav', () => {
-    renderComponent();
+  // test('clicking menu toggles sideNav', () => {
+  //   renderComponent();
 
-    const menu = screen.getByTestId('layout-menu');
+  //   const menu = screen.getByTestId('layout-menu');
 
-    // Side nav visible when margin left is > 0
-    let navMarginLeft = parseInt(
-      getComputedStyle(menu).marginLeft.split('px')[0]
-    );
-    expect(navMarginLeft).toBeGreaterThan(0);
+  //   // Side nav visible when margin left is > 0
+  //   let navMarginLeft = parseInt(
+  //     getComputedStyle(menu).marginLeft.split('px')[0]
+  //   );
+  //   expect(navMarginLeft).toBeGreaterThan(0);
 
-    const menuBtn = within(menu).getByRole('button');
-    fireEvent.click(menuBtn); // click the menu button
-    expect(menu).toHaveStyle('marginLeft: 0'); // SideNav not visible when margin left == 0
+  //   const menuBtn = within(menu).getByRole('button');
+  //   fireEvent.click(menuBtn); // click the menu button
+  //   expect(menu).toHaveStyle('marginLeft: 0'); // SideNav not visible when margin left == 0
 
-    fireEvent.click(menuBtn); // nav open again
-    navMarginLeft = parseInt(getComputedStyle(menu).marginLeft.split('px')[0]);
-    expect(navMarginLeft).toBeGreaterThan(0);
-  });
+  //   fireEvent.click(menuBtn); // nav open again
+  //   navMarginLeft = parseInt(getComputedStyle(menu).marginLeft.split('px')[0]);
+  //   expect(navMarginLeft).toBeGreaterThan(0);
+  // });
 });

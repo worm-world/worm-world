@@ -1,30 +1,39 @@
-import Tabs from '@mui/material/Tabs';
 import * as React from 'react';
-import styles from './TopNav.module.css';
 interface iTopNavInputProps {
   title: string;
-  children?: any;
+  children?: JSX.Element[];
   tabIndex?: number | false;
 }
 
 export function TopNav(props: iTopNavInputProps): JSX.Element {
-  const tabIndex = props.tabIndex === undefined ? 0 : props.tabIndex;
-  const [getTabId, SetTabId] = React.useState(tabIndex);
+  const initialTabIdx = props.tabIndex === undefined ? 0 : props.tabIndex;
+  console.log(initialTabIdx);
+  const [tabIdx, setTabIdx] = React.useState(initialTabIdx);
 
   const handleTabChange = (
     _event: React.SyntheticEvent,
     newValue: number
   ): void => {
-    SetTabId(newValue);
+    setTabIdx(newValue);
   };
 
   return (
-    <div className={styles['TopNav-container']}>
-      <div className={styles.title}>{props.title}</div>
-      <div className={styles.container}>
-        <Tabs value={getTabId} onChange={handleTabChange}>
-          {props.children}
-        </Tabs>
+    <div className='justify-left flex flex-row border-b-4 border-b-base-300 bg-base-200 pt-4 pb-4'>
+      <h1 className='pl-24 text-3xl text-base-content'>{props.title}</h1>
+      <div className='flex flex-col justify-end pl-10'>
+        <div className='tabs' role='tablist' aria-label='Tabs'>
+          {props.children?.map((item, idx) => (
+            <div
+              className={
+                'tab tab-lifted' + (tabIdx === idx ? ' tab-active' : '')
+              }
+              key={item.key}
+              onClick={() => setTabIdx(idx)}
+            >
+              {item}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -28,6 +28,7 @@ const Home = (): JSX.Element => {
       </h1>
       <div className='example-btns px-6'>
         <button
+          className='btn m-2'
           onClick={() => {
             getGenes()
               .then((res) => {
@@ -42,6 +43,7 @@ const Home = (): JSX.Element => {
           get genes
         </button>
         <button
+          className='btn m-2'
           onClick={() => {
             getAlleles()
               .then((res) => {
@@ -56,6 +58,7 @@ const Home = (): JSX.Element => {
           get alleles
         </button>
         <button
+          className='btn m-2'
           onClick={() => {
             getAlleleExpressions()
               .then((res) => {
@@ -70,6 +73,7 @@ const Home = (): JSX.Element => {
           get Allele expressions
         </button>
         <button
+          className='btn m-2'
           onClick={() => {
             const toInsert: db_AlleleExpression = {
               alleleName: 'oxTi75',
@@ -85,6 +89,7 @@ const Home = (): JSX.Element => {
           insert Allele expression (may have already been inserted)
         </button>
         <button
+          className='btn m-2'
           onClick={() => {
             getConditions()
               .then((res) => {
@@ -99,6 +104,7 @@ const Home = (): JSX.Element => {
           get conditions
         </button>
         <button
+          className='btn m-2'
           onClick={() => {
             getPhenotypes()
               .then((res) => {
@@ -113,6 +119,7 @@ const Home = (): JSX.Element => {
           get phenotypes
         </button>
         <button
+          className='btn m-2'
           onClick={() => {
             getVariations()
               .then((res) => {
@@ -127,6 +134,7 @@ const Home = (): JSX.Element => {
           get variations
         </button>
         <button
+          className='btn m-2'
           onClick={() => {
             getAlteringPhenotypes('oxIs644', 'YFP(pharynx)', false, false)
               .then((res) => {
@@ -141,6 +149,7 @@ const Home = (): JSX.Element => {
           get required phenotypes
         </button>
         <button
+          className='btn m-2'
           onClick={() => {
             getAlteringConditions('n765', 'lin-15B', false, false)
               .then((res) => {
@@ -158,7 +167,7 @@ const Home = (): JSX.Element => {
       <h1 className='pt-6 pb-4'>Toast Buttons</h1>
       <div className='toast-btns px-6'>
         <button
-          className='bg-rose-700 text-white'
+          className='btn-error btn m-2'
           onClick={() => {
             toast.error('Example error');
           }}
@@ -166,7 +175,7 @@ const Home = (): JSX.Element => {
           error toast
         </button>
         <button
-          className='bg-green-700 text-white'
+          className='btn-success btn m-2'
           onClick={() => {
             toast.success('Example success');
           }}
