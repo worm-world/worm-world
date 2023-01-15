@@ -84,6 +84,7 @@ mod test {
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
 
+    /* #region get_allele_expr tests */
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_allele_expr(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -91,7 +92,9 @@ mod test {
         assert_eq!(exprs, testdata::get_allele_exprs());
         Ok(())
     }
+    /* #endregion */
 
+    /* #region get_filtered_allele_expr tests */
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_filtered_allele_expr(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -109,6 +112,49 @@ mod test {
         Ok(())
     }
 
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_allele_expr_wild_unc119(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_allele_exprs(&Filter::<AlleleExpressionFieldName> {
+                filters: vec![vec![
+                    (
+                        AlleleExpressionFieldName::ExpressingPhenotypeWild,
+                        FilterType::True,
+                    ),
+                    (
+                        AlleleExpressionFieldName::ExpressingPhenotypeName,
+                        FilterType::Equal("unc-119".to_string()),
+                    ),
+                ]],
+                order_by: vec![AlleleExpressionFieldName::AlleleName],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::get_wild_unc119_allele_exprs());
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_allele_expr_empty_filter_multi_order_by(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_allele_exprs(&Filter::<AlleleExpressionFieldName> {
+                filters: vec![],
+                order_by: vec![
+                    AlleleExpressionFieldName::Dominance,
+                    AlleleExpressionFieldName::ExpressingPhenotypeName,
+                    AlleleExpressionFieldName::AlleleName,
+                ],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::get_allele_exprs_multi_order_by());
+        Ok(())
+    }
+    /* #endregion */
+
+    /* #region insert_allele_expr tests */
     #[sqlx::test]
     async fn test_insert_allele_expr(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -156,4 +202,5 @@ mod test {
 
         Ok(())
     }
+    /* #endregion */
 }

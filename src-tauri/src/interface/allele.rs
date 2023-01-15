@@ -81,6 +81,7 @@ mod test {
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
 
+    /* #region get_alleles tests */
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_alleles(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -89,6 +90,9 @@ mod test {
         assert_eq!(alleles, expected);
         Ok(())
     }
+    /* #endregion */
+
+    /* #region insert_allele tests */
     #[sqlx::test]
     async fn test_insert_allele_with_gene(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -120,29 +124,6 @@ mod test {
 
         let alleles = state.get_alleles().await?;
         assert_eq!(vec![expected], alleles);
-        Ok(())
-    }
-
-    #[sqlx::test(fixtures("dummy"))]
-    async fn test_get_filtered_alleles(pool: Pool<Sqlite>) -> Result<()> {
-        let state = InnerDbState { conn_pool: pool };
-        let exprs = state
-            .get_filtered_alleles(&Filter::<AlleleFieldName> {
-                filters: vec![
-                    vec![(
-                        AlleleFieldName::SysGeneName,
-                        FilterType::Equal("F27D9.1".to_owned()),
-                    )],
-                    vec![(
-                        AlleleFieldName::SysGeneName,
-                        FilterType::Equal("T14B4.7".to_owned()),
-                    )],
-                ],
-                order_by: vec![AlleleFieldName::Name],
-            })
-            .await?;
-
-        assert_eq!(exprs, testdata::get_filtered_alleles());
         Ok(())
     }
 
@@ -178,6 +159,7 @@ mod test {
         assert_eq!(vec![expected], alleles);
         Ok(())
     }
+
     /// Tests foreign key constraint for gene_name
     #[sqlx::test]
     #[should_panic]
@@ -193,6 +175,7 @@ mod test {
 
         state.insert_allele(&expected).await.unwrap();
     }
+
     /// Tests foreign key constraint for variation_name
     #[sqlx::test]
     #[should_panic]
@@ -208,4 +191,75 @@ mod test {
 
         state.insert_allele(&expected).await.unwrap();
     }
+    /* #endregion insert_allele tests */
+
+    /* #region get_filtered_alleles tests */
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_alleles(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_alleles(&Filter::<AlleleFieldName> {
+                filters: vec![
+                    vec![(
+                        AlleleFieldName::SysGeneName,
+                        FilterType::Equal("F27D9.1".to_owned()),
+                    )],
+                    vec![(
+                        AlleleFieldName::SysGeneName,
+                        FilterType::Equal("T14B4.7".to_owned()),
+                    )],
+                ],
+                order_by: vec![AlleleFieldName::Name],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::get_filtered_alleles());
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_alleles_no_results(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_alleles(&Filter::<AlleleFieldName> {
+                filters: vec![vec![(
+                    AlleleFieldName::Name,
+                    FilterType::Equal("non-existant-allele".to_owned()),
+                )]],
+                order_by: vec![],
+            })
+            .await?;
+
+        assert_eq!(exprs, vec![]);
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_alleles_not_null_contents(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_alleles(&Filter::<AlleleFieldName> {
+                filters: vec![vec![(AlleleFieldName::Contents, FilterType::NotNull)]],
+                order_by: vec![AlleleFieldName::Name],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::get_alleles_with_content());
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_alleles_null_contents(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_alleles(&Filter::<AlleleFieldName> {
+                filters: vec![vec![(AlleleFieldName::Contents, FilterType::Null)]],
+                order_by: vec![AlleleFieldName::Name],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::get_alleles_with_null_content());
+        Ok(())
+    }
+    /* #endregion */
 }

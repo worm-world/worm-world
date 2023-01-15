@@ -120,6 +120,7 @@ mod test {
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
 
+    /* #region get_expr_relations tests */
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_expr_relations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -127,7 +128,9 @@ mod test {
         assert_eq!(rels, testdata::get_expr_relations());
         Ok(())
     }
+    /* #endregion */
 
+    /* #region get_filtered_expr_relations tests */
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_filtered_expr_relations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -151,6 +154,50 @@ mod test {
         Ok(())
     }
 
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_expr_relations_many_and_clauses(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_expr_relations(&Filter::<ExpressionRelationFieldName> {
+                filters: vec![vec![
+                    (
+                        ExpressionRelationFieldName::ExpressingPhenotypeName,
+                        FilterType::Equal("paralyzed".to_owned()),
+                    ),
+                    (
+                        ExpressionRelationFieldName::AlteringCondition,
+                        FilterType::NotNull,
+                    ),
+                    (
+                        ExpressionRelationFieldName::ExpressingPhenotypeWild,
+                        FilterType::False,
+                    ),
+                    (
+                        ExpressionRelationFieldName::AlteringPhenotypeName,
+                        FilterType::Null,
+                    ),
+                    (
+                        ExpressionRelationFieldName::IsSuppressing,
+                        FilterType::False,
+                    ),
+                    (
+                        ExpressionRelationFieldName::AlleleName,
+                        FilterType::Equal("tmC5".to_string()),
+                    ),
+                ]],
+                order_by: vec![ExpressionRelationFieldName::AlleleName],
+            })
+            .await?;
+
+        assert_eq!(
+            exprs,
+            testdata::get_filtered_expr_relations_many_and_clauses()
+        );
+        Ok(())
+    }
+    /* #endregion get_filtered_expr_relations tests */
+
+    /* #region insert_filtered_expr_relation tests */
     #[sqlx::test]
     async fn test_insert_expr_relation(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -297,4 +344,5 @@ mod test {
 
         state.insert_expr_relation(&rel).await.unwrap();
     }
+    /* #endregion insert_filtered_expr_relation tests */
 }
