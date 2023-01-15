@@ -57,9 +57,13 @@ const fields = [
 
 const DataPage = (): JSX.Element => {
   const [data, setData] = useState<db_Condition[]>([]);
-  const onRecordInsertionFormSubmission = (record: db_Condition): void => {
+  const onRecordInsertionFormSubmission = (
+    record: db_Condition,
+    successCallback: () => void
+  ): void => {
     insertDbCondition(record)
       .then((resp) => {
+        successCallback();
         refresh();
       })
       .catch((e: Error) => {

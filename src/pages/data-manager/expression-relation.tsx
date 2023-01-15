@@ -61,10 +61,12 @@ const fields = [
 const DataPage = (): JSX.Element => {
   const [data, setData] = useState<db_ExpressionRelation[]>([]);
   const onRecordInsertionFormSubmission = (
-    record: db_ExpressionRelation
+    record: db_ExpressionRelation,
+    successCallback: () => void
   ): void => {
     insertDbExpressionRelation(record)
       .then((resp) => {
+        successCallback();
         refresh();
       })
       .catch((e: Error) => {

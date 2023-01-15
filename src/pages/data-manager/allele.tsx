@@ -38,9 +38,13 @@ const fields = [
 
 const DataPage = (): JSX.Element => {
   const [data, setData] = useState<db_Allele[]>([]);
-  const onRecordInsertionFormSubmission = (record: db_Allele): void => {
+  const onRecordInsertionFormSubmission = (
+    record: db_Allele,
+    successCallback: () => void
+  ): void => {
     insertDbAllele(record)
       .then((resp) => {
+        successCallback();
         refresh();
       })
       .catch((e: Error) => {

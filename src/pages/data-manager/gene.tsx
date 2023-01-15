@@ -47,9 +47,13 @@ const fields = [
 
 const DataPage = (): JSX.Element => {
   const [data, setData] = useState<db_Gene[]>([]);
-  const onRecordInsertionFormSubmission = (record: db_Gene): void => {
+  const onRecordInsertionFormSubmission = (
+    record: db_Gene,
+    successCallback: () => void
+  ): void => {
     insertDbGene(record)
       .then((resp) => {
+        successCallback();
         refresh();
       })
       .catch((e: Error) => {

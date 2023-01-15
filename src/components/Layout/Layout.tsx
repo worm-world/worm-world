@@ -25,7 +25,7 @@ const Layout = ({ children }: { children: React.ReactNode }): JSX.Element => {
           id='nav-drawer'
           type='checkbox'
           className='drawer-toggle'
-          defaultChecked
+          readOnly
           checked={sideNavIsOpen}
         />
         <div className='drawer-content'>

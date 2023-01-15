@@ -44,10 +44,12 @@ const fields = [
 const DataPage = (): JSX.Element => {
   const [data, setData] = useState<db_AlleleExpression[]>([]);
   const onRecordInsertionFormSubmission = (
-    record: db_AlleleExpression
+    record: db_AlleleExpression,
+    successCallback: () => void
   ): void => {
     insertDbAlleleExpression(record)
       .then((resp) => {
+        successCallback();
         refresh();
       })
       .catch((e: Error) => {

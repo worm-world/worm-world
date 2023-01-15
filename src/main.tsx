@@ -12,11 +12,7 @@ import SideNav from 'components/SideNav/SideNav';
 const App: FC = () => {
   return (
     <>
-      <Suspense
-        fallback={
-          <p className='pt-50 w-full text-center text-5xl'>Loading...</p>
-        }
-      >
+      <Suspense fallback={<p className='text-base-content'>Loading...</p>}>
         <Layout>{useRoutes(routes)}</Layout>
       </Suspense>
       <ToastContainer

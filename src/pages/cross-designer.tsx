@@ -12,7 +12,7 @@ const CrossPage = (): JSX.Element => {
         id='right-cross-drawer'
         type='checkbox'
         className='drawer-toggle'
-        defaultChecked
+        readOnly
         checked={rightDrawerOpen}
       />
       <div className='drawer-content flex h-screen flex-col'>

@@ -12,7 +12,7 @@ interface iDataImportFormProps<T> {
   className?: string;
   dataName: string;
   fields: Array<FieldType<T>>;
-  onSubmitCallback: (arg0: T) => void;
+  onSubmitCallback: (arg0: T, successCallback: () => void) => void;
 }
 
 interface iFieldsProps<T> {
@@ -27,7 +27,7 @@ const Fields = <T,>(props: iFieldsProps<T>): JSX.Element => {
         if (field.type === 'boolean') {
           return (
             <div
-              className='form-control my-6'
+              className='form-control my-1'
               key={'key-' + field.name.toString()}
             >
               <label className='label cursor-pointer'>
@@ -42,7 +42,7 @@ const Fields = <T,>(props: iFieldsProps<T>): JSX.Element => {
           );
         } else if (field.type === 'select') {
           return (
-            <div className='my-6' key={'key-' + field.name.toString()}>
+            <div className='my-1' key={'key-' + field.name.toString()}>
               <label className='label'>
                 <span className='label-text'>{field.title}</span>
               </label>
@@ -63,7 +63,7 @@ const Fields = <T,>(props: iFieldsProps<T>): JSX.Element => {
           );
         } else {
           return (
-            <div className='my-6' key={'key-' + field.name.toString()}>
+            <div className='my-1' key={'key-' + field.name.toString()}>
               <label className='label'>
                 <span className='label-text'>{field.title}</span>
               </label>
@@ -84,7 +84,6 @@ const Fields = <T,>(props: iFieldsProps<T>): JSX.Element => {
 const DataImportForm = <T,>(props: iDataImportFormProps<T>): JSX.Element => {
   const [isFormOpen, setFormOpen] = React.useState(false);
   const handleOpen = (): void => setFormOpen(true);
-  const handleClose = (): void => setFormOpen(false);
 
   const handleSubmit = (event: React.ChangeEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -112,8 +111,7 @@ const DataImportForm = <T,>(props: iDataImportFormProps<T>): JSX.Element => {
         record[field.name] = datum;
       }
     }
-    props.onSubmitCallback(record);
-    setFormOpen(false);
+    props.onSubmitCallback(record, () => setFormOpen(false));
   };
 
   return (
@@ -129,30 +127,30 @@ const DataImportForm = <T,>(props: iDataImportFormProps<T>): JSX.Element => {
         type='checkbox'
         id={'add-new-' + props.dataName}
         className='modal-toggle'
-        hidden={true}
+        readOnly
+        checked={isFormOpen}
       />
-      <label
-        htmlFor={'add-new-' + props.dataName}
-        className='modal cursor-pointer'
-      >
-        <label className='modal-box relative' htmlFor=''>
+      <div className='modal cursor-pointer'>
+        <div
+          className='absolute h-full w-full'
+          onClick={() => setFormOpen(false)}
+        />
+        <div className='modal-box relative'>
           <h2 className='text-center text-3xl'>{'New ' + props.dataName}</h2>
           <hr className='my-2' />
           <form onSubmit={handleSubmit}>
             <Fields fieldList={props.fields}></Fields>
             <hr className='my-8' />
             <div className='flex w-full flex-row justify-center'>
-              <label htmlFor={'add-new-' + props.dataName} className='btn'>
-                <input
-                  type='submit'
-                  value='Insert Into Database'
-                  onClick={handleClose}
-                ></input>
-              </label>
+              <input
+                className='btn'
+                type='submit'
+                value='Insert Into Database'
+              ></input>
             </div>
           </form>
-        </label>
-      </label>
+        </div>
+      </div>
     </div>
   );
 };

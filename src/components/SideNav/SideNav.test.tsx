@@ -55,7 +55,7 @@ const renderComponent = ({ isOpen = true, drawerWidth = 100 }): void => {
         id='my-drawer'
         type='checkbox'
         className='drawer-toggle'
-        defaultChecked
+        readOnly
         checked={isOpen}
       />
       <div className='drawer-content'>foo</div>

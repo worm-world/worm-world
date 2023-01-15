@@ -41,9 +41,13 @@ const fields = [
 
 const DataPage = (): JSX.Element => {
   const [data, setData] = useState<db_VariationInfo[]>([]);
-  const onRecordInsertionFormSubmission = (record: db_VariationInfo): void => {
+  const onRecordInsertionFormSubmission = (
+    record: db_VariationInfo,
+    successCallback: () => void
+  ): void => {
     insertDbVariation(record)
       .then((resp) => {
+        successCallback();
         refresh();
       })
       .catch((e: Error) => {

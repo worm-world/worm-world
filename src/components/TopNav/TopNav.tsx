@@ -7,6 +7,7 @@ interface iTopNavInputProps {
 
 export function TopNav(props: iTopNavInputProps): JSX.Element {
   const initialTabIdx = props.tabIndex === undefined ? 0 : props.tabIndex;
+  console.log(initialTabIdx);
   const [tabIdx, setTabIdx] = React.useState(initialTabIdx);
 
   const handleTabChange = (
@@ -24,7 +25,7 @@ export function TopNav(props: iTopNavInputProps): JSX.Element {
           {props.children?.map((item, idx) => (
             <div
               className={
-                'tab tab-bordered ' + (tabIdx === idx ? 'tab-active' : '')
+                'tab tab-lifted' + (tabIdx === idx ? ' tab-active' : '')
               }
               key={item.key}
               onClick={() => setTabIdx(idx)}

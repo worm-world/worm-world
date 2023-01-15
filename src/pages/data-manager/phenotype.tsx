@@ -69,9 +69,13 @@ const fields = [
 
 const DataPage = (): JSX.Element => {
   const [data, setData] = useState<db_Phenotype[]>([]);
-  const onRecordInsertionFormSubmission = (record: db_Phenotype): void => {
+  const onRecordInsertionFormSubmission = (
+    record: db_Phenotype,
+    successCallback: () => void
+  ): void => {
     insertDbPhenotype(record)
       .then((resp) => {
+        successCallback();
         refresh();
       })
       .catch((e: Error) => {
