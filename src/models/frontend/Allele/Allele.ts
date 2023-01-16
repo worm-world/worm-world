@@ -112,7 +112,7 @@ export class Allele {
   };
 
   static async createFromRecord(record: db_Allele): Promise<Allele> {
-    return Allele.build({
+    return await Allele.build({
       name: record.name,
       sysGeneName: record.sysGeneName ?? undefined,
       variationName: record.variationName ?? undefined,

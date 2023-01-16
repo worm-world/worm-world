@@ -8,11 +8,7 @@ import { getFilteredAlleles } from 'api/allele';
 import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import { Sex } from 'models/enums';
 import CrossNode from 'components/CrossNode/CrossNode';
-import {
-  Multiselector,
-  Selector,
-  Option,
-} from 'components/CrossNodeForm/Selector';
+import { Multiselector, Selector, Option } from 'components/Selector/Selector';
 import { FilterTuple } from 'models/db/filter/Filter';
 import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
 
@@ -54,7 +50,6 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
     // Don't repopulate if no genes or variations selected
     if (selectedGenes.length === 0 && selectedVariations.length === 0) {
       setAlleleOptions([]);
-      return;
     } else {
       refreshAlleleOptions(
         selectedGenes,
@@ -74,7 +69,6 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
       options={geneOptions}
       selectedValues={selectedGenes}
       setSelectedValues={setSelectedGenes}
-      setAlleleOptions={setAlleleOptions}
     />
   );
   const variationSelector = (
@@ -84,7 +78,6 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
       options={variationOptions}
       selectedValues={selectedVariations}
       setSelectedValues={setSelectedVariations}
-      setAlleleOptions={setAlleleOptions}
     />
   );
   const alleleSelector = (

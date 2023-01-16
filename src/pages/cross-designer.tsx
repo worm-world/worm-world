@@ -64,7 +64,7 @@ const CrossPage = (): JSX.Element => {
           </div>
         </div>
       </div>
-      <div className={'drawer-end drawer-side h-full '}>
+      <div className={'drawer-side drawer-end h-full '}>
         <label
           htmlFor='right-cross-drawer'
           className='drawer-overlay'

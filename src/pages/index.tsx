@@ -57,8 +57,8 @@ const Home = (): JSX.Element => {
           onClick={() => {
             getAlleles()
               .then((res) => {
-                const alleles = res.map((record) =>
-                  Allele.createFromRecord(record)
+                const alleles = res.map(
+                  async (record) => await Allele.createFromRecord(record)
                 );
                 console.log(alleles);
               })

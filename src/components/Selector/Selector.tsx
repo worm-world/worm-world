@@ -5,15 +5,14 @@ export interface Option<T> {
   label: string;
 }
 
-interface MultiselectorProps<T> {
+export interface MultiselectorProps<T> {
   label: string;
   options: Array<Option<T>>;
   selectedValues: Array<Option<T>>;
   setSelectedValues: Function;
-  setAlleleOptions?: Function;
 }
 
-interface SelectorProps<T> {
+export interface SelectorProps<T> {
   label: string;
   options: Array<Option<T>>;
   selectedValue: Option<T>;
