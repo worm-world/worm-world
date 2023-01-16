@@ -2,9 +2,42 @@ import { TopNav } from 'components/TopNav/TopNav';
 import RightDrawer from 'components/RightDrawer/RightDrawer';
 import React from 'react';
 import CrossFlow from 'components/CrossFlow/CrossFlow';
+import { Node, useNodesState } from 'reactflow';
+import CrossNode from 'components/CrossNode/CrossNode';
+import { XNode } from 'components/XNode/XNode';
+import * as mock from 'models/frontend/CrossNode/CrossNode.mock';
+import CrossNodeForm from 'components/CrossNodeForm/CrossNodeForm';
+
+let nextNodeId = 5;
+
+const addNewNodeToFlow = (
+  nodes: Node[],
+  setNodes: (nodes: Node[]) => void,
+  newNode: JSX.Element
+): void => {
+  const newFlowNode: Node = {
+    id: nextNodeId.toString(),
+    type: 'flowWrapper',
+    position: { x: 150, y: -100 },
+    data: newNode,
+    connectable: true,
+  };
+  nextNodeId += 1;
+  setNodes([...nodes, newFlowNode]);
+};
 
 const CrossPage = (): JSX.Element => {
   const [rightDrawerOpen, setRightDrawerOpen] = React.useState(true);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+
+  const rightButton = (
+    <button
+      className='btn ml-auto mr-10'
+      onClick={() => setRightDrawerOpen(true)}
+    >
+      Add New Cross Node
+    </button>
+  );
 
   return (
     <div className='drawer drawer-end'>
@@ -16,18 +49,22 @@ const CrossPage = (): JSX.Element => {
         checked={rightDrawerOpen}
       />
       <div className='drawer-content flex h-screen flex-col'>
-        <TopNav title={'Cross Designer'}>
+        <TopNav title={'Cross Designer'} rightButton={rightButton}>
           <span key='new-cross'>New Cross</span>
           <span key='open-cross'>Open Cross</span>
           <span key='export-cross'>Export Cross</span>
         </TopNav>
         <div className='grow'>
           <div className='h-full w-full'>
-            <CrossFlow className={''} />
+            <CrossFlow
+              nodes={nodes}
+              onNodesChange={onNodesChange}
+              className={''}
+            />
           </div>
         </div>
       </div>
-      <div className={'drawer-side drawer-end h-full '}>
+      <div className={'drawer-end drawer-side h-full '}>
         <label
           htmlFor='right-cross-drawer'
           className='drawer-overlay'
@@ -39,10 +76,47 @@ const CrossPage = (): JSX.Element => {
           isOpen={rightDrawerOpen}
           maxWidth={400}
           close={() => setRightDrawerOpen(false)}
-        ></RightDrawer>
+        >
+          <CrossNodeForm
+            addNewCrossNode={(newNode: JSX.Element) =>
+              addNewNodeToFlow(nodes, setNodes, newNode)
+            }
+          />
+        </RightDrawer>
       </div>
     </div>
   );
 };
+
+const initialNodes: Array<Node<JSX.Element>> = [
+  {
+    id: 'node1',
+    type: 'flowWrapper', // This is the type of our custom node
+    position: { x: -150, y: -100 },
+    data: <CrossNode model={mock.emptyMale}></CrossNode>, // data = children for flowWrapper
+    connectable: true,
+  },
+  {
+    id: 'node2',
+    type: 'flowWrapper',
+    position: { x: 150, y: -100 },
+    data: <CrossNode model={mock.wild}></CrossNode>,
+    connectable: true,
+  },
+  {
+    id: 'node3',
+    type: 'flowWrapper',
+    position: { x: 0, y: 200 },
+    data: <CrossNode model={mock.wild}></CrossNode>,
+    connectable: true,
+  },
+  {
+    id: 'xNode1',
+    type: 'flowWrapper',
+    position: { x: 95, y: 75 },
+    data: <XNode />,
+    connectable: true,
+  },
+];
 
 export default CrossPage;

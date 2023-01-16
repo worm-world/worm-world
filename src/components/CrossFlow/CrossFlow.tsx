@@ -1,52 +1,18 @@
-import CrossNode from 'components/CrossNode/CrossNode';
 import { useCallback, useMemo } from 'react';
 import ReactFlow, {
   MiniMap,
   Controls,
   Background,
-  useNodesState,
   Node,
   useEdgesState,
   addEdge,
   Connection,
   Edge,
   updateEdge,
+  OnNodesChange,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { XNode } from 'components/XNode/XNode';
-import * as mock from 'models/frontend/CrossNode/CrossNode.mock';
 import FlowWrapper from 'components/FlowWrapper/FlowWrapper';
-
-const initialNodes: Array<Node<JSX.Element>> = [
-  {
-    id: 'node1',
-    type: 'flowWrapper', // This is the type of our custom node
-    position: { x: -150, y: -100 },
-    data: <CrossNode model={mock.emptyMale}></CrossNode>, // data = children for flowWrapper
-    connectable: true,
-  },
-  {
-    id: 'node2',
-    type: 'flowWrapper',
-    position: { x: 150, y: -100 },
-    data: <CrossNode model={mock.wild}></CrossNode>,
-    connectable: true,
-  },
-  {
-    id: 'node3',
-    type: 'flowWrapper',
-    position: { x: 0, y: 200 },
-    data: <CrossNode model={mock.wild}></CrossNode>,
-    connectable: true,
-  },
-  {
-    id: 'xNode1',
-    type: 'flowWrapper',
-    position: { x: 95, y: 75 },
-    data: <XNode />,
-    connectable: true,
-  },
-];
 
 const initialEdges: Edge[] = [
   {
@@ -72,11 +38,12 @@ const initialEdges: Edge[] = [
 
 interface iCrossFlowProps {
   className?: string;
+  nodes: Node[];
+  onNodesChange: OnNodesChange;
 }
 
 const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
   const nodeTypes = useMemo(() => ({ flowWrapper: FlowWrapper }), []);
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const onEdgeUpdate = useCallback(
     (oldEdge: Edge<any>, newConnection: Connection) =>
@@ -93,10 +60,10 @@ const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
       className={props.className}
       zoomOnScroll={true}
       fitView
-      nodes={nodes}
+      nodes={props.nodes}
       edges={edges}
       nodeTypes={nodeTypes}
-      onNodesChange={onNodesChange}
+      onNodesChange={props.onNodesChange}
       onEdgesChange={onEdgesChange}
       onEdgeUpdate={onEdgeUpdate}
       onConnect={onConnect}
