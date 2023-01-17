@@ -5,26 +5,33 @@
  */
 
 import CrossNode from 'models/frontend/CrossNode/CrossNode';
-import Mutation from 'models/frontend/Mutation';
 import { Allele } from 'models/frontend/Allele/Allele';
 import { Gene } from 'models/frontend/Gene/Gene';
 import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 
+type SysGeneName = string;
+type VariationName = string;
+
 export const WILD_ALLELE = new Allele({
   name: '+',
-  // implied any mutation
 });
 
-// Genetic identity formatted for display
-export type Genotype = Map<Chromosome | undefined, Mutations>;
+type GeneMap = Map<SysGeneName, Allele[]>;
+type VariationMap = Map<VariationName, Allele[]>;
 
-// Alleles of Genes are paired, but "alleles of variations" are not
-export type Mutations = Map<Mutation, Allele[]>;
+// Genetic identity formatted for display
+export type Genotype = {
+  genes: Map<Chromosome | undefined, GeneMap>;
+  variations: Map<Chromosome | undefined, VariationMap>;
+};
 
 // Data format transformation to get hierarchical map: chromosome -> gene/variation -> alleles
 export const getGenotype = (crossNode: CrossNode): Genotype => {
-  const genotype: Genotype = new Map<Chromosome | undefined, Mutations>();
+  const genotype: Genotype = {
+    genes: new Map<Chromosome | undefined, GeneMap>(),
+    variations: new Map<Chromosome | undefined, VariationMap>(),
+  };
 
   const genes = crossNode.genes;
   const variations = crossNode.variations;
@@ -46,13 +53,23 @@ function fillWithChromosomes(
   genes: Gene[],
   variations: VariationInfo[]
 ): void {
-  const loci = (genes as Mutation[]).concat(variations as Mutation[]);
-  for (const mutation of loci) {
-    if (!genotype.has(mutation.chromosome)) {
-      genotype.set(mutation.chromosome, new Map<Mutation, Allele[]>());
+  for (const gene of genes) {
+    if (!genotype.genes.has(gene.chromosome)) {
+      genotype.genes.set(gene.chromosome, new Map<SysGeneName, Allele[]>());
     }
-    const mutations = genotype.get(mutation.chromosome);
-    mutations?.set(mutation, []);
+    const geneMap = genotype.genes.get(gene.chromosome);
+    geneMap?.set(gene.sysName, []);
+  }
+
+  for (const variation of variations) {
+    if (!genotype.variations.has(variation.chromosome)) {
+      genotype.variations.set(
+        variation.chromosome,
+        new Map<VariationName, Allele[]>()
+      );
+      const variationMap = genotype.variations.get(variation.chromosome);
+      variationMap?.set(variation.name, []);
+    }
   }
 }
 
@@ -61,20 +78,23 @@ function fillWithChromosomes(
  */
 function fillWithAlleles(genotype: Genotype, allelesToAdd: Allele[]): void {
   allelesToAdd.forEach((allele) => {
-    const mutation: Mutation =
-      allele.gene ?? allele.variation ?? recoverFromUnspecifiedMutation(allele);
-
-    const mutations =
-      genotype.get(mutation.chromosome) ??
-      recoverFromUnplannedChromosome(
-        genotype,
-        mutation.chromosome,
-        allele,
-        mutation
-      );
-
-    const alleles: Allele[] = mutations.get(mutation) ?? [];
-    alleles.push(allele); // Guaranteed by recovery
+    if (allele.gene !== undefined) {
+      const gene: Gene = allele.gene;
+      const geneMap =
+        genotype.genes.get(gene.chromosome) ??
+        recoverFromUnplannedChromosomeOfGene(genotype, gene, allele);
+      const alleles: Allele[] = geneMap.get(gene.sysName) ?? [];
+      alleles.push(allele);
+    } else if (allele.variation !== undefined) {
+      const variation: VariationInfo = allele.variation;
+      const variations: VariationMap =
+        genotype.variations.get(variation.chromosome) ??
+        recoverFromUnplannedChromosomeOfVariation(genotype, variation, allele);
+      const alleles: Allele[] = variations.get(variation.name) ?? [];
+      alleles.push(allele);
+    } else {
+      recoverFromUnspecifiedMutation(genotype, allele);
+    }
   });
 }
 
@@ -82,54 +102,90 @@ function fillWithAlleles(genotype: Genotype, allelesToAdd: Allele[]): void {
  * Fills any remaining gene sections with wild alleles
  */
 const fillWithWildAlleles = (genotype: Genotype): void => {
-  for (const mutations of genotype.values()) {
-    for (const [mutation, alleles] of mutations.entries()) {
-      while (alleles.length < mutation.ploidy) {
+  for (const geneMap of genotype.genes.values()) {
+    for (const [_, alleles] of geneMap.entries()) {
+      while (alleles.length < 2) {
         alleles.push(WILD_ALLELE);
+      }
+    }
+  }
+
+  for (const [chromosome, variationMap] of genotype.variations.entries()) {
+    for (const [_, alleles] of variationMap.entries()) {
+      if (chromosome !== undefined && chromosome !== 'ECA') {
+        while (alleles.length < 2) {
+          alleles.push(WILD_ALLELE);
+        }
+      } else {
+        while (alleles.length < 1) {
+          alleles.push(WILD_ALLELE);
+        }
       }
     }
   }
 };
 
-/**
- * If an allele has a mutation on a chromosome, but that chromosome was not included
- * in the list to display.
- */
-function recoverFromUnplannedChromosome(
+function recoverFromUnplannedChromosomeOfGene(
   genotype: Genotype,
-  chromosome: Chromosome | undefined,
-  allele: Allele,
-  mutation: Mutation
-): Mutations {
+  gene: Gene,
+  allele: Allele
+): GeneMap {
   console.error(
     `The allele "${allele.name}" exists on a chromosome or extrachromosomal array 
-     not referenced in list of Genes or VariationInfos.
-     The chromosome "${chromosome}" has been added for this node, 
+     not referenced in list of Genes to display.
+     The chromosome "${gene.chromosome}" has been added for this node, 
      but it will not necessarily be displayed in other nodes.
      Remaining alleles may not show this error because the unplanned chromosome is being added.`
   );
 
-  const mutations = new Map<Mutation, Allele[]>();
-  mutations.set(mutation, []);
-  genotype.set(chromosome, mutations);
-  return mutations;
+  const geneMap = new Map<SysGeneName, Allele[]>();
+  geneMap.set(gene.sysName, []);
+
+  genotype.genes.set(gene.chromosome, geneMap);
+  return geneMap;
+}
+
+function recoverFromUnplannedChromosomeOfVariation(
+  genotype: Genotype,
+  variation: VariationInfo,
+  allele: Allele
+): GeneMap {
+  console.error(
+    `The allele "${allele.name}" exists on a chromosome or extrachromosomal array 
+     not referenced in list VariationInfos to display.
+     The chromosome "${variation.chromosome}" has been added for this node, 
+     but it will not necessarily be displayed in other nodes.
+     Remaining alleles may not show this error because the unplanned chromosome is being added.`
+  );
+
+  const variationMap = new Map<VariationName, Allele[]>();
+  variationMap.set(variation.name, []);
+
+  genotype.variations.set(variation.chromosome, variationMap);
+  return variationMap;
 }
 
 /**
  * If the allele doesn't have a mutation at all
  */
-function recoverFromUnspecifiedMutation(allele: Allele): Mutation {
+function recoverFromUnspecifiedMutation(
+  genotype: Genotype,
+  allele: Allele
+): void {
   console.error(
     `The allele ${allele.name} has no associated gene or variation. 
-     This violates a consistency expectation. A dummy variation on undefined chromosome
+     This violates a consistency expectation. A dummy variation on unknown chromosome
      is being assigned.`
   );
 
-  const mutation = new VariationInfo({
-    name: `dummyVariation_${allele.name}`,
+  const variation = new VariationInfo({
+    name: `dummyVariation${allele.name}`,
     chromosome: undefined,
-    ploidy: 1,
   });
-  allele.variation = mutation;
-  return mutation;
+  genotype.variations.get(variation.chromosome) ??
+    recoverFromUnplannedChromosomeOfVariation(genotype, variation, allele);
+  genotype.variations
+    ?.get(variation.chromosome)
+    ?.get(variation.name)
+    ?.push(allele);
 }

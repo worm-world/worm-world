@@ -7,7 +7,6 @@ interface iTopNavInputProps {
 
 export function TopNav(props: iTopNavInputProps): JSX.Element {
   const initialTabIdx = props.tabIndex === undefined ? 0 : props.tabIndex;
-  console.log(initialTabIdx);
   const [tabIdx, setTabIdx] = React.useState(initialTabIdx);
 
   const handleTabChange = (

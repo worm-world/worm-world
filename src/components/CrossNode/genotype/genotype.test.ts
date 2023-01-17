@@ -6,7 +6,6 @@ import {
   getGenotype,
   WILD_ALLELE,
 } from 'components/CrossNode/genotype/genotype';
-import Mutation from 'models/frontend/Mutation';
 import { vi } from 'vitest';
 import * as crossNodeMock from 'models/frontend/CrossNode/CrossNode.mock';
 
@@ -14,52 +13,62 @@ describe('Genotype with no alleles', () => {
   test('Genotype with no mutations', () => {
     const crossNode = crossNodeMock.empty;
     const genotype = getGenotype(crossNode);
-    expect(genotype.size).toBe(0);
+    expect(genotype.genes.size + genotype.variations.size).toBe(0);
   });
 
   test('Size with mutations', () => {
     const crossNode = crossNodeMock.wild;
     const genotype = getGenotype(crossNode);
 
-    expect(genotype.size).toBe(4);
+    expect(genotype.genes.size + genotype.variations.size).toBe(4);
   });
 
   test('Chromsome I with mutations', () => {
     const crossNode = crossNodeMock.wild;
     const genotype = getGenotype(crossNode);
 
-    expect(genotype.get('I')).toBeDefined();
-    expect(genotype.get('I')?.size).toBe(1);
-    expect(genotype.get('I')?.get(mockGenes.chrom1Gene1)).toHaveLength(2);
+    expect(genotype.genes.get('I')).toBeDefined();
+    expect(genotype.genes.get('I')?.size).toBe(1);
+    expect(
+      genotype.genes.get('I')?.get(mockGenes.chrom1Gene1.sysName)
+    ).toHaveLength(2);
   });
 
   test('Chromosome II with mutations', () => {
     const crossNode = crossNodeMock.wild;
     const genotype = getGenotype(crossNode);
 
-    expect(genotype.get('II')).toBeDefined();
-    expect(genotype.get('II')?.size).toBe(2);
-    expect(genotype.get('II')?.get(mockGenes.chrom2Gene1)).toHaveLength(2);
-    expect(genotype.get('II')?.get(mockGenes.chrom2Gene2)).toHaveLength(2);
+    expect(genotype.genes.get('II')).toBeDefined();
+    expect(genotype.genes.get('II')?.size).toBe(2);
+    expect(
+      genotype.genes.get('II')?.get(mockGenes.chrom2Gene1.sysName)
+    ).toHaveLength(2);
+    expect(
+      genotype.genes.get('II')?.get(mockGenes.chrom2Gene2.sysName)
+    ).toHaveLength(2);
   });
 
   test('Chromosome III with mutations', () => {
     const crossNode = crossNodeMock.wild;
     const genotype = getGenotype(crossNode);
 
-    expect(genotype.get('III')).toBeDefined();
-    expect(genotype.get('III')?.size).toBe(1);
-    expect(genotype.get('III')?.get(mockGenes.chrom3Gene1)).toHaveLength(2);
+    expect(genotype.genes.get('III')).toBeDefined();
+    expect(genotype.genes.get('III')?.size).toBe(1);
+    expect(
+      genotype.genes.get('III')?.get(mockGenes.chrom3Gene1.sysName)
+    ).toHaveLength(2);
   });
 
   test('Chromosome ECA with mutations', () => {
     const crossNode = crossNodeMock.wild;
     const genotype = getGenotype(crossNode);
 
-    expect(genotype.get('ECA')).toBeDefined();
-    expect(genotype.get('ECA')?.size).toBe(1);
+    expect(genotype.variations.get('ECA')).toBeDefined();
+    expect(genotype.variations.get('ECA')?.size).toBe(1);
     expect(
-      genotype.get('ECA')?.get(mockVariations.chromEcaVariation1)
+      genotype.variations
+        .get('ECA')
+        ?.get(mockVariations.chromEcaVariation1.name)
     ).toHaveLength(1);
   });
 });
@@ -69,82 +78,94 @@ describe('Genotype with complete input data', () => {
     const crossNode = crossNodeMock.mutated;
     const genotype = getGenotype(crossNode);
 
-    expect(genotype.size).toBe(6);
+    expect(genotype.genes.size + genotype.variations.size).toBe(7);
   });
 
   test('Chromosome I', () => {
     const crossNode = crossNodeMock.mutated;
     const genotype = getGenotype(crossNode);
 
-    expect(genotype.get('I')).toBeDefined();
-    expect(genotype.get('I')?.size).toBe(1);
-    expect(genotype.get('I')?.get(mockGenes.chrom1Gene1)).toHaveLength(2);
-    expect(genotype.get('I')?.get(mockGenes.chrom1Gene1)).toContain(
-      mockAlleles.chrom1Gene1Allele1
-    );
-    expect(genotype.get('I')?.get(mockGenes.chrom1Gene1)).toContain(
-      WILD_ALLELE
-    );
+    expect(genotype.genes.get('I')).toBeDefined();
+    expect(genotype.genes.get('I')?.size).toBe(1);
+    expect(
+      genotype.genes.get('I')?.get(mockGenes.chrom1Gene1.sysName)
+    ).toHaveLength(2);
+    expect(
+      genotype.genes.get('I')?.get(mockGenes.chrom1Gene1.sysName)
+    ).toContain(mockAlleles.chrom1Gene1Allele1);
+    expect(
+      genotype.genes.get('I')?.get(mockGenes.chrom1Gene1.sysName)
+    ).toContain(WILD_ALLELE);
   });
 
   test('Chromosome II', () => {
     const crossNode = crossNodeMock.mutated;
     const genotype = getGenotype(crossNode);
 
-    expect(genotype.get('II')).toBeDefined();
-    expect(genotype.get('II')?.size).toBe(2);
+    expect(genotype.genes.get('II')).toBeDefined();
+    expect(genotype.genes.get('II')?.size).toBe(2);
 
-    expect(genotype.get('II')?.get(mockGenes.chrom2Gene1)).toHaveLength(2);
-    expect(genotype.get('II')?.get(mockGenes.chrom2Gene1)).toContain(
-      mockAlleles.chrom2Gene1Allele1
-    );
-    expect(genotype.get('II')?.get(mockGenes.chrom2Gene1)).toContain(
-      mockAlleles.chrom2Gene1Allele2
-    );
+    expect(
+      genotype.genes.get('II')?.get(mockGenes.chrom2Gene1.sysName)
+    ).toHaveLength(2);
+    expect(
+      genotype.genes.get('II')?.get(mockGenes.chrom2Gene1.sysName)
+    ).toContain(mockAlleles.chrom2Gene1Allele1);
+    expect(
+      genotype.genes.get('II')?.get(mockGenes.chrom2Gene1.sysName)
+    ).toContain(mockAlleles.chrom2Gene1Allele2);
 
-    expect(genotype.get('II')?.get(mockGenes.chrom2Gene2)).toHaveLength(2);
-    expect(genotype.get('II')?.get(mockGenes.chrom2Gene2)).toContain(
-      mockAlleles.chrom2Gene2Allele1
-    );
-    expect(genotype.get('II')?.get(mockGenes.chrom2Gene2)).toContain(
-      WILD_ALLELE
-    );
+    expect(
+      genotype.genes.get('II')?.get(mockGenes.chrom2Gene2.sysName)
+    ).toHaveLength(2);
+    expect(
+      genotype.genes.get('II')?.get(mockGenes.chrom2Gene2.sysName)
+    ).toContain(mockAlleles.chrom2Gene2Allele1);
+    expect(
+      genotype.genes.get('II')?.get(mockGenes.chrom2Gene2.sysName)
+    ).toContain(WILD_ALLELE);
   });
 
   test('Chromosome III', () => {
     const crossNode = crossNodeMock.mutated;
     const genotype = getGenotype(crossNode);
 
-    expect(genotype.get('III')).toBeDefined();
-    expect(genotype.get('III')?.size).toBe(1);
+    expect(genotype.genes.get('III')).toBeDefined();
+    expect(genotype.genes.get('III')?.size).toBe(1);
   });
 
   test('Chromosome X', () => {
     const crossNode = crossNodeMock.mutated;
     const genotype = getGenotype(crossNode);
 
-    expect(genotype.get('X')).toBeDefined();
-    expect(genotype.get('X')?.size).toBe(1);
+    expect(genotype.genes.get('X')).toBeDefined();
+    expect(genotype.genes.get('X')?.size).toBe(1);
 
     // X0 sex determination
-    expect(genotype.get('X')?.get(mockGenes.chromXGene1)).toHaveLength(1);
-    expect(genotype.get('X')?.get(mockGenes.chromXGene1)).toContain(
-      mockAlleles.chromXGene1Allele1
-    );
+    expect(
+      genotype.genes.get('X')?.get(mockGenes.chromXGene1.sysName)
+    ).toHaveLength(2);
+    expect(
+      genotype.genes.get('X')?.get(mockGenes.chromXGene1.sysName)
+    ).toContain(mockAlleles.chromXGene1Allele1);
   });
 
   test('Chromosome ECA', () => {
     const crossNode = crossNodeMock.mutated;
     const genotype = getGenotype(crossNode);
 
-    expect(genotype.get('ECA')).toBeDefined();
-    expect(genotype.get('ECA')?.size).toBe(1);
+    expect(genotype.variations.get('ECA')).toBeDefined();
+    expect(genotype.variations.get('ECA')?.size).toBe(1);
 
     expect(
-      genotype.get('ECA')?.get(mockVariations.chromEcaVariation1)
+      genotype.variations
+        .get('ECA')
+        ?.get(mockVariations.chromEcaVariation1.name)
     ).toHaveLength(1);
     expect(
-      genotype.get('ECA')?.get(mockVariations.chromEcaVariation1)
+      genotype.variations
+        .get('ECA')
+        ?.get(mockVariations.chromEcaVariation1.name)
     ).toContain(mockAlleles.chromEcaVariation1Allele1);
   });
 
@@ -152,14 +173,18 @@ describe('Genotype with complete input data', () => {
     const crossNode = crossNodeMock.mutated;
     const genotype = getGenotype(crossNode);
 
-    expect(genotype.get(undefined)).toBeDefined();
-    expect(genotype.get(undefined)?.size).toBe(1);
+    expect(genotype.variations.get(undefined)).toBeDefined();
+    expect(genotype.variations.get(undefined)?.size).toBe(1);
 
     expect(
-      genotype.get(undefined)?.get(mockVariations.chromUnknownVariation1)
+      genotype.variations
+        .get(undefined)
+        ?.get(mockVariations.chromUnknownVariation1.name)
     ).toHaveLength(1);
     expect(
-      genotype.get(undefined)?.get(mockVariations.chromUnknownVariation1)
+      genotype.variations
+        .get(undefined)
+        ?.get(mockVariations.chromUnknownVariation1.name)
     ).toContain(mockAlleles.chromUnknownVariation1Allele1);
   });
 });
@@ -182,16 +207,13 @@ describe('Genotype with incomplete input data.', () => {
     const crossNode = crossNodeMock.badMutationLists;
     const genotype = getGenotype(crossNode);
 
+    expect(genotype.genes.get('I')?.get(mockGenes.chrom1Gene1.sysName)).toEqual(
+      [mockAlleles.chrom1Gene1Allele1, WILD_ALLELE]
+    );
     expect(
-      genotype.get('I')?.get(mockAlleles.chrom1Gene1Allele1.gene as Mutation)
-    ).toEqual([
-      mockAlleles.chrom1Gene1Allele1,
-      mockGenes.chrom1Gene1.ploidy === 2 ? WILD_ALLELE : undefined,
-    ]);
-    expect(
-      genotype
+      genotype.variations
         .get('ECA')
-        ?.get(mockAlleles.chromEcaVariation1Allele1.variation as Mutation)
+        ?.get(mockVariations.chromEcaVariation1.name)
     ).toEqual([mockAlleles.chromEcaVariation1Allele1]);
 
     expect(console.error).toHaveBeenCalledTimes(2);
@@ -202,8 +224,8 @@ describe('Genotype with incomplete input data.', () => {
     const genotype = getGenotype(crossNode);
 
     // Assign it to ? chromosome
-    expect(genotype.get(undefined)).toBeDefined();
-    expect(genotype.get(undefined)).toHaveLength(1);
+    expect(genotype.variations.get(undefined)).toBeDefined();
+    expect(genotype.variations.get(undefined)).toHaveLength(1);
 
     expect(console.error).toHaveBeenCalledTimes(2);
   });
@@ -214,13 +236,17 @@ describe('Mutations displayed with or without partners.', () => {
     const crossNode = crossNodeMock.monoid;
     const genotype = getGenotype(crossNode);
     expect(
-      genotype.get('ECA')?.get(mockVariations.chromEcaVariation1)
+      genotype.variations
+        .get('ECA')
+        ?.get(mockVariations.chromEcaVariation1.name)
     ).toHaveLength(1);
   });
 
   test('Partnered (diploid) allele fraction has exactly two entries. ()', () => {
     const crossNode = crossNodeMock.diploid;
     const genotype = getGenotype(crossNode);
-    expect(genotype.get('I')?.get(mockGenes.chrom1Gene1)).toHaveLength(2);
+    expect(
+      genotype.genes.get('I')?.get(mockGenes.chrom1Gene1.sysName)
+    ).toHaveLength(2);
   });
 });

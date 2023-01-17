@@ -1,16 +1,6 @@
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 
 /**
- * A mutation is the (common) state of a Gene or VariationInfo
- */
-export default class Mutation {
-  chromosome?: Chromosome;
-  physLoc?: MutationLocation; // Physical location of the gene on a chromosome
-  geneticLoc?: MutationLocation; // Variation's genetic distance from the middle of a chromosome
-  ploidy: number = 2; // C. Elegans are diploid => 2 copies of all genes; variations can be solo (but needn't be?)
-}
-
-/**
  * Specific to C. Elegans:
  * I to V are five somatic chromosomes,
  * X is sex chromosome,

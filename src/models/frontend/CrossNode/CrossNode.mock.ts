@@ -71,6 +71,7 @@ export const mutated: CrossNodeModel = {
   variations: [
     mockVariations.chromEcaVariation1,
     mockVariations.chromUnknownVariation1,
+    mockVariations.chrom1Variation1,
   ],
   isSelected: false,
   parents: [],

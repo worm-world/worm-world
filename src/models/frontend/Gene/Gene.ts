@@ -1,13 +1,16 @@
 import { db_Gene } from 'models/db/db_Gene';
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
-import Mutation, { MutationLocation } from 'models/frontend/Mutation';
+import { MutationLocation } from 'models/frontend/Mutation';
 
-interface iGene extends Mutation {
+interface iGene {
   sysName: string;
   descName?: string;
+  chromosome?: Chromosome;
+  physLoc?: MutationLocation; // Physical location of the gene on a chromosome
+  geneticLoc?: MutationLocation; // Variation's genetic distance from the middle of a chromosome
 }
 
-export class Gene implements Mutation {
+export class Gene {
   sysName: string = '';
   descName?: string;
   chromosome?: Chromosome;
@@ -26,7 +29,6 @@ export class Gene implements Mutation {
       physLoc: new MutationLocation(record.physLoc),
       geneticLoc: new MutationLocation(record.geneticLoc),
       chromosome: record.chromosome ?? undefined,
-      ploidy: 2,
     });
   }
 
