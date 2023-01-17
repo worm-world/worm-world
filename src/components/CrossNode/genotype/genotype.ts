@@ -21,10 +21,10 @@ type GeneMap = Map<SysGeneName, Allele[]>;
 type VariationMap = Map<VariationName, Allele[]>;
 
 // Genetic identity formatted for display
-export type Genotype = {
+export interface Genotype {
   genes: Map<Chromosome | undefined, GeneMap>;
   variations: Map<Chromosome | undefined, VariationMap>;
-};
+}
 
 // Data format transformation to get hierarchical map: chromosome -> gene/variation -> alleles
 export const getGenotype = (crossNode: CrossNode): Genotype => {
@@ -103,7 +103,7 @@ function fillWithAlleles(genotype: Genotype, allelesToAdd: Allele[]): void {
  */
 const fillWithWildAlleles = (genotype: Genotype): void => {
   for (const geneMap of genotype.genes.values()) {
-    for (const [_, alleles] of geneMap.entries()) {
+    for (const [, alleles] of geneMap.entries()) {
       while (alleles.length < 2) {
         alleles.push(WILD_ALLELE);
       }
@@ -111,7 +111,7 @@ const fillWithWildAlleles = (genotype: Genotype): void => {
   }
 
   for (const [chromosome, variationMap] of genotype.variations.entries()) {
-    for (const [_, alleles] of variationMap.entries()) {
+    for (const [, alleles] of variationMap.entries()) {
       if (chromosome !== undefined && chromosome !== 'ECA') {
         while (alleles.length < 2) {
           alleles.push(WILD_ALLELE);

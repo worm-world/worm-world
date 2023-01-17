@@ -7,7 +7,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import { BrowserRouter as Router, useRoutes } from 'react-router-dom';
 
 import routes from '~react-pages';
-import SideNav from 'components/SideNav/SideNav';
 
 const App: FC = () => {
   return (

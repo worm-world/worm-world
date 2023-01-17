@@ -250,3 +250,13 @@ describe('Mutations displayed with or without partners.', () => {
     ).toHaveLength(2);
   });
 });
+
+describe('genotype handles genes with different identities', () => {
+  test('different identities of Gene, common sysName', () => {
+    const crossNode = crossNodeMock.smallMutated;
+    const genotype = getGenotype(crossNode);
+    expect(
+      genotype.genes.get('I')?.get(crossNodeMock.geneCopy1.sysName)
+    ).toEqual(genotype.genes.get('I')?.get(crossNodeMock.geneCopy2.sysName));
+  });
+});

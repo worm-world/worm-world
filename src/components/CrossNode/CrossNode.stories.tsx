@@ -29,6 +29,9 @@ empty.args = { model: crossNodeMock.empty };
 export const wild = Template.bind({});
 wild.args = { model: crossNodeMock.wild };
 
+export const smallMutated = Template.bind({});
+smallMutated.args = { model: crossNodeMock.smallMutated };
+
 export const mutated = Template.bind({});
 mutated.args = { model: crossNodeMock.mutated };
 

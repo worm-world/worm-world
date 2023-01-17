@@ -16,7 +16,6 @@ export class Gene {
   chromosome?: Chromosome;
   physLoc?: MutationLocation;
   geneticLoc?: MutationLocation;
-  ploidy: number = 2;
 
   constructor(fields: iGene) {
     Object.assign(this, fields);

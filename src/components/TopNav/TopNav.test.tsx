@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { TopNav } from './TopNav';
 
 const renderComponent = ({ title = 'test', tabIndex = 0 }): void => {
