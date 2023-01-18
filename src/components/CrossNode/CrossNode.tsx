@@ -62,14 +62,11 @@ const getChromosomeBox = (
   const variationMap = genotype.variations.get(chromosome) ?? new Map();
   let nextKey = 0;
 
-  geneMap.forEach((alleles) => {
-    mutationBoxes.push(getMutationBox(alleles, nextKey));
-    nextKey += 1;
-  });
-
+  geneMap.forEach((alleles) =>
+    mutationBoxes.push(getMutationBox(alleles, nextKey++))
+  );
   variationMap.forEach((alleles) => {
-    mutationBoxes.push(getMutationBox(alleles, nextKey));
-    nextKey += 1;
+    mutationBoxes.push(getMutationBox(alleles, nextKey++));
   });
 
   const displayChrom = chromosome ?? '?'; // undefined chromosomes are represented by: ?

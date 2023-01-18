@@ -1,27 +1,9 @@
-import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
-
-/**
- * Specific to C. Elegans:
- * I to V are five somatic chromosomes,
- * X is sex chromosome,
- * ECA is extra-chromosomal array (not technically chromosome, but treated as one)
- */
-export const chromosomes: Chromosome[] = [
-  'I',
-  'II',
-  'III',
-  'IV',
-  'V',
-  'X',
-  'ECA',
-];
-
 /**
  * @summary Locations for a gene can be represented as a single number OR as a range between two numbers
  * @param start Start of range
  * @param end End of range. Leave blank if location is not a range
  */
-export class MutationLocation {
+export default class GeneticLocation {
   private readonly start?: number;
   private readonly end?: number;
 

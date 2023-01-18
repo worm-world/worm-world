@@ -1,21 +1,21 @@
 import { db_Gene } from 'models/db/db_Gene';
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
-import { MutationLocation } from 'models/frontend/Mutation';
+import GeneticLocation from 'models/frontend/GeneticLocation';
 
 interface iGene {
   sysName: string;
   descName?: string;
   chromosome?: Chromosome;
-  physLoc?: MutationLocation; // Physical location of the gene on a chromosome
-  geneticLoc?: MutationLocation; // Variation's genetic distance from the middle of a chromosome
+  physLoc?: GeneticLocation; // Physical location of the gene on a chromosome
+  geneticLoc?: GeneticLocation; // Variation's genetic distance from the middle of a chromosome
 }
 
 export class Gene {
   sysName: string = '';
   descName?: string;
   chromosome?: Chromosome;
-  physLoc?: MutationLocation;
-  geneticLoc?: MutationLocation;
+  physLoc?: GeneticLocation;
+  geneticLoc?: GeneticLocation;
 
   constructor(fields: iGene) {
     Object.assign(this, fields);
@@ -25,8 +25,8 @@ export class Gene {
     return new Gene({
       sysName: record.sysName,
       descName: record.descName ?? undefined,
-      physLoc: new MutationLocation(record.physLoc),
-      geneticLoc: new MutationLocation(record.geneticLoc),
+      physLoc: new GeneticLocation(record.physLoc),
+      geneticLoc: new GeneticLocation(record.geneticLoc),
       chromosome: record.chromosome ?? undefined,
     });
   }
