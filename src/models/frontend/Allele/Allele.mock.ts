@@ -53,6 +53,11 @@ export const chromEcaVariation1Allele1 = new Allele({
 });
 
 export const chromUnknownVariation1Allele1 = new Allele({
-  name: 'chromEcaVariation1Allele1',
+  name: 'chromUnknownVariation1Allele1',
   variation: variationMock.chromUnknownVariation1,
+});
+
+export const chrom1Variation1Allele1 = new Allele({
+  name: 'chrom1Variation1Allele1',
+  variation: variationMock.chrom1Variation1,
 });

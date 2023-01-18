@@ -5,6 +5,7 @@ import * as mockGenes from 'models/frontend/Gene/Gene.mock';
 import * as mockVariations from 'models/frontend/VariationInfo/VariationInfo.mock';
 import * as mockAlleles from 'models/frontend/Allele/Allele.mock';
 import { Allele } from '../Allele/Allele';
+import { Gene } from '../Gene/Gene';
 
 // Empty Cross Node ///////////////////////////////////////////////////////////
 
@@ -71,9 +72,66 @@ export const mutated: CrossNodeModel = {
   variations: [
     mockVariations.chromEcaVariation1,
     mockVariations.chromUnknownVariation1,
+    mockVariations.chrom1Variation1,
   ],
   isSelected: false,
   parents: [],
+};
+
+// Small mutated cross node //////////////////////////////////
+export const geneCopy1: Gene = {
+  sysName: 'sysGeneName1',
+  chromosome: 'I',
+  generateRecord: () => {
+    return {
+      sysName: 'ignore this fn',
+      descName: null,
+      chromosome: null,
+      physLoc: null,
+      geneticLoc: null,
+    };
+  },
+};
+
+export const geneCopy2: Gene = {
+  sysName: 'sysGeneName1',
+  chromosome: 'I',
+  generateRecord: () => {
+    return {
+      sysName: 'ignore this fn',
+      descName: null,
+      chromosome: null,
+      physLoc: null,
+      geneticLoc: null,
+    };
+  },
+};
+
+export const smallMutated: CrossNodeModel = {
+  sex: Sex.Hermaphrodite,
+  parents: [],
+  isSelected: false,
+  genes: [geneCopy1],
+  variations: [],
+  strain: {
+    name: 'strain1',
+    alleles: [
+      {
+        name: 'allele1',
+        gene: geneCopy2,
+        alleleExpressions: [],
+        generateRecord: () => {
+          return {
+            name: 'ignore this fn',
+            contents: null,
+            sysGeneName: null,
+            variationName: null,
+          };
+        },
+      },
+    ],
+    notes: '',
+  },
 };
 
 // Bad Mutation Lists  //////////////////////////////////////////////////////////

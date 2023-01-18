@@ -1,16 +1,19 @@
 import { db_VariationInfo } from 'models/db/db_VariationInfo';
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
-import Mutation, { MutationLocation } from 'models/frontend/Mutation';
+import GeneticLocation from 'models/frontend/GeneticLocation';
 
-interface iVariation extends Mutation {
+interface iVariation {
   name: string;
+  chromosome?: Chromosome;
+  physLoc?: GeneticLocation; // Physical location of the gene on a chromosome
+  geneticLoc?: GeneticLocation; // Genetic distance from the middle of a chromosome
 }
-export class VariationInfo implements Mutation {
+
+export class VariationInfo {
   name: string = ''; // Will be, by convention, same as allele name
   chromosome?: Chromosome;
-  physLoc?: MutationLocation;
-  geneticLoc?: MutationLocation;
-  ploidy: number = 1;
+  physLoc?: GeneticLocation;
+  geneticLoc?: GeneticLocation;
 
   constructor(fields: iVariation) {
     Object.assign(this, fields);
@@ -19,10 +22,9 @@ export class VariationInfo implements Mutation {
   static createFromRecord(record: db_VariationInfo): VariationInfo {
     return new VariationInfo({
       name: record.alleleName,
-      physLoc: new MutationLocation(record.physLoc),
-      geneticLoc: new MutationLocation(record.geneticLoc),
+      physLoc: new GeneticLocation(record.physLoc),
+      geneticLoc: new GeneticLocation(record.geneticLoc),
       chromosome: record.chromosome ?? undefined,
-      ploidy: 1,
     });
   }
 

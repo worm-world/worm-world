@@ -6,7 +6,7 @@ import { Table, ColumnDefinitionType } from 'components/Table/Table';
 import DataImportForm, {
   FieldType,
 } from 'components/DataImportForm/DataImportForm';
-import { chromosomes } from 'models/frontend/Mutation';
+import { chromosomes } from 'models/frontend/Chromosome';
 
 export const cols: Array<ColumnDefinitionType<db_VariationInfo>> = [
   { key: 'alleleName', header: 'Allele Name' },

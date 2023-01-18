@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import Layout from 'components/Layout/Layout';
 import { BrowserRouter } from 'react-router-dom';
 

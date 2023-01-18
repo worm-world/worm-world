@@ -7,15 +7,14 @@ interface iTopNavInputProps {
 
 export function TopNav(props: iTopNavInputProps): JSX.Element {
   const initialTabIdx = props.tabIndex === undefined ? 0 : props.tabIndex;
-  console.log(initialTabIdx);
   const [tabIdx, setTabIdx] = React.useState(initialTabIdx);
 
-  const handleTabChange = (
-    _event: React.SyntheticEvent,
-    newValue: number
-  ): void => {
-    setTabIdx(newValue);
-  };
+  // const handleTabChange = (
+  //   _event: React.SyntheticEvent,
+  //   newValue: number
+  // ): void => {
+  //   setTabIdx(newValue);
+  // };
 
   return (
     <div className='justify-left flex flex-row border-b-4 border-b-base-300 bg-base-200 pt-4 pb-4'>
