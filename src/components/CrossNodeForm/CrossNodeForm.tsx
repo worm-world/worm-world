@@ -1,16 +1,17 @@
-import { getGenes } from 'api/gene';
+import { getFilteredGenes, getGenes } from 'api/gene';
 import { Gene } from 'models/frontend/Gene/Gene';
 import React, { useEffect, useState } from 'react';
 import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
-import { getVariations } from 'api/variationInfo';
+import { getFilteredVariations, getVariations } from 'api/variationInfo';
 import { Allele } from 'models/frontend/Allele/Allele';
 import { getFilteredAlleles } from 'api/allele';
 import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import { Sex } from 'models/enums';
 import CrossNode from 'components/CrossNode/CrossNode';
 import { Multiselector, Selector, Option } from 'components/Selector/Selector';
-import { FilterTuple } from 'models/db/filter/Filter';
+import { Filter, FilterTuple } from 'models/db/filter/Filter';
 import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
+import { DynamicMultiSelect } from 'components/Selector/DynamicMultiSelect';
 
 export interface CrossNodeFormProps {
   addNewCrossNode: (arg: JSX.Element) => void;
@@ -62,45 +63,6 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
   }, [selectedGenes, selectedVariations]);
 
   // Selectors
-  const geneSelector = (
-    <Multiselector
-      key={'Genes to Display'}
-      label={'Genes to Display'}
-      options={geneOptions}
-      selectedValues={selectedGenes}
-      setSelectedValues={setSelectedGenes}
-    />
-  );
-  const variationSelector = (
-    <Multiselector
-      key={'Variations to Display'}
-      label='Variations to Display'
-      options={variationOptions}
-      selectedValues={selectedVariations}
-      setSelectedValues={setSelectedVariations}
-    />
-  );
-  const alleleSelector = (
-    <Multiselector
-      key={'Alleles'}
-      label='Alleles'
-      options={alleleOptions}
-      selectedValues={selectedAlleles}
-      setSelectedValues={setSelectedAlleles}
-    />
-  );
-  const sexSelector = (
-    <Selector
-      key={'Sex'}
-      label='Sex'
-      options={[
-        { label: 'male', value: Sex.Male },
-        { label: 'hermaphrodite', value: Sex.Hermaphrodite },
-      ]}
-      selectedValue={selectedSex}
-      setSelectedValue={setSelectedSex}
-    />
-  );
 
   // Submission handler
   const sexForNode: Sex = selectedSex.value;
@@ -128,10 +90,43 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
 
   return (
     <>
-      {getCrossNodeForm(
-        [sexSelector, geneSelector, variationSelector, alleleSelector],
-        onSubmit
-      )}
+      <h3 className='font-medium'>Add a New Cross Node</h3>
+      <label className='label'>
+        <span className='label-text'>Sex</span>
+      </label>
+      <select className='select-bordered select w-full max-w-xs'>
+        <option value={Sex.Male}>male</option>
+        <option value={Sex.Hermaphrodite}>hermaphrodite</option>
+      </select>
+      <DynamicMultiSelect
+        getFilteredRecordApi={getFilteredGenes}
+        searchOn={'SysName'}
+        selectInputOn={'sysName'}
+        displayResultsOn={['sysName']}
+        label='Genes to Display'
+      />
+      <DynamicMultiSelect
+        getFilteredRecordApi={getFilteredVariations}
+        searchOn={'AlleleName'}
+        selectInputOn={'alleleName'}
+        displayResultsOn={['alleleName']}
+        label='Variations to Display'
+      />
+      <DynamicMultiSelect
+        getFilteredRecordApi={getFilteredAlleles}
+        searchOn={'Name'}
+        selectInputOn={'name'}
+        displayResultsOn={['name']}
+        label='Alleles'
+      />
+      <button
+        className='btn mt-5 max-w-xs bg-accent'
+        onClick={() => {
+          onSubmit();
+        }}
+      >
+        Create New Cross Node
+      </button>
     </>
   );
 };
@@ -230,26 +225,6 @@ const createNewCrossNode = (
   };
   console.log(crossNode);
   return <CrossNode model={crossNode}></CrossNode>;
-};
-
-const getCrossNodeForm = (
-  selectors: JSX.Element[],
-  submissionHandler: () => void
-): JSX.Element => {
-  return (
-    <>
-      <h3 className='font-medium'>Add a New Cross Node</h3>
-      <ul>{selectors}</ul>
-      <button
-        className='btn mt-5 bg-accent'
-        onClick={() => {
-          submissionHandler();
-        }}
-      >
-        Create New Cross Node
-      </button>
-    </>
-  );
 };
 
 export default CrossNodeForm;
