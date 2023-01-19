@@ -152,6 +152,46 @@ mod test {
         assert_eq!(exprs, testdata::get_allele_exprs_multi_order_by());
         Ok(())
     }
+
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_search_allele_expr_by_allele_name(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_allele_exprs(&Filter::<AlleleExpressionFieldName> {
+                filters: vec![vec![(
+                    AlleleExpressionFieldName::AlleleName,
+                    FilterType::Like("2".to_string()),
+                )]],
+                order_by: vec![
+                    AlleleExpressionFieldName::AlleleName,
+                    AlleleExpressionFieldName::ExpressingPhenotypeName,
+                ],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::search_allele_exprs_by_allele_name());
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_search_allele_expr_by_phenotype_name(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_allele_exprs(&Filter::<AlleleExpressionFieldName> {
+                filters: vec![vec![(
+                    AlleleExpressionFieldName::ExpressingPhenotypeName,
+                    FilterType::Like("unc-".to_string()),
+                )]],
+                order_by: vec![
+                    AlleleExpressionFieldName::ExpressingPhenotypeName,
+                    AlleleExpressionFieldName::AlleleName,
+                ],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::search_allele_exprs_by_phenotype_name());
+        Ok(())
+    }
     /* #endregion */
 
     /* #region insert_allele_expr tests */

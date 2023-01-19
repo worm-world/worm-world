@@ -195,6 +195,38 @@ mod test {
         assert_eq!(exprs, testdata::get_filtered_genes_and_or_clause());
         Ok(())
     }
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_search_genes_by_desc_name(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_genes(&Filter::<GeneFieldName> {
+                filters: vec![vec![(
+                    GeneFieldName::DescName,
+                    FilterType::Like("in".to_string()),
+                )]],
+                order_by: vec![GeneFieldName::DescName],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::search_genes_by_desc_name());
+        Ok(())
+    }
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_search_genes_by_sys_or_desc_name(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_genes(&Filter::<GeneFieldName> {
+                filters: vec![
+                    vec![(GeneFieldName::SysName, FilterType::Like("T14".to_string()))],
+                    vec![(GeneFieldName::DescName, FilterType::Like("lin".to_string()))],
+                ],
+                order_by: vec![GeneFieldName::DescName],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::search_genes_by_sys_or_desc_name());
+        Ok(())
+    }
     /* #endregion */
 
     /* #region insert_gene tests */

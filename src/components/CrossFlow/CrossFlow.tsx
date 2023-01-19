@@ -102,10 +102,10 @@ const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
       onConnect={onConnect}
       defaultViewport={{ x: 0, y: 0, zoom: 5 }}
     >
-      <Controls position='top-left' className='bg-base-100' />
+      <Controls position='top-left' className='bg-base-100 text-base-content' />
       <MiniMap
         position='bottom-left'
-        className='bg-base-100'
+        className='bg-base-300'
         nodeClassName='bg-base-100'
       />
       <Background className='-z-50 bg-base-300' size={1} gap={16} />

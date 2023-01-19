@@ -26,7 +26,6 @@ impl InnerDbState {
             }
         }
     }
-
     pub async fn get_filtered_variation_info(
         &self,
         filter: &Filter<VariationFieldName>,
@@ -47,7 +46,6 @@ impl InnerDbState {
             }
         }
     }
-
     pub async fn insert_variation_info(&self, vi: &VariationInfo) -> Result<(), DbError> {
         let chromosome = vi.chromosome.as_ref().map(|v| v.to_string());
         match sqlx::query!(
@@ -127,6 +125,21 @@ mod test {
         let exprs = state.get_filtered_variation_info(&filter).await?;
 
         assert_eq!(exprs, testdata::get_filtered_variation_gen_loc_range());
+        Ok(())
+    }
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_search_variation_by_allele_name(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let filter = Filter::<VariationFieldName> {
+            filters: vec![vec![(
+                VariationFieldName::AlleleName,
+                FilterType::Like("IS".to_string()),
+            )]],
+            order_by: vec![VariationFieldName::AlleleName],
+        };
+        let exprs = state.get_filtered_variation_info(&filter).await?;
+
+        assert_eq!(exprs, testdata::search_variation_by_allele_name());
         Ok(())
     }
     /* #endregion */

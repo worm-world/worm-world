@@ -195,6 +195,26 @@ mod test {
         );
         Ok(())
     }
+
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_search_conditions_by_name(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_conditions(&Filter::<ConditionFieldName> {
+                filters: vec![vec![(
+                    ConditionFieldName::Name,
+                    FilterType::Like("ami".to_owned()),
+                )]],
+                order_by: vec![ConditionFieldName::Name],
+            })
+            .await?;
+
+        assert_eq!(
+            exprs,
+            testdata::search_conditions_by_name()
+        );
+        Ok(())
+    }
     /* endregion get_filtered_conditions tests */
 
     /* #region get_altering_conditions test */

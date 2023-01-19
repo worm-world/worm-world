@@ -204,6 +204,23 @@ mod test {
         assert_eq!(exprs, testdata::get_phenotypes_maturation_less_equal_3());
         Ok(())
     }
+
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_search_phenotypes_by_short_name(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_phenotypes(&Filter::<PhenotypeFieldName> {
+                filters: vec![vec![(
+                    PhenotypeFieldName::ShortName,
+                    FilterType::Like("NLS".to_owned()),
+                )]],
+                order_by: vec![PhenotypeFieldName::Name],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::search_phenotypes_by_short_name());
+        Ok(())
+    }
     /* #endregion */
 
     /* #region get_altering_phenotypes tests */

@@ -261,5 +261,22 @@ mod test {
         assert_eq!(exprs, testdata::get_alleles_with_null_content());
         Ok(())
     }
+
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_search_allele_by_name(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_alleles(&Filter::<AlleleFieldName> {
+                filters: vec![vec![(
+                    AlleleFieldName::Name,
+                    FilterType::Like("oxEx".to_string()),
+                )]],
+                order_by: vec![AlleleFieldName::Name],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::search_alleles_by_name());
+        Ok(())
+    }
     /* #endregion */
 }
