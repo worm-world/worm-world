@@ -59,16 +59,14 @@ describe('Genotype with no alleles', () => {
     ).toHaveLength(2);
   });
 
-  test('Chromosome ECA with mutations', () => {
+  test('Chromosome Ex with mutations', () => {
     const crossNode = crossNodeMock.wild;
     const genotype = getGenotype(crossNode);
 
-    expect(genotype.variations.get('ECA')).toBeDefined();
-    expect(genotype.variations.get('ECA')?.size).toBe(1);
+    expect(genotype.variations.get('Ex')).toBeDefined();
+    expect(genotype.variations.get('Ex')?.size).toBe(1);
     expect(
-      genotype.variations
-        .get('ECA')
-        ?.get(mockVariations.chromEcaVariation1.name)
+      genotype.variations.get('Ex')?.get(mockVariations.chromEcaVariation1.name)
     ).toHaveLength(1);
   });
 });
@@ -150,22 +148,18 @@ describe('Genotype with complete input data', () => {
     ).toContain(mockAlleles.chromXGene1Allele1);
   });
 
-  test('Chromosome ECA', () => {
+  test('Chromosome Ex', () => {
     const crossNode = crossNodeMock.mutated;
     const genotype = getGenotype(crossNode);
 
-    expect(genotype.variations.get('ECA')).toBeDefined();
-    expect(genotype.variations.get('ECA')?.size).toBe(1);
+    expect(genotype.variations.get('Ex')).toBeDefined();
+    expect(genotype.variations.get('Ex')?.size).toBe(1);
 
     expect(
-      genotype.variations
-        .get('ECA')
-        ?.get(mockVariations.chromEcaVariation1.name)
+      genotype.variations.get('Ex')?.get(mockVariations.chromEcaVariation1.name)
     ).toHaveLength(1);
     expect(
-      genotype.variations
-        .get('ECA')
-        ?.get(mockVariations.chromEcaVariation1.name)
+      genotype.variations.get('Ex')?.get(mockVariations.chromEcaVariation1.name)
     ).toContain(mockAlleles.chromEcaVariation1Allele1);
   });
 
@@ -211,9 +205,7 @@ describe('Genotype with incomplete input data.', () => {
       [mockAlleles.chrom1Gene1Allele1, WILD_ALLELE]
     );
     expect(
-      genotype.variations
-        .get('ECA')
-        ?.get(mockVariations.chromEcaVariation1.name)
+      genotype.variations.get('Ex')?.get(mockVariations.chromEcaVariation1.name)
     ).toEqual([mockAlleles.chromEcaVariation1Allele1]);
 
     expect(console.error).toHaveBeenCalledTimes(2);
@@ -236,9 +228,7 @@ describe('Mutations displayed with or without partners.', () => {
     const crossNode = crossNodeMock.monoid;
     const genotype = getGenotype(crossNode);
     expect(
-      genotype.variations
-        .get('ECA')
-        ?.get(mockVariations.chromEcaVariation1.name)
+      genotype.variations.get('Ex')?.get(mockVariations.chromEcaVariation1.name)
     ).toHaveLength(1);
   });
 

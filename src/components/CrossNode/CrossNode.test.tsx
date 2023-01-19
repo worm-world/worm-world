@@ -26,7 +26,7 @@ describe('CrossNode component', () => {
     const chromosomeIIISection = screen.getByText(/^III$/);
     expect(chromosomeIIISection).toBeDefined();
 
-    const chromosomeECASection = screen.getByText(/^ECA$/);
-    expect(chromosomeECASection).toBeDefined();
+    const chromosomeExSection = screen.getByText(/^Ex$/);
+    expect(chromosomeExSection).toBeDefined();
   });
 });
