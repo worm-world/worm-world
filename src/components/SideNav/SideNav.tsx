@@ -113,11 +113,11 @@ const SideNav = (props: SideNavProps): JSX.Element => {
               </option>
             ))}
           </select>
-          <div className='grid grid-cols-4 w-32 pt-2'>
-              <div className='bg-primary w-full h-2'>&nbsp;</div>
-              <div className='bg-secondary w-full h-2'>&nbsp;</div>
-              <div className='bg-accent w-full h-2'>&nbsp;</div>
-              <div className='bg-neutral w-full h-2'>&nbsp;</div>
+          <div className='grid w-32 grid-cols-4 pt-2'>
+            <div className='h-2 w-full bg-primary'>&nbsp;</div>
+            <div className='h-2 w-full bg-secondary'>&nbsp;</div>
+            <div className='h-2 w-full bg-accent'>&nbsp;</div>
+            <div className='h-2 w-full bg-neutral'>&nbsp;</div>
           </div>
         </div>
       </div>

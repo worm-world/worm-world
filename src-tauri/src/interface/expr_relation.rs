@@ -195,6 +195,49 @@ mod test {
         );
         Ok(())
     }
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_search_expr_relations_by_allele_name(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_expr_relations(&Filter::<ExpressionRelationFieldName> {
+                filters: vec![vec![(
+                    ExpressionRelationFieldName::AlleleName,
+                    FilterType::Like("5".to_owned()),
+                )]],
+                order_by: vec![ExpressionRelationFieldName::AlleleName],
+            })
+            .await?;
+
+        assert_eq!(exprs, testdata::search_expr_relations_by_allele_name());
+        Ok(())
+    }
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_search_expr_relations_by_allele_name_and_expressing_phenotype(
+        pool: Pool<Sqlite>,
+    ) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_expr_relations(&Filter::<ExpressionRelationFieldName> {
+                filters: vec![vec![
+                    (
+                        ExpressionRelationFieldName::AlleleName,
+                        FilterType::Like("ox".to_owned()),
+                    ),
+                    (
+                        ExpressionRelationFieldName::ExpressingPhenotypeName,
+                        FilterType::Like("yfp".to_owned()),
+                    ),
+                ]],
+                order_by: vec![ExpressionRelationFieldName::AlleleName],
+            })
+            .await?;
+
+        assert_eq!(
+            exprs,
+            testdata::search_expr_relations_by_allele_name_and_expressing_phenotype()
+        );
+        Ok(())
+    }
     /* #endregion get_filtered_expr_relations tests */
 
     /* #region insert_filtered_expr_relation tests */

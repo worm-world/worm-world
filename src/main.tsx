@@ -5,7 +5,6 @@ import Layout from 'components/Layout/Layout';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { BrowserRouter as Router, useRoutes } from 'react-router-dom';
-
 import routes from '~react-pages';
 
 const App: FC = () => {

@@ -18,7 +18,7 @@ export const getFilteredGenes = async (
 
 export const getGene = async (name: string): Promise<db_Gene> => {
   const filter: Filter<GeneFieldName> = {
-    filters: [[['DescName', { Equal: name }]]],
+    filters: [[['SysName', { Equal: name }]]],
     orderBy: [],
   };
   const res = await getFilteredGenes(filter);

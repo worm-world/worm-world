@@ -18,6 +18,8 @@ pub enum FilterType {
     GreaterThan(String, bool),
     Equal(String),
     NotEqual(String),
+    /// searches all entries that contain the string
+    Like(String),
     Null,
     NotNull,
     True,
@@ -62,6 +64,10 @@ impl FilterType {
             Self::NotEqual(a) => {
                 qb.push(" != ");
                 qb.push_bind(a.to_owned());
+            }
+            Self::Like(a) => {
+                qb.push(" LIKE ");
+                qb.push_bind(format!("%{}%", a.to_owned()));
             }
             Self::Null => {
                 qb.push(" IS NULL");

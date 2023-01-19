@@ -1,13 +1,22 @@
-import { getGenes } from 'api/gene';
+import { getFilteredGenes, getGenes } from 'api/gene';
 import { TopNav } from 'components/TopNav/TopNav';
-import { getAlleles } from 'api/allele';
+import { getAlleles, getFilteredAlleles } from 'api/allele';
 import {
   getAlleleExpressions,
+  getFilteredAlleleExpressions,
   insertDbAlleleExpression,
 } from 'api/alleleExpressions';
-import { getAlteringConditions, getConditions } from 'api/condition';
-import { getAlteringPhenotypes, getPhenotypes } from 'api/phenotype';
-import { getVariations } from 'api/variationInfo';
+import {
+  getAlteringConditions,
+  getConditions,
+  getFilteredConditions,
+} from 'api/condition';
+import {
+  getAlteringPhenotypes,
+  getFilteredPhenotypes,
+  getPhenotypes,
+} from 'api/phenotype';
+import { getFilteredVariations, getVariations } from 'api/variationInfo';
 import { Gene } from 'models/frontend/Gene/Gene';
 import { Allele } from 'models/frontend/Allele/Allele';
 import { AlleleExpression } from 'models/frontend/AlleleExpression';
@@ -18,6 +27,7 @@ import { db_AlleleExpression } from 'models/db/db_AlleleExpression';
 import { Dominance } from 'models/enums';
 import 'styles/home.css';
 import { toast } from 'react-toastify';
+import { DynamicSearch } from 'components/DynamicSearch/DynamicSearch';
 
 const Home = (): JSX.Element => {
   return (
@@ -183,6 +193,47 @@ const Home = (): JSX.Element => {
           success toast
         </button>
       </div>
+      <h1 className='pt-6 pb-4'>Dynamic Search Examples</h1>
+      <DynamicSearch
+        getFilteredRecordApi={getFilteredAlleles}
+        searchOn='Name'
+        selectInputOn='name'
+        displayResultsOn={['name']}
+        placeholder='search allele name'
+      />
+      <DynamicSearch
+        getFilteredRecordApi={getFilteredGenes}
+        searchOn='DescName'
+        selectInputOn='descName'
+        displayResultsOn={['descName']}
+        placeholder='search gene name'
+      />
+      <DynamicSearch
+        getFilteredRecordApi={getFilteredConditions}
+        searchOn='Name'
+        selectInputOn='name'
+        displayResultsOn={['name']}
+        placeholder='search condition name'
+      />
+      <DynamicSearch
+        getFilteredRecordApi={getFilteredPhenotypes}
+        searchOn='Name'
+        selectInputOn='name'
+        displayResultsOn={['name']}
+        placeholder='search phenotype name'
+      />
+      <DynamicSearch
+        getFilteredRecordApi={getFilteredAlleleExpressions}
+        searchOn='AlleleName'
+        selectInputOn='alleleName'
+        displayResultsOn={[
+          'alleleName',
+          'dominance',
+          'expressingPhenotypeName',
+          'expressingPhenotypeWild',
+        ]}
+        placeholder='search allele_expr by allele name'
+      />
     </div>
   );
 };

@@ -6,6 +6,7 @@ export type FilterType =
   | { GreaterThan: [string, boolean] }
   | { Equal: string }
   | { NotEqual: string }
+  | { Like: string }
   | 'Null'
   | 'NotNull'
   | 'True'
