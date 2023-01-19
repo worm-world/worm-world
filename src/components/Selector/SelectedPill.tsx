@@ -1,11 +1,11 @@
 import { BiX as CloseIcon } from 'react-icons/bi';
 
-interface SelectedPillProps<U> {
+interface SelectedPillProps {
   removeFromSelected: () => void;
   displayVal: string;
 }
 
-const SelectedPill = <U,>(props: SelectedPillProps<U>): JSX.Element => {
+const SelectedPill = (props: SelectedPillProps): JSX.Element => {
   return (
     <div className='badge-accent badge m-1 p-4 pr-0' key={props.displayVal}>
       <div className='mr-2'>{props.displayVal}</div>

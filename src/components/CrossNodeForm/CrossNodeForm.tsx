@@ -1,4 +1,4 @@
-import { getFilteredGenes, getGenes } from 'api/gene';
+import { getFilteredGenes } from 'api/gene';
 import { Gene } from 'models/frontend/Gene/Gene';
 import { useEffect, useState } from 'react';
 import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
@@ -50,28 +50,30 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
     ).map((selectedVariation) => {
       return VariationInfo.createFromRecord(selectedVariation);
     });
-    const maleAllelePromisesForNode: Promise<Allele>[] = Array.from(
+    const maleAllelePromisesForNode: Array<Promise<Allele>> = Array.from(
       selectedMaleAlleles
-    ).map((selectedAllele) => {
-      return Allele.createFromRecord(selectedAllele);
+    ).map(async (selectedAllele) => {
+      return await Allele.createFromRecord(selectedAllele);
     });
-    const femaleAllelePromisesForNode: Promise<Allele>[] = Array.from(
+    const femaleAllelePromisesForNode: Array<Promise<Allele>> = Array.from(
       selectedFemaleAlleles
-    ).map((selectedAllele) => {
-      return Allele.createFromRecord(selectedAllele);
+    ).map(async (selectedAllele) => {
+      return await Allele.createFromRecord(selectedAllele);
     });
     const allAlleles = maleAllelePromisesForNode.concat(
       femaleAllelePromisesForNode
     );
-    Promise.all(allAlleles).then((allelesForNode) => {
-      const newNode = createNewCrossNode(
-        sexForNode,
-        genesForNode,
-        variationsForNode,
-        allelesForNode
-      );
-      props.addNewCrossNode(newNode);
-    });
+    Promise.all(allAlleles)
+      .then((allelesForNode) => {
+        const newNode = createNewCrossNode(
+          sexForNode,
+          genesForNode,
+          variationsForNode,
+          allelesForNode
+        );
+        props.addNewCrossNode(newNode);
+      })
+      .catch((err) => err);
   };
 
   return (
@@ -148,23 +150,23 @@ const shouldIncludeDbAllele = (
   selectedVariations: Set<db_VariationInfo>,
   selectedAlleles: Set<db_Allele>,
   allele: db_Allele
-) => {
+): boolean => {
   const alleleOfGene =
-    (allele.sysGeneName &&
+    (allele.sysGeneName !== null &&
       Array.from(selectedGenes)
         .map((selection) => selection.sysName)
         .includes(allele.sysGeneName)) ||
     false;
   const alleleOfVariation =
-    (allele.variationName &&
+    (allele.variationName !== null &&
       Array.from(selectedVariations)
         .map((selection) => selection.alleleName)
-        .includes(allele.variationName ?? '')) ||
+        .includes(allele.variationName ?? '')) ??
     false;
   const alleleAlreadySelected = Array.from(selectedAlleles)
     .map((selection) => selection.name)
     .includes(allele.name);
-  return (alleleOfGene || alleleOfVariation) && !alleleAlreadySelected;
+  return (alleleOfGene ?? alleleOfVariation) && !alleleAlreadySelected;
 };
 
 const SexSelector = (props: {

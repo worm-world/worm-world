@@ -16,7 +16,7 @@ import {
   getFilteredPhenotypes,
   getPhenotypes,
 } from 'api/phenotype';
-import { getFilteredVariations, getVariations } from 'api/variationInfo';
+import { getVariations } from 'api/variationInfo';
 import { Gene } from 'models/frontend/Gene/Gene';
 import { Allele } from 'models/frontend/Allele/Allele';
 import { AlleleExpression } from 'models/frontend/AlleleExpression';

@@ -18,7 +18,7 @@ export interface iDynamicMultiSelect<T, U> {
   /** Parent element manages state of selections */
   selectedRecords: Set<U>;
   setSelectedRecords: (newSelected: Set<U>) => void;
-  /** Frontend relationships (e.g. gene-allele) may warrant conditional inclusion*/
+  /** Frontend relationships (e.g. gene-allele) may warrant conditional inclusion */
   shouldInclude?: (option: U) => boolean;
 
   label?: string;
@@ -45,9 +45,8 @@ export const DynamicMultiSelect = <T, U>(
     props
       .getFilteredRecordApi(filter)
       .then((results) => {
-        const shouldInclude = props.shouldInclude
-          ? props.shouldInclude
-          : () => true;
+        const shouldInclude =
+          props.shouldInclude != null ? props.shouldInclude : () => true;
         const includedResults: U[] = [];
         results.forEach((result) => {
           if (shouldInclude(result)) {
@@ -59,7 +58,7 @@ export const DynamicMultiSelect = <T, U>(
       .catch((err) => err);
   };
 
-  const removeFromSelected = (value: U) => {
+  const removeFromSelected = (value: U): void => {
     const newSelectedRecords = new Set<U>(props.selectedRecords);
     newSelectedRecords.delete(value);
     props.setSelectedRecords(newSelectedRecords);
