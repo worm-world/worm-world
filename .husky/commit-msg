@@ -14,6 +14,3 @@ npm run test-back
 
 echo "Testing frontend"
 npm run test-front
-
-echo "Committing auto-generated files"
-git add src/models/db/*

@@ -19,20 +19,19 @@ const initialEdges: Edge[] = [
     id: 'edge1',
     source: 'node1',
     target: 'xNode1',
-    className: 'stroke-2 stroke-red-400',
-    style: { strokeWidth: 2 },
+    style: { strokeWidth: 2, stroke: 'hsla(var(--bc)/0.2)' },
   },
   {
     id: 'edge2',
     source: 'node2',
     target: 'xNode1',
-    style: { strokeWidth: 2 },
+    style: { strokeWidth: 2, stroke: 'hsla(var(--bc)/0.2)' },
   },
   {
     id: 'edge3',
     source: 'xNode1',
     target: 'node3',
-    style: { strokeWidth: 2 },
+    style: { strokeWidth: 2, stroke: 'hsla(var(--bc)/0.2)' },
   },
 ];
 

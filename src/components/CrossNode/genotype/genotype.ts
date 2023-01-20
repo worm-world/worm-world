@@ -112,7 +112,7 @@ const fillWithWildAlleles = (genotype: Genotype): void => {
 
   for (const [chromosome, variationMap] of genotype.variations.entries()) {
     for (const [, alleles] of variationMap.entries()) {
-      if (chromosome !== undefined && chromosome !== 'ECA') {
+      if (chromosome !== undefined && chromosome !== 'Ex') {
         while (alleles.length < 2) {
           alleles.push(WILD_ALLELE);
         }

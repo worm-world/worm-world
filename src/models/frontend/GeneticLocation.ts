@@ -17,5 +17,21 @@ export default class GeneticLocation {
 
   isRange = (): boolean => this.end !== undefined;
   getRange = (): [number, number] => [Number(this.start), Number(this.end)];
+  getBigRange = (): [bigint, bigint] | undefined => {
+    if (this.start !== undefined && this.end !== undefined)
+      return [BigInt(this.start), BigInt(this.end)];
+  };
+
   getLoc = (): number | undefined => this.start;
+
+  static createFromTuple = (
+    recordTup: [bigint, bigint] | null
+  ): GeneticLocation | undefined => {
+    const [start, end] = [recordTup?.[0], recordTup?.[1]];
+    const location =
+      start !== undefined && end !== undefined
+        ? new GeneticLocation(start, end)
+        : undefined;
+    return location;
+  };
 }

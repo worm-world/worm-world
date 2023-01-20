@@ -107,6 +107,7 @@ mod test {
             chromosome: Some(Chromosome::Ii),
             phys_loc: Some(6710149),
             gen_loc: Some(0.0),
+            recomb_suppressor: None,
         };
 
         state.insert_gene(&new_gene).await?;
@@ -140,6 +141,7 @@ mod test {
             chromosome: Some(Chromosome::I),
             phys_loc: Some(10166146),
             gen_loc: Some(4.72),
+            recomb_suppressor: None,
         };
 
         state.insert_variation_info(&new_vi).await?;

@@ -1,4 +1,3 @@
-import styles from 'components/crossNode/CrossNode.module.css';
 import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import { BiDotsHorizontalRounded as MoreHorizIcon } from 'react-icons/bi';
 import { Sex } from 'models/enums';
@@ -27,27 +26,39 @@ const CrossNode = (props: CrossNodeProps): JSX.Element => {
   return (
     <div
       className={
-        'h-28 w-64 rounded bg-base-100 shadow' +
+        'h-28 w-64 rounded bg-base-100 shadow hover:cursor-grab' +
         (props.model.isSelected ? ' border border-primary' : '')
       }
     >
-      <div className={styles.crossNodeHeader}>
-        {getSexIcon(props.model.sex, 'pt-1 pl-1 text-2xl')}
+      <div className='flex h-6 justify-between'>
+        {getSexIcon(props.model.sex, 'mt-2 ml-1 text-xl')}
         <label htmlFor='right-cross-drawer' className='drawer-button pr-2'>
           <button>
             <MoreHorizIcon />
           </button>
         </label>
       </div>
-      <div data-testid='crossNodeBody' className={styles.crossNodeBody}>
-        {Array.from(
-          new Set<Chromosome | undefined>([
-            ...genotype.genes.keys(),
-            ...genotype.variations.keys(),
-          ])
-        ).map((chromosome) => {
-          return getChromosomeBox(chromosome, genotype);
-        })}
+      <div className='my-2 overflow-x-auto px-3 pb-2'>
+        <div
+          className='flex min-w-min justify-center text-sm'
+          data-testid='crossNodeBody'
+        >
+          {Array.from(
+            new Set<Chromosome | undefined>([
+              ...genotype.genes.keys(),
+              ...genotype.variations.keys(),
+            ])
+          ).map((chromosome, idx, arr) => {
+            return (
+              <>
+                {getChromosomeBox(chromosome, genotype)}
+                <div className='flex flex-col justify-center pt-3 font-light text-base-content'>
+                  {idx < arr.length - 1 ? <span>;</span> : <span></span>}
+                </div>
+              </>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -72,9 +83,9 @@ const getChromosomeBox = (
   const displayChrom = chromosome ?? '?'; // undefined chromosomes are represented by: ?
 
   return (
-    <div key={displayChrom} className={styles.chromosomeBox}>
-      <div className={styles.chromosomeLabel}>{displayChrom}</div>
-      <div className={styles.chromosomeFractionBox}>{mutationBoxes}</div>
+    <div key={displayChrom} className='mx-2 my-auto flex flex-col items-center'>
+      <div className='font-bold'>{displayChrom}</div>
+      <div className='flex flex-row'>{mutationBoxes}</div>
     </div>
   );
 };
@@ -85,11 +96,15 @@ const getMutationBox = (alleles: Allele[], key: number): JSX.Element => {
   } else {
     return (
       <div key={key} className='flex flex-col'>
-        <div className={styles.fractionAllele}>{alleles[0].name}</div>
-        <div>
-          <hr className={styles.fractionBar} />
+        <div className='text-align w-full px-2 text-center'>
+          {alleles[0].name}
         </div>
-        <div className={styles.fractionAllele}>{alleles[1].name}</div>
+        <div>
+          <hr className='border-base-content' />
+        </div>
+        <div className='text-align w-full px-2 text-center'>
+          {alleles[1].name}
+        </div>
       </div>
     );
   }
