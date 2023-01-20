@@ -10,6 +10,7 @@ export const dbGene: db_Gene = {
   chromosome: null,
   physLoc: null,
   geneticLoc: null,
+  recombSuppressor: null,
 };
 
 export const dbAllele: db_Allele = {

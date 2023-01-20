@@ -4,7 +4,7 @@ import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
 import { Allele } from 'models/frontend/Allele/Allele';
 import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import { Sex } from 'models/enums';
-import { DynamicMultiSelect } from 'components/Selector/DynamicMultiSelect';
+import { DynamicMultiSelect } from 'components/DynamicMultiSelect/DynamicMultiSelect';
 import { db_Gene } from 'models/db/db_Gene';
 import { db_VariationInfo } from 'models/db/db_VariationInfo';
 import { db_Allele } from 'models/db/db_Allele';
