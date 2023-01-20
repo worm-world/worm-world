@@ -20,9 +20,10 @@ export interface iDynamicMultiSelect<T, U> {
   setSelectedRecords: (newSelected: Set<U>) => void;
   /** Frontend relationships (e.g. gene-allele) may warrant conditional inclusion */
   shouldInclude?: (option: U) => boolean;
+  /** Mandatory for testing */
+  placeholder?: string;
 
   label?: string;
-  placeholder?: string;
 }
 
 export const DynamicMultiSelect = <T, U>(

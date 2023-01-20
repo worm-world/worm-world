@@ -7,19 +7,24 @@ import CrossNode from 'components/CrossNode/CrossNode';
 import { XNode } from 'components/XNode/XNode';
 import * as mock from 'models/frontend/CrossNode/CrossNode.mock';
 import CrossNodeForm from 'components/CrossNodeForm/CrossNodeForm';
+import { getFilteredVariations } from 'api/variationInfo';
+import { getFilteredGenes } from 'api/gene';
+import { getFilteredAlleles } from 'api/allele';
+import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
+import { Allele } from 'models/frontend/Allele/Allele';
 
 let nextNodeId = 5;
 
 const addNewNodeToFlow = (
   nodes: Node[],
   setNodes: (nodes: Node[]) => void,
-  newNode: JSX.Element
+  newNode: CrossNodeModel
 ): void => {
   const newFlowNode: Node = {
     id: nextNodeId.toString(),
     type: 'flowWrapper',
     position: { x: 150, y: -100 },
-    data: newNode,
+    data: <CrossNode model={newNode} />,
     connectable: true,
   };
   nextNodeId += 1;
@@ -71,16 +76,19 @@ const CrossPage = (): JSX.Element => {
           onClick={() => setRightDrawerOpen(false)}
         ></label>
         <RightDrawer
-          // className={'shrink'}
           initialDrawerWidth={240}
           isOpen={rightDrawerOpen}
           maxWidth={400}
           close={() => setRightDrawerOpen(false)}
         >
           <CrossNodeForm
-            addNewCrossNode={(newNode: JSX.Element) =>
+            getFilteredGenes={getFilteredGenes}
+            getFilteredVariations={getFilteredVariations}
+            getFilteredAlleles={getFilteredAlleles}
+            addNewCrossNode={(newNode: CrossNodeModel) =>
               addNewNodeToFlow(nodes, setNodes, newNode)
             }
+            alleleCreateFromRecord={Allele.createFromRecord}
           />
         </RightDrawer>
       </div>

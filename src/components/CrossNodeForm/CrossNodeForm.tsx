@@ -1,20 +1,26 @@
-import { getFilteredGenes } from 'api/gene';
 import { Gene } from 'models/frontend/Gene/Gene';
 import { useEffect, useState } from 'react';
 import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
-import { getFilteredVariations } from 'api/variationInfo';
 import { Allele } from 'models/frontend/Allele/Allele';
-import { getFilteredAlleles } from 'api/allele';
 import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import { Sex } from 'models/enums';
-import CrossNode from 'components/CrossNode/CrossNode';
 import { DynamicMultiSelect } from 'components/Selector/DynamicMultiSelect';
 import { db_Gene } from 'models/db/db_Gene';
 import { db_VariationInfo } from 'models/db/db_VariationInfo';
 import { db_Allele } from 'models/db/db_Allele';
+import { GeneFieldName } from 'models/db/filter/db_GeneFieldName';
+import { Filter } from 'models/db/filter/Filter';
+import { VariationFieldName } from 'models/db/filter/db_VariationFieldName';
+import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
 
 export interface CrossNodeFormProps {
-  addNewCrossNode: (arg: JSX.Element) => void;
+  addNewCrossNode: (arg: CrossNodeModel) => void;
+  getFilteredGenes: (filter: Filter<GeneFieldName>) => Promise<db_Gene[]>;
+  getFilteredVariations: (
+    filter: Filter<VariationFieldName>
+  ) => Promise<db_VariationInfo[]>;
+  getFilteredAlleles: (filter: Filter<AlleleFieldName>) => Promise<db_Allele[]>;
+  alleleCreateFromRecord: (dbAllele: db_Allele) => Promise<Allele>;
 }
 
 // CrossNode form specifies a new cross node
@@ -53,12 +59,12 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
     const maleAllelePromisesForNode: Array<Promise<Allele>> = Array.from(
       selectedMaleAlleles
     ).map(async (selectedAllele) => {
-      return await Allele.createFromRecord(selectedAllele);
+      return await props.alleleCreateFromRecord(selectedAllele);
     });
     const femaleAllelePromisesForNode: Array<Promise<Allele>> = Array.from(
       selectedFemaleAlleles
     ).map(async (selectedAllele) => {
-      return await Allele.createFromRecord(selectedAllele);
+      return await props.alleleCreateFromRecord(selectedAllele);
     });
     const allAlleles = maleAllelePromisesForNode.concat(
       femaleAllelePromisesForNode
@@ -80,7 +86,8 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
     <>
       <SexSelector setSelectedSex={setSelectedSex} />
       <DynamicMultiSelect
-        getFilteredRecordApi={getFilteredGenes}
+        placeholder='Select Genes'
+        getFilteredRecordApi={props.getFilteredGenes}
         searchOn={'SysName'}
         selectInputOn={'sysName'}
         displayResultsOn={['sysName']}
@@ -89,7 +96,8 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
         setSelectedRecords={setSelectedGenes}
       />
       <DynamicMultiSelect
-        getFilteredRecordApi={getFilteredVariations}
+        placeholder='Select Variations'
+        getFilteredRecordApi={props.getFilteredVariations}
         searchOn={'AlleleName'}
         selectInputOn={'alleleName'}
         displayResultsOn={['alleleName']}
@@ -98,7 +106,8 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
         setSelectedRecords={setSelectedVariations}
       />
       <DynamicMultiSelect
-        getFilteredRecordApi={getFilteredAlleles}
+        placeholder='Select Male Alleles'
+        getFilteredRecordApi={props.getFilteredAlleles}
         searchOn={'Name'}
         selectInputOn={'name'}
         displayResultsOn={['name']}
@@ -116,7 +125,8 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
         }
       />
       <DynamicMultiSelect
-        getFilteredRecordApi={getFilteredAlleles}
+        placeholder='Select Female Alleles'
+        getFilteredRecordApi={props.getFilteredAlleles}
         searchOn={'Name'}
         selectInputOn={'name'}
         displayResultsOn={['name']}
@@ -155,18 +165,18 @@ const shouldIncludeDbAllele = (
     (allele.sysGeneName !== null &&
       Array.from(selectedGenes)
         .map((selection) => selection.sysName)
-        .includes(allele.sysGeneName)) ||
+        .includes(allele.sysGeneName)) ??
     false;
   const alleleOfVariation =
     (allele.variationName !== null &&
       Array.from(selectedVariations)
         .map((selection) => selection.alleleName)
-        .includes(allele.variationName ?? '')) ??
+        .includes(allele.variationName)) ??
     false;
   const alleleAlreadySelected = Array.from(selectedAlleles)
     .map((selection) => selection.name)
     .includes(allele.name);
-  return (alleleOfGene ?? alleleOfVariation) && !alleleAlreadySelected;
+  return (alleleOfGene || alleleOfVariation) && !alleleAlreadySelected;
 };
 
 const SexSelector = (props: {
@@ -198,8 +208,8 @@ const createNewCrossNode = (
   genes: Gene[],
   variations: VariationInfo[],
   alleles: Allele[]
-): JSX.Element => {
-  const crossNode: CrossNodeModel = {
+): CrossNodeModel => {
+  const crossNodeModel: CrossNodeModel = {
     sex,
     strain: {
       name: '',
@@ -211,7 +221,7 @@ const createNewCrossNode = (
     genes,
     variations,
   };
-  return <CrossNode model={crossNode}></CrossNode>;
+  return crossNodeModel;
 };
 
 export default CrossNodeForm;
