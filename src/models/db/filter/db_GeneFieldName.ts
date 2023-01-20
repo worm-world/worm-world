@@ -5,4 +5,5 @@ export type GeneFieldName =
   | 'DescName'
   | 'Chromosome'
   | 'PhysLoc'
-  | 'GeneticLoc';
+  | 'GeneticLoc'
+  | 'RecombSuppressor';

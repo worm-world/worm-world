@@ -6,4 +6,5 @@ export interface db_VariationInfo {
   chromosome: Chromosome | null;
   physLoc: bigint | null;
   geneticLoc: number | null;
+  recombSuppressor: [bigint, bigint] | null;
 }

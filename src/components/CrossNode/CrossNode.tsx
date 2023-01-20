@@ -38,11 +38,11 @@ const CrossNode = (props: CrossNodeProps): JSX.Element => {
           </button>
         </label>
       </div>
-      <div
-        data-testid='crossNodeBody'
-        className='my-2 overflow-x-auto px-3 pb-2'
-      >
-        <div className='flex min-w-min justify-center text-sm'>
+      <div className='my-2 overflow-x-auto px-3 pb-2'>
+        <div
+          className='flex min-w-min justify-center text-sm'
+          data-testid='crossNodeBody'
+        >
           {Array.from(
             new Set<Chromosome | undefined>([
               ...genotype.genes.keys(),
