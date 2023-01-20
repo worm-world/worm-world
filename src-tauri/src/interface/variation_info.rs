@@ -13,7 +13,7 @@ impl InnerDbState {
         match sqlx::query_as!(
             VariationInfoDb,
             "
-            SELECT allele_name, chromosome, phys_loc, gen_loc FROM variation_info ORDER BY allele_name
+            SELECT allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end FROM variation_info ORDER BY allele_name
             "
         )
         .fetch_all(&self.conn_pool)
@@ -31,7 +31,7 @@ impl InnerDbState {
         filter: &Filter<VariationFieldName>,
     ) -> Result<Vec<VariationInfo>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
-            "SELECT allele_name, chromosome, phys_loc, gen_loc FROM variation_info",
+            "SELECT allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end FROM variation_info",
         );
         filter.add_filtered_query(&mut qb);
         match qb
@@ -48,14 +48,20 @@ impl InnerDbState {
     }
     pub async fn insert_variation_info(&self, vi: &VariationInfo) -> Result<(), DbError> {
         let chromosome = vi.chromosome.as_ref().map(|v| v.to_string());
+        let (start, end): (Option<i64>, Option<i64>) = match vi.recomb_suppressor {
+            Some(recomb_range) => (Some(recomb_range.0), Some(recomb_range.1)),
+            None => (None, None),
+        };
         match sqlx::query!(
-            "INSERT INTO variation_info (allele_name, chromosome, phys_loc, gen_loc)
-            VALUES($1, $2, $3, $4)
+            "INSERT INTO variation_info (allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end)
+            VALUES($1, $2, $3, $4, $5, $6)
             ",
             vi.allele_name,
             chromosome,
             vi.phys_loc,
-            vi.gen_loc
+            vi.gen_loc,
+            start,
+            end
         )
         .execute(&self.conn_pool)
         .await
@@ -157,6 +163,7 @@ mod test {
             chromosome: Some(Chromosome::X),
             phys_loc: None,
             gen_loc: None,
+            recomb_suppressor: None,
         };
 
         state.insert_variation_info(&expected).await?;
@@ -178,6 +185,7 @@ mod test {
             chromosome: None,
             phys_loc: None,
             gen_loc: None,
+            recomb_suppressor: None,
         };
 
         state.insert_variation_info(&expected).await?;

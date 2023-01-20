@@ -4,4 +4,5 @@ export type VariationFieldName =
   | 'AlleleName'
   | 'Chromosome'
   | 'PhysLoc'
-  | 'GenLoc';
+  | 'GenLoc'
+  | 'RecombSuppressor';

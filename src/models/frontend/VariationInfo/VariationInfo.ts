@@ -7,6 +7,7 @@ interface iVariation {
   chromosome?: Chromosome;
   physLoc?: GeneticLocation; // Physical location of the gene on a chromosome
   geneticLoc?: GeneticLocation; // Genetic distance from the middle of a chromosome
+  recombination?: GeneticLocation;
 }
 
 export class VariationInfo {
@@ -14,6 +15,7 @@ export class VariationInfo {
   chromosome?: Chromosome;
   physLoc?: GeneticLocation;
   geneticLoc?: GeneticLocation;
+  recombination?: GeneticLocation;
 
   constructor(fields: iVariation) {
     Object.assign(this, fields);
@@ -25,6 +27,7 @@ export class VariationInfo {
       physLoc: new GeneticLocation(record.physLoc),
       geneticLoc: new GeneticLocation(record.geneticLoc),
       chromosome: record.chromosome ?? undefined,
+      recombination: GeneticLocation.createFromTuple(record.recombSuppressor),
     });
   }
 
@@ -35,6 +38,7 @@ export class VariationInfo {
       physLoc: phys !== undefined ? BigInt(phys) : null,
       geneticLoc: this.geneticLoc?.getLoc() ?? null,
       chromosome: this.chromosome ?? null,
+      recombSuppressor: this.recombination?.getBigRange() ?? null,
     };
   };
 }

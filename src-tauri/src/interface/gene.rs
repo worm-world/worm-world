@@ -11,7 +11,7 @@ impl InnerDbState {
         match sqlx::query_as!(
             GeneDb,
             "
-            SELECT systematic_name, descriptive_name, chromosome, phys_loc, gen_loc FROM genes ORDER BY descriptive_name
+            SELECT systematic_name, descriptive_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end FROM genes ORDER BY descriptive_name
             "
         )
         .fetch_all(&self.conn_pool)
@@ -30,7 +30,7 @@ impl InnerDbState {
         filter: &Filter<GeneFieldName>,
     ) -> Result<Vec<Gene>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
-            "SELECT systematic_name, descriptive_name, chromosome, phys_loc, gen_loc FROM genes",
+            "SELECT systematic_name, descriptive_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end FROM genes",
         );
         filter.add_filtered_query(&mut qb);
 
@@ -48,16 +48,23 @@ impl InnerDbState {
     }
 
     pub async fn insert_gene(&self, gene: &Gene) -> Result<(), DbError> {
+        let (start, end): (Option<i64>, Option<i64>) = match gene.recomb_suppressor {
+            Some(recomb_range) => (Some(recomb_range.0), Some(recomb_range.1)),
+            None => (None, None),
+        };
+
         let chromosome = gene.chromosome.as_ref().map(|v| v.to_string());
         match sqlx::query!(
-            "INSERT INTO genes (systematic_name, descriptive_name, chromosome, phys_loc, gen_loc)
-            VALUES($1, $2, $3, $4, $5)
+            "INSERT INTO genes (systematic_name, descriptive_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end)
+            VALUES($1, $2, $3, $4, $5, $6, $7)
             ",
             gene.systematic_name,
             gene.descriptive_name,
             chromosome,
             gene.phys_loc,
-            gene.gen_loc
+            gene.gen_loc,
+            start,
+            end
         )
         .execute(&self.conn_pool)
         .await
@@ -243,6 +250,7 @@ mod test {
             chromosome: Some(Chromosome::Iii),
             phys_loc: Some(10902641),
             gen_loc: Some(5.59),
+            recomb_suppressor: None,
         };
 
         state.insert_gene(&expected).await?;
@@ -265,6 +273,7 @@ mod test {
             chromosome: None,
             phys_loc: Some(10902633),
             gen_loc: Some(6.78),
+            recomb_suppressor: None,
         };
 
         state.insert_gene(&expected).await?;

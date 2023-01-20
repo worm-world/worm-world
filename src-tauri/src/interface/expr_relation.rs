@@ -182,7 +182,7 @@ mod test {
                     ),
                     (
                         ExpressionRelationFieldName::AlleleName,
-                        FilterType::Equal("tmC5".to_string()),
+                        FilterType::Equal("oxEx219999".to_string()),
                     ),
                 ]],
                 order_by: vec![ExpressionRelationFieldName::AlleleName],
@@ -202,7 +202,7 @@ mod test {
             .get_filtered_expr_relations(&Filter::<ExpressionRelationFieldName> {
                 filters: vec![vec![(
                     ExpressionRelationFieldName::AlleleName,
-                    FilterType::Like("5".to_owned()),
+                    FilterType::Like("6".to_owned()),
                 )]],
                 order_by: vec![ExpressionRelationFieldName::AlleleName],
             })
@@ -251,6 +251,7 @@ mod test {
                 chromosome: None,
                 phys_loc: None,
                 gen_loc: None,
+                recomb_suppressor: None,
             })
             .await?;
         // oxIs644 Allele
@@ -328,6 +329,7 @@ mod test {
                 chromosome: None,
                 phys_loc: None,
                 gen_loc: None,
+                recomb_suppressor: None,
             })
             .await
             .unwrap();

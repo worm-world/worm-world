@@ -1,5 +1,53 @@
 {
   "db": "SQLite",
+  "05eee7fb2723b790cd406e835f02dec76e190031b1aff1bb7f280f8b0ae854c9": {
+    "describe": {
+      "columns": [
+        {
+          "name": "allele_name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "chromosome",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "phys_loc",
+          "ordinal": 2,
+          "type_info": "Int64"
+        },
+        {
+          "name": "gen_loc",
+          "ordinal": 3,
+          "type_info": "Float"
+        },
+        {
+          "name": "recomb_suppressor_start",
+          "ordinal": 4,
+          "type_info": "Int64"
+        },
+        {
+          "name": "recomb_suppressor_end",
+          "ordinal": 5,
+          "type_info": "Int64"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end FROM variation_info ORDER BY allele_name\n            "
+  },
   "29b3293714c9c3096488ad7fe41ea8955ca196cf1d46e29c901c675ef31769bb": {
     "describe": {
       "columns": [],
@@ -10,15 +58,69 @@
     },
     "query": "INSERT INTO alleles (name, contents, systematic_gene_name, variation_name)\n            VALUES($1, $2, $3, $4)\n            "
   },
-  "51003bcc0dc955c2796e7098d4ec24a7fdcdedfc45557bce3de0e2514508bf93": {
+  "3f2df432a60ce35b9a6f6544f8e22f050fe4463d44f0d0938c230bae211f2a7a": {
     "describe": {
       "columns": [],
       "nullable": [],
       "parameters": {
-        "Right": 5
+        "Right": 6
       }
     },
-    "query": "INSERT INTO genes (systematic_name, descriptive_name, chromosome, phys_loc, gen_loc)\n            VALUES($1, $2, $3, $4, $5)\n            "
+    "query": "INSERT INTO variation_info (allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end)\n            VALUES($1, $2, $3, $4, $5, $6)\n            "
+  },
+  "5682e5f266fe624cac0ecafcdf46b9e7c877df76889c92fbfaac89d6dcb74159": {
+    "describe": {
+      "columns": [
+        {
+          "name": "systematic_name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "descriptive_name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "chromosome",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "phys_loc",
+          "ordinal": 3,
+          "type_info": "Int64"
+        },
+        {
+          "name": "gen_loc",
+          "ordinal": 4,
+          "type_info": "Float"
+        },
+        {
+          "name": "recomb_suppressor_start",
+          "ordinal": 5,
+          "type_info": "Int64"
+        },
+        {
+          "name": "recomb_suppressor_end",
+          "ordinal": 6,
+          "type_info": "Int64"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT systematic_name, descriptive_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end FROM genes ORDER BY descriptive_name\n            "
   },
   "5b3c81eb5ee6e7836b6f13fea56dd1433c61e200f487569aa201e26a8c7d3546": {
     "describe": {
@@ -29,16 +131,6 @@
       }
     },
     "query": "INSERT INTO phenotypes (name, wild, short_name, description, male_mating, lethal, female_sterile, arrested, maturation_days)\n            VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)\n            "
-  },
-  "65a6d003c5f250bd50b739608ad3c960464da0bfe9893640254a4789fd68d64a": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 4
-      }
-    },
-    "query": "INSERT INTO variation_info (allele_name, chromosome, phys_loc, gen_loc)\n            VALUES($1, $2, $3, $4)\n            "
   },
   "6baa7d74cc45dcd766d9fd616976257368c915b1a4d75172453e31f77de4e73f": {
     "describe": {
@@ -105,48 +197,6 @@
       }
     },
     "query": "\n            SELECT\n                name, \n                wild,\n                short_name,\n                description, \n                male_mating,\n                lethal,\n                female_sterile,\n                arrested,\n                maturation_days\n            FROM phenotypes\n            ORDER BY name, wild\n            "
-  },
-  "6bef376119e7be31d7b92f7420ff904265e0a1c78938c5f706a161f75702157e": {
-    "describe": {
-      "columns": [
-        {
-          "name": "systematic_name",
-          "ordinal": 0,
-          "type_info": "Text"
-        },
-        {
-          "name": "descriptive_name",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "chromosome",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "phys_loc",
-          "ordinal": 3,
-          "type_info": "Int64"
-        },
-        {
-          "name": "gen_loc",
-          "ordinal": 4,
-          "type_info": "Float"
-        }
-      ],
-      "nullable": [
-        false,
-        true,
-        true,
-        true,
-        true
-      ],
-      "parameters": {
-        "Right": 0
-      }
-    },
-    "query": "\n            SELECT systematic_name, descriptive_name, chromosome, phys_loc, gen_loc FROM genes ORDER BY descriptive_name\n            "
   },
   "8441cefea899ffb8ae7a1e5cc3c5bd5d059248886ab8af8aa1b2a0da34266b30": {
     "describe": {
@@ -294,42 +344,6 @@
     },
     "query": "INSERT INTO allele_exprs (allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance)\n            VALUES($1, $2, $3, $4)\n            "
   },
-  "ace6be8389aab589f538f5afe72b4fa7c59fb368c818b4f24890aa60f50ada93": {
-    "describe": {
-      "columns": [
-        {
-          "name": "allele_name",
-          "ordinal": 0,
-          "type_info": "Text"
-        },
-        {
-          "name": "chromosome",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "phys_loc",
-          "ordinal": 2,
-          "type_info": "Int64"
-        },
-        {
-          "name": "gen_loc",
-          "ordinal": 3,
-          "type_info": "Float"
-        }
-      ],
-      "nullable": [
-        false,
-        true,
-        true,
-        true
-      ],
-      "parameters": {
-        "Right": 0
-      }
-    },
-    "query": "\n            SELECT allele_name, chromosome, phys_loc, gen_loc FROM variation_info ORDER BY allele_name\n            "
-  },
   "c1e43fa299477f63abcf76b9c75bf94de3c769eaaa917790ffbe3829a282c32f": {
     "describe": {
       "columns": [
@@ -383,6 +397,16 @@
       }
     },
     "query": "\n            SELECT\n                allele_name,\n                expressing_phenotype_name,\n                expressing_phenotype_wild,\n                altering_phenotype_name,\n                altering_phenotype_wild,\n                altering_condition,\n                is_suppressing\n            FROM\n                expr_relations\n            ORDER BY\n                allele_name,\n                expressing_phenotype_name,\n                expressing_phenotype_wild,\n                altering_phenotype_name,\n                altering_phenotype_wild,\n                altering_condition\n            "
+  },
+  "d275bce94ffe67128e35c038f1a99fba8ebb7929af80877a4f13e2097829d3e7": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 7
+      }
+    },
+    "query": "INSERT INTO genes (systematic_name, descriptive_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end)\n            VALUES($1, $2, $3, $4, $5, $6, $7)\n            "
   },
   "f13067dabb927b051246a195865a73d848e506d71ce434dee87f9c4e33216197": {
     "describe": {
