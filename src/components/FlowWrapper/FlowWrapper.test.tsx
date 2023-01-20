@@ -17,13 +17,13 @@ describe('FlowWrapper', () => {
     const chromI = screen.getByText(/^I$/);
     const chromII = screen.getByText(/^II$/);
     const chromX = screen.getByText(/^X$/);
-    const chromECA = screen.getByText(/^ECA$/);
+    const chromEx = screen.getByText(/^Ex$/);
     const chromUnknown = screen.getByText(/^\?$/);
 
     expect(chromI).toBeVisible();
     expect(chromII).toBeVisible();
     expect(chromX).toBeVisible();
-    expect(chromECA).toBeVisible();
+    expect(chromEx).toBeVisible();
     expect(chromUnknown).toBeVisible();
   });
 });

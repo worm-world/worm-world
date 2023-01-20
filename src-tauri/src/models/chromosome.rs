@@ -23,8 +23,8 @@ pub enum Chromosome {
     V,
     #[strum(serialize = "X")]
     X,
-    #[serde(rename = "ECA")]
-    #[strum(serialize = "ECA")]
+    #[serde(rename = "Ex")]
+    #[strum(serialize = "Ex")]
     Eca,
 }
 
