@@ -28,7 +28,7 @@ const fields = [
   {
     name: 'shortName',
     title: 'Short-Name',
-    type: 'string',
+    type: 'text',
   },
   {
     name: 'description',
