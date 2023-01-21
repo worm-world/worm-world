@@ -46,7 +46,7 @@ const Layout = ({ children }: { children: React.ReactNode }): JSX.Element => {
             {children}
           </div>
         </div>
-        <SideNav drawerWidth={drawerWidth} isOpen={sideNavIsOpen} />
+        <SideNav drawerWidth={drawerWidth} />
       </div>
     </main>
   );

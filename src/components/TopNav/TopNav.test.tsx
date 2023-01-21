@@ -1,13 +1,16 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { TopNav } from './TopNav';
 
 const renderComponent = ({ title = 'test', tabIndex = 0 }): void => {
   const tabNames = ['tab1', 'tab2', 'tab3'];
-  const children = tabNames.map((name) => (
-    <div role='tab' className='tab' key={name} />
-  ));
+  const children = tabNames.map((name) => <span key={name}>{name}</span>);
 
-  render(<TopNav title={title}>{children}</TopNav>);
+  render(
+    <TopNav title={title} tabIndex={tabIndex}>
+      {children}
+    </TopNav>
+  );
 };
 
 describe('TopNav', () => {
@@ -19,13 +22,16 @@ describe('TopNav', () => {
     expect(screen.getByText('test')).toBeValid();
   });
 
-  // test('clicking tabs work correctly', () => {
-  //   renderComponent({});
-  //   const tabs = screen.getAllByRole('tab');
-  //   expect(tabs[0].getAttribute('aria-selected')).toBe('false');
+  test('clicking tabs work correctly', async () => {
+    const user = userEvent.setup();
+    renderComponent({});
 
-  //   fireEvent.click(tabs[1]);
-  //   const tabsAfter = screen.getAllByRole('tab');
-  //   expect(tabsAfter[1].getAttribute('aria-selected')).toBe('true');
-  // });
+    const tabs = screen.getAllByRole('tab');
+    expect(tabs[0].classList.contains('tab-active')).toBe(true);
+    expect(tabs[1].classList.contains('tab-active')).toBe(false);
+
+    await user.click(tabs[1]);
+    expect(tabs[0].classList.contains('tab-active')).toBe(false);
+    expect(tabs[1].classList.contains('tab-active')).toBe(true);
+  });
 });

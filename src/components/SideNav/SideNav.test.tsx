@@ -48,23 +48,10 @@ import { BrowserRouter } from 'react-router-dom';
 /**
  * Helper method to render the component for us on the "screen".
  */
-const renderComponent = ({ isOpen = true, drawerWidth = 100 }): void => {
-  render(
-    <div className='drawer'>
-      <input
-        id='my-drawer'
-        type='checkbox'
-        className='drawer-toggle'
-        readOnly
-        checked={isOpen}
-      />
-      <div className='drawer-content'>foo</div>
-      <SideNav drawerWidth={drawerWidth} isOpen={isOpen} />
-    </div>,
-    {
-      wrapper: BrowserRouter, // Need this wrapper since the component uses the react router
-    }
-  );
+const renderComponent = ({ drawerWidth = 100 }): void => {
+  render(<SideNav drawerWidth={drawerWidth} />, {
+    wrapper: BrowserRouter, // Need this wrapper since the component uses the react router
+  });
 };
 
 // Describe sets up a testing "suite" for all the nested tests. You can have nested describe statements
@@ -77,12 +64,9 @@ describe('SideNav', () => {
     expect(links.length).toBeGreaterThan(1);
   });
 
-  // test('closed SideNav is not visible', () => {
-  //   renderComponent({ isOpen: false });
-
-  //   const links = screen.queryAllByRole('link'); // We use queryBy to check the non-existance of an element
-  //   expect(links[0]).not.toBeVisible(); // None of the sidenav buttons are visible/clickable
-  //   const sideNav = screen.queryByRole('list');
-  //   expect(sideNav).toBeNull();
-  // });
+  test('closed SideNav is not visible', () => {
+    renderComponent({ drawerWidth: 0 });
+    const sideDrawer = screen.getByTestId('side-drawer');
+    expect(getComputedStyle(sideDrawer).width).toEqual('0px');
+  });
 });

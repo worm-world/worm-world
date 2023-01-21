@@ -5,14 +5,10 @@ import {
   BiData as Dataset,
 } from 'react-icons/bi';
 import { Key, useEffect } from 'react';
-import styles from './sideNav.module.css';
 import { themeChange } from 'theme-change';
-
 interface SideNavProps {
-  isOpen: boolean;
   drawerWidth: number;
 }
-
 interface SideNavItem {
   name: String;
   path: String;
@@ -87,7 +83,11 @@ const SideNav = (props: SideNavProps): JSX.Element => {
   }, []);
 
   return (
-    <div className={'drawer-side'} style={{ width: props.drawerWidth }}>
+    <div
+      className={'drawer-side'}
+      data-testid='side-drawer'
+      style={{ width: props.drawerWidth }}
+    >
       <label
         htmlFor='nav-drawer'
         className='drawer-overlay bg-transparent'
@@ -97,9 +97,7 @@ const SideNav = (props: SideNavProps): JSX.Element => {
         <ul className='menu w-full'>
           <li key='wormworld'>
             <Link to={'/' as To}>
-              <h4 className='pl-2 text-center text-4xl'>
-                WormWorld
-              </h4>
+              <h4 className='pl-2 text-center text-4xl'>WormWorld</h4>
             </Link>
           </li>
           {getListItems()}
