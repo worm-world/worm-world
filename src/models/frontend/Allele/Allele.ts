@@ -40,19 +40,19 @@ export class Allele {
    * @param fields Name-based representation of allele, including geneName or variationName
    * @returns Full, rich allele with object references for a gene or variation, etc.
    */
-  static build(fields: IAllele): Allele {
+  static async build(fields: IAllele): Promise<Allele> {
     const newAlleleState = {
       name: fields.name,
       gene: undefined,
       variation: undefined,
     };
 
-    Allele.setGeneOrVariation(newAlleleState, fields).catch((err) =>
+    await Allele.setGeneOrVariation(newAlleleState, fields).catch((err) =>
       console.error('error generating gene / variation', err)
     );
 
-    Allele.setAlleleExpressions(newAlleleState, fields.name).catch((err) =>
-      console.error('error generating allele expressions: ', err)
+    await Allele.setAlleleExpressions(newAlleleState, fields.name).catch(
+      (err) => console.error('error generating allele expressions: ', err)
     );
 
     const allele = new Allele(newAlleleState);
@@ -111,8 +111,8 @@ export class Allele {
     return filter;
   };
 
-  static createFromRecord(record: db_Allele): Allele {
-    return Allele.build({
+  static async createFromRecord(record: db_Allele): Promise<Allele> {
+    return await Allele.build({
       name: record.name,
       sysGeneName: record.sysGeneName ?? undefined,
       variationName: record.variationName ?? undefined,

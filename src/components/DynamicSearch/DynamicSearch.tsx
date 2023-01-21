@@ -20,7 +20,7 @@ export interface iSearchProps<T, U> {
 export const DynamicSearch = <T, U>(props: iSearchProps<T, U>): JSX.Element => {
   const [searchRes, setSearchRes] = useState(new Array<U>());
   const [userInput, setUserInput] = useState('');
-  const [selectedRecord, setSelectedRecord] = useState<U | undefined>();
+  const [, setSelectedRecord] = useState<U | undefined>();
   const onInputChange = (val: React.ChangeEvent<HTMLInputElement>): void => {
     setUserInput(val.target.value);
     const filter: Filter<T> = {

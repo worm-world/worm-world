@@ -3,6 +3,7 @@ interface iTopNavInputProps {
   title: string;
   children?: JSX.Element[];
   tabIndex?: number | false;
+  rightButton?: JSX.Element;
 }
 
 export function TopNav(props: iTopNavInputProps): JSX.Element {
@@ -34,6 +35,7 @@ export function TopNav(props: iTopNavInputProps): JSX.Element {
           ))}
         </div>
       </div>
+      {props.rightButton}
     </div>
   );
 }

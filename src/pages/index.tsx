@@ -16,7 +16,7 @@ import {
   getFilteredPhenotypes,
   getPhenotypes,
 } from 'api/phenotype';
-import { getFilteredVariations, getVariations } from 'api/variationInfo';
+import { getVariations } from 'api/variationInfo';
 import { Gene } from 'models/frontend/Gene/Gene';
 import { Allele } from 'models/frontend/Allele/Allele';
 import { AlleleExpression } from 'models/frontend/AlleleExpression';
@@ -57,8 +57,8 @@ const Home = (): JSX.Element => {
           onClick={() => {
             getAlleles()
               .then((res) => {
-                const alleles = res.map((record) =>
-                  Allele.createFromRecord(record)
+                const alleles = res.map(
+                  async (record) => await Allele.createFromRecord(record)
                 );
                 console.log(alleles);
               })
