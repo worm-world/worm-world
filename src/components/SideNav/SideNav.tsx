@@ -5,6 +5,7 @@ import {
   BiData as Dataset,
 } from 'react-icons/bi';
 import { Key, useEffect } from 'react';
+import styles from './sideNav.module.css';
 import { themeChange } from 'theme-change';
 interface SideNavProps {
   drawerWidth: number;
@@ -97,7 +98,9 @@ const SideNav = (props: SideNavProps): JSX.Element => {
         <ul className='menu w-full'>
           <li key='wormworld'>
             <Link to={'/' as To}>
-              <h4 className='pl-2 text-center text-4xl'>WormWorld</h4>
+              <h4 className='pl-2 text-center text-4xl'>
+                WormWorld
+              </h4>
             </Link>
           </li>
           {getListItems()}
