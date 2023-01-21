@@ -38,11 +38,9 @@ const getFilteredRecordApi = (
   filter: Filter<string>
 ): Promise<StringWrapper[]> => {
   const expr = filter.filters.at(0)?.at(0)?.at(1) as { Like: string };
-  console.log(testRecords);
   const filtered = testRecords.filter((record) => {
     return record.field.toLowerCase().includes(expr.Like.toLowerCase());
   });
-  console.log(filtered);
   return Promise.resolve(filtered);
 };
 
