@@ -4,24 +4,43 @@ import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import * as mockAlleles from 'models/frontend/Allele/Allele.mock';
 import { Allele, WildAllele } from '../Allele/Allele';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
+import { Gene } from 'models/frontend/Gene/Gene';
 
-// Empty Cross Node ///////////////////////////////////////////////////////////
+export const ed3HeteroMale: CrossNodeModel = {
+  sex: Sex.Male,
+  strain: { name: '', notes: '', alleles: [mockAlleles.ed3] },
+  genes: [new Gene({ sysName: 'M142.1', chromosome: 'III' })],
+  variations: [],
+  isSelected: false,
+};
+
+export const ed3HeteroHerm: CrossNodeModel = {
+  sex: Sex.Hermaphrodite,
+  strain: { name: '', notes: '', alleles: [mockAlleles.ed3] },
+  genes: [new Gene({ sysName: 'M142.1', chromosome: 'III' })],
+  variations: [],
+  isSelected: false,
+};
+
+export const ed3HomoHerm: CrossNodeModel = {
+  sex: Sex.Hermaphrodite,
+  strain: { name: '', notes: '', alleles: [mockAlleles.ed3, mockAlleles.ed3] },
+  genes: [new Gene({ sysName: 'M142.1', chromosome: 'III' })],
+  variations: [],
+  isSelected: false,
+};
 
 export const empty: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
   strain: new Strain({ name: 'empty', allelePairs: [] }),
   isSelected: false,
-  parents: [],
 };
 
 export const emptyMale: CrossNodeModel = {
   sex: Sex.Male,
   strain: new Strain({ name: 'empty', notes: '', allelePairs: [] }),
   isSelected: false,
-  parents: [],
 };
-
-// Wild Cross Node ///////////////////////////////////////////////////////////
 
 export const wild: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
@@ -40,10 +59,7 @@ export const wild: CrossNodeModel = {
     ],
   }),
   isSelected: false,
-  parents: [],
 };
-
-// Mutated Cross Node  //////////////////////////////////////////////////////////
 
 const mutatedStrain: Strain = new Strain({
   name: 'mutated',
@@ -84,13 +100,11 @@ export const mutated: CrossNodeModel = {
   sex: Sex.Male,
   strain: mutatedStrain,
   isSelected: false,
-  parents: [],
 };
 
-// Small mutated cross node //////////////////////////////////
 export const smallMutated: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
-  parents: [],
+
   isSelected: false,
   strain: new Strain({
     name: 'strain1',
@@ -103,8 +117,6 @@ export const smallMutated: CrossNodeModel = {
     notes: '',
   }),
 };
-
-// Bad Mutation Lists  //////////////////////////////////////////////////////////
 
 export const badMutationLists: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
@@ -124,10 +136,7 @@ export const badMutationLists: CrossNodeModel = {
     notes: '',
   }),
   isSelected: false,
-  parents: [],
 };
-
-// Cross Node Bad Allele //////////////////////////////////////////////////////////////////////////////////
 
 export const badAllele: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
@@ -148,10 +157,7 @@ export const badAllele: CrossNodeModel = {
     notes: '',
   }),
   isSelected: false,
-  parents: [],
 };
-
-// Cross Node Monoid (No Fraction) //////////////////////////////////////////////////////////////////////////////////
 
 export const monoid: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
@@ -161,15 +167,12 @@ export const monoid: CrossNodeModel = {
       new AllelePair({
         top: mockAlleles.chromEcaVariation1Allele1,
         isECA: true,
-      }), // one co}py
+      }), // one copy
     ],
     notes: '',
   }),
   isSelected: false,
-  parents: [],
 };
-
-// Cross Node Diploid (Fraction) //////////////////////////////////////////////////////////////////////////////////
 
 export const diploid: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
@@ -184,5 +187,4 @@ export const diploid: CrossNodeModel = {
     notes: '',
   }),
   isSelected: false,
-  parents: [],
 };
