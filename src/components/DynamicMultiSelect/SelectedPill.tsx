@@ -25,13 +25,13 @@ export const getSelectedPills = <U,>(
   displayResultsOn: Array<keyof U>
 ): JSX.Element[] => {
   const pills = new Array<JSX.Element>();
-  selectedRecords.forEach((record, index) => {
+  Array.from(selectedRecords).forEach((record, index) => {
     const displayVal = displayResultsOn
       .map((field) => record[field] as string)
       .join(', ');
     pills.push(
       <SelectedPill
-        key={`${record}-${index}`}
+        key={`${displayVal}-${index}`}
         removeFromSelected={() => removeFromSelected(record)}
         displayVal={displayVal}
       />
