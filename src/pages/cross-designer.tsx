@@ -4,12 +4,11 @@ import React from 'react';
 import CrossFlow from 'components/CrossFlow/CrossFlow';
 import { Node, useNodesState } from 'reactflow';
 import CrossNode from 'components/CrossNode/CrossNode';
-import { XNode } from 'components/XNode/XNode';
-import * as mock from 'models/frontend/CrossNode/CrossNode.mock';
 import CrossNodeForm from 'components/CrossNodeForm/CrossNodeForm';
 import { getFilteredAlleles } from 'api/allele';
 import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import { Allele } from 'models/frontend/Allele/Allele';
+import * as mockCrossTree from 'models/frontend/CrossTree/CrossTree.mock';
 
 let nextNodeId = 5;
 
@@ -59,11 +58,7 @@ const CrossPage = (): JSX.Element => {
         </TopNav>
         <div className='grow'>
           <div className='h-full w-full'>
-            <CrossFlow
-              nodes={nodes}
-              onNodesChange={onNodesChange}
-              className={''}
-            />
+            <CrossFlow crossTree={mockCrossTree.ed3CrossTree} />
           </div>
         </div>
       </div>
@@ -92,36 +87,5 @@ const CrossPage = (): JSX.Element => {
     </div>
   );
 };
-
-const initialNodes: Array<Node<JSX.Element>> = [
-  {
-    id: 'node1',
-    type: 'flowWrapper', // This is the type of our custom node
-    position: { x: -150, y: -100 },
-    data: <CrossNode {...mock.emptyMale}></CrossNode>, // data = children for flowWrapper
-    connectable: true,
-  },
-  {
-    id: 'node2',
-    type: 'flowWrapper',
-    position: { x: 150, y: -100 },
-    data: <CrossNode {...mock.wild}></CrossNode>,
-    connectable: true,
-  },
-  {
-    id: 'node3',
-    type: 'flowWrapper',
-    position: { x: 0, y: 200 },
-    data: <CrossNode {...mock.wild}></CrossNode>,
-    connectable: true,
-  },
-  {
-    id: 'xNode1',
-    type: 'flowWrapper',
-    position: { x: 95, y: 75 },
-    data: <XNode />,
-    connectable: true,
-  },
-];
 
 export default CrossPage;

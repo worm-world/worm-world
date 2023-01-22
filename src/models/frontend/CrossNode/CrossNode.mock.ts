@@ -9,14 +9,12 @@ export const empty: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
   strain: new Strain({ name: 'empty', allelePairs: [] }),
   isSelected: false,
-  parents: [],
 };
 
 export const emptyMale: CrossNodeModel = {
   sex: Sex.Male,
   strain: new Strain({ name: 'empty', notes: '', allelePairs: [] }),
   isSelected: false,
-  parents: [],
 };
 
 export const wild: CrossNodeModel = {
@@ -36,7 +34,6 @@ export const wild: CrossNodeModel = {
     ],
   }),
   isSelected: false,
-  parents: [],
 };
 
 const mutatedStrain: Strain = new Strain({
@@ -78,12 +75,11 @@ export const mutated: CrossNodeModel = {
   sex: Sex.Male,
   strain: mutatedStrain,
   isSelected: false,
-  parents: [],
 };
 
 export const smallMutated: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
-  parents: [],
+
   isSelected: false,
   strain: new Strain({
     name: 'strain1',
@@ -115,7 +111,6 @@ export const badMutationLists: CrossNodeModel = {
     notes: '',
   }),
   isSelected: false,
-  parents: [],
 };
 
 export const badAllele: CrossNodeModel = {
@@ -136,7 +131,6 @@ export const badAllele: CrossNodeModel = {
     ],
     notes: '',
   }),
-  parents: [],
   isSelected: false,
 };
 
@@ -153,7 +147,6 @@ export const monoid: CrossNodeModel = {
     notes: '',
   }),
   isSelected: false,
-  parents: [],
 };
 
 export const diploid: CrossNodeModel = {
@@ -169,5 +162,4 @@ export const diploid: CrossNodeModel = {
     notes: '',
   }),
   isSelected: false,
-  parents: [],
 };
