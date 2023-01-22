@@ -21,17 +21,17 @@ import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import { Allele } from 'models/frontend/Allele/Allele';
 import * as mockCrossTree from 'models/frontend/CrossTree/CrossTree.mock';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
-import { useLocation, useOutletContext, useParams } from 'react-router-dom';
-
-let nextId = 0;
+import { useOutletContext } from 'react-router-dom';
+import { TreeNode } from 'models/frontend/CrossTree/TreeNode';
 
 const addNewNodeToFlow = (
   existingNodes: Node[],
   setNodes: (nodes: Node[]) => void,
   newNode: CrossNodeModel
 ): void => {
+  const newTreeNode: TreeNode = new TreeNode(newNode, { x: 0, y: 0 });
   const newFlowNode: Node = {
-    id: (nextId++).toString(),
+    id: newTreeNode.id.toString(),
     type: 'flowWrapper',
     position: { x: 150, y: -100 },
     data: <CrossNode model={newNode} />,
@@ -41,16 +41,16 @@ const addNewNodeToFlow = (
 };
 
 const CrossPage = (): JSX.Element => {
-  const [count, setCount]: [
-    number,
-    React.Dispatch<React.SetStateAction<number>>
-  ] = useOutletContext();
+  const [currentTreeId, setCurrentTreeId]: [number, (num: number) => void] =
+    useOutletContext();
+  // For now, ignore tree id and use mock
+  const tree: CrossTree = mockCrossTree.ed3CrossTree;
 
   const [rightDrawerOpen, setRightDrawerOpen] = React.useState(false);
-  const [nodes, setNodes] = useState<Node[]>(
-    getInitialNodes(mockCrossTree.ed3CrossTree)
-  );
-  const [edges, setEdges] = useState<Edge[]>([]);
+  const [initialNodes, initialEdges] = getInitialNodesAndEdges(tree);
+
+  const [nodes, setNodes] = useState<Node[]>(initialNodes);
+  const [edges, setEdges] = useState<Edge[]>(initialEdges);
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) =>
@@ -96,7 +96,7 @@ const CrossPage = (): JSX.Element => {
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
-                crossTree={mockCrossTree.ed3CrossTree}
+                crossTree={tree}
               />
             </div>
           </div>
@@ -129,19 +129,34 @@ const CrossPage = (): JSX.Element => {
   );
 };
 
-const getInitialNodes = (crossTree: CrossTree): Node[] => {
+const getInitialNodesAndEdges = (crossTree: CrossTree): [Node[], Edge[]] => {
   const initialNodes: Array<Node<JSX.Element>> = [];
+  const initialEdges: Array<Edge<JSX.Element>> = [];
 
   crossTree.treeNodes.forEach((treeNode) => {
     initialNodes.push({
-      id: `node-${nextId++}`,
+      id: `${treeNode.id}`,
       type: 'flowWrapper',
       position: treeNode.position,
       data: <CrossNode model={treeNode.crossNodeModel}></CrossNode>,
-      connectable: false,
     });
+    if (treeNode.maleParent) {
+      initialEdges.push({
+        id: `${treeNode.maleParent.id}-${treeNode.id}`,
+        source: treeNode.maleParent.id.toString(),
+        target: treeNode.id.toString(),
+      });
+      if (treeNode.femaleParent) {
+        initialEdges.push({
+          id: `${treeNode.femaleParent.id}-${treeNode.id}`,
+          source: treeNode.femaleParent.id.toString(),
+          target: treeNode.id.toString(),
+        });
+      }
+    }
   });
-  return initialNodes;
+  console.log('nodes', initialNodes);
+  return [initialNodes, initialEdges];
 };
 
 export default CrossPage;

@@ -1,11 +1,13 @@
 import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 
+let nextId = 0;
 export interface Point {
   x: number;
   y: number;
 }
 
 export class TreeNode {
+  id: number;
   crossNodeModel: CrossNodeModel;
   position: Point;
   maleParent?: TreeNode;
@@ -17,6 +19,7 @@ export class TreeNode {
     maleParent?: TreeNode,
     femaleParent?: TreeNode
   ) {
+    this.id = nextId++;
     this.crossNodeModel = value;
     this.maleParent = maleParent;
     this.femaleParent = femaleParent;
