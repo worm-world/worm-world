@@ -1,36 +1,64 @@
 import { TopNav } from 'components/TopNav/TopNav';
 import RightDrawer from 'components/RightDrawer/RightDrawer';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import CrossFlow from 'components/CrossFlow/CrossFlow';
-import { Node, useNodesState } from 'reactflow';
+import {
+  Connection,
+  Edge,
+  EdgeChange,
+  Node,
+  NodeChange,
+  addEdge,
+  applyEdgeChanges,
+  applyNodeChanges,
+  useNodesState,
+} from 'reactflow';
 import CrossNode from 'components/CrossNode/CrossNode';
 import CrossNodeForm from 'components/CrossNodeForm/CrossNodeForm';
 import { getFilteredAlleles } from 'api/allele';
 import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import { Allele } from 'models/frontend/Allele/Allele';
 import * as mockCrossTree from 'models/frontend/CrossTree/CrossTree.mock';
+import CrossTree from 'models/frontend/CrossTree/CrossTree';
 
-let nextNodeId = 5;
+let nextId = 0;
 
-const addNewNodeToFlow = (
-  nodes: Node[],
-  setNodes: (nodes: Node[]) => void,
-  newNode: CrossNodeModel
-): void => {
-  const newFlowNode: Node = {
-    id: nextNodeId.toString(),
-    type: 'flowWrapper',
-    position: { x: 150, y: -100 },
-    data: <CrossNode {...newNode} />,
-    connectable: true,
-  };
-  nextNodeId += 1;
-  setNodes([...nodes, newFlowNode]);
-};
+// const addNewNodeToFlow = (
+//   nodes: Node[],
+//   setNodes: (nodes: Node[]) => void,
+//   newNode: CrossNodeModel
+// ): void => {
+//   const newFlowNode: Node = {
+//     id: (nextId++).toString(),
+//     type: 'flowWrapper',
+//     position: { x: 150, y: -100 },
+//     data: <CrossNode model={newNode} />,
+//     connectable: true,
+//   };
+//   setNodes([...nodes, newFlowNode]);
+// };
 
 const CrossPage = (): JSX.Element => {
   const [rightDrawerOpen, setRightDrawerOpen] = React.useState(false);
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [nodes, setNodes] = useState<Node[]>(
+    getInitialNodes(mockCrossTree.ed3CrossTree)
+  );
+  const [edges, setEdges] = useState<Edge[]>([]);
+
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) =>
+      setNodes((nds) => applyNodeChanges(changes, nds)),
+    [setNodes]
+  );
+  const onEdgesChange = useCallback(
+    (changes: EdgeChange[]) =>
+      setEdges((eds) => applyEdgeChanges(changes, eds)),
+    [setEdges]
+  );
+  const onConnect = useCallback(
+    (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
+    [setEdges]
+  );
 
   const rightButton = (
     <button
@@ -58,7 +86,14 @@ const CrossPage = (): JSX.Element => {
         </TopNav>
         <div className='grow'>
           <div className='h-full w-full'>
-            <CrossFlow crossTree={mockCrossTree.ed3CrossTree} />
+            <CrossFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              crossTree={mockCrossTree.ed3CrossTree}
+            />
           </div>
         </div>
       </div>
@@ -86,6 +121,21 @@ const CrossPage = (): JSX.Element => {
       </div>
     </div>
   );
+};
+
+const getInitialNodes = (crossTree: CrossTree): Node[] => {
+  const initialNodes: Array<Node<JSX.Element>> = [];
+
+  crossTree.treeNodes.forEach((treeNode) => {
+    initialNodes.push({
+      id: `node-${nextId++}`,
+      type: 'flowWrapper',
+      position: treeNode.position,
+      data: <CrossNode model={treeNode.crossNodeModel}></CrossNode>,
+      connectable: false,
+    });
+  });
+  return initialNodes;
 };
 
 export default CrossPage;

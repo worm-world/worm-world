@@ -8,5 +8,9 @@ export const ed3CrossTree = new CrossTree({
     longName: false,
     contents: false,
   },
-  trees: [mockTreeNode.ed3HomoHerm],
+  treeNodes: [
+    mockTreeNode.ed3HeteroHerm,
+    mockTreeNode.ed3HeteroMale,
+    mockTreeNode.ed3HomoHerm,
+  ],
 });

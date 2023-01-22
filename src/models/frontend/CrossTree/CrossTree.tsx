@@ -7,7 +7,7 @@ interface iCrossTree {
     longName: boolean;
     contents: boolean;
   };
-  trees: TreeNode[];
+  treeNodes: TreeNode[];
 }
 
 // Technically a cross forest
@@ -19,12 +19,12 @@ export default class CrossTree {
     contents: boolean;
   };
 
-  trees: TreeNode[];
+  treeNodes: TreeNode[];
 
   constructor(params: iCrossTree) {
     this.id = params.id;
     this.description = params.description;
     this.settings = params.settings;
-    this.trees = params.trees;
+    this.treeNodes = params.treeNodes;
   }
 }
