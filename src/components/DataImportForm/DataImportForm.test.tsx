@@ -1,0 +1,77 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import DataImportForm, {
+  FieldType,
+} from 'components/DataImportForm/DataImportForm';
+import { db_Allele } from 'models/db/db_Allele';
+import { vi } from 'vitest';
+
+describe('DataImportForm ', () => {
+  test('successfully renders', () => {
+    render(
+      <DataImportForm
+        dataName={'Empty Form'}
+        fields={[]}
+        onSubmitCallback={vi.fn}
+      />
+    );
+
+    const form = screen.getByRole('heading', { name: /New/ });
+    expect(form).toBeDefined();
+  });
+
+  test('submit callback is used', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+
+    render(
+      <DataImportForm
+        dataName={'Empty Form'}
+        fields={[]}
+        onSubmitCallback={onSubmit}
+      />
+    );
+
+    const submitButton = screen.getByRole('button');
+    expect(onSubmit).toBeCalledTimes(0);
+
+    await user.click(submitButton);
+    expect(onSubmit).toBeCalledTimes(1);
+  });
+
+  test('displays form fields', async () => {
+    const fields: Array<FieldType<db_Allele>> = [
+      {
+        name: 'name',
+        title: 'Allele Name',
+        type: 'text',
+      },
+      {
+        name: 'contents',
+        title: 'Allele Contents',
+        type: 'text',
+      },
+      {
+        name: 'sysGeneName',
+        title: 'Systematic Gene Name',
+        type: 'text',
+      },
+      {
+        name: 'variationName',
+        title: 'Variation Name',
+        type: 'text',
+      },
+    ];
+
+    render(
+      <DataImportForm
+        dataName={'Allele Form'}
+        fields={fields}
+        onSubmitCallback={vi.fn()}
+      />
+    );
+
+    const inputs = screen.getAllByRole('textbox');
+    expect(inputs).toHaveLength(fields.length);
+  });
+});

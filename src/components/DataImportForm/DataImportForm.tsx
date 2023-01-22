@@ -8,7 +8,7 @@ export interface FieldType<T> {
   selectOptions?: string[];
 }
 
-interface iDataImportFormProps<T> {
+export interface iDataImportFormProps<T> {
   className?: string;
   dataName: string;
   fields: Array<FieldType<T>>;
