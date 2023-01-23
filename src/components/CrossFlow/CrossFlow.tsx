@@ -8,6 +8,7 @@ import ReactFlow, {
   EdgeChange,
   NodeChange,
   Connection,
+  ConnectionMode,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import FlowWrapper from 'components/FlowWrapper/FlowWrapper';
@@ -29,6 +30,7 @@ const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
   return (
     <ReactFlow
       className={props.className}
+      connectionMode={ConnectionMode.Loose}
       zoomOnScroll={true}
       nodeTypes={nodeTypes}
       fitView

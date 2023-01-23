@@ -1,11 +1,11 @@
 import { MouseEvent, useState } from 'react';
 import ClickAwayListener from 'react-click-away-listener';
 import { BiDotsHorizontalRounded as MoreHorizIcon } from 'react-icons/bi';
-import { Link } from 'react-router-dom';
-import * as mockCrossTree from 'models/frontend/CrossTree/CrossTree.mock';
+import { Link, useOutletContext } from 'react-router-dom';
+import CrossTree from 'models/frontend/CrossTree/CrossTree';
 
 export interface SavedTreeCardProps {
-  treeId: number;
+  tree: CrossTree;
   name: string;
   description: string;
   lastSaved: Date;
@@ -13,10 +13,16 @@ export interface SavedTreeCardProps {
 
 const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
   const [showMenu, setShowMenu] = useState(false);
+  const [, setCurrentTree]: [CrossTree, (tree: CrossTree) => void] =
+    useOutletContext();
 
   return (
     <div className='flex'>
-      <Link to={'treeView/'} className='flex h-52 w-52'>
+      <Link
+        onClick={() => setCurrentTree(props.tree)}
+        to={'treeView/'}
+        className='flex h-52 w-52'
+      >
         <div className='group flex flex-col overflow-hidden rounded-lg border-base-200 shadow-xl hover:cursor-pointer'>
           <div className='flex h-full w-full content-start justify-end bg-primary'>
             <button

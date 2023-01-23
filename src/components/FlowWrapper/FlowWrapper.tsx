@@ -8,9 +8,11 @@ export interface FlowWrapperProps {
 const FlowWrapper = (props: FlowWrapperProps): JSX.Element => {
   return (
     <div className='h-fit w-fit'>
-      <Handle type='target' position={Position.Top} />
+      <Handle id='top' type='source' position={Position.Top} />
+      <Handle id='bottom' type='source' position={Position.Bottom} />
+      <Handle id='left' type='source' position={Position.Left} />
+      <Handle id='right' type='source' position={Position.Right} />
       {props.data}
-      <Handle type='source' position={Position.Bottom} />
     </div>
   );
 };

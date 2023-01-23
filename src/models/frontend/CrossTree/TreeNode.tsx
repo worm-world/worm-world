@@ -13,17 +13,17 @@ export class TreeNode {
   maleParent?: TreeNode;
   femaleParent?: TreeNode;
 
-  constructor(
-    value: CrossNodeModel,
-    position: Point,
-    maleParent?: TreeNode,
-    femaleParent?: TreeNode
-  ) {
+  constructor(params: {
+    value: CrossNodeModel;
+    position: Point;
+    maleParent?: TreeNode;
+    femaleParent?: TreeNode;
+  }) {
     this.id = nextId++;
-    this.crossNodeModel = value;
-    this.maleParent = maleParent;
-    this.femaleParent = femaleParent;
-    this.position = position;
+    this.crossNodeModel = params.value;
+    this.maleParent = params.maleParent;
+    this.femaleParent = params.femaleParent;
+    this.position = params.position;
   }
 
   public setMaleParent(maleParent: TreeNode): void {

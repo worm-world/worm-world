@@ -19,17 +19,20 @@ import { getFilteredGenes } from 'api/gene';
 import { getFilteredAlleles } from 'api/allele';
 import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import { Allele } from 'models/frontend/Allele/Allele';
-import * as mockCrossTree from 'models/frontend/CrossTree/CrossTree.mock';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { useOutletContext } from 'react-router-dom';
 import { TreeNode } from 'models/frontend/CrossTree/TreeNode';
+import { XNode } from 'components/XNode/XNode';
 
 const addNewNodeToFlow = (
   existingNodes: Node[],
   setNodes: (nodes: Node[]) => void,
   newNode: CrossNodeModel
 ): void => {
-  const newTreeNode: TreeNode = new TreeNode(newNode, { x: 0, y: 0 });
+  const newTreeNode: TreeNode = new TreeNode({
+    value: newNode,
+    position: { x: 0, y: 0 },
+  });
   const newFlowNode: Node = {
     id: newTreeNode.id.toString(),
     type: 'flowWrapper',
@@ -41,20 +44,19 @@ const addNewNodeToFlow = (
 };
 
 const CrossPage = (): JSX.Element => {
-  const [currentTreeId, setCurrentTreeId]: [number, (num: number) => void] =
+  const [currentTree]: [CrossTree, (tree: CrossTree) => void] =
     useOutletContext();
-  // For now, ignore tree id and use mock
-  const tree: CrossTree = mockCrossTree.ed3CrossTree;
 
   const [rightDrawerOpen, setRightDrawerOpen] = React.useState(false);
-  const [initialNodes, initialEdges] = getInitialNodesAndEdges(tree);
+  const [initialNodes, initialEdges] = getInitialNodesAndEdges(currentTree);
 
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
 
   const onNodesChange = useCallback(
-    (changes: NodeChange[]) =>
-      setNodes((nds) => applyNodeChanges(changes, nds)),
+    (changes: NodeChange[]) => {
+      setNodes((nds) => applyNodeChanges(changes, nds));
+    },
     [setNodes]
   );
   const onEdgesChange = useCallback(
@@ -96,12 +98,12 @@ const CrossPage = (): JSX.Element => {
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
-                crossTree={tree}
+                crossTree={currentTree}
               />
             </div>
           </div>
         </div>
-        <div className={'drawer-end drawer-side h-full '}>
+        <div className={'drawer-side drawer-end h-full '}>
           <label
             htmlFor='right-cross-drawer'
             className='drawer-overlay'
@@ -140,23 +142,79 @@ const getInitialNodesAndEdges = (crossTree: CrossTree): [Node[], Edge[]] => {
       position: treeNode.position,
       data: <CrossNode model={treeNode.crossNodeModel}></CrossNode>,
     });
-    if (treeNode.maleParent) {
+    if (
+      treeNode.femaleParent !== undefined &&
+      treeNode.maleParent !== undefined
+    ) {
+      constructFemaleMaleAndChild(treeNode, initialNodes, initialEdges);
+    } else if (treeNode.maleParent !== undefined) {
       initialEdges.push({
         id: `${treeNode.maleParent.id}-${treeNode.id}`,
         source: treeNode.maleParent.id.toString(),
+        sourceHandle: 'bottom',
         target: treeNode.id.toString(),
+        targetHandle: 'top',
       });
-      if (treeNode.femaleParent) {
-        initialEdges.push({
-          id: `${treeNode.femaleParent.id}-${treeNode.id}`,
-          source: treeNode.femaleParent.id.toString(),
-          target: treeNode.id.toString(),
-        });
-      }
+    } else if (treeNode.femaleParent !== undefined) {
+      initialEdges.push({
+        id: `${treeNode.femaleParent.id}-${treeNode.id}`,
+        source: treeNode.femaleParent.id.toString(),
+        sourceHandle: 'bottom',
+        target: treeNode.id.toString(),
+        targetHandle: 'top',
+      });
     }
   });
-  console.log('nodes', initialNodes);
   return [initialNodes, initialEdges];
+};
+
+/**
+ * Adds an X-node to the tree and edges connecting
+ * female to X, male to X, and X to child
+ */
+const constructFemaleMaleAndChild = (
+  childNode: TreeNode,
+  initialNodes: Node[],
+  initialEdges: Edge[]
+): void => {
+  initialNodes.push({
+    id: `x-node-${childNode.id}`,
+    type: 'flowWrapper',
+    position: {
+      x:
+        ((childNode.femaleParent?.position.x ?? 0) +
+          (childNode.maleParent?.position.x ?? 0)) /
+          2 +
+        96,
+      y:
+        ((childNode.femaleParent?.position.y ?? 0) +
+          (childNode.maleParent?.position.y ?? 0)) /
+          2 +
+        24,
+    },
+    data: <XNode />,
+  });
+  initialEdges.push({
+    id: `${childNode.femaleParent?.id}-${childNode.id}`,
+    source: childNode.femaleParent?.id.toString() ?? '',
+    sourceHandle: 'left',
+    target: `x-node-${childNode.id}`,
+    targetHandle: 'right',
+  });
+  initialEdges.push({
+    id: `${childNode.maleParent?.id}-${childNode.id}`,
+    source: childNode.maleParent?.id.toString() ?? '',
+    sourceHandle: 'right',
+    target: `x-node-${childNode.id}`,
+    targetHandle: 'left',
+  });
+  initialEdges.push({
+    id: `x-node-${childNode.id}-${childNode.id}`,
+    source: `x-node-${childNode.id}`,
+    sourceHandle: 'bottom',
+    target: `${childNode.id}`,
+    targetHandle: 'top',
+  });
 };
 
 export default CrossPage;

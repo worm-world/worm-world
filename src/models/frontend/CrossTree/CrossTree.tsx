@@ -1,4 +1,6 @@
 import { TreeNode } from 'models/frontend/CrossTree/TreeNode';
+import { Gene } from '../Gene/Gene';
+import { VariationInfo } from '../VariationInfo/VariationInfo';
 
 interface iCrossTree {
   id: number;
@@ -10,6 +12,8 @@ interface iCrossTree {
   };
   treeNodes: TreeNode[];
   lastSaved: Date;
+  genes: Gene[];
+  variations: VariationInfo[];
 }
 
 export default class CrossTree {
