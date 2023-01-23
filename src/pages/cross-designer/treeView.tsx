@@ -1,4 +1,3 @@
-import { TopNav } from 'components/TopNav/TopNav';
 import RightDrawer from 'components/RightDrawer/RightDrawer';
 import React, { useCallback, useState } from 'react';
 import CrossFlow from 'components/CrossFlow/CrossFlow';

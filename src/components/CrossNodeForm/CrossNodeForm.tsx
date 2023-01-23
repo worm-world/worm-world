@@ -121,7 +121,6 @@ const createNewCrossNode = (
       allelePairs,
       notes: '',
     }),
-    parents: [],
     isSelected: false,
   };
   return crossNodeModel;

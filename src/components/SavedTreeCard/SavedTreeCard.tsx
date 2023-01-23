@@ -6,9 +6,6 @@ import CrossTree from 'models/frontend/CrossTree/CrossTree';
 
 export interface SavedTreeCardProps {
   tree: CrossTree;
-  name: string;
-  description: string;
-  lastSaved: Date;
 }
 
 const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
@@ -36,9 +33,9 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
             </button>
           </div>
           <footer className='bg-base-200'>
-            <div className='text-center text-xl'>{props.name}</div>
+            <div className='text-center text-xl'>{props.tree.name}</div>
             <div className='border-t-1 border-base-300 p-2'>
-              {props.description}
+              {props.tree.description}
             </div>
           </footer>
         </div>

@@ -1,31 +1,30 @@
-import SavedTreeCard, {
-  SavedTreeCardProps,
-} from 'components/SavedTreeCard/SavedTreeCard';
+import SavedTreeCard from 'components/SavedTreeCard/SavedTreeCard';
 import { TopNav } from 'components/TopNav/TopNav';
-import * as mockCrossTree from 'models/frontend/CrossTree/CrossTree.mock';
+import { getAllCrossTrees } from 'api/crossTree';
+import { useEffect, useState } from 'react';
+import CrossTree from 'models/frontend/CrossTree/CrossTree';
 
 const CrossDesignerIndex = (): JSX.Element => {
-  // Trees will come from some API call
-  const trees: SavedTreeCardProps[] = [
-    {
-      tree: mockCrossTree.simpleCrossTree,
-      name: mockCrossTree.simpleCrossTree.name,
-      description: mockCrossTree.simpleCrossTree.description,
-      lastSaved: mockCrossTree.simpleCrossTree.lastSaved,
-    },
-    {
-      tree: mockCrossTree.mediumCrossTree,
-      name: mockCrossTree.mediumCrossTree.name,
-      description: mockCrossTree.mediumCrossTree.description,
-      lastSaved: mockCrossTree.mediumCrossTree.lastSaved,
-    },
-  ];
+  const [crossTrees, setCrossTrees] = useState<CrossTree[] | null>(null);
+
+  useEffect(() => {
+    getAllCrossTrees()
+      .then((trees: CrossTree[]) =>
+        setCrossTrees(
+          trees.map((tree) => {
+            return tree;
+          })
+        )
+      )
+      .catch((err) => err);
+  }, []);
+
   return (
     <>
       <TopNav title={'Cross Designer'} />
       <div className='m-8 flex flex-wrap gap-10'>
-        {trees.map((tree, index) => {
-          return <SavedTreeCard key={index} {...tree} />;
+        {crossTrees?.map((crossTree) => {
+          return <SavedTreeCard key={crossTree.id} tree={crossTree} />;
         })}
       </div>
     </>
