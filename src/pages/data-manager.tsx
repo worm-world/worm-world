@@ -32,7 +32,7 @@ const Import = (): JSX.Element => {
           Expression Relation
         </Link>
       </TopNav>
-      <div className='px-6 pt-2'>
+      <div>
         <Outlet />
       </div>
     </div>
