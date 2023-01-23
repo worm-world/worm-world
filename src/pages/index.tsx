@@ -133,10 +133,10 @@ const Home = (): JSX.Element => {
           onClick={() => {
             getVariations()
               .then((res) => {
-                const varations = res.map((record) =>
+                const variations = res.map((record) =>
                   VariationInfo.createFromRecord(record)
                 );
-                console.log(varations);
+                console.log(variations);
               })
               .catch((err) => err);
           }}

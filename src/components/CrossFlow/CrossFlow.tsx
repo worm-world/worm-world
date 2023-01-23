@@ -12,11 +12,9 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import FlowWrapper from 'components/FlowWrapper/FlowWrapper';
-import CrossTree from 'models/frontend/CrossTree/CrossTree';
 
 interface iCrossFlowProps {
   className?: string;
-  crossTree: CrossTree;
   nodes: Node[];
   edges: Edge[];
   onNodesChange: (changes: NodeChange[]) => void;

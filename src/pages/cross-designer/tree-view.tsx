@@ -1,5 +1,5 @@
 import RightDrawer from 'components/RightDrawer/RightDrawer';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import CrossFlow from 'components/CrossFlow/CrossFlow';
 import {
   Connection,
@@ -16,42 +16,37 @@ import CrossNodeForm from 'components/CrossNodeForm/CrossNodeForm';
 import { getFilteredVariations } from 'api/variationInfo';
 import { getFilteredGenes } from 'api/gene';
 import { getFilteredAlleles } from 'api/allele';
+import { getCrossTreeById } from 'api/crossTree';
 import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import { Allele } from 'models/frontend/Allele/Allele';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
-import { useOutletContext } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { TreeNode } from 'models/frontend/TreeNode/TreeNode';
 import { XNode } from 'components/XNode/XNode';
 import EditorTop from 'components/EditorTop/EditorTop';
 
-const addNewNodeToFlow = (
-  existingNodes: Node[],
-  setNodes: (nodes: Node[]) => void,
-  newNode: CrossNodeModel
-): void => {
-  const newTreeNode: TreeNode = new TreeNode({
-    value: newNode,
-    position: { x: 0, y: 0 },
-  });
-  const newFlowNode: Node = {
-    id: newTreeNode.id.toString(),
-    type: 'flowWrapper',
-    position: { x: 150, y: -100 },
-    data: <CrossNode model={newNode} />,
-    connectable: true,
-  };
-  setNodes([...existingNodes, newFlowNode]);
-};
-
 const CrossPage = (): JSX.Element => {
-  const [currentTree]: [CrossTree, (tree: CrossTree) => void] =
-    useOutletContext();
-
+  const [currentTree, setCurrentTree]: [
+    CrossTree | null,
+    (tree: CrossTree) => void
+  ] = useState<CrossTree | null>(null);
   const [rightDrawerOpen, setRightDrawerOpen] = React.useState(false);
-  const [initialNodes, initialEdges] = getInitialNodesAndEdges(currentTree);
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
 
-  const [nodes, setNodes] = useState<Node[]>(initialNodes);
-  const [edges, setEdges] = useState<Edge[]>(initialEdges);
+  const currentTreeId: string = useLocation().state.treeId;
+
+  useEffect(() => {
+    const currentTreePromise = getCrossTreeById(parseInt(currentTreeId));
+    currentTreePromise
+      .then((currentTree) => {
+        setCurrentTree(currentTree);
+        const [initNodes, initEdges] = getInitialNodesAndEdges(currentTree);
+        setNodes(initNodes);
+        setEdges(initEdges);
+      })
+      .catch((err) => err);
+  }, []);
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
@@ -91,7 +86,7 @@ const CrossPage = (): JSX.Element => {
           />
           <div className='drawer-content flex h-screen flex-col'>
             <EditorTop
-              name={currentTree.name}
+              name={currentTree?.name ?? ''}
               rightButton={rightButton}
             ></EditorTop>
             <div className='grow'>
@@ -102,7 +97,6 @@ const CrossPage = (): JSX.Element => {
                   onNodesChange={onNodesChange}
                   onEdgesChange={onEdgesChange}
                   onConnect={onConnect}
-                  crossTree={currentTree}
                 />
               </div>
             </div>
@@ -134,6 +128,25 @@ const CrossPage = (): JSX.Element => {
       </div>
     </>
   );
+};
+
+const addNewNodeToFlow = (
+  existingNodes: Node[],
+  setNodes: (nodes: Node[]) => void,
+  newNode: CrossNodeModel
+): void => {
+  const newTreeNode: TreeNode = new TreeNode({
+    value: newNode,
+    position: { x: 0, y: 0 },
+  });
+  const newFlowNode: Node = {
+    id: newTreeNode.id.toString(),
+    type: 'flowWrapper',
+    position: { x: 150, y: -100 },
+    data: <CrossNode model={newNode} />,
+    connectable: true,
+  };
+  setNodes([...existingNodes, newFlowNode]);
 };
 
 const getInitialNodesAndEdges = (crossTree: CrossTree): [Node[], Edge[]] => {
