@@ -1,4 +1,4 @@
-import * as mockTreeNode from 'models/frontend/CrossTree/TreeNode.mock';
+import * as mockTreeNode from 'models/frontend/TreeNode/TreeNode.mock';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { Gene } from '../Gene/Gene';
 

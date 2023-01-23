@@ -1,4 +1,4 @@
-import { TreeNode } from 'models/frontend/CrossTree/TreeNode';
+import { TreeNode } from 'models/frontend/TreeNode/TreeNode';
 import { Gene } from '../Gene/Gene';
 import { VariationInfo } from '../VariationInfo/VariationInfo';
 

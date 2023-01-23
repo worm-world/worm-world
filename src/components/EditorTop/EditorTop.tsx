@@ -1,4 +1,4 @@
-interface EditorTopProps {
+export interface EditorTopProps {
   name: String;
   rightButton?: JSX.Element;
 }

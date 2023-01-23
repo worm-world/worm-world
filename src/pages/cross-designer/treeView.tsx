@@ -20,7 +20,7 @@ import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import { Allele } from 'models/frontend/Allele/Allele';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { useOutletContext } from 'react-router-dom';
-import { TreeNode } from 'models/frontend/CrossTree/TreeNode';
+import { TreeNode } from 'models/frontend/TreeNode/TreeNode';
 import { XNode } from 'components/XNode/XNode';
 import EditorTop from 'components/EditorTop/EditorTop';
 
@@ -107,7 +107,7 @@ const CrossPage = (): JSX.Element => {
               </div>
             </div>
           </div>
-          <div className={'drawer-end drawer-side h-full '}>
+          <div className={'drawer-side drawer-end h-full '}>
             <label
               htmlFor='right-cross-drawer'
               className='drawer-overlay'

@@ -1,5 +1,5 @@
 import * as mockCrossNode from 'models/frontend/CrossNode/CrossNode.mock';
-import { TreeNode } from 'models/frontend/CrossTree/TreeNode';
+import { TreeNode } from 'models/frontend/TreeNode/TreeNode';
 
 export const ed3HeteroHerm = new TreeNode({
   value: mockCrossNode.ed3HeteroHerm,
