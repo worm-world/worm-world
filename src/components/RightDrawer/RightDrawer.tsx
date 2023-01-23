@@ -63,7 +63,9 @@ const RightDrawer = (props: RightDrawerProps): JSX.Element => {
             <CloseIcon className='pr-2 text-3xl' />
           </button>
         </div>
-        <div className={styles.drawerContents}>{props.children}</div>
+        <div className={styles.drawerContents} hidden={!props.isOpen}>
+          {props.children}
+        </div>
       </div>
     </div>
   );

@@ -6,12 +6,9 @@ import {
 } from 'react-icons/bi';
 import { Key, useEffect } from 'react';
 import { themeChange } from 'theme-change';
-
 interface SideNavProps {
-  isOpen: boolean;
   drawerWidth: number;
 }
-
 interface SideNavItem {
   name: String;
   path: String;
@@ -86,7 +83,11 @@ const SideNav = (props: SideNavProps): JSX.Element => {
   }, []);
 
   return (
-    <div className={'drawer-side'} style={{ width: props.drawerWidth }}>
+    <div
+      className={'drawer-side'}
+      data-testid='side-drawer'
+      style={{ width: props.drawerWidth }}
+    >
       <label
         htmlFor='nav-drawer'
         className='drawer-overlay bg-transparent'
