@@ -50,7 +50,7 @@ const CrossNode = (props: CrossNodeProps): JSX.Element => {
             ])
           ).map((chromosome, idx, arr) => {
             return (
-              <div key={idx}>
+              <div key={idx} className="flex">
                 {getChromosomeBox(chromosome, genotype)}
                 <div className='flex flex-col justify-center pt-3 font-light text-base-content'>
                   {idx < arr.length - 1 ? <span>;</span> : <span></span>}
