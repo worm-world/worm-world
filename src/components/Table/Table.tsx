@@ -6,7 +6,7 @@ export interface ColumnDefinitionType<T> {
   width?: number;
 }
 
-interface TableProps<T> {
+export interface TableProps<T> {
   data: T[];
   columns: Array<ColumnDefinitionType<T>>;
 }

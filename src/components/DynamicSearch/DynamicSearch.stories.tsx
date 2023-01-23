@@ -1,5 +1,5 @@
 import React from 'react';
-import { StoryFn, Meta, Story } from '@storybook/react';
+import { StoryFn, Meta } from '@storybook/react';
 import {
   DynamicSearch,
   iSearchProps,
@@ -8,7 +8,6 @@ import { Filter } from 'models/db/filter/Filter';
 import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
 import { db_Allele } from 'models/db/db_Allele';
 import { getDbAlleles } from 'components/DynamicSearch/DynamicSearch.mock';
-import { T } from 'vitest/dist/global-732f9b14';
 
 export default {
   title: 'Components/DynamicSearch',
