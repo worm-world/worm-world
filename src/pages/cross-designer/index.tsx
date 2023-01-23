@@ -22,7 +22,7 @@ const CrossDesignerIndex = (): JSX.Element => {
   ];
   return (
     <>
-      <TopNav title={'Cross Designer'}></TopNav>
+      <TopNav title={'Cross Designer'} />
       <div className='m-8 flex flex-wrap gap-10'>
         {trees.map((tree, index) => {
           return <SavedTreeCard key={index} {...tree} />;

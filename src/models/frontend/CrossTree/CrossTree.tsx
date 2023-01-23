@@ -2,8 +2,10 @@ import { TreeNode } from 'models/frontend/CrossTree/TreeNode';
 import { Gene } from '../Gene/Gene';
 import { VariationInfo } from '../VariationInfo/VariationInfo';
 
+let nextId = 0;
+
 interface iCrossTree {
-  id: number;
+  id?: number;
   name: string;
   description: string;
   settings: {
@@ -29,7 +31,7 @@ export default class CrossTree {
   lastSaved: Date;
 
   constructor(params: iCrossTree) {
-    this.id = params.id;
+    this.id = params.id ?? nextId++;
     this.name = params.name;
     this.description = params.description;
     this.settings = params.settings;

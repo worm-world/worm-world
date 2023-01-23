@@ -23,6 +23,7 @@ import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { useOutletContext } from 'react-router-dom';
 import { TreeNode } from 'models/frontend/CrossTree/TreeNode';
 import { XNode } from 'components/XNode/XNode';
+import EditorTop from 'components/EditorTop/EditorTop';
 
 const addNewNodeToFlow = (
   existingNodes: Node[],
@@ -80,7 +81,7 @@ const CrossPage = (): JSX.Element => {
 
   return (
     <>
-      <TopNav title={'Cross Designer'} rightButton={rightButton}></TopNav>
+      <EditorTop name={currentTree.name} rightButton={rightButton}></EditorTop>
       <div className='drawer drawer-end'>
         <input
           id='right-cross-drawer'
@@ -103,7 +104,7 @@ const CrossPage = (): JSX.Element => {
             </div>
           </div>
         </div>
-        <div className={'drawer-side drawer-end h-full '}>
+        <div className={'drawer-end drawer-side h-full '}>
           <label
             htmlFor='right-cross-drawer'
             className='drawer-overlay'
