@@ -81,51 +81,56 @@ const CrossPage = (): JSX.Element => {
 
   return (
     <>
-      <EditorTop name={currentTree.name} rightButton={rightButton}></EditorTop>
-      <div className='drawer drawer-end'>
-        <input
-          id='right-cross-drawer'
-          type='checkbox'
-          className='drawer-toggle'
-          readOnly
-          checked={rightDrawerOpen}
-        />
-        <div className='drawer-content flex h-screen flex-col'>
-          <div className='grow'>
-            <div className='h-full w-full'>
-              <CrossFlow
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
-                crossTree={currentTree}
-              />
+      <div>
+        <div className='drawer drawer-end'>
+          <input
+            id='right-cross-drawer'
+            type='checkbox'
+            className='drawer-toggle'
+            readOnly
+            checked={rightDrawerOpen}
+          />
+          <div className='drawer-content flex h-screen flex-col'>
+            <EditorTop
+              name={currentTree.name}
+              rightButton={rightButton}
+            ></EditorTop>
+            <div className='grow'>
+              <div className='h-full w-full'>
+                <CrossFlow
+                  nodes={nodes}
+                  edges={edges}
+                  onNodesChange={onNodesChange}
+                  onEdgesChange={onEdgesChange}
+                  onConnect={onConnect}
+                  crossTree={currentTree}
+                />
+              </div>
             </div>
           </div>
-        </div>
-        <div className={'drawer-end drawer-side h-full '}>
-          <label
-            htmlFor='right-cross-drawer'
-            className='drawer-overlay'
-            onClick={() => setRightDrawerOpen(false)}
-          ></label>
-          <RightDrawer
-            initialDrawerWidth={240}
-            isOpen={rightDrawerOpen}
-            maxWidth={400}
-            close={() => setRightDrawerOpen(false)}
-          >
-            <CrossNodeForm
-              getFilteredGenes={getFilteredGenes}
-              getFilteredVariations={getFilteredVariations}
-              getFilteredAlleles={getFilteredAlleles}
-              addNewCrossNode={(crossNode: CrossNodeModel) =>
-                addNewNodeToFlow(nodes, setNodes, crossNode)
-              }
-              alleleCreateFromRecord={Allele.createFromRecord}
-            />
-          </RightDrawer>
+          <div className={'drawer-end drawer-side h-full '}>
+            <label
+              htmlFor='right-cross-drawer'
+              className='drawer-overlay'
+              onClick={() => setRightDrawerOpen(false)}
+            ></label>
+            <RightDrawer
+              initialDrawerWidth={240}
+              isOpen={rightDrawerOpen}
+              maxWidth={400}
+              close={() => setRightDrawerOpen(false)}
+            >
+              <CrossNodeForm
+                getFilteredGenes={getFilteredGenes}
+                getFilteredVariations={getFilteredVariations}
+                getFilteredAlleles={getFilteredAlleles}
+                addNewCrossNode={(crossNode: CrossNodeModel) =>
+                  addNewNodeToFlow(nodes, setNodes, crossNode)
+                }
+                alleleCreateFromRecord={Allele.createFromRecord}
+              />
+            </RightDrawer>
+          </div>
         </div>
       </div>
     </>
