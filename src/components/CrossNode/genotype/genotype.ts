@@ -5,17 +5,13 @@
  */
 
 import CrossNode from 'models/frontend/CrossNode/CrossNode';
-import { Allele } from 'models/frontend/Allele/Allele';
+import { Allele, WildAllele } from 'models/frontend/Allele/Allele';
 import { Gene } from 'models/frontend/Gene/Gene';
 import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 
 type SysGeneName = string;
 type VariationName = string;
-
-export const WILD_ALLELE = new Allele({
-  name: '+',
-});
 
 type GeneMap = Map<SysGeneName, Allele[]>;
 type VariationMap = Map<VariationName, Allele[]>;
@@ -37,7 +33,7 @@ export const getGenotype = (crossNode: CrossNode): Genotype => {
   const variations = crossNode.variations;
   fillWithChromosomes(genotype, genes, variations);
 
-  const alleles = crossNode.strain.alleles;
+  const alleles = crossNode.strain.allelePairs;
   fillWithAlleles(genotype, alleles);
   fillWithWildAlleles(genotype);
 
@@ -105,7 +101,7 @@ const fillWithWildAlleles = (genotype: Genotype): void => {
   for (const geneMap of genotype.genes.values()) {
     for (const [, alleles] of geneMap.entries()) {
       while (alleles.length < 2) {
-        alleles.push(WILD_ALLELE);
+        alleles.push(new WildAllele());
       }
     }
   }
@@ -114,11 +110,11 @@ const fillWithWildAlleles = (genotype: Genotype): void => {
     for (const [, alleles] of variationMap.entries()) {
       if (chromosome !== undefined && chromosome !== 'Ex') {
         while (alleles.length < 2) {
-          alleles.push(WILD_ALLELE);
+          alleles.push(new WildAllele());
         }
       } else {
         while (alleles.length < 1) {
-          alleles.push(WILD_ALLELE);
+          alleles.push(new WildAllele());
         }
       }
     }
