@@ -1,3 +1,4 @@
+import { alleleCreateDoesNotMatter } from 'components/CrossNodeForm/CrossNodeForm.mock';
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 import { Allele, WildAllele } from 'models/frontend/Allele/Allele';
 
@@ -6,17 +7,15 @@ interface StrainOption {
   prob: number;
 }
 
-interface AlleleChain {
+interface AlleleChainOption {
   alleles: Allele[];
   prob: number;
 }
 
-interface ChromosomalPairList {
+interface PairChainOption {
   pairs: AllelePair[];
   prob: number;
 }
-
-type ChromosomalChainList = ChromosomalPairList[];
 
 class AllelePair {
   public top: Allele;
@@ -66,6 +65,10 @@ export class Strain {
     props.allelePairs?.forEach((pair) => this.addPairToChromAlleleMap(pair));
   }
 
+  private readonly addPairsToChromAlleleMap = (pairs: AllelePair[]): void => {
+    pairs.forEach((pair) => this.addPairToChromAlleleMap(pair));
+  };
+
   private readonly addPairToChromAlleleMap = (pair: AllelePair): void => {
     const chrom = pair.getAllele().getChromosome();
     let chromPairs = this.chromAlleleMap.get(chrom);
@@ -96,10 +99,10 @@ export class Strain {
     const lStrain = this.clone();
     const rStrain = other.clone();
 
-    lStrain.prepWithWilds(rStrain, true);
-    rStrain.prepWithWilds(this, false);
+    lStrain.prepWithWilds(rStrain);
+    rStrain.prepWithWilds(this);
 
-    const chromOptions: ChromosomalChainList[] = [];
+    const chromOptions: PairChainOption[][] = [];
 
     // get chromsomomal allele probabilities
     lStrain.chromAlleleMap.forEach((pairs, chromosome) => {
@@ -111,28 +114,53 @@ export class Strain {
     });
 
     // permute strains for each chromosome
-    const strainOptions = new Array<StrainOption>();
+    return this.cartesianCross(chromOptions);
+  };
+
+  private readonly cartesianCross = (
+    chromOptions: PairChainOption[][]
+  ): StrainOption[] => {
+    if (chromOptions.length === 0) return [];
+
+    // Set strain initially with 1st chromosome allele options
+    let strainOptions = chromOptions[0].map((chromOption) => {
+      const allelePairs = new Set(chromOption.pairs);
+      const strain = new Strain({ allelePairs });
+      return {
+        strain,
+        prob: chromOption.prob,
+      };
+    });
+
+    for (let i = 1; i < chromOptions.length; i++)
+      strainOptions = this.cartesianProduct(strainOptions, chromOptions[i]);
 
     return strainOptions;
   };
 
-  // private cartesian = (...chromOptions: ChromosomalChainList[]) => {
-  //   return chromOptions.reduce((optionAccumulator, chromChain) => {
-  //     return optionAccumulator.flatMap((chromOption) => {
-  //       return chromOption.map((chromosomePairs: ChromosomalPairList) => {
-  //         [chromOption, chromosomePairs].flat();
-  //       });
-  //     });
-  //   }, []);
-  // };
+  private readonly cartesianProduct = (
+    strainOptions: StrainOption[],
+    chromOptions: PairChainOption[]
+  ): StrainOption[] => {
+    const newStrainOptions = new Array<StrainOption>();
 
-  // TODO intersperse wilds with their proper genetic location
-  private readonly prepWithWilds = (
-    other: Strain,
-    wildsOnRight: boolean
-  ): void => {
+    strainOptions.forEach((strainOption) => {
+      chromOptions.forEach((chromOption) => {
+        const strain = strainOption.strain.clone();
+        strain.addPairsToChromAlleleMap(chromOption.pairs);
+        const prob = strainOption.prob * chromOption.prob;
+        newStrainOptions.push({ strain, prob });
+      });
+    });
+
+    return strainOptions;
+  };
+
+  private readonly prepWithWilds = (other: Strain): void => {
     other.chromAlleleMap.forEach((otherPairs, chromosome) => {
       const currAlleles = this.chromAlleleMap.get(chromosome) ?? [];
+
+      // Add chromosome to strain, if missing
       if (!this.chromAlleleMap.has(chromosome))
         this.chromAlleleMap.set(chromosome, currAlleles);
 
@@ -142,21 +170,34 @@ export class Strain {
           0;
 
         // Add wild pair to genotype to match other strain
-        if (!alreadyHasAllele) {
-          const wildPair = new AllelePair(new WildAllele(), new WildAllele());
-          wildsOnRight
-            ? currAlleles.push(wildPair)
-            : currAlleles.unshift(wildPair);
-        }
+        if (!alreadyHasAllele) this.insertWildPair(currAlleles, otherPair);
       });
     });
+  };
+
+  private readonly insertWildPair = (
+    currPairs: AllelePair[],
+    otherPair: AllelePair
+  ): void => {
+    const otherGenLoc = otherPair.getAllele().getGenPosition() ?? 100; // gen pos never greater than 25
+    const wildPair = new AllelePair(
+      new WildAllele(otherGenLoc),
+      new WildAllele(otherGenLoc)
+    );
+    let insertionIndex = currPairs.length - 1;
+    currPairs.forEach((pair, idx) => {
+      const pairGenLoc = pair.getAllele().getGenPosition() ?? 50; // gen pos never greater than 25
+      if (pairGenLoc > otherGenLoc) insertionIndex = idx;
+    });
+
+    currPairs.splice(insertionIndex, 0, wildPair);
   };
 
   private readonly crossChromosome = (
     strain1Alleles: AllelePair[],
     strain2Alleles: AllelePair[]
-  ): ChromosomalPairList[] => {
-    const chromAlleleOptions = new Array<ChromosomalPairList>();
+  ): PairChainOption[] => {
+    const chromAlleleOptions = new Array<PairChainOption>();
     const leftOptions = this.getRecombOptions(strain1Alleles);
     const rightOptions = this.getRecombOptions(strain2Alleles);
 
@@ -174,13 +215,13 @@ export class Strain {
 
   private readonly getRecombOptions = (
     chromAlleles: AllelePair[]
-  ): AlleleChain[] => {
+  ): AlleleChainOption[] => {
     const topAlleles = new Array<Allele>();
     const botAlleles = new Array<Allele>();
 
     // Load arrays sorted by genPosition
     const pairs = Array.from(chromAlleles);
-    pairs.sort((pair) => pair.getAllele().getGenPosition() ?? 100); // genPosition will never be greater than 50, this pushes undefined genPositions to end of list
+    pairs.sort((pair) => pair.getAllele().getGenPosition() ?? 100); // genPosition will never be greater than 25, this pushes undefined genPositions to end of list
     pairs.forEach((pair) => {
       topAlleles.push(pair.top);
       botAlleles.push(pair.bot);
@@ -199,12 +240,43 @@ export class Strain {
       pairs
     );
 
-    return topRecombOptions.concat(botRecombOptions); // TODO: add array reduce option for percentage combining (LOOK INTO ADDING PRE-COMMIT)
+    const totalRecombOptions = topRecombOptions.concat(botRecombOptions);
+    this.reduceRecombOptions(totalRecombOptions);
+
+    return totalRecombOptions;
+  };
+
+  private readonly reduceRecombOptions = (
+    recombOptions: AlleleChainOption[]
+  ): void => {
+    if (recombOptions.length === 0) return;
+    recombOptions.sort((chainOptionA, chainOptionB) => {
+      const nameA: string = this.getChainString(chainOptionA);
+      const nameB: string = this.getChainString(chainOptionB);
+      return nameA < nameB ? -1 : 1;
+    });
+
+    let currOption = recombOptions[0];
+    let i = 0;
+    while (i < recombOptions.length) {
+      const nextOption = recombOptions[i];
+      if (this.getChainString(currOption) === this.getChainString(nextOption)) {
+        currOption.prob += nextOption.prob;
+        recombOptions.splice(i, 1);
+        continue;
+      }
+      currOption = nextOption;
+      i++;
+    }
+  };
+
+  private readonly getChainString = (
+    chainOption: AlleleChainOption
+  ): string => {
+    return chainOption.alleles.map((allele) => allele.name).join('');
   };
 
   /**
-   * //todo make sure that non recombination permuations are also accounted for
-   *
    * Computes the possible combinations (for a single chromosome) that can result due to genetic recombination
    * @param startingSide Alleles used before a recombination event
    * @param flippedSide Alleles used after a recombination event
@@ -215,9 +287,10 @@ export class Strain {
     startingSide: Allele[],
     flippedSide: Allele[],
     pairs: AllelePair[]
-  ): AlleleChain[] {
-    const recombOptions = new Array<AlleleChain>();
+  ): AlleleChainOption[] {
+    const recombOptions: AlleleChainOption[] = [];
 
+    // first iteration accounts for NO recombination at all
     for (let i = 0; i < pairs.length; i++) {
       const option = new Array<Allele>();
       let probability = 0.5;

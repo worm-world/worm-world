@@ -7,6 +7,7 @@ import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 import { Filter } from 'models/db/filter/Filter';
 import { AlleleExpression } from 'models/frontend/AlleleExpression';
 import { Gene } from 'models/frontend/Gene/Gene';
+import GeneticLocation from 'models/frontend/GeneticLocation';
 import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
 
 interface IAllele {
@@ -138,8 +139,15 @@ export class Allele {
 }
 
 export class WildAllele extends Allele {
-  constructor() {
-    super({ name: '+' });
+  constructor(genLoc?: number) {
+    let variation: VariationInfo | undefined;
+    if (genLoc !== undefined) {
+      variation = new VariationInfo({
+        name: '+',
+        geneticLoc: new GeneticLocation(genLoc),
+      });
+    }
+    super({ name: '+', variation });
   }
 }
 
