@@ -11,7 +11,7 @@ import { XNode } from 'components/XNode/XNode';
 import { Allele } from 'models/frontend/Allele/Allele';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { TreeNode } from 'models/frontend/TreeNode/TreeNode';
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Edge,
   NodeChange,
@@ -28,7 +28,7 @@ export interface CrossEditorProps {
 }
 
 const CrossEditor = (props: CrossEditorProps): JSX.Element => {
-  if (props.crossTree === null) return <></>; // Loading
+  if (props.crossTree === null) return <></>; // Still loading
   const [rightDrawerOpen, setRightDrawerOpen] = React.useState(false);
   const [initialNodes, initialEdges] = getNodesAndEdges(props.crossTree);
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
