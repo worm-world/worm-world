@@ -22,7 +22,7 @@ export const simpleCrossTree = new CrossTree({
 
 export const mediumCrossTree = new CrossTree({
   id: 1,
-  description: 'Cross two ed3 heterozygous',
+  description: 'Derive the unc-33(-) strain',
   name: 'Make unc-33(-)',
   settings: {
     longName: false,

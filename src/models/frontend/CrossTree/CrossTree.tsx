@@ -3,17 +3,18 @@ import { Gene } from '../Gene/Gene';
 import { VariationInfo } from '../VariationInfo/VariationInfo';
 
 interface iCrossTree {
-  id: number;
+  id: number; // Unique identifier
   name: string;
   description: string;
   settings: {
+    // AKA toggles
     longName: boolean;
     contents: boolean;
   };
   treeNodes: TreeNode[];
   lastSaved: Date;
-  genes: Gene[];
-  variations: VariationInfo[];
+  genes: Gene[]; // To display in each node
+  variations: VariationInfo[]; // To display in each node
 }
 
 export default class CrossTree {

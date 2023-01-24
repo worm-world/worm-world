@@ -1,6 +1,7 @@
 import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 
 let nextId = 0;
+
 export interface Point {
   x: number;
   y: number;

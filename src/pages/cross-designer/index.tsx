@@ -4,7 +4,7 @@ import { getAllCrossTrees } from 'api/crossTree';
 import { useEffect, useState } from 'react';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 
-const CrossDesignerIndex = (): JSX.Element => {
+const CrossDesignerPage = (): JSX.Element => {
   const [crossTrees, setCrossTrees] = useState<CrossTree[] | null>(null);
 
   useEffect(() => {
@@ -30,4 +30,4 @@ const CrossDesignerIndex = (): JSX.Element => {
     </>
   );
 };
-export default CrossDesignerIndex;
+export default CrossDesignerPage;

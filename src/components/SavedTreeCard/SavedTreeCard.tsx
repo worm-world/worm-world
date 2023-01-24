@@ -15,11 +15,11 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
     <div className='flex'>
       <Link
         to={'tree-view/'}
-        className='flex h-52 w-52'
+        className='card card-compact h-52 w-52 overflow-hidden rounded-lg shadow-xl'
         state={{ treeId: props.tree.id.toString() }}
       >
-        <div className='group flex flex-col overflow-hidden rounded-lg border-base-200 shadow-xl hover:cursor-pointer'>
-          <div className='flex h-full w-full content-start justify-end bg-primary'>
+        <div className='h-full bg-primary'>
+          <div className='flex justify-end'>
             <button
               onClick={(event: MouseEvent) => {
                 event.preventDefault();
@@ -30,20 +30,23 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
               <MoreHorizIcon className='m-auto' />
             </button>
           </div>
-          <footer className='bg-base-200'>
-            <div className='text-center text-xl'>{props.tree.name}</div>
-            <div className='border-t-1 border-base-300 p-2'>
-              {props.tree.description}
-            </div>
-          </footer>
+        </div>
+        <div className='card-body h-full bg-base-200'>
+          <div className='card-title'>{props.tree.name}</div>
+          <div>{props.tree.description}</div>
         </div>
       </Link>
       {showMenu && (
         <ClickAwayListener onClickAway={() => setShowMenu(false)}>
           <div className='relative'>
-            <ul className='border-gray menu menu-compact absolute top-0 ml-1 h-min rounded-lg border-2 bg-base-100'>
+            <ul className='menu menu-compact absolute top-0 z-10 ml-1 h-min rounded-lg border-2 bg-base-100'>
               <li>
-                <Link to={'tree-view/'}>Open</Link>
+                <Link
+                  to={'tree-view/'}
+                  state={{ treeId: props.tree.id.toString() }}
+                >
+                  Open
+                </Link>
               </li>
               <li className='text-red-500'>
                 <a onClick={() => alert('would delete')}>Delete</a>
