@@ -65,7 +65,7 @@ const alleles = [
   mockAlleles.cn64,
   mockAlleles.ed3,
   mockAlleles.md299,
-  mockAlleles.n764,
+  mockAlleles.n765,
   mockAlleles.ox1059,
   mockAlleles.oxEx219999,
   mockAlleles.oxEx2254,

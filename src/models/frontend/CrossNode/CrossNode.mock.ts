@@ -1,17 +1,17 @@
-import Strain from 'models/frontend/Strain';
+import { AllelePair, Strain } from 'models/frontend/Strain/Strain';
 import { Sex } from 'models/enums';
 import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import * as mockGenes from 'models/frontend/Gene/Gene.mock';
 import * as mockVariations from 'models/frontend/VariationInfo/VariationInfo.mock';
 import * as mockAlleles from 'models/frontend/Allele/Allele.mock';
 import { Allele } from '../Allele/Allele';
-import { Gene } from '../Gene/Gene';
+import { chrom1Gene1 } from 'models/frontend/Gene/Gene.mock';
 
 // Empty Cross Node ///////////////////////////////////////////////////////////
 
 export const empty: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
-  strain: { name: 'empty', notes: '', alleles: [] },
+  strain: new Strain({ name: 'empty', allelePairs: [] }),
   genes: [],
   variations: [],
   isSelected: false,
@@ -20,7 +20,7 @@ export const empty: CrossNodeModel = {
 
 export const emptyMale: CrossNodeModel = {
   sex: Sex.Male,
-  strain: { name: 'empty', notes: '', alleles: [] },
+  strain: new Strain({ name: 'empty', notes: '', allelePairs: [] }),
   genes: [],
   variations: [],
   isSelected: false,
@@ -31,7 +31,7 @@ export const emptyMale: CrossNodeModel = {
 
 export const wild: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
-  strain: { name: 'wild', notes: '', alleles: [] },
+  strain: new Strain({ name: 'wild', notes: '', allelePairs: [] }),
   genes: [
     mockGenes.chrom1Gene1,
     mockGenes.chrom2Gene1,
@@ -45,19 +45,40 @@ export const wild: CrossNodeModel = {
 
 // Mutated Cross Node  //////////////////////////////////////////////////////////
 
-const mutatedStrain: Strain = {
+const mutatedStrain: Strain = new Strain({
   name: 'mutated',
-  alleles: [
-    mockAlleles.chrom1Gene1Allele1,
-    mockAlleles.chrom2Gene1Allele1,
-    mockAlleles.chrom2Gene1Allele2,
-    mockAlleles.chrom2Gene2Allele1,
-    mockAlleles.chromXGene1Allele1,
-    mockAlleles.chromEcaVariation1Allele1,
-    mockAlleles.chromUnknownVariation1Allele1,
+  allelePairs: [
+    new AllelePair(
+      mockAlleles.chrom1Gene1Allele1,
+      mockAlleles.chrom1Gene1Allele1
+    ),
+    new AllelePair(
+      mockAlleles.chrom2Gene1Allele1,
+      mockAlleles.chrom2Gene1Allele1
+    ),
+    new AllelePair(
+      mockAlleles.chrom2Gene1Allele2,
+      mockAlleles.chrom2Gene1Allele2
+    ),
+    new AllelePair(
+      mockAlleles.chrom2Gene2Allele1,
+      mockAlleles.chrom2Gene2Allele1
+    ),
+    new AllelePair(
+      mockAlleles.chromXGene1Allele1,
+      mockAlleles.chromXGene1Allele1
+    ),
+    new AllelePair(
+      mockAlleles.chromEcaVariation1Allele1,
+      mockAlleles.chromEcaVariation1Allele1
+    ),
+    new AllelePair(
+      mockAlleles.chromUnknownVariation1Allele1,
+      mockAlleles.chromUnknownVariation1Allele1
+    ),
   ],
   notes: '',
-};
+});
 
 export const mutated: CrossNodeModel = {
   sex: Sex.Male,
@@ -79,73 +100,43 @@ export const mutated: CrossNodeModel = {
 };
 
 // Small mutated cross node //////////////////////////////////
-export const geneCopy1: Gene = {
-  sysName: 'sysGeneName1',
-  chromosome: 'I',
-  generateRecord: () => {
-    return {
-      sysName: 'ignore this fn',
-      descName: null,
-      chromosome: null,
-      physLoc: null,
-      geneticLoc: null,
-    };
-  },
-};
-
-export const geneCopy2: Gene = {
-  sysName: 'sysGeneName1',
-  chromosome: 'I',
-  generateRecord: () => {
-    return {
-      sysName: 'ignore this fn',
-      descName: null,
-      chromosome: null,
-      physLoc: null,
-      geneticLoc: null,
-    };
-  },
-};
-
 export const smallMutated: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
   parents: [],
   isSelected: false,
-  genes: [geneCopy1],
+  genes: [chrom1Gene1],
   variations: [],
-  strain: {
+  strain: new Strain({
     name: 'strain1',
-    alleles: [
-      {
-        name: 'allele1',
-        gene: geneCopy2,
-        alleleExpressions: [],
-        generateRecord: () => {
-          return {
-            name: 'ignore this fn',
-            contents: null,
-            sysGeneName: null,
-            variationName: null,
-          };
-        },
-      },
+    allelePairs: [
+      new AllelePair(
+        mockAlleles.chrom1Gene2Allele1,
+        mockAlleles.chrom1Gene2Allele1
+      ),
     ],
     notes: '',
-  },
+  }),
 };
 
 // Bad Mutation Lists  //////////////////////////////////////////////////////////
 
 export const badMutationLists: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
-  strain: {
+  strain: new Strain({
     name: 'referencingGene',
-    alleles: [
-      mockAlleles.chrom1Gene1Allele1,
-      mockAlleles.chromEcaVariation1Allele1,
+    allelePairs: [
+      new AllelePair(
+        mockAlleles.chrom1Gene1Allele1,
+        mockAlleles.chrom1Gene1Allele1
+      ),
+
+      new AllelePair(
+        mockAlleles.chromEcaVariation1Allele1,
+        mockAlleles.chromEcaVariation1Allele1
+      ),
     ],
     notes: '',
-  },
+  }),
   // No mutations--genes or variations--below
   genes: [],
   variations: [],
@@ -157,17 +148,22 @@ export const badMutationLists: CrossNodeModel = {
 
 export const badAllele: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
-  strain: {
+  strain: new Strain({
     name: 'badStrain',
-    alleles: [
-      new Allele({
-        name: 'badAllele',
-        // The gene or variation (exactly one required) is missing--violated constraint
-        // This also means chromosome hasn't been implicitly determined by field in mutation
-      }),
+    allelePairs: [
+      // The gene or variation (exactly one required) is missing--violated constraint
+      // This also means chromosome hasn't been implicitly determined by field in mutation
+      new AllelePair(
+        new Allele({
+          name: 'badAllele',
+        }),
+        new Allele({
+          name: 'badAllele',
+        })
+      ),
     ],
     notes: '',
-  },
+  }),
   genes: [mockGenes.chrom1Gene1],
   variations: [],
   isSelected: false,
@@ -178,13 +174,16 @@ export const badAllele: CrossNodeModel = {
 
 export const monoid: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
-  strain: {
+  strain: new Strain({
     name: 'monoid',
-    alleles: [
-      mockAlleles.chromEcaVariation1Allele1, // one copy
+    allelePairs: [
+      new AllelePair(
+        mockAlleles.chromEcaVariation1Allele1,
+        mockAlleles.chromEcaVariation1Allele1
+      ), // one copy
     ],
     notes: '',
-  },
+  }),
   genes: [],
   variations: [mockVariations.chromEcaVariation1],
   isSelected: false,
@@ -195,11 +194,16 @@ export const monoid: CrossNodeModel = {
 
 export const diploid: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
-  strain: {
+  strain: new Strain({
     name: 'diploid',
-    alleles: [mockAlleles.chrom1Gene1Allele1],
+    allelePairs: [
+      new AllelePair(
+        mockAlleles.chrom1Gene1Allele1,
+        mockAlleles.chrom1Gene1Allele1
+      ),
+    ],
     notes: '',
-  },
+  }),
   genes: [mockGenes.chrom1Gene1],
   variations: [],
   isSelected: false,
