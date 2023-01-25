@@ -27,11 +27,9 @@ export const getAlleleExpression = async (
 ): Promise<db_AlleleExpression> => {
   const filter: Filter<AlleleExpressionFieldName> = {
     filters: [
-      [
-        ['AlleleName', { Equal: alleleName }],
-        ['ExpressingPhenotypeName', { Equal: expressingPhenotypeName }],
-        ['ExpressingPhenotypeWild', getDbBoolean(expressingPhenotypeWild)],
-      ],
+      [['AlleleName', { Equal: alleleName }]],
+      [['ExpressingPhenotypeName', { Equal: expressingPhenotypeName }]],
+      [['ExpressingPhenotypeWild', getDbBoolean(expressingPhenotypeWild)]],
     ],
     orderBy: [],
   };

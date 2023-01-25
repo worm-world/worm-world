@@ -209,10 +209,7 @@ mod test {
             })
             .await?;
 
-        assert_eq!(
-            exprs,
-            testdata::search_conditions_by_name()
-        );
+        assert_eq!(exprs, testdata::search_conditions_by_name());
         Ok(())
     }
     /* endregion get_filtered_conditions tests */
@@ -222,24 +219,24 @@ mod test {
     async fn test_get_altering_conditions(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let expr_relation_filter = Filter::<ExpressionRelationFieldName> {
-            filters: vec![vec![
-                (
+            filters: vec![
+                vec![(
                     ExpressionRelationFieldName::AlleleName,
                     FilterType::Equal("n765".to_owned()),
-                ),
-                (
+                )],
+                vec![(
                     ExpressionRelationFieldName::ExpressingPhenotypeName,
                     FilterType::Equal("lin-15B".to_owned()),
-                ),
-                (
+                )],
+                vec![(
                     ExpressionRelationFieldName::ExpressingPhenotypeWild,
                     FilterType::False,
-                ),
-                (
+                )],
+                vec![(
                     ExpressionRelationFieldName::IsSuppressing,
                     FilterType::False,
-                ),
-            ]],
+                )],
+            ],
             order_by: vec![],
         };
         let condition_filter = Filter::<ConditionFieldName> {

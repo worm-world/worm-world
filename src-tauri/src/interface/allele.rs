@@ -201,16 +201,16 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_alleles(&Filter::<AlleleFieldName> {
-                filters: vec![
-                    vec![(
+                filters: vec![vec![
+                    (
                         AlleleFieldName::SysGeneName,
                         FilterType::Equal("F27D9.1".to_owned()),
-                    )],
-                    vec![(
+                    ),
+                    (
                         AlleleFieldName::SysGeneName,
                         FilterType::Equal("T14B4.7".to_owned()),
-                    )],
-                ],
+                    ),
+                ]],
                 order_by: vec![AlleleFieldName::Name],
             })
             .await?;

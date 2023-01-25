@@ -173,13 +173,13 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_phenotypes(&Filter::<PhenotypeFieldName> {
-                filters: vec![vec![
-                    (
+                filters: vec![
+                    vec![(
                         PhenotypeFieldName::MaleMating,
                         FilterType::LessThan("2".to_owned(), false),
-                    ),
-                    (PhenotypeFieldName::MaturationDays, FilterType::Null),
-                ]],
+                    )],
+                    vec![(PhenotypeFieldName::MaturationDays, FilterType::Null)],
+                ],
                 order_by: vec![PhenotypeFieldName::Name],
             })
             .await?;
@@ -227,35 +227,35 @@ mod test {
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_altering_phenotypes(pool: Pool<Sqlite>) -> Result<()> {
         let expr_relation_filter = Filter::<ExpressionRelationFieldName> {
-            filters: vec![vec![
-                (
+            filters: vec![
+                vec![(
                     ExpressionRelationFieldName::AlleleName,
                     FilterType::Equal("oxIs644".to_owned()),
-                ),
-                (
+                )],
+                vec![(
                     ExpressionRelationFieldName::ExpressingPhenotypeName,
                     FilterType::Equal("YFP(pharynx)".to_owned()),
-                ),
-                (
+                )],
+                vec![(
                     ExpressionRelationFieldName::ExpressingPhenotypeWild,
                     FilterType::False,
-                ),
-                (
+                )],
+                vec![(
                     ExpressionRelationFieldName::IsSuppressing,
                     FilterType::False,
-                ),
-            ]],
+                )],
+            ],
             order_by: vec![],
         };
 
         let phenotype_filter = Filter::<PhenotypeFieldName> {
-            filters: vec![vec![
-                (PhenotypeFieldName::Wild, FilterType::True),
-                (
+            filters: vec![
+                vec![(PhenotypeFieldName::Wild, FilterType::True)],
+                vec![(
                     PhenotypeFieldName::MaturationDays,
                     FilterType::GreaterThan("3".to_owned(), true),
-                ),
-            ]],
+                )],
+            ],
             order_by: vec![],
         };
 
