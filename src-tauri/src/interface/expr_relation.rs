@@ -136,16 +136,16 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_expr_relations(&Filter::<ExpressionRelationFieldName> {
-                filters: vec![vec![
-                    (
+                filters: vec![
+                    vec![(
                         ExpressionRelationFieldName::AlteringCondition,
                         FilterType::Equal("Histamine".to_owned()),
-                    ),
-                    (
+                    )],
+                    vec![(
                         ExpressionRelationFieldName::ExpressingPhenotypeName,
                         FilterType::Equal("paralyzed".to_owned()),
-                    ),
-                ]],
+                    )],
+                ],
                 order_by: vec![ExpressionRelationFieldName::AlleleName],
             })
             .await?;
@@ -159,32 +159,32 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_expr_relations(&Filter::<ExpressionRelationFieldName> {
-                filters: vec![vec![
-                    (
+                filters: vec![
+                    vec![(
                         ExpressionRelationFieldName::ExpressingPhenotypeName,
                         FilterType::Equal("paralyzed".to_owned()),
-                    ),
-                    (
+                    )],
+                    vec![(
                         ExpressionRelationFieldName::AlteringCondition,
                         FilterType::NotNull,
-                    ),
-                    (
+                    )],
+                    vec![(
                         ExpressionRelationFieldName::ExpressingPhenotypeWild,
                         FilterType::False,
-                    ),
-                    (
+                    )],
+                    vec![(
                         ExpressionRelationFieldName::AlteringPhenotypeName,
                         FilterType::Null,
-                    ),
-                    (
+                    )],
+                    vec![(
                         ExpressionRelationFieldName::IsSuppressing,
                         FilterType::False,
-                    ),
-                    (
+                    )],
+                    vec![(
                         ExpressionRelationFieldName::AlleleName,
                         FilterType::Equal("oxEx219999".to_string()),
-                    ),
-                ]],
+                    )],
+                ],
                 order_by: vec![ExpressionRelationFieldName::AlleleName],
             })
             .await?;
@@ -218,16 +218,16 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_expr_relations(&Filter::<ExpressionRelationFieldName> {
-                filters: vec![vec![
-                    (
+                filters: vec![
+                    vec![(
                         ExpressionRelationFieldName::AlleleName,
                         FilterType::Like("ox".to_owned()),
-                    ),
-                    (
+                    )],
+                    vec![(
                         ExpressionRelationFieldName::ExpressingPhenotypeName,
                         FilterType::Like("yfp".to_owned()),
-                    ),
-                ]],
+                    )],
+                ],
                 order_by: vec![ExpressionRelationFieldName::AlleleName],
             })
             .await?;

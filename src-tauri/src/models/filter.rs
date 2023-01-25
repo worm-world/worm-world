@@ -94,8 +94,8 @@ where
 {
     /**
      * Nested vectors allow AND / OR statements
-     * To create chained AND statements: add tuples in the INNER-MOST vectors
-     * To create chained OR statements: add multiple vectors with a single tuple in each
+     * To create chained OR statements: add tuples in the INNER-MOST vectors
+     * To create chained AND statements: add multiple vectors with a single tuple in each
      * To create mixed AND / OR statements: any combination of the above 2 lines
      *
      * -----------------------------------------------
@@ -105,7 +105,7 @@ where
      *   [(col1, val1), (col2, val2), (col3, val3)]
      * ]
      *
-     * ^ would generate: WHERE (col1 == val1 AND col2 == val2 AND col3 == val3);
+     * ^ would generate: WHERE (col1 == val1 OR col2 == val2 OR col3 == val3);
      *
      * -----------------------------------------------
      *
@@ -115,7 +115,7 @@ where
      *   [(col2, val3)],
      * ]
      *
-     * ^ would generate: WHERE (col1 == val1) OR (col1 == val2) OR (col2 == val3);
+     * ^ would generate: WHERE (col1 == val1) AND (col1 == val2) AND (col2 == val3);
      *
      * -----------------------------------------------
      *
@@ -125,8 +125,8 @@ where
      *   [(col5, val5)],
      * ]
      *
-     * ^ would generate: WHERE (col1 == val1 AND col2 == val2 AND col3 == and val3) OR
-     *                         (col1 == val1 AND col4 == val4) OR
+     * ^ would generate: WHERE (col1 == val1 OR col2 == val2 OR col3 == val3) AND
+     *                         (col1 == val1 OR col4 == val4) AND
      *                         (col5 == val5);
      */
     pub filters: Vec<Vec<(T, FilterType)>>,
@@ -143,13 +143,13 @@ impl<T: FieldNameEnum> FilterQueryBuilder for Filter<T> {
             // all comparisons
             for (i, inner_filters) in self.filters.iter().enumerate() {
                 if i > 0 {
-                    qb.push(" OR ");
+                    qb.push(" AND ");
                 }
 
                 qb.push(" ( ");
                 for (j, (field_name, filter)) in inner_filters.iter().enumerate() {
                     if j > 0 {
-                        qb.push(" AND ");
+                        qb.push(" OR ");
                     }
                     let col_name = field_name.get_col_name();
                     filter.add_to_query(&col_name, qb);

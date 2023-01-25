@@ -103,10 +103,10 @@ mod test {
     async fn test_get_filtered_variation_info(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let filter = Filter::<VariationFieldName> {
-            filters: vec![vec![
-                (VariationFieldName::PhysLoc, FilterType::NotNull),
-                (VariationFieldName::Chromosome, FilterType::NotNull),
-            ]],
+            filters: vec![
+                vec![(VariationFieldName::PhysLoc, FilterType::NotNull)],
+                vec![(VariationFieldName::Chromosome, FilterType::NotNull)],
+            ],
             order_by: vec![
                 VariationFieldName::AlleleName,
                 VariationFieldName::Chromosome,

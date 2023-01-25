@@ -117,16 +117,16 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_allele_exprs(&Filter::<AlleleExpressionFieldName> {
-                filters: vec![vec![
-                    (
+                filters: vec![
+                    vec![(
                         AlleleExpressionFieldName::ExpressingPhenotypeWild,
                         FilterType::True,
-                    ),
-                    (
+                    )],
+                    vec![(
                         AlleleExpressionFieldName::ExpressingPhenotypeName,
                         FilterType::Equal("unc-119".to_string()),
-                    ),
-                ]],
+                    )],
+                ],
                 order_by: vec![AlleleExpressionFieldName::AlleleName],
             })
             .await?;

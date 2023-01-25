@@ -111,16 +111,16 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_genes(&Filter::<GeneFieldName> {
-                filters: vec![
-                    vec![(
+                filters: vec![vec![
+                    (
                         GeneFieldName::Chromosome,
                         FilterType::Equal("X".to_string()),
-                    )],
-                    vec![(
+                    ),
+                    (
                         GeneFieldName::Chromosome,
                         FilterType::Equal("IV".to_string()),
-                    )],
-                ],
+                    ),
+                ]],
                 order_by: vec![GeneFieldName::DescName],
             })
             .await?;
@@ -134,16 +134,16 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_genes(&Filter::<GeneFieldName> {
-                filters: vec![
-                    vec![(
+                filters: vec![vec![
+                    (
                         GeneFieldName::Chromosome,
                         FilterType::Equal("X".to_string()),
-                    )],
-                    vec![(
+                    ),
+                    (
                         GeneFieldName::Chromosome,
                         FilterType::Equal("IV".to_string()),
-                    )],
-                ],
+                    ),
+                ]],
                 order_by: vec![GeneFieldName::SysName],
             })
             .await?;
@@ -157,16 +157,16 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_genes(&Filter::<GeneFieldName> {
-                filters: vec![vec![
-                    (
+                filters: vec![
+                    vec![(
                         GeneFieldName::Chromosome,
                         FilterType::Equal("X".to_string()),
-                    ),
-                    (
+                    )],
+                    vec![(
                         GeneFieldName::PhysLoc,
                         FilterType::Equal("7682896".to_string()),
-                    ),
-                ]],
+                    )],
+                ],
                 order_by: vec![],
             })
             .await?;
@@ -186,14 +186,20 @@ mod test {
                             FilterType::Equal("X".to_string()),
                         ),
                         (
+                            GeneFieldName::GeneticLoc,
+                            FilterType::GreaterThan("5".to_string(), true),
+                        ),
+                    ],
+                    vec![
+                        (
                             GeneFieldName::PhysLoc,
                             FilterType::Equal("7682896".to_string()),
                         ),
+                        (
+                            GeneFieldName::GeneticLoc,
+                            FilterType::GreaterThan("5".to_string(), true),
+                        ),
                     ],
-                    vec![(
-                        GeneFieldName::GeneticLoc,
-                        FilterType::GreaterThan("5".to_string(), true),
-                    )],
                 ],
                 order_by: vec![GeneFieldName::DescName],
             })
@@ -223,10 +229,10 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_genes(&Filter::<GeneFieldName> {
-                filters: vec![
-                    vec![(GeneFieldName::SysName, FilterType::Like("T14".to_string()))],
-                    vec![(GeneFieldName::DescName, FilterType::Like("lin".to_string()))],
-                ],
+                filters: vec![vec![
+                    (GeneFieldName::SysName, FilterType::Like("T14".to_string())),
+                    (GeneFieldName::DescName, FilterType::Like("lin".to_string())),
+                ]],
                 order_by: vec![GeneFieldName::DescName],
             })
             .await?;

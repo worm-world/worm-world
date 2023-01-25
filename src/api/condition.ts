@@ -43,12 +43,10 @@ export const getAlteringConditions = async (
   // Build expression relation filter
   const exprRelationFilter: Filter<ExpressionRelationFieldName> = {
     filters: [
-      [
-        ['AlleleName', { Equal: alleleName }],
-        ['ExpressingPhenotypeName', { Equal: phenotypeName }],
-        ['ExpressingPhenotypeWild', getDbBoolean(phenotypeWild)],
-        ['IsSuppressing', getDbBoolean(isSuppressing)],
-      ],
+      [['AlleleName', { Equal: alleleName }]],
+      [['ExpressingPhenotypeName', { Equal: phenotypeName }]],
+      [['ExpressingPhenotypeWild', getDbBoolean(phenotypeWild)]],
+      [['IsSuppressing', getDbBoolean(isSuppressing)]],
     ],
     orderBy: [],
   };
