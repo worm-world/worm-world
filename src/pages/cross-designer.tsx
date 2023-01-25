@@ -12,6 +12,7 @@ import { getFilteredGenes } from 'api/gene';
 import { getFilteredAlleles } from 'api/allele';
 import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import { Allele } from 'models/frontend/Allele/Allele';
+import { toPng, toSvg } from 'html-to-image';
 
 let nextNodeId = 5;
 

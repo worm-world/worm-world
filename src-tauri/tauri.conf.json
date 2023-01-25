@@ -11,7 +11,10 @@
   },
   "tauri": {
     "allowlist": {
-      "all": true
+      "all": true,
+      "fs": {
+        "scope": ["**"]
+      }
     },
     "bundle": {
       "active": true,
@@ -21,11 +24,7 @@
         "depends": []
       },
       "externalBin": [],
-      "icon": [
-        "icons/icon.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
+      "icon": ["icons/icon.png", "icons/icon.icns", "icons/icon.ico"],
       "identifier": "com.UofUBiology.WormWorld",
       "longDescription": "",
       "macOS": {

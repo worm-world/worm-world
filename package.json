@@ -20,6 +20,8 @@
   "dependencies": {
     "@tauri-apps/api": "^1.2.0",
     "daisyui": "^2.46.1",
+    "file-saver": "^2.0.5",
+    "html-to-image": "^1.11.4",
     "insert-line": "^1.1.0",
     "nthline": "^1.0.2",
     "react": "^18.2.0",
@@ -29,6 +31,7 @@
     "react-router-dom": "^6.4.3",
     "react-toastify": "^9.1.1",
     "reactflow": "^11.4.2",
+    "tauri-plugin-download-api": "github:FabianLars/tauri-plugin-download#b84e3743eaec57cb3e3c48d9721febb040c496b7",
     "theme-change": "^2.3.0"
   },
   "devDependencies": {
@@ -47,6 +50,7 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
+    "@types/file-saver": "^2.0.5",
     "@types/node": "^18.7.10",
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
