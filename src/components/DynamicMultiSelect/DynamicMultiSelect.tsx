@@ -70,12 +70,13 @@ export const DynamicMultiSelect = <T, U>(
       {props.label === undefined ? (
         <></> // Don't show label if undefined
       ) : (
-        <label className='label'>
+        <label htmlFor={'dynamicSearch'} className='label'>
           <span className='label-text'>{props.label}</span>
         </label>
       )}
       <div className='dropdown w-full max-w-md'>
         <input
+          id='dynamicSearch'
           type='text'
           placeholder={props.placeholder}
           className='input-bordered input w-full max-w-xs'
