@@ -27,11 +27,7 @@ import {
   addEdge,
   Node,
 } from 'reactflow';
-import { XNode } from 'components/XNode/XNode';
 import { saveCrossTree } from 'api/crossTree';
-// import { saveCrossTree, getNextTreeId } from 'api/crossTree';
-// import { XNode } from 'components/XNode/XNode';
-// import { SelfNode } from 'components/SelfNode/SelfNode';
 
 let nextId = 0; // used to identify nodes in tree
 export interface CrossEditorProps {
@@ -47,11 +43,9 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   const [initialNodes, initialEdges] = getNodesAndEdges(props.crossTree);
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
-  console.log(edges);
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
-      console.log(changes);
       setNodes((nds) => applyNodeChanges(changes, nds));
     },
     [setNodes]
@@ -70,14 +64,22 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     [setEdges]
   );
 
-  const rightButton = (
+  const buttons = [
     <button
+      key='save'
+      className='btn'
+      onClick={() => saveTree(nodes, edges, props.crossTree as CrossTree)}
+    >
+      Save
+    </button>,
+    <button
+      key='addNewNode'
       className='btn ml-auto mr-10'
       onClick={() => setRightDrawerOpen(true)}
     >
       Add New Cross Node
-    </button>
-  );
+    </button>,
+  ];
 
   return (
     <>
@@ -93,7 +95,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
           <div className='drawer-content flex h-screen flex-col'>
             <EditorTop
               name={props.crossTree?.name ?? ''}
-              rightButton={rightButton}
+              buttons={buttons}
             ></EditorTop>
             <div className='grow'>
               <div className='h-full w-full'>
@@ -140,7 +142,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
 // corresponding to their CrossNodeWrappers, allowing us to look up the cross node model from id
 const assignIdsToTreeNodes = (crossTree: CrossTree): void => {
   crossTree.treeNodes.forEach((node) => {
-    node.id = nextId++;
+    node.id = node.id ?? nextId++;
   });
 };
 
@@ -304,9 +306,9 @@ const saveTree = (nodes: Node[], edges: Edge[], tree: CrossTree): void => {
             // Then edge2 is from a parent
             if (edge2.sourceHandle === 'right') {
               // Only males have right handles
-              childNode.maleParent === treeNodes.get(edge2.source);
+              childNode.maleParent = treeNodes.get(edge2.source);
             } else {
-              childNode.femaleParent === treeNodes.get(edge2.source);
+              childNode.femaleParent = treeNodes.get(edge2.source);
             }
           }
         });
@@ -328,7 +330,9 @@ const saveTree = (nodes: Node[], edges: Edge[], tree: CrossTree): void => {
     variations: [],
   });
 
-  saveCrossTree(newCrossTree);
+  saveCrossTree(newCrossTree)
+    .then()
+    .catch((error) => error);
 };
 
 export default CrossEditor;
