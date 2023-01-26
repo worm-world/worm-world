@@ -4,8 +4,8 @@ import * as mockCrossTree from 'models/frontend/CrossTree/CrossTree.mock';
 // Mocked for now
 export const getAllCrossTrees = async (): Promise<CrossTree[]> => {
   const trees: CrossTree[] = [
-    mockCrossTree.simpleCrossTree,
-    mockCrossTree.mediumCrossTree,
+    JSON.parse(JSON.stringify(mockCrossTree.simpleCrossTree)),
+    JSON.parse(JSON.stringify(mockCrossTree.mediumCrossTree)),
   ];
   return await Promise.resolve(trees);
 };
@@ -19,9 +19,10 @@ export const getCrossTreeById = async (id: number): Promise<CrossTree> => {
   }
 };
 
-// export const saveCrossTree = async (tree: CrossTree): Promise<void> => {
-//   await invoke('save_cross_tree', { id: tree.id, tree });
-// };
+export const saveCrossTree = async (tree: CrossTree): Promise<void> => {
+  // await invoke('save_cross_tree', { id: tree.id, tree });
+  alert(JSON.stringify(tree));
+};
 
 // export const getNextTreeId = async (): Promise<number> => {
 //   return await invoke('getNextTreeId');

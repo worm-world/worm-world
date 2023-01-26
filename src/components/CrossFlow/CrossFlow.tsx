@@ -8,10 +8,13 @@ import ReactFlow, {
   EdgeChange,
   NodeChange,
   Connection,
-  ConnectionMode,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import FlowWrapper from 'components/FlowWrapper/FlowWrapper';
+import {
+  CrossNodeFlowWrapper,
+  SelfNodeFlowWrapper,
+  XNodeFlowWrapper,
+} from 'components/FlowWrapper/FlowWrapper';
 
 interface iCrossFlowProps {
   className?: string;
@@ -23,12 +26,18 @@ interface iCrossFlowProps {
 }
 
 const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
-  const nodeTypes = useMemo(() => ({ flowWrapper: FlowWrapper }), []);
+  const nodeTypes = useMemo(
+    () => ({
+      crossNodeFlowWrapper: CrossNodeFlowWrapper,
+      xNodeFlowWrapper: XNodeFlowWrapper,
+      selfNodeFlowWrapper: SelfNodeFlowWrapper,
+    }),
+    []
+  );
 
   return (
     <ReactFlow
       className={props.className}
-      connectionMode={ConnectionMode.Loose}
       zoomOnScroll={true}
       nodeTypes={nodeTypes}
       fitView

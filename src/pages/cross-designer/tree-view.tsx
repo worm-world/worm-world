@@ -2,7 +2,7 @@ import { getCrossTreeById } from 'api/crossTree';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { useLocation } from 'react-router-dom';
 import CrossEditor from 'components/CrossEditor/CrossEditor';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const TreeViewPage = (): JSX.Element => {
   const [currentTree, setCurrentTree]: [
@@ -11,10 +11,12 @@ const TreeViewPage = (): JSX.Element => {
   ] = useState<CrossTree | null>(null);
 
   const currentTreeId: string = useLocation().state.treeId;
-  const currentTreePromise = getCrossTreeById(parseInt(currentTreeId));
-  currentTreePromise
-    .then((currentTree) => setCurrentTree(currentTree))
-    .catch((err) => err);
+  useEffect(() => {
+    const currentTreePromise = getCrossTreeById(parseInt(currentTreeId));
+    currentTreePromise
+      .then((currentTree) => setCurrentTree(currentTree))
+      .catch((err) => err);
+  }, []);
 
   return <CrossEditor crossTree={currentTree} />;
 };
