@@ -16,11 +16,11 @@ const Template: StoryFn<typeof EditorTop> = (args) => {
 export const withButton = Template.bind({});
 withButton.args = {
   name: 'Title',
-  rightButton: (
-    <button className='btn mr-8' onClick={() => alert('clicked')}>
+  buttons: [
+    <button key='only' className='btn mr-8' onClick={() => alert('clicked')}>
       Click Here
-    </button>
-  ),
+    </button>,
+  ],
 };
 
 export const withoutButton = Template.bind({});

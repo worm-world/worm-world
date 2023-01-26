@@ -5,16 +5,12 @@ import { Handle, Position } from 'reactflow';
 import { XNode } from 'components/XNode/XNode';
 import { SelfNode } from 'components/SelfNode/SelfNode';
 
-export interface FlowWrapperProps {
-  data: { handles: string[]; node: JSX.Element | JSX.Element[] };
-}
-
-export interface CrossFlowWrapperProps {
+export interface CrossNodeFlowWrapperProps {
   data: CrossNodeModel;
 }
 
 export const CrossNodeFlowWrapper = (
-  props: CrossFlowWrapperProps
+  props: CrossNodeFlowWrapperProps
 ): JSX.Element => {
   const handleElements = [
     <Handle key='top' id='top' type='target' position={Position.Top} />,

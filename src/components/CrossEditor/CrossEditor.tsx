@@ -156,7 +156,7 @@ const addNewCrossNodeToFlow = (
 
 const saveTree = (nodes: Node[], edges: Edge[], tree: CrossTree): void => {
   const newCrossTree = new CrossTree({
-    id: 3, // TODO make dynamic
+    id: tree.id,
     name: tree.name,
     description: tree.description,
     settings: {
