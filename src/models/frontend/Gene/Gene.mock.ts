@@ -70,7 +70,7 @@ export const unc44 = new Gene({
   descName: 'unc-44',
   chromosome: 'IV',
   physLoc: new GeneticLocation(5975557),
-  geneticLoc: new GeneticLocation(-2.89),
+  geneticLoc: new GeneticLocation(2.89),
 });
 
 export const unc5 = new Gene({

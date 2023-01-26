@@ -1,8 +1,6 @@
 import { Allele } from 'models/frontend/Allele/Allele';
 import * as geneMock from 'models/frontend/Gene/Gene.mock';
 import * as variationMock from 'models/frontend/VariationInfo/VariationInfo.mock';
-import { Gene } from '../Gene/Gene';
-import { VariationInfo } from '../VariationInfo/VariationInfo';
 
 export const chrom1Gene1Allele1 = new Allele({
   name: 'chrom1Gene1Allele1',

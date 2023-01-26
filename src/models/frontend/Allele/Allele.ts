@@ -139,12 +139,13 @@ export class Allele {
 }
 
 export class WildAllele extends Allele {
-  constructor(genLoc?: number) {
+  constructor(refAllele?: Allele) {
     let variation: VariationInfo | undefined;
-    if (genLoc !== undefined) {
+    if (refAllele !== undefined) {
       variation = new VariationInfo({
         name: '+',
-        geneticLoc: new GeneticLocation(genLoc),
+        chromosome: refAllele.getChromosome(),
+        geneticLoc: new GeneticLocation(refAllele.getGenPosition() ?? null),
       });
     }
     super({ name: '+', variation });
