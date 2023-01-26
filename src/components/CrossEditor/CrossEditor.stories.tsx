@@ -14,7 +14,7 @@ const Template: StoryFn<typeof CrossEditor> = (args: CrossEditorProps) => {
 };
 
 export const primary = Template.bind({});
-primary.args = { crossTree: mockCrossTree.simpleCrossTree };
+primary.args = { currentTree: mockCrossTree.simpleCrossTree };
 
 export const secondary = Template.bind({});
-secondary.args = { crossTree: mockCrossTree.mediumCrossTree };
+secondary.args = { currentTree: mockCrossTree.mediumCrossTree };

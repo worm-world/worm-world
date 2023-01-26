@@ -156,7 +156,7 @@ const addNewCrossNodeToFlow = (
 
 const saveTree = (nodes: Node[], edges: Edge[], tree: CrossTree): void => {
   const newCrossTree = new CrossTree({
-    id: '3', // TODO make dynamic
+    id: 3, // TODO make dynamic
     name: tree.name,
     description: tree.description,
     settings: {
@@ -170,9 +170,7 @@ const saveTree = (nodes: Node[], edges: Edge[], tree: CrossTree): void => {
     variations: [],
   });
 
-  saveCrossTree(newCrossTree)
-    .then()
-    .catch((error) => error);
+  saveCrossTree(newCrossTree).catch((error) => error);
 };
 
 export default CrossEditor;

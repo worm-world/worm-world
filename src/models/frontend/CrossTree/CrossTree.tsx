@@ -18,8 +18,11 @@ interface iCrossTree {
   variations: VariationInfo[]; // To display in each node
 }
 
+// Uses React Flow nodes and edges. The nodes contain a data property
+// which, for cross nodes, contains the model. This way,
+// the tree can be traversed and relevant data gotten from it
 export default class CrossTree {
-  id: string;
+  id: number;
   name: string;
   description: string;
   lastSaved: Date;
