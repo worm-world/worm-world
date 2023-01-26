@@ -224,10 +224,10 @@ export class Strain {
     otherPair: AllelePair,
     defaultLeft: boolean
   ): void => {
-    const wildPair = new AllelePair(
-      new WildAllele(otherPair.getAllele()),
-      new WildAllele(otherPair.getAllele())
-    );
+    const wildPair = new AllelePair({
+      top: new WildAllele(otherPair.getAllele()),
+      bot: new WildAllele(otherPair.getAllele()),
+    });
 
     chromosomePairs.push(wildPair);
     chromosomePairs.sort((pair1, pair2) => {
@@ -410,7 +410,7 @@ export class Strain {
   ): AllelePair[] => {
     const chromosome: AllelePair[] = [];
     for (let i = 0; i < top.length && i < bot.length; i++)
-      chromosome.push(new AllelePair(top[i], bot[i]));
+      chromosome.push(new AllelePair({ top: top[i], bot: bot[i] }));
     return chromosome;
   };
 

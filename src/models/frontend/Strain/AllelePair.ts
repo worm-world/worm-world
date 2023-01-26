@@ -1,11 +1,18 @@
 import { Allele, WILD_ALLELE } from 'models/frontend/Allele/Allele';
 
+export interface iAllelePair {
+  top: Allele;
+  bot?: Allele;
+  isECA?: boolean;
+}
 export class AllelePair {
-  public top: Allele;
-  public bot: Allele;
-  constructor(topAllele: Allele, bottomAllele = topAllele) {
-    this.top = topAllele;
-    this.bot = bottomAllele;
+  public readonly top: Allele;
+  public readonly bot: Allele;
+  public readonly isECA: boolean;
+  constructor({ top, bot = top, isECA = false }: iAllelePair) {
+    this.top = top;
+    this.bot = bot;
+    this.isECA = isECA;
   }
 
   /**
@@ -49,14 +56,14 @@ export class AllelePair {
    * Given an allele pair, flips it so the top is now on the bottom and vice versa
    */
   public getFlippedPair = (): AllelePair => {
-    return new AllelePair(this.bot, this.top);
+    return new AllelePair({ top: this.bot, bot: this.top });
   };
 
   /**
    * Creates a new copy of this allele pair
    */
   public clone = (): AllelePair => {
-    return new AllelePair(this.top, this.bot);
+    return new AllelePair({ top: this.top, bot: this.bot });
   };
 
   /**

@@ -24,7 +24,7 @@ const addNewNodeToFlow = (
     id: nextNodeId.toString(),
     type: 'flowWrapper',
     position: { x: 150, y: -100 },
-    data: <CrossNode model={newNode} />,
+    data: <CrossNode {...newNode} />,
     connectable: true,
   };
   nextNodeId += 1;
@@ -101,21 +101,21 @@ const initialNodes: Array<Node<JSX.Element>> = [
     id: 'node1',
     type: 'flowWrapper', // This is the type of our custom node
     position: { x: -150, y: -100 },
-    data: <CrossNode model={mock.emptyMale}></CrossNode>, // data = children for flowWrapper
+    data: <CrossNode {...mock.emptyMale}></CrossNode>, // data = children for flowWrapper
     connectable: true,
   },
   {
     id: 'node2',
     type: 'flowWrapper',
     position: { x: 150, y: -100 },
-    data: <CrossNode model={mock.wild}></CrossNode>,
+    data: <CrossNode {...mock.wild}></CrossNode>,
     connectable: true,
   },
   {
     id: 'node3',
     type: 'flowWrapper',
     position: { x: 0, y: 200 },
-    data: <CrossNode model={mock.wild}></CrossNode>,
+    data: <CrossNode {...mock.wild}></CrossNode>,
     connectable: true,
   },
   {

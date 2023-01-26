@@ -11,7 +11,7 @@ describe('dummy test', () => {
 // describe('CrossNode component', () => {
 //   test('Empty node shows no sections', () => {
 //     const emptyNode = mock.empty;
-//     render(<CrossNode model={emptyNode} />);
+//     render(<CrossNode {...emptyNode} />);
 
 //     const body = screen.getByTestId('crossNodeBody');
 //     expect(body).toBeEmptyDOMElement();
@@ -19,7 +19,7 @@ describe('dummy test', () => {
 
 //   test('Wild cross node shows sections', () => {
 //     const wildNode = mock.wild; // See wild node for details
-//     render(<CrossNode model={wildNode} />);
+//     render(<CrossNode {...wildNode} />);
 
 //     const body = screen.getByTestId('crossNodeBody');
 //     expect(body).not.toBeEmptyDOMElement();
