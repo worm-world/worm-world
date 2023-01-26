@@ -70,15 +70,15 @@ const getChromosomeBoxes = (genotype: Genotype): JSX.Element[] => {
 };
 
 export const cmpChromosomes = (
-  chromA: string | undefined,
-  chromB: string | undefined
+  chromA?: Chromosome,
+  chromB?: Chromosome
 ): number => {
   if (chromA === undefined) {
     return 1;
   } else if (chromB === undefined) {
     return -1;
   } else {
-    const order = ['I', 'II', 'III', 'IV', 'V', 'X', 'Ex'];
+    const order: Chromosome[] = ['I', 'II', 'III', 'IV', 'V', 'X', 'Ex'];
     const posA = order.indexOf(chromA);
     const posB = order.indexOf(chromB);
     return posA - posB;

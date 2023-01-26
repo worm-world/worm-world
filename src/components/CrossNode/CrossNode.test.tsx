@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import * as mock from 'models/frontend/CrossNode/CrossNode.mock';
 import CrossNode, { cmpChromosomes } from 'components/CrossNode/CrossNode';
+import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 
 describe('CrossNode component', () => {
   test('Empty node shows no sections', () => {
@@ -30,12 +31,39 @@ describe('CrossNode component', () => {
     expect(chromosomeExSection).toBeDefined();
   });
 
-  test('orders chromosomes', () => {
-    const expected = ['I', 'II', 'III', 'IV', 'V', 'X', 'Ex', undefined];
-    const beforeSort = ['II', 'I', 'X', undefined, 'Ex', 'V', 'IV', 'III'];
+  test('cmpChromosomes() correctly orders chromosomes', () => {
+    const expected: (Chromosome | undefined)[] = [
+      'I',
+      'II',
+      'III',
+      'IV',
+      'V',
+      'X',
+      'Ex',
+      undefined,
+    ];
+    const beforeSort: (Chromosome | undefined)[] = [
+      'II',
+      'I',
+      'X',
+      undefined,
+      'Ex',
+      'V',
+      'IV',
+      'III',
+    ];
     const afterSort = beforeSort.sort(cmpChromosomes);
     afterSort.forEach((chrom, idx) => {
-      expect(afterSort[idx]).toEqual(expected[idx]);
+      expect(chrom).toEqual(expected[idx]);
+    });
+  });
+
+  test('cmpChromosomes() puts undefined at end', () => {
+    const beforeSort: (Chromosome | undefined)[] = ['II', undefined, 'I'];
+    const expected: (Chromosome | undefined)[] = ['I', 'II', undefined];
+    const afterSort = beforeSort.sort(cmpChromosomes);
+    afterSort.forEach((chrom, idx) => {
+      expect(chrom).toEqual(expected[idx]);
     });
   });
 });
