@@ -7,18 +7,23 @@ import { useEffect, useState } from 'react';
 const TreeViewPage = (): JSX.Element => {
   const [currentTree, setCurrentTree]: [
     CrossTree | null,
-    (tree: CrossTree) => void
+    (tree: CrossTree | null) => void
   ] = useState<CrossTree | null>(null);
 
   const currentTreeId: string = useLocation().state.treeId;
+
   useEffect(() => {
     const currentTreePromise = getCrossTreeById(parseInt(currentTreeId));
     currentTreePromise
       .then((currentTree) => setCurrentTree(currentTree))
       .catch((err) => err);
-  }, []);
+  });
 
-  return <CrossEditor crossTree={currentTree} />;
+  if (currentTree === null) {
+    return <>Loading</>;
+  } else {
+    return <CrossEditor currentTree={currentTree} />;
+  }
 };
 
 export default TreeViewPage;

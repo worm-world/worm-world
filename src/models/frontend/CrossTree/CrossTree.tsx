@@ -1,9 +1,9 @@
-import { TreeNode } from 'models/frontend/TreeNode/TreeNode';
 import { Gene } from '../Gene/Gene';
 import { VariationInfo } from '../VariationInfo/VariationInfo';
+import { Node, Edge } from 'reactflow';
 
 interface iCrossTree {
-  id: number; // Unique identifier
+  id: number;
   name: string;
   description: string;
   settings: {
@@ -11,14 +11,15 @@ interface iCrossTree {
     longName: boolean;
     contents: boolean;
   };
-  treeNodes: TreeNode[];
+  nodes: Node[];
+  edges: Edge[];
   lastSaved: Date;
   genes: Gene[]; // To display in each node
   variations: VariationInfo[]; // To display in each node
 }
 
 export default class CrossTree {
-  id: number;
+  id: string;
   name: string;
   description: string;
   lastSaved: Date;
@@ -28,7 +29,8 @@ export default class CrossTree {
     contents: boolean;
   };
 
-  treeNodes: TreeNode[];
+  nodes: Node[];
+  edges: Edge[];
 
   constructor(params: iCrossTree) {
     this.id = params.id; // TODO: Get from DB if undefined to ensure uniqueness
@@ -36,6 +38,7 @@ export default class CrossTree {
     this.description = params.description;
     this.lastSaved = params.lastSaved;
     this.settings = params.settings;
-    this.treeNodes = params.treeNodes;
+    this.nodes = params.nodes;
+    this.edges = params.edges;
   }
 }

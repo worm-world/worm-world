@@ -6,7 +6,10 @@ import { vi } from 'vitest';
 describe('Editor Top', () => {
   test('Component renders', async () => {
     render(
-      <EditorTop name='top title' rightButton={<button>Button title</button>} />
+      <EditorTop
+        name='top title'
+        buttons={[<button key='only'>Button title</button>]}
+      />
     );
     expect(screen.getByText(/top title/)).toBeDefined();
     expect(screen.getByText(/Button title/)).toBeDefined();
@@ -18,7 +21,11 @@ describe('Editor Top', () => {
     render(
       <EditorTop
         name='top title'
-        rightButton={<button onClick={spyFn}>Button title</button>}
+        buttons={[
+          <button key='only' onClick={spyFn}>
+            Button title
+          </button>,
+        ]}
       />
     );
     await user.click(screen.getByText(/Button title/));

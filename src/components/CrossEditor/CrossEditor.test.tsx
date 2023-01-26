@@ -14,7 +14,7 @@ describe('CrossEditor', () => {
   });
 
   test('successfully renders', () => {
-    render(<CrossEditor crossTree={mockCrossTrees.simpleCrossTree} />);
+    render(<CrossEditor currentTree={mockCrossTrees.simpleCrossTree} />);
 
     const nodes = screen.getAllByTestId('crossNode');
     expect(nodes).toHaveLength(3);
@@ -35,7 +35,7 @@ describe('CrossEditor', () => {
   test('can add cross nodes', async () => {
     const user = userEvent.setup();
 
-    render(<CrossEditor crossTree={mockCrossTrees.simpleCrossTree} />);
+    render(<CrossEditor currentTree={mockCrossTrees.simpleCrossTree} />);
 
     let nodes = screen.getAllByTestId('crossNode');
     expect(nodes).toHaveLength(3);

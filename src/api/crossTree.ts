@@ -6,7 +6,6 @@ let temp = JSON.stringify(mockCrossTree.simpleCrossTree);
 // Mocked for now
 export const getAllCrossTrees = async (): Promise<CrossTree[]> => {
   const trees: CrossTree[] = [
-    JSON.parse(JSON.stringify(mockCrossTree.simpleCrossTree)),
     JSON.parse(JSON.stringify(mockCrossTree.mediumCrossTree)),
     JSON.parse(temp),
   ];

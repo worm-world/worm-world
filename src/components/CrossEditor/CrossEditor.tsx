@@ -15,8 +15,7 @@ import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import RightDrawer from 'components/RightDrawer/RightDrawer';
 import { Allele } from 'models/frontend/Allele/Allele';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
-import { TreeNode } from 'models/frontend/TreeNode/TreeNode';
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import {
   Edge,
   NodeChange,
@@ -31,36 +30,27 @@ import { saveCrossTree } from 'api/crossTree';
 
 let nextId = 0; // used to identify nodes in tree
 export interface CrossEditorProps {
-  crossTree: CrossTree | null;
+  currentTree: CrossTree;
 }
 
 const CrossEditor = (props: CrossEditorProps): JSX.Element => {
-  if (props.crossTree === null) return <></>; // Still loading
-
-  assignIdsToTreeNodes(props.crossTree);
-
-  const [rightDrawerOpen, setRightDrawerOpen] = React.useState(false);
-  const [initialNodes, initialEdges] = getNodesAndEdges(props.crossTree);
-  const [nodes, setNodes] = useState<Node[]>(initialNodes);
-  const [edges, setEdges] = useState<Edge[]>(initialEdges);
+  const [nodes, setNodes] = useState<Node[]>(props.currentTree.nodes);
+  const [edges, setEdges] = useState<Edge[]>(props.currentTree.edges);
+  const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
+  resetNextId(nodes);
 
   const onNodesChange = useCallback(
-    (changes: NodeChange[]) => {
-      setNodes((nds) => applyNodeChanges(changes, nds));
-    },
+    (changes: NodeChange[]) =>
+      setNodes((nds) => applyNodeChanges(changes, nds)),
     [setNodes]
   );
   const onEdgesChange = useCallback(
-    (changes: EdgeChange[]) => {
-      setEdges((eds) => applyEdgeChanges(changes, eds));
-    },
+    (changes: EdgeChange[]) =>
+      setEdges((eds) => applyEdgeChanges(changes, eds)),
     [setEdges]
   );
-
   const onConnect = useCallback(
-    (connection: Connection) => {
-      setEdges((eds) => addEdge(connection, eds));
-    },
+    (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
     [setEdges]
   );
 
@@ -68,7 +58,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     <button
       key='save'
       className='btn'
-      onClick={() => saveTree(nodes, edges, props.crossTree as CrossTree)}
+      onClick={() => saveTree(nodes, edges, props.currentTree)}
     >
       Save
     </button>,
@@ -94,7 +84,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
           />
           <div className='drawer-content flex h-screen flex-col'>
             <EditorTop
-              name={props.crossTree?.name ?? ''}
+              name={props.currentTree.name ?? ''}
               buttons={buttons}
             ></EditorTop>
             <div className='grow'>
@@ -138,12 +128,15 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   );
 };
 
-// Within a react flow, tree node models need to have unique identifiers
-// corresponding to their CrossNodeWrappers, allowing us to look up the cross node model from id
-const assignIdsToTreeNodes = (crossTree: CrossTree): void => {
-  crossTree.treeNodes.forEach((node) => {
-    node.id = node.id ?? nextId++;
+// We are going to be adding new nodes, so we need to standardize ids and avoid collision
+const resetNextId = (nodes: Node[]): void => {
+  let maxId = 0;
+  nodes.forEach((node) => {
+    if (parseInt(node.id) > maxId) {
+      maxId = parseInt(node.id);
+    }
   });
+  nextId = maxId + 1;
 };
 
 const addNewCrossNodeToFlow = (
@@ -151,180 +144,27 @@ const addNewCrossNodeToFlow = (
   setNodes: (nodes: Node[]) => void,
   newNode: CrossNodeModel
 ): void => {
-  const newTreeNode: TreeNode = new TreeNode({
-    value: newNode,
-    position: { x: 0, y: 0 },
-  });
-
   const newFlowNode: Node = {
     id: (nextId++).toString(),
     type: 'crossNodeFlowWrapper',
     position: { x: 150, y: -100 },
-    data: newTreeNode.crossNodeModel,
+    data: newNode,
     connectable: true,
   };
   setNodes([...existingNodes, newFlowNode]);
 };
 
-const getNodesAndEdges = (crossTree: CrossTree): [Node[], Edge[]] => {
-  const initialNodes: Node[] = [];
-  const initialEdges: Edge[] = [];
-
-  crossTree.treeNodes.forEach((treeNode) => {
-    initialNodes.push({
-      id: `${treeNode.id}`,
-      type: 'crossNodeFlowWrapper',
-      position: treeNode.position,
-      data: treeNode.crossNodeModel,
-    });
-    if (
-      treeNode.femaleParent !== undefined &&
-      treeNode.maleParent !== undefined
-    ) {
-      constructFemaleMaleAndChild(treeNode, initialNodes, initialEdges);
-    } else if (treeNode.femaleParent !== undefined) {
-      constructHermaphroditeAndChild(treeNode, initialNodes, initialEdges);
-    }
-  });
-  return [initialNodes, initialEdges];
-};
-
-/**
- * Adds an X-node to the tree and edges connecting
- * female to X, male to X, and X to child
- */
-const constructFemaleMaleAndChild = (
-  childNode: TreeNode,
-  initialNodes: Node[],
-  initialEdges: Edge[]
-): void => {
-  const xNodeId = (nextId++).toString();
-  initialNodes.push({
-    id: xNodeId,
-    type: 'xNodeFlowWrapper',
-    position: {
-      // Centered between parents
-      x:
-        ((childNode.femaleParent?.position.x ?? 0) +
-          (childNode.maleParent?.position.x ?? 0)) /
-          2 +
-        96,
-      y:
-        ((childNode.femaleParent?.position.y ?? 0) +
-          (childNode.maleParent?.position.y ?? 0)) /
-          2 +
-        24,
-    },
-    data: undefined,
-  });
-  initialEdges.push({
-    id: `${childNode.femaleParent?.id}-${xNodeId}`,
-    source: childNode.femaleParent?.id?.toString() ?? '',
-    sourceHandle: 'left',
-    target: xNodeId,
-    targetHandle: 'right',
-  });
-  initialEdges.push({
-    id: `${childNode.maleParent?.id}-${xNodeId}`,
-    source: childNode.maleParent?.id?.toString() ?? '',
-    sourceHandle: 'right',
-    target: xNodeId,
-    targetHandle: 'left',
-  });
-  initialEdges.push({
-    id: `${xNodeId}-${childNode.id}`,
-    source: xNodeId,
-    sourceHandle: 'bottom',
-    target: `${childNode.id}`,
-    targetHandle: 'top',
-  });
-};
-
-/**
- * Adds an self-node to the tree and edges connecting
- * hermaphrodite to selfnode and selfnode to child
- */
-const constructHermaphroditeAndChild = (
-  childNode: TreeNode,
-  initialNodes: Node[],
-  initialEdges: Edge[]
-): void => {
-  const selfNodeId = (nextId++).toString();
-  initialNodes.push({
-    id: selfNodeId,
-    type: 'selfNodeFlowWrapper',
-    position: {
-      x: (childNode.femaleParent?.position.x ?? 0) + 96,
-      y: (childNode.femaleParent?.position.y ?? 0) + 124,
-    },
-    data: undefined,
-  });
-  initialEdges.push({
-    id: `${childNode.femaleParent?.id}-${selfNodeId}`,
-    source: childNode.femaleParent?.id?.toString() ?? '',
-    sourceHandle: 'bottom',
-    target: `${selfNodeId}`,
-    targetHandle: 'top',
-  });
-  initialEdges.push({
-    id: `${selfNodeId}-${childNode.id}`,
-    source: selfNodeId,
-    sourceHandle: 'bottom',
-    target: `${childNode.id}`,
-    targetHandle: 'top',
-  });
-};
-
 const saveTree = (nodes: Node[], edges: Edge[], tree: CrossTree): void => {
-  const treeNodes = new Map<string, TreeNode>(); // id -> node
-  const xNodeIds: string[] = [];
-  const selfNodeIds: string[] = [];
-
-  nodes.forEach((node) => {
-    if (node.type === 'crossNodeFlowWrapper') {
-      const newTreeNode = new TreeNode({
-        id: parseInt(node.id),
-        value: node.data,
-        position: { x: node.position.x, y: node.position.y },
-      });
-      treeNodes.set(newTreeNode?.id?.toString() ?? '', newTreeNode);
-    } else if (node.type === 'xNodeFlowWrapper') {
-      xNodeIds.push(node.id);
-    } else {
-      selfNodeIds.push(node.id);
-    }
-  });
-
-  edges.forEach((edge) => {
-    // child nodes emanate from x nodes or self nodes
-    if (xNodeIds.includes(edge.source) || selfNodeIds.includes(edge.source)) {
-      const childNode = treeNodes.get(edge.target);
-      // Find child's parent(s)
-      if (childNode !== undefined) {
-        edges.forEach((edge2) => {
-          if (edge2.target === edge.source) {
-            // Then edge2 is from a parent
-            if (edge2.sourceHandle === 'right') {
-              // Only males have right handles
-              childNode.maleParent = treeNodes.get(edge2.source);
-            } else {
-              childNode.femaleParent = treeNodes.get(edge2.source);
-            }
-          }
-        });
-      }
-    }
-  });
-
   const newCrossTree = new CrossTree({
-    id: 7,
+    id: '3', // TODO make dynamic
     name: tree.name,
     description: tree.description,
     settings: {
       longName: tree.settings.longName,
       contents: tree.settings.contents,
     },
-    treeNodes: Array.from(treeNodes.values()),
+    nodes,
+    edges,
     lastSaved: new Date(),
     genes: [],
     variations: [],
