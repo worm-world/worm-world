@@ -122,6 +122,7 @@ const DataPage = (): JSX.Element => {
           onClick={() => setRightDrawerOpen(false)}
         ></label>
         <RightDrawer
+          title='Filter'
           initialDrawerWidth={240}
           isOpen={rightDrawerOpen}
           maxWidth={400}

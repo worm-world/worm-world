@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { BiX as CloseIcon } from 'react-icons/bi';
 
 export interface RightDrawerProps {
+  title?: string;
   className?: string;
   initialDrawerWidth: number;
   maxWidth: number;
@@ -58,9 +59,10 @@ const RightDrawer = (props: RightDrawerProps): JSX.Element => {
         onMouseDown={() => setIsDragging(true)}
       />
       <div className='flex w-full flex-col justify-start'>
-        <div className='flex flex-row justify-end'>
-          <button className='m-2' onClick={() => props.close()}>
-            <CloseIcon className='pr-2 text-3xl' />
+        <div className='flex flex-row justify-between mb-1'>
+          <h2 className='text-3xl font-bold mt-2 ml-8'>{props.title ?? ""}</h2>
+          <button className='mt-2 mr-2' onClick={() => props.close()}>
+            <CloseIcon className='text-3xl' />
           </button>
         </div>
         <div className={styles.drawerContents} hidden={!props.isOpen}>
