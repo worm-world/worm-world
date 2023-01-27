@@ -1,8 +1,8 @@
 /**
  * The approach here is to 'load' the editor with a cross tree.
  * That cross tree model is unchanged when the user adds nodes and edges, but the editor's tree is updated through such
- * interaction. The in-editor tree is read into a cross tree model when save is clicked. This is to say, the editor manages its own state
- * and only exchanges state with the exterior software through load and save operations.
+ * interaction. The in-editor tree is read into a cross tree model when save is clicked. This is to say,
+ * the editor manages its own state and only exchanges state with the exterior software through load and save operations.
  */
 
 import { getFilteredAlleles } from 'api/allele';
@@ -28,7 +28,6 @@ import {
 } from 'reactflow';
 import { saveCrossTree } from 'api/crossTree';
 
-let nextId = 0; // used to identify nodes in tree
 export interface CrossEditorProps {
   currentTree: CrossTree;
 }
@@ -37,7 +36,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   const [nodes, setNodes] = useState<Node[]>(props.currentTree.nodes);
   const [edges, setEdges] = useState<Edge[]>(props.currentTree.edges);
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
-  resetNextId(nodes);
+  const [nextId, setNextId] = useState(getMaxId(nodes) + 1);
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) =>
@@ -57,7 +56,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   const buttons = [
     <button
       key='save'
-      className='btn'
+      className='btn-primary btn mr-4'
       onClick={() => saveTree(nodes, edges, props.currentTree)}
     >
       Save
@@ -116,7 +115,13 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
                 getFilteredVariations={getFilteredVariations}
                 getFilteredAlleles={getFilteredAlleles}
                 addNewCrossNode={(newNode) =>
-                  addNewCrossNodeToFlow(nodes, setNodes, newNode)
+                  addNewCrossNodeToFlow(
+                    nodes,
+                    setNodes,
+                    newNode,
+                    nextId,
+                    setNextId
+                  )
                 }
                 alleleCreateFromRecord={Allele.createFromRecord}
               />
@@ -129,29 +134,26 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
 };
 
 // We are going to be adding new nodes, so we need to standardize ids and avoid collision
-const resetNextId = (nodes: Node[]): void => {
-  let maxId = 0;
-  nodes.forEach((node) => {
-    if (parseInt(node.id) > maxId) {
-      maxId = parseInt(node.id);
-    }
-  });
-  nextId = maxId + 1;
+const getMaxId = (nodes: Node[]): number => {
+  return Math.max(...nodes.map((node) => parseInt(node.id)));
 };
 
 const addNewCrossNodeToFlow = (
   existingNodes: Node[],
   setNodes: (nodes: Node[]) => void,
-  newNode: CrossNodeModel
+  newNode: CrossNodeModel,
+  nextId: number,
+  setNextId: (id: number) => void
 ): void => {
   const newFlowNode: Node = {
-    id: (nextId++).toString(),
+    id: nextId.toString(),
     type: 'crossNodeFlowWrapper',
     position: { x: 150, y: -100 },
     data: newNode,
     connectable: true,
   };
   setNodes([...existingNodes, newFlowNode]);
+  setNextId(++nextId);
 };
 
 const saveTree = (nodes: Node[], edges: Edge[], tree: CrossTree): void => {

@@ -49,5 +49,9 @@ describe('CrossEditor', () => {
     await user.click(formSubmitButton);
     nodes = screen.getAllByTestId('crossNode');
     expect(nodes).toHaveLength(4);
+
+    await user.click(formSubmitButton);
+    nodes = screen.getAllByTestId('crossNode');
+    expect(nodes).toHaveLength(5);
   });
 });

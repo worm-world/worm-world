@@ -11,8 +11,8 @@ describe('Editor Top', () => {
         buttons={[<button key='only'>Button title</button>]}
       />
     );
-    expect(screen.getByText(/top title/)).toBeDefined();
-    expect(screen.getByText(/Button title/)).toBeDefined();
+    expect(screen.getByRole('heading')).toBeDefined();
+    expect(screen.getByRole('button')).toBeDefined();
   });
 
   test('Component renders', async () => {

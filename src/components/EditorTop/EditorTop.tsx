@@ -1,5 +1,5 @@
 export interface EditorTopProps {
-  name: String;
+  name: string;
   buttons?: JSX.Element[];
 }
 
