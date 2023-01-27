@@ -13,13 +13,11 @@ import ReactFlow, {
   updateEdge,
   OnNodesChange,
 } from 'reactflow';
-import { saveAs } from 'file-saver';
 import { toPng, toSvg } from 'html-to-image';
-import { IoSaveSharp } from 'react-icons/io5';
+import { FiShare } from 'react-icons/fi';
 import 'reactflow/dist/style.css';
 import FlowWrapper from 'components/FlowWrapper/FlowWrapper';
-import download from 'tauri-plugin-download-api'
-import { fs, path } from '@tauri-apps/api';
+import { fs } from '@tauri-apps/api';
 
 enum SaveMethod {
   PNG = 'png',
@@ -28,27 +26,22 @@ enum SaveMethod {
 
 const downloadImage = async (dataUrl: string, saveMethod: SaveMethod) => {
   const a = document.createElement('a');
-  const file = saveMethod === SaveMethod.PNG ? 'reactflow1.png' : 'reactflow.svg';
+  const filename_pre = `cross-tree-${(new Date()).toISOString()}`;
+  const filename = filename_pre + (saveMethod === SaveMethod.PNG ? '.png' : '.svg');
+  // workaround  because of this: https://github.com/tauri-apps/tauri/issues/4633
   // @ts-ignore
   if (window.__TAURI_IPC__ !== undefined) {
-    alert(decodeURI(dataUrl))
-    const downloadDir = await path.downloadDir();
-    var data;
     const dataBlob = await (await fetch(dataUrl)).blob();
     if (saveMethod === SaveMethod.PNG) {
-      fs.writeBinaryFile(prompt("PNG export name:", "blah.png") ?? "blah.png", await dataBlob.arrayBuffer(), { dir: fs.BaseDirectory.Download }).then(() => alert("Exported PNG")).catch((e) => alert(e));
+      fs.writeBinaryFile(filename, await dataBlob.arrayBuffer(), { dir: fs.BaseDirectory.Download }).then(() => alert("Exported PNG to Downloads")).catch((e) => alert(e));
     } else {
-      fs.writeTextFile(prompt("SVG export name:", "blah.svg") ?? "blah.svg", await dataBlob.text(), { dir: fs.BaseDirectory.Download }).then(() => alert("Exported SVG")).catch((e) => alert(e));
+      fs.writeTextFile(filename, await dataBlob.text(), { dir: fs.BaseDirectory.Download }).then(() => alert("Exported SVG to Downloads")).catch((e) => alert(e));
     }
   } else {
-    a.setAttribute('download', file);
+    a.setAttribute('download', filename);
     a.setAttribute('href', dataUrl);
     a.click();
   }
-
-  // // a.setAttribute('href', dataUrl);
-  // saveAs("hey", "boi.png");
-  // alert(dataUrl);
 }
 
 const saveImg = (saveMethod: SaveMethod) => {
@@ -102,7 +95,7 @@ const CustomControls = (props: ControlProps) => {
       <ControlButton onClick={() => console.log('action')}>
         <div className='dropdown drowndown-hover m-0'>
           <label tabIndex={0} className="">
-            <IoSaveSharp className='text-4xl text-base-content' />
+            <FiShare className='text-3xl text-base-content' />
           </label>
           <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
             <li><a target='_blank' onClick={() => saveImg(SaveMethod.PNG)}>Export to PNG</a></li>
