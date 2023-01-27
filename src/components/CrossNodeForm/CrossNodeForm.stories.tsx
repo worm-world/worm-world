@@ -65,7 +65,7 @@ const alleles = [
   mockAlleles.cn64,
   mockAlleles.ed3,
   mockAlleles.md299,
-  mockAlleles.n764,
+  mockAlleles.n765,
   mockAlleles.ox1059,
   mockAlleles.oxEx219999,
   mockAlleles.oxEx2254,
@@ -118,10 +118,8 @@ const Template: StoryFn<typeof CrossNodeForm> = (args: CrossNodeFormProps) => {
       <div>
         <CrossNodeForm
           addNewCrossNode={addNewCrossNode}
-          getFilteredGenes={mockGetFilteredGenes}
-          getFilteredVariations={mockGetFilteredVariations}
           getFilteredAlleles={mockGetFilteredAlleles}
-          alleleCreateFromRecord={mockAlleleCreateFromRecord}
+          createAlleleFromRecord={mockAlleleCreateFromRecord}
         />
       </div>
       <div className='flex h-4/5 flex-col bg-yellow-100 p-3 shadow-lg'>

@@ -9,7 +9,7 @@ describe('FlowWrapper', () => {
     const mutatedCrossNode = mock.mutated;
     const wrapperInFlow = (
       <ReactFlowProvider>
-        <FlowWrapper data={<CrossNode model={mutatedCrossNode} />} />
+        <FlowWrapper data={<CrossNode {...mutatedCrossNode} />} />
       </ReactFlowProvider>
     );
     render(wrapperInFlow);

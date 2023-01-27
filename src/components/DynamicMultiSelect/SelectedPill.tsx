@@ -7,11 +7,11 @@ export interface SelectedPillProps {
 
 const SelectedPill = (props: SelectedPillProps): JSX.Element => {
   return (
-    <div className='badge-accent badge m-1 p-4 pr-0' key={props.displayVal}>
+    <div className='badge-secondary badge m-1 p-4 pr-0' key={props.displayVal}>
       <div className='mr-2'>{props.displayVal}</div>
       <button
         onClick={props.removeFromSelected}
-        className='mr-0 h-8 w-8 rounded-full pr-0 align-middle hover:btn-primary'
+        className='mr-0 h-8 w-8 rounded-full pr-0 align-middle hover:btn-ghost'
       >
         <CloseIcon data-testid='closeButton' className='m-auto text-sm' />
       </button>

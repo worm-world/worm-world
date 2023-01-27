@@ -2,11 +2,10 @@ import { render, screen } from '@testing-library/react';
 import * as mock from 'models/frontend/CrossNode/CrossNode.mock';
 import CrossNode, { cmpChromosomes } from 'components/CrossNode/CrossNode';
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
-
 describe('CrossNode component', () => {
   test('Empty node shows no sections', () => {
     const emptyNode = mock.empty;
-    render(<CrossNode model={emptyNode} />);
+    render(<CrossNode {...emptyNode} />);
 
     const body = screen.getByTestId('crossNodeBody');
     expect(body).toBeEmptyDOMElement();
@@ -14,7 +13,7 @@ describe('CrossNode component', () => {
 
   test('Wild cross node shows sections', () => {
     const wildNode = mock.wild; // See wild node for details
-    render(<CrossNode model={wildNode} />);
+    render(<CrossNode {...wildNode} />);
 
     const body = screen.getByTestId('crossNodeBody');
     expect(body).not.toBeEmptyDOMElement();
@@ -32,7 +31,7 @@ describe('CrossNode component', () => {
   });
 
   test('cmpChromosomes() correctly orders chromosomes', () => {
-    const expected: (Chromosome | undefined)[] = [
+    const expected: Array<Chromosome | undefined> = [
       'I',
       'II',
       'III',
@@ -42,7 +41,7 @@ describe('CrossNode component', () => {
       'Ex',
       undefined,
     ];
-    const beforeSort: (Chromosome | undefined)[] = [
+    const beforeSort: Array<Chromosome | undefined> = [
       'II',
       'I',
       'X',
@@ -59,8 +58,8 @@ describe('CrossNode component', () => {
   });
 
   test('cmpChromosomes() puts undefined at end', () => {
-    const beforeSort: (Chromosome | undefined)[] = ['II', undefined, 'I'];
-    const expected: (Chromosome | undefined)[] = ['I', 'II', undefined];
+    const beforeSort: Array<Chromosome | undefined> = ['II', undefined, 'I'];
+    const expected: Array<Chromosome | undefined> = ['I', 'II', undefined];
     const afterSort = beforeSort.sort(cmpChromosomes);
     afterSort.forEach((chrom, idx) => {
       expect(chrom).toEqual(expected[idx]);
