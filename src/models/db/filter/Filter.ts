@@ -22,7 +22,7 @@ export interface Filter<T> {
    *   [ [field1, val1], [field2, val2], [field3, val3] ]
    * ]
    *
-   * ^ would generate: WHERE (field1 == val1 OR field2 == val2 OR field3 == val3);
+   * ^ would generate: WHERE (field1 == val1 OR field2 == val2 OR field3 == val3);
    *
    * -----------------------------------------------
    *

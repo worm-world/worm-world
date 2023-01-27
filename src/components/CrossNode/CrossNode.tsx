@@ -43,27 +43,49 @@ const CrossNode = (props: CrossNodeProps): JSX.Element => {
           className='flex min-w-min justify-center text-sm'
           data-testid='crossNodeBody'
         >
-          {Array.from(
-            new Set<Chromosome | undefined>([
-              ...genotype.genes.keys(),
-              ...genotype.variations.keys(),
-            ])
-          ).map((chromosome, idx, arr) => {
-            return (
-              <div key={idx} className='flex'>
-                {getChromosomeBox(chromosome, genotype)}
-                <div className='flex flex-col justify-center pt-3 font-light text-base-content'>
-                  {idx < arr.length - 1 ? <span>;</span> : <span></span>}
-                </div>
-              </div>
-            );
-          })}
+          {getChromosomeBoxes(genotype)}
         </div>
       </div>
     </div>
   );
 };
 
+// Returns array of chromosome boxes
+const getChromosomeBoxes = (genotype: Genotype): JSX.Element[] => {
+  const boxes = Array.from(
+    new Set([...genotype.genes.keys(), ...genotype.variations.keys()])
+  )
+    .sort(cmpChromosomes)
+    .map((chromosome, idx, arr) => {
+      return (
+        <div key={idx} className='flex'>
+          {getChromosomeBox(chromosome, genotype)}
+          <div className='flex flex-col justify-center pt-3 font-light text-base-content'>
+            {idx < arr.length - 1 ? <span>;</span> : <span></span>}
+          </div>
+        </div>
+      );
+    });
+  return boxes;
+};
+
+export const cmpChromosomes = (
+  chromA?: Chromosome,
+  chromB?: Chromosome
+): number => {
+  if (chromA === undefined) {
+    return 1;
+  } else if (chromB === undefined) {
+    return -1;
+  } else {
+    const order: Chromosome[] = ['I', 'II', 'III', 'IV', 'V', 'X', 'Ex'];
+    const posA = order.indexOf(chromA);
+    const posB = order.indexOf(chromB);
+    return posA - posB;
+  }
+};
+
+// All the 'fractions' under a single chromosome
 const getChromosomeBox = (
   chromosome: Chromosome | undefined,
   genotype: Genotype
@@ -90,6 +112,7 @@ const getChromosomeBox = (
   );
 };
 
+// One of the 'fractions'
 const getMutationBox = (alleles: Allele[], key: number): JSX.Element => {
   if (alleles.length === 1) {
     return <div key={key}>{alleles[0].name}</div>;
