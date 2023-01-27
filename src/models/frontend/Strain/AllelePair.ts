@@ -1,4 +1,4 @@
-import { Allele, WILD_ALLELE } from 'models/frontend/Allele/Allele';
+import { Allele, WildAllele, WILD_ALLELE } from 'models/frontend/Allele/Allele';
 
 export interface iAllelePair {
   top: Allele;
@@ -10,8 +10,12 @@ export class AllelePair {
   public readonly bot: Allele;
   public readonly isECA: boolean;
   constructor({ top, bot = top, isECA = false }: iAllelePair) {
-    this.top = top;
-    this.bot = bot;
+    const topIsWild = top.name === WILD_ALLELE.name;
+    const botIsWild = bot.name === WILD_ALLELE.name;
+
+    // assign wild alleles to a real allele (for genetic/chrom locations)
+    this.top = topIsWild ? new WildAllele(bot) : top;
+    this.bot = botIsWild ? new WildAllele(top) : bot;
     this.isECA = isECA;
   }
 
@@ -50,6 +54,21 @@ export class AllelePair {
    */
   public hasSameBaseAllele = (other: AllelePair): boolean => {
     return other.getAllele().name === this.getAllele().name;
+  };
+
+  /**
+   * Checks if the other pair has the same base genetic location as this pair
+   *
+   * Note: if either pair has an undefined genetic position it will return false (since we
+   * have no way of knowing they have the same location)
+   * @param other Other pair to compare against
+   */
+  public hasSameGenLoc = (other: AllelePair): boolean => {
+    const thisPos = this.getAllele().getGenPosition();
+    const otherPos = other.getAllele().getGenPosition();
+
+    if (thisPos === undefined || otherPos === undefined) return false;
+    else return thisPos === otherPos;
   };
 
   /**

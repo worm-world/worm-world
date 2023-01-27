@@ -1,10 +1,11 @@
-import { WILD_ALLELE } from 'models/frontend/Allele/Allele';
+import { WildAllele, WILD_ALLELE } from 'models/frontend/Allele/Allele';
 import {
   cn64,
   e204,
   e873,
   ed3,
   jsSi1949,
+  md299,
   ox11000,
   ox802,
   oxSi1168,
@@ -14,6 +15,7 @@ import {
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { Strain, StrainOption } from 'models/frontend/Strain/Strain';
 import {
+  DifChromSimpleSelfCross,
   HeterozygousCross,
   HomoHetCross,
   HomoHetSelfCross,
@@ -181,13 +183,13 @@ describe('strain', () => {
 });
 
 describe('cross algorithm', () => {
-  // const printCrossResults = (crossResult: StrainOption[]): void => {
-  //   crossResult.forEach((strain, idx) =>
-  //     console.log(
-  //       `Strain ${idx}  --  Prob: ${strain.prob}\n${strain.strain.toString()}\n`
-  //     )
-  //   );
-  // };
+  const printCrossResults = (crossResult: StrainOption[]): void => {
+    crossResult.forEach((strain, idx) =>
+      console.log(
+        `Strain ${idx}  --  Prob: ${strain.prob}\n${strain.strain.toString()}\n`
+      )
+    );
+  };
 
   const testStrainResults = (
     crossStrains: StrainOption[],
@@ -206,12 +208,14 @@ describe('cross algorithm', () => {
   test('cross between homozygous and wild strain', () => {
     const homoPairs: AllelePair[] = [new AllelePair({ top: e204, bot: e204 })];
     const wildPairs: AllelePair[] = [
-      new AllelePair({ top: WILD_ALLELE, bot: WILD_ALLELE }),
+      new AllelePair({ top: new WildAllele(e204), bot: new WildAllele(e204) }),
     ];
 
     const homoStrain = new Strain({ allelePairs: homoPairs });
     const wildStrain = new Strain({ allelePairs: wildPairs });
     const crossStrains = homoStrain.crossWith(wildStrain);
+
+    printCrossResults(crossStrains);
     testStrainResults(crossStrains, HomoWildCross);
   });
 
@@ -255,6 +259,16 @@ describe('cross algorithm', () => {
     const strain = new Strain({ allelePairs });
     const crossStrains = strain.selfCross();
     testStrainResults(crossStrains, HomoHetSelfCross);
+  });
+
+  test('simple self cross of het alleles on different chromosomes', () => {
+    const allelePairs: AllelePair[] = [
+      new AllelePair({ top: ed3, bot: new WildAllele(ed3) }), // chrom III
+      new AllelePair({ top: md299, bot: new WildAllele(md299) }), // chrom X
+    ];
+    const strain = new Strain({ allelePairs });
+    const crossStrains = strain.selfCross();
+    testStrainResults(crossStrains, DifChromSimpleSelfCross);
   });
 
   test('intermediate self cross', () => {
