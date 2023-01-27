@@ -23,12 +23,12 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
   const [hetAlleles, setHetAlleles] = useState(new Set<db_Allele>());
 
   const onSubmit = (): void => {
-    const homoPairs = Array.from(hetAlleles).map(async (selectedAllele) => {
+    const hetPairs = Array.from(hetAlleles).map(async (selectedAllele) => {
       const allele = await props.createAlleleFromRecord(selectedAllele);
       return new AllelePair({ top: allele, bot: allele });
     });
 
-    const hetPairs = Array.from(homoAlleles).map(async (selectedAllele) => {
+    const homoPairs = Array.from(homoAlleles).map(async (selectedAllele) => {
       const allele = await props.createAlleleFromRecord(selectedAllele);
       return new AllelePair({ top: allele, bot: WILD_ALLELE });
     });
@@ -122,6 +122,7 @@ const createNewCrossNode = (
       notes: '',
     }),
     isSelected: false,
+    getMenuItems: () => [],
   };
   return crossNodeModel;
 };
