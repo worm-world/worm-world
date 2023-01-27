@@ -2,7 +2,7 @@ import { Strain } from 'models/frontend/Strain/Strain';
 import { Sex } from 'models/enums';
 import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import * as mockAlleles from 'models/frontend/Allele/Allele.mock';
-import { Allele, WildAllele } from '../Allele/Allele';
+import { Allele, WILD_ALLELE, WildAllele } from '../Allele/Allele';
 import { AllelePair } from '../Strain/AllelePair';
 
 export const empty: CrossNodeModel = {
@@ -157,6 +157,167 @@ export const diploid: CrossNodeModel = {
       new AllelePair({
         top: mockAlleles.chrom1Gene1Allele1,
         bot: mockAlleles.chrom1Gene1Allele1,
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
+};
+
+export const ed3HetMale: CrossNodeModel = {
+  sex: Sex.Male,
+  strain: new Strain({
+    name: 'ed3Het',
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.ed3,
+        bot: WILD_ALLELE,
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
+};
+
+export const ed3HetHerm: CrossNodeModel = {
+  sex: Sex.Hermaphrodite,
+  strain: new Strain({
+    name: 'ed3Het',
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.ed3,
+        bot: WILD_ALLELE,
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
+};
+
+export const ed3HomoHerm: CrossNodeModel = {
+  sex: Sex.Hermaphrodite,
+  strain: new Strain({
+    name: 'ed3Hetero',
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.ed3,
+        bot: mockAlleles.ed3,
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
+};
+
+export const e204WildMale: CrossNodeModel = {
+  sex: Sex.Male,
+  strain: new Strain({
+    name: 'e204Wild',
+    allelePairs: [
+      new AllelePair({
+        top: new WildAllele(mockAlleles.e204),
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
+};
+
+export const e204HomoHerm: CrossNodeModel = {
+  sex: Sex.Hermaphrodite,
+  strain: new Strain({
+    name: 'e204Homo',
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.e204,
+        bot: mockAlleles.e204,
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
+};
+
+export const e204HetMale: CrossNodeModel = {
+  sex: Sex.Male,
+  strain: new Strain({
+    name: 'e204Het',
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.e204,
+        bot: WILD_ALLELE,
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
+};
+
+export const ox802HomoHerm: CrossNodeModel = {
+  sex: Sex.Hermaphrodite,
+  strain: new Strain({
+    name: 'ox802Homo',
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.ox802,
+        bot: mockAlleles.ox802,
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
+};
+
+export const e204HetOx802Het: CrossNodeModel = {
+  sex: Sex.Hermaphrodite,
+  strain: new Strain({
+    name: 'e204HetOx802Het',
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.e204,
+        bot: WILD_ALLELE,
+      }),
+      new AllelePair({
+        top: WILD_ALLELE,
+        bot: mockAlleles.ox802,
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
+};
+
+export const e204HomoOx802HetHerm: CrossNodeModel = {
+  sex: Sex.Hermaphrodite,
+  strain: new Strain({
+    name: 'e204HomoOx802Het',
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.e204,
+        bot: mockAlleles.e204,
+      }),
+      new AllelePair({
+        top: WILD_ALLELE,
+        bot: mockAlleles.ox802,
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
+};
+
+export const e204HomoOx802HomoHerm: CrossNodeModel = {
+  sex: Sex.Hermaphrodite,
+  strain: new Strain({
+    name: 'e204HomoOx802Homo',
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.e204,
+        bot: mockAlleles.e204,
+      }),
+      new AllelePair({
+        top: mockAlleles.ox802,
+        bot: mockAlleles.ox802,
       }),
     ],
     notes: '',

@@ -122,16 +122,6 @@ const Template: StoryFn<typeof CrossNodeForm> = (args: CrossNodeFormProps) => {
           createAlleleFromRecord={mockAlleleCreateFromRecord}
         />
       </div>
-      <div className='flex h-4/5 flex-col bg-yellow-100 p-3 shadow-lg'>
-        <h1 className='text-lg'>For reference</h1>
-        {alleles.map((allele) => (
-          <div>{`Allele ${allele.name} on ${
-            allele.gene ? 'gene '.concat(allele.gene.sysName) : ''
-          } ${
-            allele.variation ? 'variation '.concat(allele.variation.name) : ''
-          }`}</div>
-        ))}
-      </div>
     </div>
   );
 };

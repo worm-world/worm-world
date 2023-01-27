@@ -6,8 +6,6 @@
  */
 
 import { getFilteredAlleles } from 'api/allele';
-import { getFilteredGenes } from 'api/gene';
-import { getFilteredVariations } from 'api/variationInfo';
 import CrossFlow from 'components/CrossFlow/CrossFlow';
 import CrossNodeForm from 'components/CrossNodeForm/CrossNodeForm';
 import EditorTop from 'components/EditorTop/EditorTop';
@@ -111,8 +109,6 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
               close={() => setRightDrawerOpen(false)}
             >
               <CrossNodeForm
-                getFilteredGenes={getFilteredGenes}
-                getFilteredVariations={getFilteredVariations}
                 getFilteredAlleles={getFilteredAlleles}
                 addNewCrossNode={(newNode) =>
                   addNewCrossNodeToFlow(
@@ -123,7 +119,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
                     setNextId
                   )
                 }
-                alleleCreateFromRecord={Allele.createFromRecord}
+                createAlleleFromRecord={Allele.createFromRecord}
               />
             </RightDrawer>
           </div>
@@ -148,7 +144,7 @@ const addNewCrossNodeToFlow = (
   const newFlowNode: Node = {
     id: nextId.toString(),
     type: 'crossNodeFlowWrapper',
-    position: { x: 150, y: -100 },
+    position: { x: 0, y: -500 },
     data: newNode,
     connectable: true,
   };

@@ -1,7 +1,7 @@
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import * as mockCrossTree from 'models/frontend/CrossTree/CrossTree.mock';
 
-let temp = mockCrossTree.simpleCrossTree;
+let temp = mockCrossTree.mediumCrossTree;
 
 // Mocked for now
 export const getAllCrossTrees = async (): Promise<CrossTree[]> => {

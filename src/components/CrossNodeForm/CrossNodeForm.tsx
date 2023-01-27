@@ -40,7 +40,7 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
         setHomoAlleles(new Set());
         setHetAlleles(new Set());
       })
-      .catch((err) => console.log(err));
+      .catch((err) => err);
   };
 
   return (

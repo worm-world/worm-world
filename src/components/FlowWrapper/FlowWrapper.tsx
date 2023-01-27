@@ -35,7 +35,7 @@ export const CrossNodeFlowWrapper = (
   return (
     <div className='h-fit w-fit'>
       {handleElements}
-      {<CrossNode model={props.data} />}
+      <CrossNode {...props.data} />
     </div>
   );
 };

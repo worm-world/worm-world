@@ -40,10 +40,10 @@ describe('CrossEditor', () => {
     let nodes = screen.getAllByTestId('crossNode');
     expect(nodes).toHaveLength(3);
 
-    const addNewNodeButton = screen.getByText(/add new/i);
+    const addNewNodeButton = screen.getByRole('button', { name: /add new/i });
     await user.click(addNewNodeButton);
 
-    const formSubmitButton = screen.getByText(/create new cross node/i);
+    const formSubmitButton = screen.getByRole('button', { name: /create/i });
     expect(formSubmitButton).toBeDefined();
 
     await user.click(formSubmitButton);

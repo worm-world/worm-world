@@ -8,7 +8,7 @@ import { Edge, Node } from 'reactflow';
 export const ed3HeteroMale: Node = {
   id: '0',
   type: 'crossNodeFlowWrapper',
-  data: mockCrossNode.ed3HeteroMale,
+  data: mockCrossNode.ed3HetMale,
   position: {
     x: -300,
     y: -300,
@@ -18,7 +18,7 @@ export const ed3HeteroMale: Node = {
 export const ed3HeteroHerm: Node = {
   id: '1',
   type: 'crossNodeFlowWrapper',
-  data: mockCrossNode.ed3HeteroHerm,
+  data: mockCrossNode.ed3HetHerm,
   position: {
     x: 300,
     y: -300,
@@ -55,6 +55,7 @@ export const edgeFemale: Edge = {
   id: 'e1-3',
   source: '1',
   target: '3',
+  targetHandle: 'right',
 };
 
 export const edgeChild: Edge = {
@@ -82,7 +83,7 @@ export const simpleCrossTree = new CrossTree({
 export const node0: Node = {
   id: '0',
   type: 'crossNodeFlowWrapper',
-  data: mockCrossNode.wildE204Male,
+  data: mockCrossNode.e204WildMale,
   position: {
     x: -600,
     y: -1000,
@@ -91,7 +92,7 @@ export const node0: Node = {
 export const node1: Node = {
   id: '1',
   type: 'crossNodeFlowWrapper',
-  data: mockCrossNode.homoE204Herm,
+  data: mockCrossNode.e204HomoHerm,
   position: {
     x: 0,
     y: -1000,
@@ -100,7 +101,7 @@ export const node1: Node = {
 export const node2: Node = {
   id: '2',
   type: 'crossNodeFlowWrapper',
-  data: mockCrossNode.heteroE204Male,
+  data: mockCrossNode.e204HetMale,
   position: {
     x: -300,
     y: -800,
@@ -109,7 +110,7 @@ export const node2: Node = {
 export const node3: Node = {
   id: '3',
   type: 'crossNodeFlowWrapper',
-  data: mockCrossNode.homoOx802Herm,
+  data: mockCrossNode.ox802HomoHerm,
   position: {
     x: 300,
     y: -800,
@@ -118,7 +119,7 @@ export const node3: Node = {
 export const node4: Node = {
   id: '4',
   type: 'crossNodeFlowWrapper',
-  data: mockCrossNode.heteroE204HeteroOx802Herm,
+  data: mockCrossNode.e204HetOx802Het,
   position: {
     x: 0,
     y: -600,
@@ -127,7 +128,7 @@ export const node4: Node = {
 export const node5: Node = {
   id: '5',
   type: 'crossNodeFlowWrapper',
-  data: mockCrossNode.homoE204HeteroOx802Herm,
+  data: mockCrossNode.e204HomoOx802HetHerm,
   position: {
     x: 0,
     y: -400,
@@ -136,7 +137,7 @@ export const node5: Node = {
 export const node6: Node = {
   id: '6',
   type: 'crossNodeFlowWrapper',
-  data: mockCrossNode.homoE204HomoOx802Herm,
+  data: mockCrossNode.e204HomoOx802HomoHerm,
   position: {
     x: 0,
     y: -200,
@@ -193,7 +194,7 @@ export const edges: Edge[] = [
     id: 'e1-7',
     source: '1',
     target: '7',
-    // sourceHandle: 'left',
+    targetHandle: 'right',
   },
   {
     id: 'e7-2',
@@ -201,7 +202,7 @@ export const edges: Edge[] = [
     target: '2',
   },
   { id: 'e2-8', source: '2', target: '8' },
-  { id: 'e3-8', source: '3', target: '8' },
+  { id: 'e3-8', source: '3', target: '8', targetHandle: 'right' },
   { id: 'e8-4', source: '8', target: '4' },
   { id: 'e4-9', source: '4', target: '9', sourceHandle: 'bottom' },
   { id: 'e9-5', source: '9', target: '5' },
