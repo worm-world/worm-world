@@ -57,6 +57,9 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
         label='Homozygous Alleles'
         selectedRecords={homoAlleles}
         setSelectedRecords={setHomoAlleles}
+        shouldInclude={(allele) =>
+          shouldIncludeAllele(homoAlleles, hetAlleles, allele)
+        }
       />
 
       <DynamicMultiSelect
@@ -68,6 +71,9 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
         label='Heterozygous Alleles'
         selectedRecords={hetAlleles}
         setSelectedRecords={setHetAlleles}
+        shouldInclude={(allele) =>
+          shouldIncludeAllele(homoAlleles, hetAlleles, allele)
+        }
       />
       <button
         className='btn-primary btn mt-5 max-w-xs'
@@ -120,5 +126,14 @@ const createNewCrossNode = (
   };
   return crossNodeModel;
 };
+
+function shouldIncludeAllele(
+  homoAlleles: Set<db_Allele>,
+  hetAlleles: Set<db_Allele>,
+  allele: db_Allele
+): boolean {
+  const names = new Set([...homoAlleles, ...hetAlleles].map((a) => a.name));
+  return !names.has(allele.name); // Not included, okay to add
+}
 
 export default CrossNodeForm;

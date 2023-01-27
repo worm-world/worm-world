@@ -43,17 +43,13 @@ export const DynamicMultiSelect = <T, U>(
       filters: [[[props.searchOn, { Like: event.target.value }]]],
       orderBy: [],
     };
+
+    // Query from DB and do final filtering on frontend
+    const shouldInclude = props.shouldInclude ?? ((_: U) => true);
     props
       .getFilteredRecordApi(filter)
       .then((results) => {
-        const shouldInclude =
-          props.shouldInclude != null ? props.shouldInclude : () => true;
-        const includedResults: U[] = [];
-        results.forEach((result) => {
-          if (shouldInclude(result)) {
-            includedResults.push(result);
-          }
-        });
+        const includedResults = results.filter((res) => shouldInclude(res));
         setSearchRes(includedResults);
       })
       .catch((err) => err);
