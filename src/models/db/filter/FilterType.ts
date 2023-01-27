@@ -11,3 +11,28 @@ export type FilterType =
   | 'NotNull'
   | 'True'
   | 'False';
+
+export type FilterTypeName = 
+  | 'Range'
+  | 'LessThan'
+  | 'GreaterThan'
+  | 'Equal'
+  | 'NotEqual'
+  | 'Like'
+  | 'Null'
+  | 'NotNull'
+  | 'True'
+  | 'False';
+
+export const filterTypeNames : FilterTypeName[] = [
+  'Range',
+  'LessThan',
+  'GreaterThan',
+  'Equal',
+  'NotEqual',
+  'Like',
+  'Null',
+  'NotNull',
+  'True',
+  'False',
+];

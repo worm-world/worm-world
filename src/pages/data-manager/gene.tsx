@@ -9,6 +9,7 @@ import DataImportForm, {
 } from 'components/DataImportForm/DataImportForm';
 import { chromosomes } from 'models/frontend/Chromosome';
 import RightDrawer from 'components/RightDrawer/RightDrawer';
+import { DataFilterForm } from 'components/DataFilterForm/DataFilterForm';
 
 export const cols: Array<ColumnDefinitionType<db_Gene>> = [
   { key: 'sysName', header: 'Systematic Name' },
@@ -126,7 +127,7 @@ const DataPage = (): JSX.Element => {
           maxWidth={400}
           close={() => setRightDrawerOpen(false)}
         >
-          <span>Form</span>
+          <DataFilterForm fields={fields as Array<FieldType<db_Gene>>} onSubmitCallback={() => {}}/>
         </RightDrawer>
       </div>
     </div>
