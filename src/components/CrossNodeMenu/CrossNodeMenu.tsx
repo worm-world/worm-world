@@ -11,13 +11,13 @@ export interface MenuItem {
   menuCallback: () => void;
 }
 
-interface iCrossNodeMenu {
+export interface iCrossNodeMenu {
   items: MenuItem[];
 }
 
 export const CrossNodeMenu = (props: iCrossNodeMenu): JSX.Element => {
   return (
-    <div className='dropdown z-10'>
+    <div className='dropdown z-10' data-testid={'crossNodeMenu'}>
       <label tabIndex={0} className='btn-ghost btn-sm btn m-1'>
         <MoreHorizIcon />
       </label>
