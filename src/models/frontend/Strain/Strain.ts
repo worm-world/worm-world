@@ -112,7 +112,7 @@ export class Strain {
 
     const multiChromOptions: ChromosomeOption[][] = [];
 
-    // get chromsomomal allele probabilities
+    // get chromosomal allele probabilities
     lStrain.chromPairMap.forEach((pairs, chromosome) => {
       const chromChainList = this.crossChromosome(
         pairs,
@@ -244,20 +244,20 @@ export class Strain {
     leftChrom: AllelePair[],
     rightChrom: AllelePair[]
   ): ChromosomeOption[] => {
-    const chromsomeOptions: ChromosomeOption[] = [];
+    const chromosomeOptions: ChromosomeOption[] = [];
     const leftOptions = this.getRecombOptions(leftChrom);
     const rightOptions = this.getRecombOptions(rightChrom);
 
     // Permute all possible chromatid combinations
     leftOptions.forEach((left) => {
       rightOptions.forEach((right) => {
-        chromsomeOptions.push({
+        chromosomeOptions.push({
           pairs: this.combineChromatids(left.alleles, right.alleles),
           prob: left.prob * right.prob,
         });
       });
     });
-    return chromsomeOptions;
+    return chromosomeOptions;
   };
 
   /**

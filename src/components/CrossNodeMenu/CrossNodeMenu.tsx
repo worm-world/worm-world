@@ -1,10 +1,13 @@
+import React from 'react';
 import { Sex } from 'models/enums';
 import CrossNode from 'models/frontend/CrossNode/CrossNode';
-import React from 'react';
-import { BiDotsHorizontalRounded as MoreHorizIcon } from 'react-icons/bi';
+import {
+  BsLightningCharge as MenuIcon,
+  BsUiChecks as ScheduleIcon,
+} from 'react-icons/bs';
 import { TbArrowsCross as CrossIcon } from 'react-icons/tb';
 import { ImLoop2 as SelfCrossIcon } from 'react-icons/im';
-import { AiOutlineExport as ScheduleIcon } from 'react-icons/ai';
+
 export interface MenuItem {
   icon?: JSX.Element;
   text: string;
@@ -18,8 +21,8 @@ export interface iCrossNodeMenu {
 export const CrossNodeMenu = (props: iCrossNodeMenu): JSX.Element => {
   return (
     <div className='dropdown z-10' data-testid={'crossNodeMenu'}>
-      <label tabIndex={0} className='btn-ghost btn-sm btn m-1'>
-        <MoreHorizIcon />
+      <label tabIndex={0} className='btn-ghost btn-sm btn m-1 text-xl'>
+        <MenuIcon />
       </label>
       {props.items.length > 0 && (
         <ul
