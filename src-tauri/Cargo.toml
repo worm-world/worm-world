@@ -30,9 +30,6 @@ directories = "4.0"
 anyhow = "1.0"
 thiserror = "1.0"
 
-[dependencies.tauri-plugin-download]
-git = "https://github.com/FabianLars/tauri-plugin-download"
-
 [dev-dependencies]
 pretty_assertions = "1.3"
 

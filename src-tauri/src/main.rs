@@ -39,7 +39,6 @@ async fn main() {
         .expect("Failed to set up sqlite3 database.");
 
     tauri::Builder::default()
-        .plugin(tauri_plugin_download::init())
         .manage(DbState(RwLock::new(InnerDbState { conn_pool: pool })))
         .invoke_handler(tauri::generate_handler![
             get_genes,
