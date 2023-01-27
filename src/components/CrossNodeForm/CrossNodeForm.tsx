@@ -55,8 +55,8 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
         selectInputOn={'name'}
         displayResultsOn={['name']}
         label='Homozygous Alleles'
-        selectedRecords={hetAlleles}
-        setSelectedRecords={setHetAlleles}
+        selectedRecords={homoAlleles}
+        setSelectedRecords={setHomoAlleles}
       />
 
       <DynamicMultiSelect
@@ -65,9 +65,9 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
         searchOn={'Name'}
         selectInputOn={'name'}
         displayResultsOn={['name']}
-        label='Homozygous Alleles'
-        selectedRecords={homoAlleles}
-        setSelectedRecords={setHomoAlleles}
+        label='Heterozygous Alleles'
+        selectedRecords={hetAlleles}
+        setSelectedRecords={setHetAlleles}
       />
       <button
         className='btn-primary btn mt-5 max-w-xs'
