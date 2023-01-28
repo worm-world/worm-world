@@ -1,11 +1,6 @@
-import { useEffect, useState } from 'react';
 import { getFilteredAlleles, insertDbAllele } from 'api/allele';
-import { toast } from 'react-toastify';
 import { db_Allele } from 'models/db/db_Allele';
-import { Table, ColumnDefinitionType } from 'components/Table/Table';
-import DataImportForm, {
-  FieldType,
-} from 'components/DataImportForm/DataImportForm';
+import { ColumnDefinitionType } from 'components/Table/Table';
 import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
 import DataPage from 'components/DataPage/DataPage';
 import { Field } from 'components/Table/ColumnFilter';

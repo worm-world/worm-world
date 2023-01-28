@@ -251,6 +251,22 @@ mod test {
     }
 
     #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_alleles_not_null_contents_desc(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_alleles(&Filter::<AlleleFieldName> {
+                filters: vec![vec![(AlleleFieldName::Contents, FilterType::NotNull)]],
+                order_by: vec![(AlleleFieldName::Name, Order::Desc)],
+            })
+            .await?;
+        let mut alleles = testdata::get_alleles_with_content();
+        alleles.reverse();
+        assert_eq!(exprs, alleles);
+        Ok(())
+    }
+
+
+    #[sqlx::test(fixtures("dummy"))]
     async fn test_get_filtered_alleles_null_contents(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state

@@ -177,6 +177,25 @@ mod test {
     }
 
     #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_conditions_desc(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_conditions(&Filter::<ConditionFieldName> {
+                filters: vec![vec![(
+                    ConditionFieldName::MaturationDays,
+                    FilterType::LessThan("4".to_owned(), false),
+                )]],
+                order_by: vec![(ConditionFieldName::Name, Order::Desc)],
+            })
+            .await?;
+        let mut fc = testdata::get_filtered_conditions();
+        fc.reverse();
+        assert_eq!(exprs, fc);
+        Ok(())
+    }
+
+
+    #[sqlx::test(fixtures("dummy"))]
     async fn test_get_filtered_conditions_not_3_maturation_days(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
