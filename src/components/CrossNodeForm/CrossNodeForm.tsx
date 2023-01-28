@@ -8,6 +8,7 @@ import { Filter } from 'models/db/filter/Filter';
 import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
+import { getMenuItems } from 'components/CrossNodeMenu/CrossNodeMenu';
 
 export interface CrossNodeFormProps {
   addNewCrossNode: (arg: CrossNodeModel) => void;
@@ -122,7 +123,7 @@ const createNewCrossNode = (
       notes: '',
     }),
     isSelected: false,
-    getMenuItems: () => [],
+    getMenuItems,
   };
   return crossNodeModel;
 };
