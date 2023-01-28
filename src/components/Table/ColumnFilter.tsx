@@ -111,7 +111,11 @@ const FormControl = <T,>(props: iFormControlProps<T>): JSX.Element => {
     case 'Equal':
       return props.field?.type === 'select' ? (
         <div className='form-control flex flex-col'>
-          <select className='input-bordered input select'>
+          <select className='input-bordered input select' onChange={(e) => {
+              const newValues = [...props.values];
+              newValues[0] = e.target.value;
+              props.setValues(newValues);
+          }}>
             {props.field?.selectOptions?.map((option, i) => (
               <option key={i} value={option}>
                 {option}

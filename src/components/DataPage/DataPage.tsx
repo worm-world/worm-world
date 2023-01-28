@@ -60,6 +60,7 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
           <h1 className='data-table-title col-start-2'>{props.title}</h1>
           <div className='flex w-full flex-row justify-end'>
             <DataImportForm
+              title={props.title}
               className='justify-self-end'
               dataName={props.dataName}
               fields={props.fields}

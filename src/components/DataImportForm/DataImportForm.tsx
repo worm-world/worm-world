@@ -10,6 +10,7 @@ export interface FieldType<T> {
 
 export interface iDataImportFormProps<T> {
   className?: string;
+  title: string;
   dataName: string;
   fields: Array<FieldType<T>>;
   onSubmitCallback: (arg0: T, successCallback: () => void) => void;
@@ -121,7 +122,7 @@ const DataImportForm = <T,>(props: iDataImportFormProps<T>): JSX.Element => {
         className='btn'
         onClick={handleOpen}
       >
-        {'Add New ' + props.dataName}
+        {'Add New ' + props.title}
       </label>
       <input
         type='checkbox'
@@ -136,7 +137,7 @@ const DataImportForm = <T,>(props: iDataImportFormProps<T>): JSX.Element => {
           onClick={() => setFormOpen(false)}
         />
         <div className='modal-box relative'>
-          <h2 className='text-center text-3xl'>{'New ' + props.dataName}</h2>
+          <h2 className='text-center text-3xl'>{'New ' + props.title}</h2>
           <hr className='my-2' />
           <form onSubmit={handleSubmit}>
             <Fields fieldList={props.fields}></Fields>
