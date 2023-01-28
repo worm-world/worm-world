@@ -21,7 +21,7 @@ export interface iCrossNodeMenu {
 export const CrossNodeMenu = (props: iCrossNodeMenu): JSX.Element => {
   return (
     <div className='dropdown z-10' data-testid={'crossNodeMenu'}>
-      <label tabIndex={0} className='btn-ghost btn-sm btn m-1 text-xl'>
+      <label tabIndex={0} className='btn-ghost btn-xs btn m-1 text-xl'>
         <MenuIcon />
       </label>
       {props.items.length > 0 && (
