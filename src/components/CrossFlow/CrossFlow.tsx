@@ -75,8 +75,7 @@ const saveImg = (saveMethod: SaveMethod): void => {
       // we don't want to add the minimap and the controls to the image
       if (node === undefined || node.classList === undefined) {
         return false;
-      }
-      else if (
+      } else if (
         node.classList.contains('react-flow__minimap') ||
         node.classList.contains('react-flow__controls') ||
         node.classList.contains('react-flow__background') ||
