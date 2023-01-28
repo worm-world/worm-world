@@ -18,3 +18,4 @@ pub mod strain_alleles;
 pub mod tree;
 pub mod tree_strain;
 pub mod variation_info;
+pub mod task;

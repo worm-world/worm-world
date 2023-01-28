@@ -1,8 +1,14 @@
 #[cfg(test)]
 pub mod testdata {
     use crate::models::{
-        allele::Allele, allele_expr::AlleleExpression, chromosome::Chromosome,
-        condition::Condition, expr_relation::ExpressionRelation, gene::Gene, phenotype::Phenotype,
+        allele::Allele,
+        allele_expr::AlleleExpression,
+        chromosome::Chromosome,
+        condition::Condition,
+        expr_relation::ExpressionRelation,
+        gene::Gene,
+        phenotype::Phenotype,
+        task::{Action, Task},
         variation_info::VariationInfo,
     };
     /* #region Allele Test Data */
@@ -2008,4 +2014,57 @@ pub mod testdata {
     }
 
     /* #endregion Phenotypes Test Data */
+
+    /* #region Tasks Test Data */
+    pub fn get_tasks() -> Vec<Task> {
+        vec![
+            Task {
+                id: 1,
+                due_date: Some("2012-01-01".to_string()),
+                action: Action::Cross,
+                strain1: "{}".to_string(),
+                strain2: Some("{}".to_string()),
+            },
+            Task {
+                id: 2,
+                due_date: Some("2012-01-02".to_string()),
+                action: Action::SelfCross,
+                strain1: "{}".to_string(),
+                strain2: Some("{}".to_string()),
+            },
+            Task {
+                id: 3,
+                due_date: Some("2012-01-03".to_string()),
+                action: Action::Cross,
+                strain1: "{}".to_string(),
+                strain2: Some("{}".to_string()),
+            },
+            Task {
+                id: 4,
+                due_date: Some("2012-01-03".to_string()),
+                action: Action::Freeze,
+                strain1: "{}".to_string(),
+                strain2: Some("{}".to_string()),
+            },
+            Task {
+                id: 5,
+                due_date: Some("2012-01-04".to_string()),
+                action: Action::Pcr,
+                strain1: "{}".to_string(),
+                strain2: Some("{}".to_string()),
+            },
+        ]
+    }
+    pub fn get_filtered_tasks() -> Vec<Task> {
+        vec![
+            Task {
+                id: 1,
+                due_date: Some("2012-01-01".to_string()),
+                action: Action::Cross,
+                strain1: "{}".to_string(),
+                strain2: Some("{}".to_string()),
+            },
+        ]
+    }
+    /* #endregion Tasks Test Data */
 }

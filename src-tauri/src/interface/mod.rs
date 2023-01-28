@@ -5,6 +5,7 @@ pub mod expr_relation;
 pub mod gene;
 pub mod phenotype;
 pub mod variation_info;
+pub mod task;
 
 use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Sqlite};
@@ -19,6 +20,8 @@ pub enum DbError {
     SqlQueryError(String),
     #[error("Failed to execute insert: {0}")]
     SqlInsertError(String),
+    #[error("Failed to execute update: {0}")]
+    SqlUpdateError(String),
 }
 
 pub struct InnerDbState {
