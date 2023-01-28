@@ -20,6 +20,7 @@ const getSexIcon = (sex: Sex, className: string): JSX.Element => {
 const CrossNode = (props: iCrossNode): JSX.Element => {
   return (
     <div
+      data-testid='crossNode'
       className={
         'h-28 w-64 rounded bg-base-100 shadow hover:cursor-grab' +
         (props.isSelected ? ' border border-primary' : '')

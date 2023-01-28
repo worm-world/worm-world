@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import FlowWrapper from 'components/FlowWrapper/FlowWrapper';
+import { CrossNodeFlowWrapper } from 'components/FlowWrapper/FlowWrapper';
 import * as mock from 'models/frontend/CrossNode/CrossNode.mock';
-import CrossNode from 'components/CrossNode/CrossNode';
 import { ReactFlowProvider } from 'reactflow';
 
 describe('FlowWrapper', () => {
@@ -9,7 +8,7 @@ describe('FlowWrapper', () => {
     const mutatedCrossNode = mock.mutated;
     const wrapperInFlow = (
       <ReactFlowProvider>
-        <FlowWrapper data={<CrossNode {...mutatedCrossNode} />} />
+        <CrossNodeFlowWrapper data={mutatedCrossNode} />
       </ReactFlowProvider>
     );
     render(wrapperInFlow);
