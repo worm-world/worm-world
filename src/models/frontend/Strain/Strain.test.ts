@@ -186,13 +186,13 @@ describe('strain', () => {
 });
 
 describe('cross algorithm', () => {
-  const printCrossResults = (crossResult: StrainOption[]): void => {
-    crossResult.forEach((strain, idx) =>
-      console.log(
-        `Strain ${idx}  --  Prob: ${strain.prob}\n${strain.strain.toString()}\n`
-      )
-    );
-  };
+  // const printCrossResults = (crossResult: StrainOption[]): void => {
+  //   crossResult.forEach((strain, idx) =>
+  //     console.log(
+  //       `Strain ${idx}  --  Prob: ${strain.prob}\n${strain.strain.toString()}\n`
+  //     )
+  //   );
+  // };
 
   const testStrainResults = (
     crossStrains: StrainOption[],
@@ -328,16 +328,6 @@ describe('cross algorithm', () => {
     const strain2 = new Strain({ allelePairs: allelePairs2 });
     const crossStrains = strain1.crossWith(strain2);
 
-    printCrossResults(crossStrains);
-
-    // testStrainResults(crossStrains, IntermediateCross);
-
-    for (let i = 0; i < crossStrains.length; i++) {
-      console.log(i);
-      const expected = IntermediateCross[i];
-      const result = crossStrains[i];
-      expect(expected.strain.equals(result.strain)).toBe(true);
-      expect(result.prob).toBeCloseTo(expected.prob, PRECISION);
-    }
+    testStrainResults(crossStrains, IntermediateCross);
   });
 });
