@@ -45,13 +45,13 @@ const TableHeaderCell = <T,>(props: TableHeaderCellProps<T>): JSX.Element => {
               props.setSortType([props.column.key, 'asc'])
             }
           }}
-          className='cursor-pointer text-xl'
+          className='cursor-pointer text-xl transition-colors'
           sortdir={props.sortType?.[1] ?? 'asc'}
           visibility={(hovered || props.sortType?.[0] === props.column.key) ? "" : "hidden"}
         />
         <h2 className='text-2xl px-1'>{props.column.header}</h2>
-        <FaFilter className='cursor-pointer'
-          visibility={hovered ? '' : 'hidden'}
+        <FaFilter className={'cursor-pointer'}
+          visibility={hovered || props.colFilter.length > 0 ? '' : 'hidden'}
           onClick={() => {
             props.setFilterField(props.column.key);
           }} />

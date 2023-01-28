@@ -1,18 +1,10 @@
-import { useEffect, useState } from 'react';
 import { getFilteredGenes, insertDbGene } from 'api/gene';
-import { toast } from 'react-toastify';
 import { db_Gene } from 'models/db/db_Gene';
-import { Table, ColumnDefinitionType } from 'components/Table/Table';
-import { FaFilter } from 'react-icons/fa';
-import DataImportForm, {
-  FieldType,
-} from 'components/DataImportForm/DataImportForm';
+import { ColumnDefinitionType } from 'components/Table/Table';
 import { chromosomes } from 'models/frontend/Chromosome';
-import RightDrawer from 'components/RightDrawer/RightDrawer';
-import { DataFilterForm } from 'components/DataFilterForm/DataFilterForm';
 import { Field } from 'components/Table/ColumnFilter';
 import { GeneFieldName } from 'models/db/filter/db_GeneFieldName';
-import { Filter } from 'models/db/filter/Filter';
+import DataPage from 'components/DataPage/DataPage';
 
 export const cols: Array<ColumnDefinitionType<db_Gene>> = [
   { key: 'sysName', header: 'Systematic Name' },
@@ -60,94 +52,14 @@ const nameMapping: { [key in keyof db_Gene]: GeneFieldName } = {
   recombSuppressor: 'RecombSuppressor',
 };
 
-const DataPage = (): JSX.Element => {
-  const [data, setData] = useState<db_Gene[]>([]);
-  const [rightDrawerOpen, setRightDrawerOpen] = useState(true);
-
-  const onRecordInsertionFormSubmission = (
-    record: db_Gene,
-    successCallback: () => void
-  ): void => {
-    insertDbGene(record)
-      .then((resp) => {
-        successCallback();
-        refresh();
-      })
-      .catch((e: Error) => {
-        toast.error(
-          'An error has occured when inserting data: ' + JSON.stringify(e)
-        );
-      });
-  };
-
-
-
-  const runFilters = (filterObj: Filter<GeneFieldName>): void => {
-    getFilteredGenes(filterObj)
-      .then((ds) => setData(ds))
-      .catch((e) =>
-        toast.error('Unable to get genes: ' + JSON.stringify(e), {
-          toastId: 'genes',
-        })
-      );
-  }
-
-  const refresh = (): void => {
-    runFilters({ filters: [], orderBy: [] });
-  };
-
-  useEffect(() => {
-    refresh();
-  }, []);
-
-  return (
-    <div className='drawer drawer-end'>
-      <input
-        id='right-cross-drawer'
-        type='checkbox'
-        className='drawer-toggle'
-        readOnly
-        checked={rightDrawerOpen}
-      />
-      <div className='drawer-content flex h-screen flex-col'>
-        <div>
-          <div className='grid grid-cols-3 place-items-center items-center px-6'>
-            <h1 className='data-table-title col-start-2'>Genes</h1>
-            <div className='w-full flex flex-row justify-end'>
-              <FaFilter
-                className='text-secondary text-3xl my-2 mx-4'
-                onClick={() => setRightDrawerOpen(true)} />
-              <DataImportForm
-                className='justify-self-end'
-                dataName='Gene'
-                fields={fields as Array<FieldType<db_Gene>>}
-                onSubmitCallback={onRecordInsertionFormSubmission}
-              ></DataImportForm>
-            </div>
-          </div>
-          <div className='px-4'>
-            <Table runFilters={runFilters} nameMapping={nameMapping} data={data} columns={cols} fields={fields} />
-          </div>
-        </div>
-      </div>
-      <div className={'drawer-side drawer-end h-full '}>
-        <label
-          htmlFor='right-cross-drawer'
-          className='drawer-overlay'
-          onClick={() => setRightDrawerOpen(false)}
-        ></label>
-        <RightDrawer
-          title='Filter'
-          initialDrawerWidth={240}
-          isOpen={rightDrawerOpen}
-          maxWidth={400}
-          close={() => setRightDrawerOpen(false)}
-        >
-          <DataFilterForm fields={fields as Array<FieldType<db_Gene>>} onSubmitCallback={() => { }} />
-        </RightDrawer>
-      </div>
-    </div>
-  );
-};
-
-export default DataPage;
+export default function GeneDataPage(): JSX.Element {
+  return <DataPage
+    title="Genes"
+    dataName='gene'
+    cols={cols}
+    fields={fields}
+    nameMapping={nameMapping}
+    getFilteredData={getFilteredGenes}
+    insertDatum={insertDbGene}
+  />
+}

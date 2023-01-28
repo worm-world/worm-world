@@ -1,14 +1,12 @@
-import { useEffect, useState } from 'react';
 import {
   getFilteredAlleleExpressions,
   insertDbAlleleExpression,
 } from 'api/alleleExpressions';
-import { toast } from 'react-toastify';
 import { db_AlleleExpression } from 'models/db/db_AlleleExpression';
-import { Table, ColumnDefinitionType } from 'components/Table/Table';
-import DataImportForm, {
-  FieldType,
-} from 'components/DataImportForm/DataImportForm';
+import { ColumnDefinitionType } from 'components/Table/Table';
+import { AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
+import DataPage from 'components/DataPage/DataPage';
+import { Field } from 'components/Table/ColumnFilter';
 
 export const cols: Array<ColumnDefinitionType<db_AlleleExpression>> = [
   { key: 'alleleName', header: 'Allele Name' },
@@ -17,7 +15,7 @@ export const cols: Array<ColumnDefinitionType<db_AlleleExpression>> = [
   { key: 'dominance', header: 'Dominance' },
 ];
 
-const fields = [
+const fields: Array<Field<db_AlleleExpression>> = [
   {
     name: 'alleleName',
     title: 'Allele Name',
@@ -41,54 +39,21 @@ const fields = [
   },
 ];
 
-const DataPage = (): JSX.Element => {
-  const [data, setData] = useState<db_AlleleExpression[]>([]);
-  const onRecordInsertionFormSubmission = (
-    record: db_AlleleExpression,
-    successCallback: () => void
-  ): void => {
-    insertDbAlleleExpression(record)
-      .then((resp) => {
-        successCallback();
-        refresh();
-      })
-      .catch((e: Error) => {
-        toast.error(
-          'An error has occured when inserting data: ' + JSON.stringify(e)
-        );
-      });
-  };
-  const refresh = (): void => {
-    getFilteredAlleleExpressions({
-      filters: [],
-      orderBy: [],
-    })
-      .then((ds) => setData(ds))
-      .catch((e) =>
-        toast.error('Unable to get allele expressions: ' + JSON.stringify(e), {
-          toastId: 'allele-expressions',
-        })
-      );
-  };
-
-  useEffect(() => {
-    refresh();
-  }, []);
-
-  return (
-    <div>
-      <div className='grid grid-cols-3 place-items-center items-center px-6'>
-        <h1 className='data-table-title col-start-2'>Allele Expressions</h1>
-        <DataImportForm
-          className='justify-self-end'
-          dataName='Allele Expression'
-          fields={fields as Array<FieldType<db_AlleleExpression>>}
-          onSubmitCallback={onRecordInsertionFormSubmission}
-        ></DataImportForm>
-      </div>
-      <Table data={data} columns={cols} />
-    </div>
-  );
+const nameMapping: { [key in keyof db_AlleleExpression]: AlleleExpressionFieldName } = {
+  alleleName: 'AlleleName',
+  expressingPhenotypeName: 'ExpressingPhenotypeName',
+  expressingPhenotypeWild: 'ExpressingPhenotypeWild',
+  dominance: 'Dominance',
 };
 
-export default DataPage;
+export default function AlleleExpressionDataPage(): JSX.Element {
+  return <DataPage
+    title="Allele Expressions"
+    dataName='alleleExpression'
+    cols={cols}
+    fields={fields}
+    nameMapping={nameMapping}
+    getFilteredData={getFilteredAlleleExpressions}
+    insertDatum={insertDbAlleleExpression}
+  />
+}

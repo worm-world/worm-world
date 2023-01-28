@@ -1,14 +1,12 @@
-import { useEffect, useState } from 'react';
 import {
   getFilteredExpressionRelations,
   insertDbExpressionRelation,
 } from 'api/expressionRelation';
-import { toast } from 'react-toastify';
 import { db_ExpressionRelation } from 'models/db/db_ExpressionRelation';
-import { Table, ColumnDefinitionType } from 'components/Table/Table';
-import DataImportForm, {
-  FieldType,
-} from 'components/DataImportForm/DataImportForm';
+import { ColumnDefinitionType } from 'components/Table/Table';
+import { ExpressionRelationFieldName } from 'models/db/filter/db_ExpressionRelationFieldName';
+import { Field } from 'components/Table/ColumnFilter';
+import DataPage from 'components/DataPage/DataPage';
 
 export const cols: Array<ColumnDefinitionType<db_ExpressionRelation>> = [
   { key: 'alleleName', header: 'Allele Name' },
@@ -20,7 +18,7 @@ export const cols: Array<ColumnDefinitionType<db_ExpressionRelation>> = [
   { key: 'isSuppressing', header: 'Is Suppressing' },
 ];
 
-const fields = [
+const fields : Array<Field<db_ExpressionRelation>> = [
   {
     name: 'alleleName',
     title: 'Allele Name',
@@ -58,61 +56,25 @@ const fields = [
   },
 ];
 
-const DataPage = (): JSX.Element => {
-  const [data, setData] = useState<db_ExpressionRelation[]>([]);
-  const onRecordInsertionFormSubmission = (
-    record: db_ExpressionRelation,
-    successCallback: () => void
-  ): void => {
-    insertDbExpressionRelation(record)
-      .then((resp) => {
-        successCallback();
-        refresh();
-      })
-      .catch((e: Error) => {
-        toast.error(
-          'Unable to get expression relations: ' + JSON.stringify(e),
-          {
-            toastId: 'expression-relations',
-          }
-        );
-      });
-  };
-
-  const refresh = (): void => {
-    getFilteredExpressionRelations({
-      filters: [],
-      orderBy: [],
-    })
-      .then((ds) => setData(ds))
-      .catch((e) =>
-        toast.error(
-          'Unable to get expression relations: ' + JSON.stringify(e),
-          {
-            toastId: 'expression-relations',
-          }
-        )
-      );
-  };
-
-  useEffect(() => {
-    refresh();
-  }, []);
-
-  return (
-    <div>
-      <div className='grid grid-cols-3 place-items-center items-center px-6'>
-        <h1 className='data-table-title col-start-2'>Expression Relations</h1>
-        <DataImportForm
-          className='justify-self-end'
-          dataName='Expression Relation'
-          fields={fields as Array<FieldType<db_ExpressionRelation>>}
-          onSubmitCallback={onRecordInsertionFormSubmission}
-        ></DataImportForm>
-      </div>
-      <Table data={data} columns={cols} />
-    </div>
-  );
+const nameMapping: { [key in keyof db_ExpressionRelation]: ExpressionRelationFieldName } = {
+  alleleName: 'AlleleName',
+  expressingPhenotypeName: 'ExpressingPhenotypeName',
+  expressingPhenotypeWild: 'ExpressingPhenotypeWild',
+  alteringPhenotypeName: 'AlteringPhenotypeName',
+  alteringPhenotypeWild: 'AlteringPhenotypeWild',
+  alteringCondition: 'AlteringCondition',
+  isSuppressing: 'IsSuppressing',
 };
 
-export default DataPage;
+export default function ExpressionRelationDataPage(): JSX.Element {
+  return <DataPage
+    title="Conditions"
+    dataName='condition'
+    cols={cols}
+    fields={fields}
+    nameMapping={nameMapping}
+    getFilteredData={getFilteredExpressionRelations}
+    insertDatum={insertDbExpressionRelation}
+  />
+}
+

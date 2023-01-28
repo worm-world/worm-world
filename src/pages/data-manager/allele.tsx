@@ -6,6 +6,9 @@ import { Table, ColumnDefinitionType } from 'components/Table/Table';
 import DataImportForm, {
   FieldType,
 } from 'components/DataImportForm/DataImportForm';
+import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
+import DataPage from 'components/DataPage/DataPage';
+import { Field } from 'components/Table/ColumnFilter';
 
 export const cols: Array<ColumnDefinitionType<db_Allele>> = [
   { key: 'name', header: 'Name' },
@@ -13,7 +16,7 @@ export const cols: Array<ColumnDefinitionType<db_Allele>> = [
   { key: 'variationName', header: 'Variation Name' },
   { key: 'contents', header: 'Contents' },
 ];
-const fields = [
+const fields : Array<Field<db_Allele>> = [
   {
     name: 'name',
     title: 'Allele Name',
@@ -36,54 +39,22 @@ const fields = [
   },
 ];
 
-const DataPage = (): JSX.Element => {
-  const [data, setData] = useState<db_Allele[]>([]);
-  const onRecordInsertionFormSubmission = (
-    record: db_Allele,
-    successCallback: () => void
-  ): void => {
-    insertDbAllele(record)
-      .then((resp) => {
-        successCallback();
-        refresh();
-      })
-      .catch((e: Error) => {
-        toast.error(
-          'An error has occured when inserting data: ' + JSON.stringify(e)
-        );
-      });
-  };
-  const refresh = (): void => {
-    getFilteredAlleles({
-      filters: [],
-      orderBy: [],
-    })
-      .then((ds) => setData(ds))
-      .catch((e) =>
-        toast.error('Unable to get alleles: ' + JSON.stringify(e), {
-          toastId: 'alleles',
-        })
-      );
-  };
-
-  useEffect(() => {
-    refresh();
-  }, []);
-
-  return (
-    <div>
-      <div className='grid grid-cols-3 place-items-center items-center px-6'>
-        <h1 className='data-table-title col-start-2'>Alleles</h1>
-        <DataImportForm
-          className='justify-self-end'
-          dataName='Allele'
-          fields={fields as Array<FieldType<db_Allele>>}
-          onSubmitCallback={onRecordInsertionFormSubmission}
-        ></DataImportForm>
-      </div>
-      <Table data={data} columns={cols} />
-    </div>
-  );
+const nameMapping: { [key in keyof db_Allele]: AlleleFieldName } = {
+  name: 'Name',
+  sysGeneName: 'SysGeneName',
+  variationName: 'VariationName',
+  contents: 'Contents',
 };
 
-export default DataPage;
+export default function AlleleDataPage(): JSX.Element {
+  return <DataPage
+    title="Alleles"
+    dataName='alleles'
+    cols={cols}
+    fields={fields}
+    nameMapping={nameMapping}
+    getFilteredData={getFilteredAlleles}
+    insertDatum={insertDbAllele}
+  />
+}
+
