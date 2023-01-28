@@ -20,24 +20,28 @@ import {
   SelfNodeFlowWrapper,
   XNodeFlowWrapper,
 } from 'components/FlowWrapper/FlowWrapper';
+import { Options } from 'html-to-image/lib/types';
 
-enum SaveMethod {
-  PNG = 'png',
-  SVG = 'svg',
-}
+type SaveMethod = 'png' | 'svg';
+const saveMethodFuncs: Record<SaveMethod, (node: HTMLElement, options: Options) => Promise<string>> = {
+  png: toPng,
+  svg: toSvg,
+};
 
 const downloadImage = async (dataUrl: string, saveMethod: SaveMethod) => {
   const a = document.createElement('a');
-  const filename_pre = `cross-tree-${(new Date()).toISOString()}`;
-  const filename = filename_pre + (saveMethod === SaveMethod.PNG ? '.png' : '.svg');
+  const filename = `cross-tree-${(new Date()).toISOString()}.${saveMethod}`;
   // workaround  because of this: https://github.com/tauri-apps/tauri/issues/4633
   // @ts-ignore
   if (window.__TAURI_IPC__ !== undefined) {
     const dataBlob = await (await fetch(dataUrl)).blob();
-    if (saveMethod === SaveMethod.PNG) {
-      fs.writeBinaryFile(filename, await dataBlob.arrayBuffer(), { dir: fs.BaseDirectory.Download }).then(() => alert("Exported PNG to Downloads")).catch((e) => alert(e));
-    } else {
-      fs.writeTextFile(filename, await dataBlob.text(), { dir: fs.BaseDirectory.Download }).then(() => alert("Exported SVG to Downloads")).catch((e) => alert(e));
+    switch (saveMethod) {
+      case 'png':
+        fs.writeBinaryFile(filename, await dataBlob.arrayBuffer(), { dir: fs.BaseDirectory.Download }).then(() => alert("Exported PNG to Downloads")).catch((e) => alert(e));
+        break;
+      case 'svg':
+        fs.writeTextFile(filename, await dataBlob.text(), { dir: fs.BaseDirectory.Download }).then(() => alert("Exported SVG to Downloads")).catch((e) => alert(e));
+        break;
     }
   } else {
     a.setAttribute('download', filename);
@@ -47,7 +51,7 @@ const downloadImage = async (dataUrl: string, saveMethod: SaveMethod) => {
 }
 
 const saveImg = (saveMethod: SaveMethod) => {
-  const saveFunc = saveMethod === SaveMethod.PNG ? toPng : toSvg;
+  const saveFunc = saveMethodFuncs[saveMethod];
   saveFunc(document.querySelector('.react-flow')! as HTMLElement, {
     filter: (node: HTMLElement | undefined) => {
       // we don't want to add the minimap and the controls to the image
@@ -97,14 +101,14 @@ interface iCrossFlowProps {
 const CustomControls = (props: ControlProps) => {
   return (
     <Controls {...props}>
-      <ControlButton onClick={() => console.log('action')}>
+      <ControlButton>
         <div className='dropdown drowndown-hover m-0'>
           <label tabIndex={0} className="">
             <FiShare className='text-3xl text-base-content' />
           </label>
           <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-            <li><a target='_blank' onClick={() => saveImg(SaveMethod.PNG)}>Export to PNG</a></li>
-            <li><a target='_blank' onClick={() => saveImg(SaveMethod.SVG)}>Export to SVG</a></li>
+            <li><a target='_blank' onClick={() => saveImg('png')}>Export to PNG</a></li>
+            <li><a target='_blank' onClick={() => saveImg('svg')}>Export to SVG</a></li>
           </ul>
         </div>
       </ControlButton>
