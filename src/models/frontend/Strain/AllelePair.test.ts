@@ -229,7 +229,6 @@ describe('allele pair', () => {
     expect(hetOx750.hasSameGenLoc(wildOx750)).toBe(true);
     expect(wildOx750.hasSameGenLoc(hetOx750)).toBe(true);
   });
-
   test('.hasSameGenLoc() returns false on pairs with different locations', () => {
     // both alleles are variations with unknown genetic locations
     const homoEd3 = new AllelePair({ top: ed3 });
@@ -276,6 +275,23 @@ describe('allele pair', () => {
     expect(hetOxEx12345.hasSameGenLoc(hetOxEx219999)).toBe(false);
     expect(hetOxEx12345.hasSameGenLoc(wildOxEx219999)).toBe(false);
     expect(wildOxEx12345.hasSameGenLoc(wildOxEx219999)).toBe(false);
+  });
+
+  test('.isWild() returns true on wild pairs', () => {
+    const wildEd3 = new AllelePair({ top: new WildAllele(ed3) });
+    const wildStrain = new AllelePair({ top: WILD_ALLELE });
+    expect(wildEd3.isWild()).toBe(true);
+    expect(wildStrain.isWild()).toBe(true);
+  });
+  test('.isWild() returns false on wild het pairs', () => {
+    const hetEd3 = new AllelePair({ top: new WildAllele(ed3), bot: ed3 });
+    const hetOx750 = new AllelePair({ top: ox750, bot: WILD_ALLELE });
+    expect(hetEd3.isWild()).toBe(false);
+    expect(hetOx750.isWild()).toBe(false);
+  });
+  test('.isWild() returns false on wild homo pairs', () => {
+    const homoEd3 = new AllelePair({ top: ed3, bot: ed3 });
+    expect(homoEd3.isWild()).toBe(false);
   });
 
   test('.getFlippedPair() on homozygous pair', () => {

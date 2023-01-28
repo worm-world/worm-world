@@ -72,6 +72,13 @@ export class AllelePair {
   };
 
   /**
+   * Checks if this pair is only made up of wild alleles
+   */
+  public isWild = (): boolean => {
+    return this.getAllele().name === WILD_ALLELE.name;
+  };
+
+  /**
    * Given an allele pair, flips it so the top is now on the bottom and vice versa
    */
   public getFlippedPair = (): AllelePair => {

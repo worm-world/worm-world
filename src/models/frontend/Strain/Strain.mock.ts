@@ -1,5 +1,14 @@
 import { WildAllele, WILD_ALLELE } from 'models/frontend/Allele/Allele';
-import { e204, ed3, md299, ox802 } from 'models/frontend/Allele/Allele.mock';
+import {
+  cn64,
+  e204,
+  e53,
+  ed3,
+  md299,
+  ox11000,
+  ox802,
+  oxTi75,
+} from 'models/frontend/Allele/Allele.mock';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { Strain, StrainOption } from 'models/frontend/Strain/Strain';
 
@@ -196,7 +205,7 @@ export const DifChromSimpleSelfCross: StrainOption[] = [
   },
 ];
 
-export const SelfCross2: StrainOption[] = [
+export const ItermediateSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
@@ -305,5 +314,696 @@ export const SelfCross2: StrainOption[] = [
       ],
     }),
     prob: 0.0009579025,
+  },
+];
+
+export const PartialAdvancedSelfCross: StrainOption[] = [
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: oxTi75 }),
+        new AllelePair({ top: cn64, bot: cn64 }),
+        new AllelePair({ top: ed3, bot: ed3 }),
+        new AllelePair({ top: e204, bot: e204 }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.015172080625,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: oxTi75 }),
+        new AllelePair({ top: cn64, bot: cn64 }),
+        new AllelePair({ top: ed3, bot: ed3 }),
+        new AllelePair({ top: e204, bot: new WildAllele(e204) }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.03034416125,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: oxTi75 }),
+        new AllelePair({ top: cn64, bot: cn64 }),
+        new AllelePair({ top: ed3, bot: ed3 }),
+        new AllelePair({
+          top: new WildAllele(e204),
+          bot: new WildAllele(e204),
+        }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.015172080625,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: oxTi75 }),
+        new AllelePair({ top: cn64, bot: cn64 }),
+        new AllelePair({ top: ed3, bot: new WildAllele(ed3) }),
+        new AllelePair({ top: e204, bot: e204 }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.03034416125,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: oxTi75 }),
+        new AllelePair({ top: cn64, bot: cn64 }),
+        new AllelePair({ top: ed3, bot: new WildAllele(ed3) }),
+        new AllelePair({ top: e204, bot: new WildAllele(e204) }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.0606883225,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: oxTi75 }),
+        new AllelePair({ top: cn64, bot: cn64 }),
+        new AllelePair({ top: ed3, bot: new WildAllele(ed3) }),
+        new AllelePair({
+          top: new WildAllele(e204),
+          bot: new WildAllele(e204),
+        }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.03034416125,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: oxTi75 }),
+        new AllelePair({ top: cn64, bot: cn64 }),
+        new AllelePair({ top: new WildAllele(ed3), bot: new WildAllele(ed3) }),
+        new AllelePair({ top: e204, bot: e204 }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.015172080625,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: oxTi75 }),
+        new AllelePair({ top: cn64, bot: cn64 }),
+        new AllelePair({ top: new WildAllele(ed3), bot: new WildAllele(ed3) }),
+        new AllelePair({ top: e204, bot: new WildAllele(e204) }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.03034416125,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: oxTi75 }),
+        new AllelePair({ top: cn64, bot: cn64 }),
+        new AllelePair({ top: new WildAllele(ed3), bot: new WildAllele(ed3) }),
+        new AllelePair({
+          top: new WildAllele(e204),
+          bot: new WildAllele(e204),
+        }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.015172080625,
+  },
+
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: oxTi75 }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: ed3, bot: ed3 }),
+        new AllelePair({ top: e204, bot: e204 }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.000449375,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: oxTi75 }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: ed3, bot: ed3 }),
+        new AllelePair({ top: e204, bot: new WildAllele(e204) }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.00089875,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: oxTi75 }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: ed3, bot: ed3 }),
+        new AllelePair({
+          top: new WildAllele(e204),
+          bot: new WildAllele(e204),
+        }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.000449375,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: oxTi75 }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: ed3, bot: new WildAllele(ed3) }),
+        new AllelePair({ top: e204, bot: e204 }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.00089875,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: oxTi75 }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: ed3, bot: new WildAllele(ed3) }),
+        new AllelePair({ top: e204, bot: new WildAllele(e204) }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.001798355,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: oxTi75 }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: ed3, bot: new WildAllele(ed3) }),
+        new AllelePair({
+          top: new WildAllele(e204),
+          bot: new WildAllele(e204),
+        }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.00089875,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: oxTi75 }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: new WildAllele(ed3), bot: new WildAllele(ed3) }),
+        new AllelePair({ top: e204, bot: e204 }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.000449375,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: oxTi75 }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: new WildAllele(ed3), bot: new WildAllele(ed3) }),
+        new AllelePair({ top: e204, bot: new WildAllele(e204) }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.00089875,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: oxTi75 }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: new WildAllele(ed3), bot: new WildAllele(ed3) }),
+        new AllelePair({
+          top: new WildAllele(e204),
+          bot: new WildAllele(e204),
+        }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.000449375,
+  },
+
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: new WildAllele(oxTi75) }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: ed3, bot: ed3 }),
+        new AllelePair({ top: e204, bot: e204 }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.03034416125,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: new WildAllele(oxTi75) }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: ed3, bot: ed3 }),
+        new AllelePair({ top: e204, bot: new WildAllele(e204) }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.0606883225,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: new WildAllele(oxTi75) }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: ed3, bot: ed3 }),
+        new AllelePair({
+          top: new WildAllele(e204),
+          bot: new WildAllele(e204),
+        }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.03034416125,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: new WildAllele(oxTi75) }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: ed3, bot: new WildAllele(ed3) }),
+        new AllelePair({ top: e204, bot: e204 }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.0606883225,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: new WildAllele(oxTi75) }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: ed3, bot: new WildAllele(ed3) }),
+        new AllelePair({ top: e204, bot: new WildAllele(e204) }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.121376645,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: new WildAllele(oxTi75) }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: ed3, bot: new WildAllele(ed3) }),
+        new AllelePair({
+          top: new WildAllele(e204),
+          bot: new WildAllele(e204),
+        }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.0606883225,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: new WildAllele(oxTi75) }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: new WildAllele(ed3), bot: new WildAllele(ed3) }),
+        new AllelePair({ top: e204, bot: e204 }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.03034416125,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: new WildAllele(oxTi75) }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: new WildAllele(ed3), bot: new WildAllele(ed3) }),
+        new AllelePair({ top: e204, bot: new WildAllele(e204) }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.0606883225,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: new WildAllele(oxTi75) }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: new WildAllele(ed3), bot: new WildAllele(ed3) }),
+        new AllelePair({
+          top: new WildAllele(e204),
+          bot: new WildAllele(e204),
+        }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.03034416125,
+  },
+
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: new WildAllele(oxTi75) }),
+        new AllelePair({ top: cn64, bot: cn64 }),
+        new AllelePair({ top: ed3, bot: ed3 }),
+        new AllelePair({ top: e204, bot: e204 }),
+        new AllelePair({ top: e53, bot: e53 }),
+      ],
+    }),
+    prob: 0.00044958875,
+  },
+];
+
+export const IntermediateCross: StrainOption[] = [
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: new WildAllele(oxTi75) }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: ox11000, bot: new WildAllele(ox11000) }),
+        new AllelePair({ top: new WildAllele(e53), bot: e53 }),
+        new AllelePair({ top: new WildAllele(e204), bot: e204 }),
+        new AllelePair({ top: ox802, bot: new WildAllele(ox802) }),
+      ],
+    }),
+    prob: 0.123175,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: new WildAllele(oxTi75) }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: ox11000, bot: new WildAllele(ox11000) }),
+        new AllelePair({
+          top: new WildAllele(e204),
+          bot: new WildAllele(e204),
+        }),
+        new AllelePair({ top: new WildAllele(e53), bot: e53 }),
+        new AllelePair({ top: ox802, bot: new WildAllele(ox802) }),
+      ],
+    }),
+    prob: 0.123175,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: new WildAllele(oxTi75) }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: ox11000, bot: new WildAllele(ox11000) }),
+        new AllelePair({ top: new WildAllele(e53), bot: e53 }),
+        new AllelePair({ top: new WildAllele(e204), bot: e204 }),
+        new AllelePair({
+          top: new WildAllele(ox802),
+          bot: new WildAllele(ox802),
+        }),
+      ],
+    }),
+    prob: 0.123175,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({ top: oxTi75, bot: new WildAllele(oxTi75) }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: ox11000, bot: new WildAllele(ox11000) }),
+        new AllelePair({ top: new WildAllele(e53), bot: e53 }),
+        new AllelePair({
+          top: new WildAllele(e204),
+          bot: new WildAllele(e204),
+        }),
+        new AllelePair({
+          top: new WildAllele(ox802),
+          bot: new WildAllele(ox802),
+        }),
+      ],
+    }),
+    prob: 0.123175,
+  },
+
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({
+          top: oxTi75,
+          bot: new WildAllele(oxTi75),
+        }),
+        new AllelePair({
+          top: new WildAllele(cn64),
+          bot: new WildAllele(cn64),
+        }),
+        new AllelePair({ top: new WildAllele(ox11000), bot: ox11000 }),
+        new AllelePair({ top: new WildAllele(e53), bot: e53 }),
+        new AllelePair({ top: new WildAllele(e204), bot: e204 }),
+        new AllelePair({ top: ox802, bot: new WildAllele(ox802) }),
+      ],
+    }),
+    prob: 0.001825,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({
+          top: oxTi75,
+          bot: new WildAllele(oxTi75),
+        }),
+        new AllelePair({
+          top: new WildAllele(cn64),
+          bot: new WildAllele(cn64),
+        }),
+        new AllelePair({ top: new WildAllele(ox11000), bot: ox11000 }),
+        new AllelePair({ top: new WildAllele(e53), bot: e53 }),
+        new AllelePair({
+          top: new WildAllele(e204),
+          bot: new WildAllele(e204),
+        }),
+        new AllelePair({ top: ox802, bot: new WildAllele(ox802) }),
+      ],
+    }),
+    prob: 0.001825,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({
+          top: oxTi75,
+          bot: new WildAllele(oxTi75),
+        }),
+        new AllelePair({
+          top: new WildAllele(cn64),
+          bot: new WildAllele(cn64),
+        }),
+        new AllelePair({ top: new WildAllele(ox11000), bot: ox11000 }),
+        new AllelePair({ top: new WildAllele(e53), bot: e53 }),
+        new AllelePair({ top: new WildAllele(e204), bot: e204 }),
+        new AllelePair({
+          top: new WildAllele(ox802),
+          bot: new WildAllele(ox802),
+        }),
+      ],
+    }),
+    prob: 0.001825,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({
+          top: oxTi75,
+          bot: new WildAllele(oxTi75),
+        }),
+        new AllelePair({
+          top: new WildAllele(cn64),
+          bot: new WildAllele(cn64),
+        }),
+        new AllelePair({ top: new WildAllele(ox11000), bot: ox11000 }),
+        new AllelePair({ top: new WildAllele(e53), bot: e53 }),
+        new AllelePair({
+          top: new WildAllele(e204),
+          bot: new WildAllele(e204),
+        }),
+        new AllelePair({
+          top: new WildAllele(ox802),
+          bot: new WildAllele(ox802),
+        }),
+      ],
+    }),
+    prob: 0.001825,
+  },
+
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({
+          top: new WildAllele(oxTi75),
+          bot: new WildAllele(oxTi75),
+        }),
+        new AllelePair({
+          top: new WildAllele(cn64),
+          bot: new WildAllele(cn64),
+        }),
+        new AllelePair({ top: ox11000, bot: new WildAllele(ox11000) }),
+        new AllelePair({ top: new WildAllele(e53), bot: e53 }),
+        new AllelePair({ top: new WildAllele(e204), bot: e204 }),
+        new AllelePair({ top: ox802, bot: new WildAllele(ox802) }),
+      ],
+    }),
+    prob: 0.123175,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({
+          top: new WildAllele(oxTi75),
+          bot: new WildAllele(oxTi75),
+        }),
+        new AllelePair({
+          top: new WildAllele(cn64),
+          bot: new WildAllele(cn64),
+        }),
+        new AllelePair({ top: ox11000, bot: new WildAllele(ox11000) }),
+        new AllelePair({ top: new WildAllele(e53), bot: e53 }),
+        new AllelePair({
+          top: new WildAllele(e204),
+          bot: new WildAllele(e204),
+        }),
+        new AllelePair({ top: ox802, bot: new WildAllele(ox802) }),
+      ],
+    }),
+    prob: 0.123175,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({
+          top: new WildAllele(oxTi75),
+          bot: new WildAllele(oxTi75),
+        }),
+        new AllelePair({
+          top: new WildAllele(cn64),
+          bot: new WildAllele(cn64),
+        }),
+        new AllelePair({ top: ox11000, bot: new WildAllele(ox11000) }),
+        new AllelePair({ top: new WildAllele(e53), bot: e53 }),
+        new AllelePair({ top: new WildAllele(e204), bot: e204 }),
+        new AllelePair({
+          top: new WildAllele(ox802),
+          bot: new WildAllele(ox802),
+        }),
+      ],
+    }),
+    prob: 0.123175,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({
+          top: new WildAllele(oxTi75),
+          bot: new WildAllele(oxTi75),
+        }),
+        new AllelePair({
+          top: new WildAllele(cn64),
+          bot: new WildAllele(cn64),
+        }),
+        new AllelePair({ top: ox11000, bot: new WildAllele(ox11000) }),
+        new AllelePair({ top: new WildAllele(e53), bot: e53 }),
+        new AllelePair({
+          top: new WildAllele(e204),
+          bot: new WildAllele(e204),
+        }),
+        new AllelePair({
+          top: new WildAllele(ox802),
+          bot: new WildAllele(ox802),
+        }),
+      ],
+    }),
+    prob: 0.123175,
+  },
+
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({
+          top: new WildAllele(oxTi75),
+          bot: new WildAllele(oxTi75),
+        }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: new WildAllele(ox11000), bot: ox11000 }),
+        new AllelePair({ top: new WildAllele(e53), bot: e53 }),
+        new AllelePair({ top: new WildAllele(e204), bot: e204 }),
+        new AllelePair({ top: ox802, bot: new WildAllele(ox802) }),
+      ],
+    }),
+    prob: 0.001825,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({
+          top: new WildAllele(oxTi75),
+          bot: new WildAllele(oxTi75),
+        }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: new WildAllele(ox11000), bot: ox11000 }),
+        new AllelePair({ top: new WildAllele(e53), bot: e53 }),
+        new AllelePair({
+          top: new WildAllele(e204),
+          bot: new WildAllele(e204),
+        }),
+        new AllelePair({ top: ox802, bot: new WildAllele(ox802) }),
+      ],
+    }),
+    prob: 0.001825,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({
+          top: new WildAllele(oxTi75),
+          bot: new WildAllele(oxTi75),
+        }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: new WildAllele(ox11000), bot: ox11000 }),
+        new AllelePair({ top: new WildAllele(e53), bot: e53 }),
+        new AllelePair({ top: new WildAllele(e204), bot: e204 }),
+        new AllelePair({
+          top: new WildAllele(ox802),
+          bot: new WildAllele(ox802),
+        }),
+      ],
+    }),
+    prob: 0.001825,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        new AllelePair({
+          top: new WildAllele(oxTi75),
+          bot: new WildAllele(oxTi75),
+        }),
+        new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+        new AllelePair({ top: new WildAllele(ox11000), bot: ox11000 }),
+        new AllelePair({ top: new WildAllele(e53), bot: e53 }),
+        new AllelePair({
+          top: new WildAllele(e204),
+          bot: new WildAllele(e204),
+        }),
+        new AllelePair({
+          top: new WildAllele(ox802),
+          bot: new WildAllele(ox802),
+        }),
+      ],
+    }),
+    prob: 0.001825,
   },
 ];

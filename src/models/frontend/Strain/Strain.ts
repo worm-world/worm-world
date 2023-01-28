@@ -204,7 +204,8 @@ export class Strain {
         const alreadyHasAllele: boolean =
           chromosomePairs.findIndex(
             (pair) =>
-              pair.hasSameBaseAllele(otherPair) || pair.hasSameGenLoc(otherPair)
+              pair.hasSameBaseAllele(otherPair) ||
+              (pair.isWild() && pair.hasSameGenLoc(otherPair))
           ) >= 0;
 
         // Add wild pair to pairList to match other strain
