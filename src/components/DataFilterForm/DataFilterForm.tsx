@@ -13,10 +13,9 @@ export interface Field<T> {
   selectOptions?: string[];
 }
 
-export interface iFilterCaseProps<T> {
+export interface iColumnFilterProps<T> {
   className?: string;
   fields: Array<Field<T>>;
-  removeFilterCase: () => void;
   setFilter: (filter: string) => void;
 }
 
@@ -62,8 +61,7 @@ const SelectFormControl = <T,>(filterName: FilterTypeName, filterField: Field<T>
   return <div></div>;
 };
 
-const FilterCase = <T,>(props: iFilterCaseProps<T>): JSX.Element => {
-
+const ColumnFilter = <T,>(props: iColumnFilterProps<T>): JSX.Element => {
 
   const [filterField, setFilterField] = useState<Field<T>>(props.fields[0]);
   const [filterTypeNames, setFilterTypeNames] = useState<FilterTypeName[]>(['Equal']);
@@ -144,7 +142,7 @@ export const DataFilterForm = <T,>(props: iDataFilterFormProps<T>): JSX.Element 
     <div>
       {filters.map((filter, index) => (
         <div key={index}>
-          <FilterCase fields={props.fields} removeFilterCase={() => removeFilter(index)} setFilter={
+          <ColumnFilter fields={props.fields} removeFilterCase={() => removeFilter(index)} setFilter={
             (filter) => {setFilter(index, filter)}
           } />
         </div>

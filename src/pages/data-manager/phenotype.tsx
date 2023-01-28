@@ -6,6 +6,7 @@ import { getFilteredPhenotypes, insertDbPhenotype } from 'api/phenotype';
 import DataImportForm, {
   FieldType,
 } from 'components/DataImportForm/DataImportForm';
+import {Field} from 'components/Table/ColumnFilter';
 
 export const cols: Array<ColumnDefinitionType<db_Phenotype>> = [
   { key: 'name', header: 'Name' },
@@ -19,7 +20,7 @@ export const cols: Array<ColumnDefinitionType<db_Phenotype>> = [
   { key: 'shortName', header: 'Short Name' },
 ];
 
-const fields = [
+const fields : Array<Field<db_Phenotype>> = [
   {
     name: 'name',
     title: 'Phenotype Name',
@@ -113,7 +114,7 @@ const DataPage = (): JSX.Element => {
           onSubmitCallback={onRecordInsertionFormSubmission}
         ></DataImportForm>
       </div>
-      <Table data={data} columns={cols} />
+      <Table data={data} columns={cols} fields={fields}/>
     </div>
   );
 };

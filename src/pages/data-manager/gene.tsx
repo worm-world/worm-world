@@ -10,6 +10,9 @@ import DataImportForm, {
 import { chromosomes } from 'models/frontend/Chromosome';
 import RightDrawer from 'components/RightDrawer/RightDrawer';
 import { DataFilterForm } from 'components/DataFilterForm/DataFilterForm';
+import { Field } from 'components/Table/ColumnFilter';
+import { GeneFieldName } from 'models/db/filter/db_GeneFieldName';
+import { Filter } from 'models/db/filter/Filter';
 
 export const cols: Array<ColumnDefinitionType<db_Gene>> = [
   { key: 'sysName', header: 'Systematic Name' },
@@ -19,7 +22,7 @@ export const cols: Array<ColumnDefinitionType<db_Gene>> = [
   { key: 'geneticLoc', header: 'Genetic Location' },
 ];
 
-const fields = [
+const fields: Array<Field<db_Gene>> = [
   {
     name: 'sysName',
     title: 'Systematic Name',
@@ -48,6 +51,15 @@ const fields = [
   },
 ];
 
+const nameMapping: { [key in keyof db_Gene]: GeneFieldName } = {
+  sysName: 'SysName',
+  descName: 'DescName',
+  chromosome: 'Chromosome',
+  physLoc: 'PhysLoc',
+  geneticLoc: 'GeneticLoc',
+  recombSuppressor: 'RecombSuppressor',
+};
+
 const DataPage = (): JSX.Element => {
   const [data, setData] = useState<db_Gene[]>([]);
   const [rightDrawerOpen, setRightDrawerOpen] = useState(true);
@@ -68,17 +80,20 @@ const DataPage = (): JSX.Element => {
       });
   };
 
-  const refresh = (): void => {
-    getFilteredGenes({
-      filters: [],
-      orderBy: [],
-    })
+
+
+  const runFilters = (filterObj: Filter<GeneFieldName>): void => {
+    getFilteredGenes(filterObj)
       .then((ds) => setData(ds))
       .catch((e) =>
         toast.error('Unable to get genes: ' + JSON.stringify(e), {
           toastId: 'genes',
         })
       );
+  }
+
+  const refresh = (): void => {
+    runFilters({ filters: [], orderBy: [] });
   };
 
   useEffect(() => {
@@ -111,7 +126,7 @@ const DataPage = (): JSX.Element => {
             </div>
           </div>
           <div className='px-4'>
-            <Table data={data} columns={cols} />
+            <Table runFilters={runFilters} nameMapping={nameMapping} data={data} columns={cols} fields={fields} />
           </div>
         </div>
       </div>
@@ -128,7 +143,7 @@ const DataPage = (): JSX.Element => {
           maxWidth={400}
           close={() => setRightDrawerOpen(false)}
         >
-          <DataFilterForm fields={fields as Array<FieldType<db_Gene>>} onSubmitCallback={() => {}}/>
+          <DataFilterForm fields={fields as Array<FieldType<db_Gene>>} onSubmitCallback={() => { }} />
         </RightDrawer>
       </div>
     </div>
