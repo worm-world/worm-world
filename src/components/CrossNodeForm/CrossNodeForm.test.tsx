@@ -18,33 +18,22 @@ describe('Cross node form', () => {
     render(
       <CrossNodeForm
         addNewCrossNode={addNewCrossNode}
-        getFilteredGenes={mock.getFilteredGenes}
-        getFilteredVariations={mock.getFilteredVariations}
         getFilteredAlleles={mock.getFilteredAlleles}
-        alleleCreateFromRecord={mock.alleleCreateFromRecord}
+        createAlleleFromRecord={mock.alleleCreateFromRecord}
       />
     );
 
-    // Choose gene
-    await user.click(screen.getByPlaceholderText('Select Genes'));
-    await user.keyboard('A');
-    let option = screen.getByText(/^AA$/i);
-    expect(option).toBeVisible();
-    await user.click(option);
-
     // Choose allele
-    await user.click(screen.getByPlaceholderText('Select Male Alleles'));
+    await user.click(screen.getByLabelText('Homozygous Alleles'));
     await user.keyboard('B');
-    option = screen.getByText(/^BB$/i);
+    const option = screen.getByText(/^BB$/i);
     expect(option).toBeVisible();
     await user.click(option);
 
     // Press submit
-    await user.click(screen.getByText(/create new cross node/i));
+    await user.click(screen.getByRole('button', { name: /create/i }));
 
     expect(crossNodeModel).toBeDefined();
-    expect(crossNodeModel?.genes.at(0)?.sysName).toBe('AA');
-    expect(crossNodeModel?.strain.alleles.at(0)?.name).toBe('BB');
   });
 
   test('Keep alleles consistent with chosen genes', async () => {
@@ -66,24 +55,16 @@ describe('Cross node form', () => {
     render(
       <CrossNodeForm
         addNewCrossNode={() => {}}
-        getFilteredGenes={mock.getFilteredGenes}
-        getFilteredVariations={mock.filteredVariationDoesNotMatter}
         getFilteredAlleles={getFilteredAlleles}
-        alleleCreateFromRecord={mock.alleleCreateDoesNotMatter}
+        createAlleleFromRecord={mock.alleleCreateDoesNotMatter}
       />
     );
 
-    // Choose gene AA
-    await user.click(screen.getByPlaceholderText('Select Genes'));
-    await user.keyboard('A');
-    let option = screen.getByText(/^AA$/i);
-    await user.click(option);
-
     // Choose allele
-    await user.click(screen.getByPlaceholderText('Select Male Alleles'));
+    await user.click(screen.getByLabelText('Homozygous Alleles'));
     await user.keyboard('B');
     // Consistent
-    option = screen.getByText(/^BB$/i);
+    const option = screen.getByText(/^BB$/i);
     expect(option).toBeVisible();
     // Inconsistent
     const inconsistentOption = screen.queryByPlaceholderText(/^BBB$/i);
@@ -96,21 +77,13 @@ describe('Cross node form', () => {
     render(
       <CrossNodeForm
         addNewCrossNode={() => {}}
-        getFilteredGenes={mock.getFilteredGenes}
-        getFilteredVariations={mock.filteredVariationDoesNotMatter}
         getFilteredAlleles={mock.getFilteredAlleles}
-        alleleCreateFromRecord={mock.alleleCreateDoesNotMatter}
+        createAlleleFromRecord={mock.alleleCreateDoesNotMatter}
       />
     );
 
-    // Choose gene AA
-    await user.click(screen.getByPlaceholderText('Select Genes'));
-    await user.keyboard('A');
-    const option = screen.getByText(/^AA$/i);
-    await user.click(option);
-
     // Choose allele
-    await user.click(screen.getByPlaceholderText('Select Male Alleles'));
+    await user.click(screen.getByLabelText('Homozygous Alleles'));
     await user.keyboard('B');
     await user.click(screen.getByText(/^BB$/i));
     await user.keyboard('B');
@@ -124,17 +97,14 @@ describe('Cross node form', () => {
     render(
       <CrossNodeForm
         addNewCrossNode={() => {}}
-        getFilteredGenes={mock.getFilteredGenes}
-        getFilteredVariations={mock.filteredVariationDoesNotMatter}
         getFilteredAlleles={mock.getFilteredAlleles}
-        alleleCreateFromRecord={mock.alleleCreateDoesNotMatter}
+        createAlleleFromRecord={mock.alleleCreateDoesNotMatter}
       />
     );
-
-    await user.click(screen.getByPlaceholderText('Select Genes'));
-    await user.keyboard('A');
-    expect(screen.getByText(/^AA$/i)).toBeVisible();
+    await user.click(screen.getByLabelText('Homozygous Alleles'));
+    await user.keyboard('B');
+    expect(screen.getByText(/^BB$/i)).toBeVisible();
     await user.keyboard('{backspace}');
-    expect(screen.queryByText(/^AA$/i)).toBeNull();
+    expect(screen.queryByText(/^BB$/i)).toBeNull();
   });
 });

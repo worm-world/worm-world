@@ -3,9 +3,11 @@ import { getGene } from 'api/gene';
 import { getVariation } from 'api/variationInfo';
 import { db_Allele } from 'models/db/db_Allele';
 import { AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
+import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 import { Filter } from 'models/db/filter/Filter';
 import { AlleleExpression } from 'models/frontend/AlleleExpression';
 import { Gene } from 'models/frontend/Gene/Gene';
+import GeneticLocation from 'models/frontend/GeneticLocation';
 import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
 
 interface IAllele {
@@ -120,7 +122,7 @@ export class Allele {
     });
   }
 
-  generateRecord = (): db_Allele => {
+  public generateRecord = (): db_Allele => {
     return {
       name: this.name,
       sysGeneName: this.gene?.sysName ?? null,
@@ -128,4 +130,28 @@ export class Allele {
       contents: this.contents ?? null,
     };
   };
+
+  public getChromosome = (): Chromosome | undefined =>
+    this.gene?.chromosome ?? this.variation?.chromosome;
+
+  public getGenPosition = (): number | undefined =>
+    this.gene?.geneticLoc?.getLoc() ?? this.variation?.geneticLoc?.getLoc();
 }
+
+export class WildAllele extends Allele {
+  constructor(refAllele?: Allele) {
+    let variation: VariationInfo | undefined;
+    if (refAllele !== undefined) {
+      variation = new VariationInfo({
+        name: '+',
+        chromosome: refAllele.getChromosome(),
+        geneticLoc: new GeneticLocation(refAllele.getGenPosition() ?? null),
+      });
+    }
+    super({ name: '+', variation });
+  }
+}
+
+export const WILD_ALLELE = new Allele({
+  name: '+',
+});

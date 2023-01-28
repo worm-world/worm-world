@@ -1,207 +1,326 @@
-import Strain from 'models/frontend/Strain';
+import { Strain } from 'models/frontend/Strain/Strain';
 import { Sex } from 'models/enums';
 import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
-import * as mockGenes from 'models/frontend/Gene/Gene.mock';
-import * as mockVariations from 'models/frontend/VariationInfo/VariationInfo.mock';
 import * as mockAlleles from 'models/frontend/Allele/Allele.mock';
-import { Allele } from '../Allele/Allele';
-import { Gene } from '../Gene/Gene';
-
-// Empty Cross Node ///////////////////////////////////////////////////////////
+import { Allele, WILD_ALLELE, WildAllele } from '../Allele/Allele';
+import { AllelePair } from '../Strain/AllelePair';
 
 export const empty: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
-  strain: { name: 'empty', notes: '', alleles: [] },
-  genes: [],
-  variations: [],
+  strain: new Strain({ name: 'empty', allelePairs: [] }),
   isSelected: false,
-  parents: [],
 };
 
 export const emptyMale: CrossNodeModel = {
   sex: Sex.Male,
-  strain: { name: 'empty', notes: '', alleles: [] },
-  genes: [],
-  variations: [],
+  strain: new Strain({ name: 'empty', notes: '', allelePairs: [] }),
   isSelected: false,
-  parents: [],
 };
-
-// Wild Cross Node ///////////////////////////////////////////////////////////
 
 export const wild: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
-  strain: { name: 'wild', notes: '', alleles: [] },
-  genes: [
-    mockGenes.chrom1Gene1,
-    mockGenes.chrom2Gene1,
-    mockGenes.chrom2Gene2,
-    mockGenes.chrom3Gene1,
-  ],
-  variations: [mockVariations.chromEcaVariation1],
+  strain: new Strain({
+    name: 'wild',
+    notes: '',
+    allelePairs: [
+      new AllelePair({ top: new WildAllele(mockAlleles.oxTi302) }), // chrom i
+      new AllelePair({ top: new WildAllele(mockAlleles.ed3) }), // chrom iii
+      new AllelePair({ top: new WildAllele(mockAlleles.e1282) }), // chrom iv
+      new AllelePair({ top: new WildAllele(mockAlleles.e53) }), // chrom iv
+      new AllelePair({
+        top: new WildAllele(mockAlleles.chromEcaVariation1Allele1),
+        isECA: true,
+      }), // eca
+    ],
+  }),
   isSelected: false,
-  parents: [],
 };
 
-// Mutated Cross Node  //////////////////////////////////////////////////////////
-
-const mutatedStrain: Strain = {
+const mutatedStrain: Strain = new Strain({
   name: 'mutated',
-  alleles: [
-    mockAlleles.chrom1Gene1Allele1,
-    mockAlleles.chrom2Gene1Allele1,
-    mockAlleles.chrom2Gene1Allele2,
-    mockAlleles.chrom2Gene2Allele1,
-    mockAlleles.chromXGene1Allele1,
-    mockAlleles.chromEcaVariation1Allele1,
-    mockAlleles.chromUnknownVariation1Allele1,
+  allelePairs: [
+    new AllelePair({
+      top: mockAlleles.chrom1Gene1Allele1,
+      bot: mockAlleles.chrom1Gene1Allele1,
+    }),
+    new AllelePair({
+      top: mockAlleles.chrom2Gene1Allele1,
+      bot: mockAlleles.chrom2Gene1Allele1,
+    }),
+    new AllelePair({
+      top: mockAlleles.chrom2Gene1Allele2,
+      bot: mockAlleles.chrom2Gene1Allele2,
+    }),
+    new AllelePair({
+      top: mockAlleles.chrom2Gene2Allele1,
+      bot: mockAlleles.chrom2Gene2Allele1,
+    }),
+    new AllelePair({
+      top: mockAlleles.chromXGene1Allele1,
+      bot: mockAlleles.chromXGene1Allele1,
+    }),
+    new AllelePair({
+      top: mockAlleles.chromEcaVariation1Allele1,
+      bot: mockAlleles.chromEcaVariation1Allele1,
+    }),
+    new AllelePair({
+      top: mockAlleles.chromUnknownVariation1Allele1,
+      bot: mockAlleles.chromUnknownVariation1Allele1,
+    }),
   ],
   notes: '',
-};
+});
 
 export const mutated: CrossNodeModel = {
   sex: Sex.Male,
   strain: mutatedStrain,
-  genes: [
-    mockGenes.chrom1Gene1,
-    mockGenes.chrom2Gene1,
-    mockGenes.chrom2Gene2,
-    mockGenes.chrom3Gene1,
-    mockGenes.chromXGene1,
-  ],
-  variations: [
-    mockVariations.chromEcaVariation1,
-    mockVariations.chromUnknownVariation1,
-    mockVariations.chrom1Variation1,
-  ],
   isSelected: false,
-  parents: [],
-};
-
-// Small mutated cross node //////////////////////////////////
-export const geneCopy1: Gene = {
-  sysName: 'sysGeneName1',
-  chromosome: 'I',
-  generateRecord: () => {
-    return {
-      sysName: 'ignore this fn',
-      descName: null,
-      chromosome: null,
-      physLoc: null,
-      geneticLoc: null,
-    };
-  },
-};
-
-export const geneCopy2: Gene = {
-  sysName: 'sysGeneName1',
-  chromosome: 'I',
-  generateRecord: () => {
-    return {
-      sysName: 'ignore this fn',
-      descName: null,
-      chromosome: null,
-      physLoc: null,
-      geneticLoc: null,
-    };
-  },
 };
 
 export const smallMutated: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
-  parents: [],
+
   isSelected: false,
-  genes: [geneCopy1],
-  variations: [],
-  strain: {
+  strain: new Strain({
     name: 'strain1',
-    alleles: [
-      {
-        name: 'allele1',
-        gene: geneCopy2,
-        alleleExpressions: [],
-        generateRecord: () => {
-          return {
-            name: 'ignore this fn',
-            contents: null,
-            sysGeneName: null,
-            variationName: null,
-          };
-        },
-      },
-    ],
-    notes: '',
-  },
-};
-
-// Bad Mutation Lists  //////////////////////////////////////////////////////////
-
-export const badMutationLists: CrossNodeModel = {
-  sex: Sex.Hermaphrodite,
-  strain: {
-    name: 'referencingGene',
-    alleles: [
-      mockAlleles.chrom1Gene1Allele1,
-      mockAlleles.chromEcaVariation1Allele1,
-    ],
-    notes: '',
-  },
-  // No mutations--genes or variations--below
-  genes: [],
-  variations: [],
-  isSelected: false,
-  parents: [],
-};
-
-// Cross Node Bad Allele //////////////////////////////////////////////////////////////////////////////////
-
-export const badAllele: CrossNodeModel = {
-  sex: Sex.Hermaphrodite,
-  strain: {
-    name: 'badStrain',
-    alleles: [
-      new Allele({
-        name: 'badAllele',
-        // The gene or variation (exactly one required) is missing--violated constraint
-        // This also means chromosome hasn't been implicitly determined by field in mutation
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.chrom1Gene2Allele1,
+        bot: mockAlleles.chrom1Gene2Allele1,
       }),
     ],
     notes: '',
-  },
-  genes: [mockGenes.chrom1Gene1],
-  variations: [],
-  isSelected: false,
-  parents: [],
+  }),
 };
 
-// Cross Node Monoid (No Fraction) //////////////////////////////////////////////////////////////////////////////////
+export const badMutationLists: CrossNodeModel = {
+  sex: Sex.Hermaphrodite,
+  strain: new Strain({
+    name: 'referencingGene',
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.chrom1Gene1Allele1,
+        bot: mockAlleles.chrom1Gene1Allele1,
+      }),
+
+      new AllelePair({
+        top: mockAlleles.chromEcaVariation1Allele1,
+        bot: mockAlleles.chromEcaVariation1Allele1,
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
+};
+
+export const badAllele: CrossNodeModel = {
+  sex: Sex.Hermaphrodite,
+  strain: new Strain({
+    name: 'badStrain',
+    allelePairs: [
+      // The gene or variation (exactly one required) is missing--violated constraint
+      // This also means chromosome hasn't been implicitly determined by field in mutation
+      new AllelePair({
+        top: new Allele({
+          name: 'badAllele',
+        }),
+        bot: new Allele({
+          name: 'badAllele',
+        }),
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
+};
 
 export const monoid: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
-  strain: {
+  strain: new Strain({
     name: 'monoid',
-    alleles: [
-      mockAlleles.chromEcaVariation1Allele1, // one copy
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.chromEcaVariation1Allele1,
+        isECA: true,
+      }), // one copy
     ],
     notes: '',
-  },
-  genes: [],
-  variations: [mockVariations.chromEcaVariation1],
+  }),
   isSelected: false,
-  parents: [],
 };
-
-// Cross Node Diploid (Fraction) //////////////////////////////////////////////////////////////////////////////////
 
 export const diploid: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
-  strain: {
+  strain: new Strain({
     name: 'diploid',
-    alleles: [mockAlleles.chrom1Gene1Allele1],
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.chrom1Gene1Allele1,
+        bot: mockAlleles.chrom1Gene1Allele1,
+      }),
+    ],
     notes: '',
-  },
-  genes: [mockGenes.chrom1Gene1],
-  variations: [],
+  }),
   isSelected: false,
-  parents: [],
+};
+
+export const ed3HetMale: CrossNodeModel = {
+  sex: Sex.Male,
+  strain: new Strain({
+    name: 'ed3Het',
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.ed3,
+        bot: WILD_ALLELE,
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
+};
+
+export const ed3HetHerm: CrossNodeModel = {
+  sex: Sex.Hermaphrodite,
+  strain: new Strain({
+    name: 'ed3Het',
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.ed3,
+        bot: WILD_ALLELE,
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
+};
+
+export const ed3HomoHerm: CrossNodeModel = {
+  sex: Sex.Hermaphrodite,
+  strain: new Strain({
+    name: 'ed3Hetero',
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.ed3,
+        bot: mockAlleles.ed3,
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
+};
+
+export const e204WildMale: CrossNodeModel = {
+  sex: Sex.Male,
+  strain: new Strain({
+    name: 'e204Wild',
+    allelePairs: [
+      new AllelePair({
+        top: new WildAllele(mockAlleles.e204),
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
+};
+
+export const e204HomoHerm: CrossNodeModel = {
+  sex: Sex.Hermaphrodite,
+  strain: new Strain({
+    name: 'e204Homo',
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.e204,
+        bot: mockAlleles.e204,
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
+};
+
+export const e204HetMale: CrossNodeModel = {
+  sex: Sex.Male,
+  strain: new Strain({
+    name: 'e204Het',
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.e204,
+        bot: WILD_ALLELE,
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
+};
+
+export const ox802HomoHerm: CrossNodeModel = {
+  sex: Sex.Hermaphrodite,
+  strain: new Strain({
+    name: 'ox802Homo',
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.ox802,
+        bot: mockAlleles.ox802,
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
+};
+
+export const e204HetOx802Het: CrossNodeModel = {
+  sex: Sex.Hermaphrodite,
+  strain: new Strain({
+    name: 'e204HetOx802Het',
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.e204,
+        bot: WILD_ALLELE,
+      }),
+      new AllelePair({
+        top: WILD_ALLELE,
+        bot: mockAlleles.ox802,
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
+};
+
+export const e204HomoOx802HetHerm: CrossNodeModel = {
+  sex: Sex.Hermaphrodite,
+  strain: new Strain({
+    name: 'e204HomoOx802Het',
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.e204,
+        bot: mockAlleles.e204,
+      }),
+      new AllelePair({
+        top: WILD_ALLELE,
+        bot: mockAlleles.ox802,
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
+};
+
+export const e204HomoOx802HomoHerm: CrossNodeModel = {
+  sex: Sex.Hermaphrodite,
+  strain: new Strain({
+    name: 'e204HomoOx802Homo',
+    allelePairs: [
+      new AllelePair({
+        top: mockAlleles.e204,
+        bot: mockAlleles.e204,
+      }),
+      new AllelePair({
+        top: mockAlleles.ox802,
+        bot: mockAlleles.ox802,
+      }),
+    ],
+    notes: '',
+  }),
+  isSelected: false,
 };

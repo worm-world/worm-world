@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -6,18 +6,20 @@ import ReactFlow, {
   ControlButton,
   Background,
   Node,
-  useEdgesState,
-  addEdge,
-  Connection,
   Edge,
-  updateEdge,
-  OnNodesChange,
+  EdgeChange,
+  NodeChange,
+  Connection,
 } from 'reactflow';
 import { toPng, toSvg } from 'html-to-image';
 import { FiShare } from 'react-icons/fi';
 import 'reactflow/dist/style.css';
-import FlowWrapper from 'components/FlowWrapper/FlowWrapper';
 import { fs } from '@tauri-apps/api';
+import {
+  CrossNodeFlowWrapper,
+  SelfNodeFlowWrapper,
+  XNodeFlowWrapper,
+} from 'components/FlowWrapper/FlowWrapper';
 
 enum SaveMethod {
   PNG = 'png',
@@ -86,7 +88,10 @@ const initialEdges: Edge[] = [
 interface iCrossFlowProps {
   className?: string;
   nodes: Node[];
-  onNodesChange: OnNodesChange;
+  edges: Edge[];
+  onNodesChange: (changes: NodeChange[]) => void;
+  onEdgesChange: (changes: EdgeChange[]) => void;
+  onConnect: (connection: Connection) => void;
 }
 
 const CustomControls = (props: ControlProps) => {
@@ -108,15 +113,12 @@ const CustomControls = (props: ControlProps) => {
 }
 
 const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
-  const nodeTypes = useMemo(() => ({ flowWrapper: FlowWrapper }), []);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const onEdgeUpdate = useCallback(
-    (oldEdge: Edge<any>, newConnection: Connection) =>
-      setEdges((els) => updateEdge(oldEdge, newConnection, els)),
-    []
-  );
-  const onConnect = useCallback(
-    (params: Edge<any> | Connection) => setEdges((eds) => addEdge(params, eds)),
+  const nodeTypes = useMemo(
+    () => ({
+      crossNodeFlowWrapper: CrossNodeFlowWrapper,
+      xNodeFlowWrapper: XNodeFlowWrapper,
+      selfNodeFlowWrapper: SelfNodeFlowWrapper,
+    }),
     []
   );
 
@@ -124,15 +126,14 @@ const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
     <ReactFlow
       className={props.className}
       zoomOnScroll={true}
-      fitView
-      nodes={props.nodes}
-      edges={edges}
       nodeTypes={nodeTypes}
-      onNodesChange={props.onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onEdgeUpdate={onEdgeUpdate}
-      onConnect={onConnect}
+      fitView
       defaultViewport={{ x: 0, y: 0, zoom: 5 }}
+      nodes={props.nodes}
+      edges={props.edges}
+      onNodesChange={props.onNodesChange}
+      onEdgesChange={props.onEdgesChange}
+      onConnect={props.onConnect}
     >
       <CustomControls position='top-left' className='bg-base-100 text-base-content' />
       <MiniMap
