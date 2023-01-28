@@ -23,24 +23,37 @@ import {
 import { Options } from 'html-to-image/lib/types';
 
 type SaveMethod = 'png' | 'svg';
-const saveMethodFuncs: Record<SaveMethod, (node: HTMLElement, options: Options) => Promise<string>> = {
+const saveMethodFuncs: Record<
+  SaveMethod,
+  (node: HTMLElement, options: Options) => Promise<string>
+> = {
   png: toPng,
   svg: toSvg,
 };
 
-const downloadImage = async (dataUrl: string, saveMethod: SaveMethod) => {
+const downloadImage = async (
+  dataUrl: string,
+  saveMethod: SaveMethod
+): Promise<void> => {
   const a = document.createElement('a');
-  const filename = `cross-tree-${(new Date()).toISOString()}.${saveMethod}`;
+  const filename = `cross-tree-${new Date().toISOString()}.${saveMethod}`;
   // workaround  because of this: https://github.com/tauri-apps/tauri/issues/4633
-  // @ts-ignore
   if (window.__TAURI_IPC__ !== undefined) {
     const dataBlob = await (await fetch(dataUrl)).blob();
     switch (saveMethod) {
       case 'png':
-        fs.writeBinaryFile(filename, await dataBlob.arrayBuffer(), { dir: fs.BaseDirectory.Download }).then(() => alert("Exported PNG to Downloads")).catch((e) => alert(e));
+        fs.writeBinaryFile(filename, await dataBlob.arrayBuffer(), {
+          dir: fs.BaseDirectory.Download,
+        })
+          .then(() => alert('Exported PNG to Downloads'))
+          .catch((e) => alert(e));
         break;
       case 'svg':
-        fs.writeTextFile(filename, await dataBlob.text(), { dir: fs.BaseDirectory.Download }).then(() => alert("Exported SVG to Downloads")).catch((e) => alert(e));
+        fs.writeTextFile(filename, await dataBlob.text(), {
+          dir: fs.BaseDirectory.Download,
+        })
+          .then(() => alert('Exported SVG to Downloads'))
+          .catch((e) => alert(e));
         break;
     }
   } else {
@@ -48,46 +61,35 @@ const downloadImage = async (dataUrl: string, saveMethod: SaveMethod) => {
     a.setAttribute('href', dataUrl);
     a.click();
   }
-}
+};
 
-const saveImg = (saveMethod: SaveMethod) => {
+const saveImg = (saveMethod: SaveMethod): void => {
   const saveFunc = saveMethodFuncs[saveMethod];
-  saveFunc(document.querySelector('.react-flow')! as HTMLElement, {
-    filter: (node: HTMLElement | undefined) => {
+  const reactFlowElem = document.querySelector('.react-flow');
+  if (reactFlowElem === null) {
+    alert('Could not find react-flow element');
+    return;
+  }
+  saveFunc(reactFlowElem as HTMLElement, {
+    filter: (node: Element | undefined) => {
       // we don't want to add the minimap and the controls to the image
-      if (
-        node?.classList?.contains('react-flow__minimap') ||
-        node?.classList?.contains('react-flow__controls') ||
-        node?.classList?.contains('react-flow__background') ||
-        node?.classList?.contains('react-flow__attribution')
+      if (node === undefined || node.classList === undefined) {
+        return false;
+      }
+      else if (
+        node.classList.contains('react-flow__minimap') ||
+        node.classList.contains('react-flow__controls') ||
+        node.classList.contains('react-flow__background') ||
+        node.classList.contains('react-flow__attribution')
       ) {
         return false;
       }
       return true;
     },
-  }).then((dataUrl) => downloadImage(dataUrl, saveMethod));
+  })
+    .then(async (dataUrl) => await downloadImage(dataUrl, saveMethod))
+    .catch((e) => alert(e));
 };
-
-const initialEdges: Edge[] = [
-  {
-    id: 'edge1',
-    source: 'node1',
-    target: 'xNode1',
-    style: { strokeWidth: 2, stroke: 'hsla(var(--bc)/0.2)' },
-  },
-  {
-    id: 'edge2',
-    source: 'node2',
-    target: 'xNode1',
-    style: { strokeWidth: 2, stroke: 'hsla(var(--bc)/0.2)' },
-  },
-  {
-    id: 'edge3',
-    source: 'xNode1',
-    target: 'node3',
-    style: { strokeWidth: 2, stroke: 'hsla(var(--bc)/0.2)' },
-  },
-];
 
 interface iCrossFlowProps {
   className?: string;
@@ -98,23 +100,34 @@ interface iCrossFlowProps {
   onConnect: (connection: Connection) => void;
 }
 
-const CustomControls = (props: ControlProps) => {
+const CustomControls = (props: ControlProps): JSX.Element => {
   return (
     <Controls {...props}>
       <ControlButton>
-        <div className='dropdown drowndown-hover m-0'>
-          <label tabIndex={0} className="">
+        <div className='drowndown-hover dropdown m-0'>
+          <label tabIndex={0} className=''>
             <FiShare className='text-3xl text-base-content' />
           </label>
-          <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-            <li><a target='_blank' onClick={() => saveImg('png')}>Export to PNG</a></li>
-            <li><a target='_blank' onClick={() => saveImg('svg')}>Export to SVG</a></li>
+          <ul
+            tabIndex={0}
+            className='dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow'
+          >
+            <li>
+              <a target='_blank' onClick={() => saveImg('png')}>
+                Export to PNG
+              </a>
+            </li>
+            <li>
+              <a target='_blank' onClick={() => saveImg('svg')}>
+                Export to SVG
+              </a>
+            </li>
           </ul>
         </div>
       </ControlButton>
     </Controls>
   );
-}
+};
 
 const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
   const nodeTypes = useMemo(
@@ -139,7 +152,10 @@ const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
       onEdgesChange={props.onEdgesChange}
       onConnect={props.onConnect}
     >
-      <CustomControls position='top-left' className='bg-base-100 text-base-content' />
+      <CustomControls
+        position='top-left'
+        className='bg-base-100 text-base-content'
+      />
       <MiniMap
         position='bottom-left'
         className='bg-base-300'
