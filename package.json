@@ -79,7 +79,7 @@
     "vite": "^4.0.0",
     "vite-plugin-pages": "^0.27.1",
     "vite-tsconfig-paths": "^3.6.0",
-    "vitest": "^0.24.3"
+    "vitest": "^0.28.1"
   },
   "optionalDependencies": {
     "@tauri-apps/cli-win32-x64-msvc": "^1.2.0",

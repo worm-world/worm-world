@@ -19,7 +19,7 @@ const SortIcon = (props: any): JSX.Element => {
   }
 };
 
-interface TableHeaderCellProps<T,K> {
+interface TableHeaderCellProps<T, K> {
   column: ColumnDefinitionType<T>;
   index: number;
   sortType: SortType<T> | undefined;
@@ -29,7 +29,9 @@ interface TableHeaderCellProps<T,K> {
   runMyFilters: () => void;
 }
 
-const TableHeaderCell = <T,K,>(props: TableHeaderCellProps<T,K>): JSX.Element => {
+const TableHeaderCell = <T, K>(
+  props: TableHeaderCellProps<T, K>
+): JSX.Element => {
   const [hovered, setHovered] = useState<boolean>(false);
   return (
     <th
@@ -70,7 +72,7 @@ const TableHeaderCell = <T,K,>(props: TableHeaderCellProps<T,K>): JSX.Element =>
   );
 };
 
-interface TableHeaderProps<T,K> {
+interface TableHeaderProps<T, K> {
   columns: Array<ColumnDefinitionType<T>>;
   filterMap: Map<keyof T, FilterType[]>;
   sortType?: SortType<T>;
@@ -79,7 +81,7 @@ interface TableHeaderProps<T,K> {
   runMyFilters: () => void;
 }
 
-const TableHeader = <T,K,>(props: TableHeaderProps<T,K>): JSX.Element => {
+const TableHeader = <T, K>(props: TableHeaderProps<T, K>): JSX.Element => {
   const headers = props.columns.map((column, index) => {
     return (
       <TableHeaderCell

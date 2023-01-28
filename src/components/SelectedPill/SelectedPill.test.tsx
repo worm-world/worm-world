@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
-import SelectedPill from 'components/DynamicMultiSelect/SelectedPill';
+import SelectedPill from 'components/SelectedPill/SelectedPill';
 import { vi } from 'vitest';
 
 describe('SelectPill', () => {

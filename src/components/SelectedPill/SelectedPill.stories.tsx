@@ -2,7 +2,7 @@ import { StoryFn, Meta } from '@storybook/react';
 import SelectedPill, {
   SelectedPillProps,
   getSelectedPills,
-} from 'components/DynamicMultiSelect/SelectedPill';
+} from 'components/SelectedPill/SelectedPill';
 import { useState } from 'react';
 
 type StringWrapper = { field: string };

@@ -1,56 +1,37 @@
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import ReactFlow, {
   MiniMap,
   Controls,
   Background,
   Node,
-  useEdgesState,
-  addEdge,
-  Connection,
   Edge,
-  updateEdge,
-  OnNodesChange,
+  EdgeChange,
+  NodeChange,
+  Connection,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import FlowWrapper from 'components/FlowWrapper/FlowWrapper';
-
-const initialEdges: Edge[] = [
-  {
-    id: 'edge1',
-    source: 'node1',
-    target: 'xNode1',
-    style: { strokeWidth: 2, stroke: 'hsla(var(--bc)/0.2)' },
-  },
-  {
-    id: 'edge2',
-    source: 'node2',
-    target: 'xNode1',
-    style: { strokeWidth: 2, stroke: 'hsla(var(--bc)/0.2)' },
-  },
-  {
-    id: 'edge3',
-    source: 'xNode1',
-    target: 'node3',
-    style: { strokeWidth: 2, stroke: 'hsla(var(--bc)/0.2)' },
-  },
-];
+import {
+  CrossNodeFlowWrapper,
+  SelfNodeFlowWrapper,
+  XNodeFlowWrapper,
+} from 'components/FlowWrapper/FlowWrapper';
 
 interface iCrossFlowProps {
   className?: string;
   nodes: Node[];
-  onNodesChange: OnNodesChange;
+  edges: Edge[];
+  onNodesChange: (changes: NodeChange[]) => void;
+  onEdgesChange: (changes: EdgeChange[]) => void;
+  onConnect: (connection: Connection) => void;
 }
 
 const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
-  const nodeTypes = useMemo(() => ({ flowWrapper: FlowWrapper }), []);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const onEdgeUpdate = useCallback(
-    (oldEdge: Edge<any>, newConnection: Connection) =>
-      setEdges((els) => updateEdge(oldEdge, newConnection, els)),
-    []
-  );
-  const onConnect = useCallback(
-    (params: Edge<any> | Connection) => setEdges((eds) => addEdge(params, eds)),
+  const nodeTypes = useMemo(
+    () => ({
+      crossNodeFlowWrapper: CrossNodeFlowWrapper,
+      xNodeFlowWrapper: XNodeFlowWrapper,
+      selfNodeFlowWrapper: SelfNodeFlowWrapper,
+    }),
     []
   );
 
@@ -58,15 +39,14 @@ const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
     <ReactFlow
       className={props.className}
       zoomOnScroll={true}
-      fitView
-      nodes={props.nodes}
-      edges={edges}
       nodeTypes={nodeTypes}
-      onNodesChange={props.onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onEdgeUpdate={onEdgeUpdate}
-      onConnect={onConnect}
+      fitView
       defaultViewport={{ x: 0, y: 0, zoom: 5 }}
+      nodes={props.nodes}
+      edges={props.edges}
+      onNodesChange={props.onNodesChange}
+      onEdgesChange={props.onEdgesChange}
+      onConnect={props.onConnect}
     >
       <Controls position='top-left' className='bg-base-100 text-base-content' />
       <MiniMap

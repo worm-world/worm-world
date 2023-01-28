@@ -1,36 +1,27 @@
 import { StoryFn, Meta } from '@storybook/react';
 import { ReactFlowProvider } from 'reactflow';
 import * as crossNodeMock from 'models/frontend/CrossNode/CrossNode.mock';
-import FlowWrapper, {
-  FlowWrapperProps,
+import {
+  CrossNodeFlowWrapper,
+  CrossNodeFlowWrapperProps,
 } from 'components/FlowWrapper/FlowWrapper';
-import CrossNode from 'components/CrossNode/CrossNode';
-import { XNode } from 'components/XNode/XNode';
 
 export default {
-  title: 'Components/FlowWrapper',
-  component: FlowWrapper,
-} as Meta<typeof FlowWrapper>;
+  title: 'Components/CrossNodeFlowWrapper',
+  component: CrossNodeFlowWrapper,
+} as Meta<typeof CrossNodeFlowWrapper>;
 
-const Template: StoryFn<typeof FlowWrapper> = (args: FlowWrapperProps) => {
+const Template: StoryFn<typeof CrossNodeFlowWrapper> = (
+  args: CrossNodeFlowWrapperProps
+) => {
   return (
     <ReactFlowProvider>
-      <FlowWrapper {...args}></FlowWrapper>
+      <CrossNodeFlowWrapper {...args}></CrossNodeFlowWrapper>
     </ReactFlowProvider>
   );
 };
 
 export const wrapperOfCrossNode = Template.bind({});
 wrapperOfCrossNode.args = {
-  data: <CrossNode model={crossNodeMock.mutated}></CrossNode>,
-};
-
-export const wrapperOfXNode = Template.bind({});
-wrapperOfXNode.args = {
-  data: <XNode />,
-};
-
-export const wrapperOfDiv = Template.bind({});
-wrapperOfDiv.args = {
-  data: <div>This is a div.</div>,
+  data: crossNodeMock.mutated,
 };
