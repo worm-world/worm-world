@@ -19,16 +19,17 @@ const SortIcon = (props: any): JSX.Element => {
   }
 };
 
-interface TableHeaderCellProps<T> {
+interface TableHeaderCellProps<T,K> {
   column: ColumnDefinitionType<T>;
   index: number;
   sortType: SortType<T> | undefined;
   colFilter: FilterType[];
   setSortType: (key: SortType<T>) => void;
   setFilterField: (key: keyof T) => void;
+  runMyFilters: () => void;
 }
 
-const TableHeaderCell = <T,>(props: TableHeaderCellProps<T>): JSX.Element => {
+const TableHeaderCell = <T,K,>(props: TableHeaderCellProps<T,K>): JSX.Element => {
   const [hovered, setHovered] = useState<boolean>(false);
   return (
     <th
@@ -48,6 +49,7 @@ const TableHeaderCell = <T,>(props: TableHeaderCellProps<T>): JSX.Element => {
             } else {
               props.setSortType([props.column.key, 'Asc']);
             }
+            props.runMyFilters();
           }}
           className='cursor-pointer text-xl transition-colors'
           sortdir={props.sortType?.[1] ?? 'Asc'}
@@ -68,18 +70,20 @@ const TableHeaderCell = <T,>(props: TableHeaderCellProps<T>): JSX.Element => {
   );
 };
 
-interface TableHeaderProps<T> {
+interface TableHeaderProps<T,K> {
   columns: Array<ColumnDefinitionType<T>>;
   filterMap: Map<keyof T, FilterType[]>;
   sortType?: SortType<T>;
   setSortType: (key: SortType<T>) => void;
   setFilterField: (key: keyof T) => void;
+  runMyFilters: () => void;
 }
 
-const TableHeader = <T,>(props: TableHeaderProps<T>): JSX.Element => {
+const TableHeader = <T,K,>(props: TableHeaderProps<T,K>): JSX.Element => {
   const headers = props.columns.map((column, index) => {
     return (
       <TableHeaderCell
+        runMyFilters={props.runMyFilters}
         key={index}
         setFilterField={props.setFilterField}
         sortType={props.sortType}
@@ -181,10 +185,15 @@ export const Table = <T, K>(props: TableProps<T, K>): JSX.Element => {
     return filterObj;
   };
 
+  const runMyFilters = (): void => {
+    props.runFilters(createFilters());
+  };
+
   return (
     <>
       <table className='w-full'>
         <TableHeader
+          runMyFilters={runMyFilters}
           columns={props.columns}
           filterMap={filterMap}
           sortType={sortType}
@@ -205,7 +214,7 @@ export const Table = <T, K>(props: TableProps<T, K>): JSX.Element => {
           className='absolute h-full w-full'
           onClick={() => {
             setFocusedFilterField(undefined);
-            props.runFilters(createFilters());
+            runMyFilters();
           }}
         />
         <div className='modal-box bg-base-200'>
