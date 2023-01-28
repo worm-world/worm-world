@@ -53,13 +53,15 @@ const nameMapping: { [key in keyof db_Gene]: GeneFieldName } = {
 };
 
 export default function GeneDataPage(): JSX.Element {
-  return <DataPage
-    title="Genes"
-    dataName='gene'
-    cols={cols}
-    fields={fields}
-    nameMapping={nameMapping}
-    getFilteredData={getFilteredGenes}
-    insertDatum={insertDbGene}
-  />
+  return (
+    <DataPage
+      title='Genes'
+      dataName='gene'
+      cols={cols}
+      fields={fields}
+      nameMapping={nameMapping}
+      getFilteredData={getFilteredGenes}
+      insertDatum={insertDbGene}
+    />
+  );
 }

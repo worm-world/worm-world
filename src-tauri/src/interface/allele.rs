@@ -74,7 +74,7 @@ mod test {
     use crate::dummy::testdata;
     use crate::models::allele::AlleleFieldName;
     use crate::models::chromosome::Chromosome;
-    use crate::models::filter::{Filter, FilterType};
+    use crate::models::filter::{Filter, FilterType, Order};
     use crate::models::{allele::Allele, gene::Gene, variation_info::VariationInfo};
     use crate::InnerDbState;
     use anyhow::Result;
@@ -211,7 +211,7 @@ mod test {
                         FilterType::Equal("T14B4.7".to_owned()),
                     ),
                 ]],
-                order_by: vec![AlleleFieldName::Name],
+                order_by: vec![(AlleleFieldName::Name, Order::Asc)],
             })
             .await?;
 
@@ -242,7 +242,7 @@ mod test {
         let exprs = state
             .get_filtered_alleles(&Filter::<AlleleFieldName> {
                 filters: vec![vec![(AlleleFieldName::Contents, FilterType::NotNull)]],
-                order_by: vec![AlleleFieldName::Name],
+                order_by: vec![(AlleleFieldName::Name, Order::Asc)],
             })
             .await?;
 
@@ -256,7 +256,7 @@ mod test {
         let exprs = state
             .get_filtered_alleles(&Filter::<AlleleFieldName> {
                 filters: vec![vec![(AlleleFieldName::Contents, FilterType::Null)]],
-                order_by: vec![AlleleFieldName::Name],
+                order_by: vec![(AlleleFieldName::Name, Order::Asc)],
             })
             .await?;
 
@@ -273,7 +273,7 @@ mod test {
                     AlleleFieldName::Name,
                     FilterType::Like("oxEx".to_string()),
                 )]],
-                order_by: vec![AlleleFieldName::Name],
+                order_by: vec![(AlleleFieldName::Name, Order::Asc)],
             })
             .await?;
 

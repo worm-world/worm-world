@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Table, ColumnDefinitionType } from 'components/Table/Table';
-import { FaFilter } from 'react-icons/fa';
 import DataImportForm from 'components/DataImportForm/DataImportForm';
 import { Field } from 'components/Table/ColumnFilter';
 import { Filter } from 'models/db/filter/Filter';
@@ -22,7 +21,8 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
     record: T,
     successCallback: () => void
   ): void => {
-    props.insertDatum(record)
+    props
+      .insertDatum(record)
       .then((resp) => {
         successCallback();
         refresh();
@@ -35,14 +35,15 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
   };
 
   const runFilters = (filterObj: Filter<K>): void => {
-    props.getFilteredData(filterObj)
+    props
+      .getFilteredData(filterObj)
       .then((ds) => setData(ds))
       .catch((e) =>
         toast.error('Unable to get data: ' + JSON.stringify(e), {
           toastId: props.dataName,
         })
       );
-  }
+  };
 
   const refresh = (): void => {
     runFilters({ filters: [], orderBy: [] });
@@ -57,7 +58,7 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
       <div>
         <div className='grid grid-cols-3 place-items-center items-center px-6'>
           <h1 className='data-table-title col-start-2'>{props.title}</h1>
-          <div className='w-full flex flex-row justify-end'>
+          <div className='flex w-full flex-row justify-end'>
             <DataImportForm
               className='justify-self-end'
               dataName={props.dataName}
@@ -67,7 +68,13 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
           </div>
         </div>
         <div className='px-4'>
-          <Table runFilters={runFilters} nameMapping={props.nameMapping} data={data} columns={props.cols} fields={props.fields} />
+          <Table
+            runFilters={runFilters}
+            nameMapping={props.nameMapping}
+            data={data}
+            columns={props.cols}
+            fields={props.fields}
+          />
         </div>
       </div>
     </div>

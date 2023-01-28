@@ -1,4 +1,3 @@
-
 import { db_Phenotype } from 'models/db/db_Phenotype';
 import { ColumnDefinitionType } from 'components/Table/Table';
 import { getFilteredPhenotypes, insertDbPhenotype } from 'api/phenotype';
@@ -18,7 +17,7 @@ export const cols: Array<ColumnDefinitionType<db_Phenotype>> = [
   { key: 'shortName', header: 'Short Name' },
 ];
 
-const fields : Array<Field<db_Phenotype>> = [
+const fields: Array<Field<db_Phenotype>> = [
   {
     name: 'name',
     title: 'Phenotype Name',
@@ -79,13 +78,15 @@ const nameMapping: { [key in keyof db_Phenotype]: PhenotypeFieldName } = {
 };
 
 export default function PhenotypeDataPage(): JSX.Element {
-  return <DataPage
-    title="Phenotypes"
-    dataName='phenotype'
-    cols={cols}
-    fields={fields}
-    nameMapping={nameMapping}
-    getFilteredData={getFilteredPhenotypes}
-    insertDatum={insertDbPhenotype}
-  />
+  return (
+    <DataPage
+      title='Phenotypes'
+      dataName='phenotype'
+      cols={cols}
+      fields={fields}
+      nameMapping={nameMapping}
+      getFilteredData={getFilteredPhenotypes}
+      insertDatum={insertDbPhenotype}
+    />
+  );
 }

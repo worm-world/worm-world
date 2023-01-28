@@ -18,7 +18,7 @@ export const cols: Array<ColumnDefinitionType<db_ExpressionRelation>> = [
   { key: 'isSuppressing', header: 'Is Suppressing' },
 ];
 
-const fields : Array<Field<db_ExpressionRelation>> = [
+const fields: Array<Field<db_ExpressionRelation>> = [
   {
     name: 'alleleName',
     title: 'Allele Name',
@@ -56,7 +56,9 @@ const fields : Array<Field<db_ExpressionRelation>> = [
   },
 ];
 
-const nameMapping: { [key in keyof db_ExpressionRelation]: ExpressionRelationFieldName } = {
+const nameMapping: {
+  [key in keyof db_ExpressionRelation]: ExpressionRelationFieldName;
+} = {
   alleleName: 'AlleleName',
   expressingPhenotypeName: 'ExpressingPhenotypeName',
   expressingPhenotypeWild: 'ExpressingPhenotypeWild',
@@ -67,14 +69,15 @@ const nameMapping: { [key in keyof db_ExpressionRelation]: ExpressionRelationFie
 };
 
 export default function ExpressionRelationDataPage(): JSX.Element {
-  return <DataPage
-    title="Conditions"
-    dataName='condition'
-    cols={cols}
-    fields={fields}
-    nameMapping={nameMapping}
-    getFilteredData={getFilteredExpressionRelations}
-    insertDatum={insertDbExpressionRelation}
-  />
+  return (
+    <DataPage
+      title='Conditions'
+      dataName='condition'
+      cols={cols}
+      fields={fields}
+      nameMapping={nameMapping}
+      getFilteredData={getFilteredExpressionRelations}
+      insertDatum={insertDbExpressionRelation}
+    />
+  );
 }
-

@@ -110,7 +110,7 @@ mod test {
 
     use crate::dummy::testdata;
     use crate::models::expr_relation::ExpressionRelationFieldName;
-    use crate::models::filter::{Filter, FilterType};
+    use crate::models::filter::{Filter, FilterType, Order};
     use crate::models::{
         allele::Allele, allele_expr::AlleleExpression, expr_relation::ExpressionRelation,
         phenotype::Phenotype, variation_info::VariationInfo,
@@ -146,7 +146,7 @@ mod test {
                         FilterType::Equal("paralyzed".to_owned()),
                     )],
                 ],
-                order_by: vec![ExpressionRelationFieldName::AlleleName],
+                order_by: vec![(ExpressionRelationFieldName::AlleleName, Order::Asc)],
             })
             .await?;
 
@@ -185,7 +185,7 @@ mod test {
                         FilterType::Equal("oxEx219999".to_string()),
                     )],
                 ],
-                order_by: vec![ExpressionRelationFieldName::AlleleName],
+                order_by: vec![(ExpressionRelationFieldName::AlleleName, Order::Asc)],
             })
             .await?;
 
@@ -204,7 +204,7 @@ mod test {
                     ExpressionRelationFieldName::AlleleName,
                     FilterType::Like("6".to_owned()),
                 )]],
-                order_by: vec![ExpressionRelationFieldName::AlleleName],
+                order_by: vec![(ExpressionRelationFieldName::AlleleName, Order::Asc)],
             })
             .await?;
 
@@ -228,7 +228,7 @@ mod test {
                         FilterType::Like("yfp".to_owned()),
                     )],
                 ],
-                order_by: vec![ExpressionRelationFieldName::AlleleName],
+                order_by: vec![(ExpressionRelationFieldName::AlleleName, Order::Asc)],
             })
             .await?;
 

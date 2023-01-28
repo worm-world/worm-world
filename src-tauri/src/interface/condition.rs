@@ -140,7 +140,7 @@ mod test {
     use crate::dummy::testdata;
     use crate::models::condition::{Condition, ConditionFieldName};
     use crate::models::expr_relation::ExpressionRelationFieldName;
-    use crate::models::filter::{Filter, FilterType};
+    use crate::models::filter::{Filter, FilterType, Order};
     use crate::InnerDbState;
     use anyhow::Result;
     use pretty_assertions::assert_eq;
@@ -168,7 +168,7 @@ mod test {
                     ConditionFieldName::MaturationDays,
                     FilterType::LessThan("4".to_owned(), false),
                 )]],
-                order_by: vec![ConditionFieldName::Name],
+                order_by: vec![(ConditionFieldName::Name, Order::Asc)],
             })
             .await?;
 
@@ -185,7 +185,7 @@ mod test {
                     ConditionFieldName::MaturationDays,
                     FilterType::NotEqual("3".to_owned()),
                 )]],
-                order_by: vec![ConditionFieldName::Name],
+                order_by: vec![(ConditionFieldName::Name, Order::Asc)],
             })
             .await?;
 
@@ -205,7 +205,7 @@ mod test {
                     ConditionFieldName::Name,
                     FilterType::Like("ami".to_owned()),
                 )]],
-                order_by: vec![ConditionFieldName::Name],
+                order_by: vec![(ConditionFieldName::Name, Order::Asc)],
             })
             .await?;
 
@@ -241,7 +241,7 @@ mod test {
         };
         let condition_filter = Filter::<ConditionFieldName> {
             filters: vec![],
-            order_by: vec![ConditionFieldName::Name],
+            order_by: vec![(ConditionFieldName::Name, Order::Asc)],
         };
 
         let conditions = state

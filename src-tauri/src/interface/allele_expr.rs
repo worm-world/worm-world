@@ -75,7 +75,7 @@ mod test {
     use crate::dummy::testdata;
     use crate::models::allele_expr::AlleleExpressionFieldName;
     use crate::models::chromosome::Chromosome;
-    use crate::models::filter::{Filter, FilterType};
+    use crate::models::filter::{Filter, FilterType, Order};
     use crate::models::{
         allele::Allele, allele_expr::AlleleExpression, gene::Gene, phenotype::Phenotype,
     };
@@ -104,7 +104,7 @@ mod test {
                     AlleleExpressionFieldName::AlleleName,
                     FilterType::Equal("cn64".to_owned()),
                 )]],
-                order_by: vec![AlleleExpressionFieldName::AlleleName],
+                order_by: vec![(AlleleExpressionFieldName::AlleleName, Order::Asc)],
             })
             .await?;
 
@@ -127,7 +127,7 @@ mod test {
                         FilterType::Equal("unc-119".to_string()),
                     )],
                 ],
-                order_by: vec![AlleleExpressionFieldName::AlleleName],
+                order_by: vec![(AlleleExpressionFieldName::AlleleName, Order::Asc)],
             })
             .await?;
 
@@ -142,9 +142,9 @@ mod test {
             .get_filtered_allele_exprs(&Filter::<AlleleExpressionFieldName> {
                 filters: vec![],
                 order_by: vec![
-                    AlleleExpressionFieldName::Dominance,
-                    AlleleExpressionFieldName::ExpressingPhenotypeName,
-                    AlleleExpressionFieldName::AlleleName,
+                    (AlleleExpressionFieldName::Dominance, Order::Asc),
+                    (AlleleExpressionFieldName::ExpressingPhenotypeName, Order::Asc),
+                    (AlleleExpressionFieldName::AlleleName, Order::Asc),
                 ],
             })
             .await?;
@@ -163,8 +163,8 @@ mod test {
                     FilterType::Like("2".to_string()),
                 )]],
                 order_by: vec![
-                    AlleleExpressionFieldName::AlleleName,
-                    AlleleExpressionFieldName::ExpressingPhenotypeName,
+                    (AlleleExpressionFieldName::AlleleName, Order::Asc),
+                    (AlleleExpressionFieldName::ExpressingPhenotypeName, Order::Asc),
                 ],
             })
             .await?;
@@ -183,8 +183,8 @@ mod test {
                     FilterType::Like("unc-".to_string()),
                 )]],
                 order_by: vec![
-                    AlleleExpressionFieldName::ExpressingPhenotypeName,
-                    AlleleExpressionFieldName::AlleleName,
+                    (AlleleExpressionFieldName::ExpressingPhenotypeName, Order::Asc),
+                    (AlleleExpressionFieldName::AlleleName, Order::Asc),
                 ],
             })
             .await?;

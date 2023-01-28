@@ -59,8 +59,8 @@ const RightDrawer = (props: RightDrawerProps): JSX.Element => {
         onMouseDown={() => setIsDragging(true)}
       />
       <div className='flex w-full flex-col justify-start'>
-        <div className='flex flex-row justify-between mb-1'>
-          <h2 className='text-3xl font-bold mt-2 ml-8'>{props.title ?? ""}</h2>
+        <div className='mb-1 flex flex-row justify-between'>
+          <h2 className='mt-2 ml-8 text-3xl font-bold'>{props.title ?? ''}</h2>
           <button className='mt-2 mr-2' onClick={() => props.close()}>
             <CloseIcon className='text-3xl' />
           </button>

@@ -148,7 +148,7 @@ mod test {
 
     use crate::dummy::testdata;
     use crate::models::expr_relation::ExpressionRelationFieldName;
-    use crate::models::filter::{Filter, FilterType};
+    use crate::models::filter::{Filter, FilterType, Order};
     use crate::models::phenotype::{Phenotype, PhenotypeFieldName};
     use crate::InnerDbState;
     use anyhow::Result;
@@ -180,7 +180,7 @@ mod test {
                     )],
                     vec![(PhenotypeFieldName::MaturationDays, FilterType::Null)],
                 ],
-                order_by: vec![PhenotypeFieldName::Name],
+                order_by: vec![(PhenotypeFieldName::Name, Order::Asc)],
             })
             .await?;
 
@@ -197,7 +197,7 @@ mod test {
                     PhenotypeFieldName::MaturationDays,
                     FilterType::LessThan("3".to_owned(), true),
                 )]],
-                order_by: vec![PhenotypeFieldName::Name],
+                order_by: vec![(PhenotypeFieldName::Name, Order::Asc)],
             })
             .await?;
 
@@ -214,7 +214,7 @@ mod test {
                     PhenotypeFieldName::ShortName,
                     FilterType::Like("NLS".to_owned()),
                 )]],
-                order_by: vec![PhenotypeFieldName::Name],
+                order_by: vec![(PhenotypeFieldName::Name, Order::Asc)],
             })
             .await?;
 

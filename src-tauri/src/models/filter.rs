@@ -8,6 +8,13 @@ pub trait FilterQueryBuilder {
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, TS)]
+#[ts(export, export_to = "../src/models/db/filter/Order.ts")]
+pub enum Order {
+    Asc,
+    Desc,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, TS)]
 #[ts(export, export_to = "../src/models/db/filter/FilterType.ts")]
 pub enum FilterType {
     /// the left value to compare to, bool is whether it's inclusive, right is the same
@@ -131,7 +138,7 @@ where
      */
     pub filters: Vec<Vec<(T, FilterType)>>,
     #[serde(rename = "orderBy")]
-    pub order_by: Vec<T>,
+    pub order_by: Vec<(T, Order)>,
 }
 
 impl<T: FieldNameEnum> FilterQueryBuilder for Filter<T> {
@@ -162,8 +169,12 @@ impl<T: FieldNameEnum> FilterQueryBuilder for Filter<T> {
         if !self.order_by.is_empty() {
             qb.push(" ORDER BY ");
             let mut qb_separated = qb.separated(", ");
-            for order_field in self.order_by.iter() {
-                qb_separated.push(format!("{} COLLATE NOCASE", order_field.get_col_name()));
+            for (order_field, order_dir) in self.order_by.iter() {
+                let order_dir_str = match order_dir {
+                    Order::Asc => "ASC",
+                    Order::Desc => "DESC",
+                };
+                qb_separated.push(format!("{} COLLATE NOCASE {}", order_field.get_col_name(), order_dir_str));
             }
             qb_separated.push_unseparated(" ");
         }

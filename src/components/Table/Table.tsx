@@ -1,5 +1,6 @@
 import { Filter, FilterTuple } from 'models/db/filter/Filter';
 import { FilterType } from 'models/db/filter/FilterType';
+import { Order } from 'models/db/filter/Order';
 import { ReactNode, useState } from 'react';
 import { FaFilter, FaSortDown, FaSortUp } from 'react-icons/fa';
 import { ColumnFilter, Field } from './ColumnFilter';
@@ -11,18 +12,18 @@ export interface ColumnDefinitionType<T> {
 }
 
 const SortIcon = (props: any): JSX.Element => {
-  if (props.sortdir === 'asc') {
-    return <FaSortUp {...props} />
+  if (props.sortdir === 'Asc') {
+    return <FaSortUp {...props} />;
   } else {
-    return <FaSortDown {...props} />
+    return <FaSortDown {...props} />;
   }
-}
+};
 
 interface TableHeaderCellProps<T> {
   column: ColumnDefinitionType<T>;
   index: number;
   sortType: SortType<T> | undefined;
-  colFilter: Array<FilterType>,
+  colFilter: FilterType[];
   setSortType: (key: SortType<T>) => void;
   setFilterField: (key: keyof T) => void;
 }
@@ -32,29 +33,36 @@ const TableHeaderCell = <T,>(props: TableHeaderCellProps<T>): JSX.Element => {
   return (
     <th
       key={`headCell-${props.index}`}
-      className='border-2 border-base-content bg-primary px-2 py-1font-normal text-primary-content shadow-md'
+      className='py-1font-normal border-2 border-base-content bg-primary px-2 text-primary-content shadow-md'
       onMouseOver={() => setHovered(true)}
       onMouseOut={() => setHovered(false)}
     >
-      <div className='flex flex-row justify-between items-center'>
+      <div className='flex flex-row items-center justify-between'>
         <SortIcon
           onClick={() => {
             if (props.sortType?.[0] === props.column.key) {
-              props.setSortType([props.column.key, props.sortType[1] === 'asc' ? 'desc' : 'asc'])
+              props.setSortType([
+                props.column.key,
+                props.sortType[1] === 'Asc' ? 'Desc' : 'Asc',
+              ]);
             } else {
-              props.setSortType([props.column.key, 'asc'])
+              props.setSortType([props.column.key, 'Asc']);
             }
           }}
           className='cursor-pointer text-xl transition-colors'
-          sortdir={props.sortType?.[1] ?? 'asc'}
-          visibility={(hovered || props.sortType?.[0] === props.column.key) ? "" : "hidden"}
+          sortdir={props.sortType?.[1] ?? 'Asc'}
+          visibility={
+            hovered || props.sortType?.[0] === props.column.key ? '' : 'hidden'
+          }
         />
-        <h2 className='text-2xl px-1'>{props.column.header}</h2>
-        <FaFilter className={'cursor-pointer'}
+        <h2 className='px-1 text-2xl'>{props.column.header}</h2>
+        <FaFilter
+          className={'cursor-pointer'}
           visibility={hovered || props.colFilter.length > 0 ? '' : 'hidden'}
           onClick={() => {
             props.setFilterField(props.column.key);
-          }} />
+          }}
+        />
       </div>
     </th>
   );
@@ -62,7 +70,7 @@ const TableHeaderCell = <T,>(props: TableHeaderCellProps<T>): JSX.Element => {
 
 interface TableHeaderProps<T> {
   columns: Array<ColumnDefinitionType<T>>;
-  filterMap: Map<keyof T, Array<FilterType>>;
+  filterMap: Map<keyof T, FilterType[]>;
   sortType?: SortType<T>;
   setSortType: (key: SortType<T>) => void;
   setFilterField: (key: keyof T) => void;
@@ -70,14 +78,17 @@ interface TableHeaderProps<T> {
 
 const TableHeader = <T,>(props: TableHeaderProps<T>): JSX.Element => {
   const headers = props.columns.map((column, index) => {
-    return <TableHeaderCell
-      key={index}
-      setFilterField={props.setFilterField}
-      sortType={props.sortType}
-      setSortType={props.setSortType}
-      column={column}
-      index={index}
-      colFilter={props.filterMap.get(column.key) ?? []} />;
+    return (
+      <TableHeaderCell
+        key={index}
+        setFilterField={props.setFilterField}
+        sortType={props.sortType}
+        setSortType={props.setSortType}
+        column={column}
+        index={index}
+        colFilter={props.filterMap.get(column.key) ?? []}
+      />
+    );
   });
   return (
     <thead>
@@ -106,8 +117,9 @@ const TableRows = <T,>({ data, columns }: TableRowsProps<T>): JSX.Element => {
           return (
             <td
               key={`cell-${index2}`}
-              className={`border-2 border-base-content px-2 py-1 ${row[column.key] == null ? 'bg-base-300' : ''
-                }`}
+              className={`border-2 border-base-content px-2 py-1 ${
+                row[column.key] == null ? 'bg-base-300' : ''
+              }`}
             >
               {formatData(row[column.key])}
             </td>
@@ -128,15 +140,16 @@ export interface TableProps<T, K> {
   runFilters: (filterObj: Filter<K>) => void;
 }
 
-type FilterMap<T> = Map<keyof T, Array<FilterType>>;
-type SortType<T> = [keyof T, 'asc' | 'desc'];
+type FilterMap<T> = Map<keyof T, FilterType[]>;
+type SortType<T> = [keyof T, Order];
 
 export const Table = <T, K>(props: TableProps<T, K>): JSX.Element => {
-
   const [filterMap, setFilterMap] = useState<FilterMap<T>>(new Map());
   const [sortType, setSortType] = useState<SortType<T> | undefined>(undefined);
-  const [focusedFilterField, setFocusedFilterField] = useState<keyof T | undefined>(undefined);
-  const setFilterMapItem = (key: keyof T, value: Array<FilterType>) => {
+  const [focusedFilterField, setFocusedFilterField] = useState<
+    keyof T | undefined
+  >(undefined);
+  const setFilterMapItem = (key: keyof T, value: FilterType[]): void => {
     const newFilterMap = new Map(filterMap);
     if (value.length === 0) {
       newFilterMap.delete(key);
@@ -154,23 +167,40 @@ export const Table = <T, K>(props: TableProps<T, K>): JSX.Element => {
       });
       filters.push(filter);
     });
-    const orderBy = sortType ? props.nameMapping[sortType[0]] as Array<K> : new Array<K>();
+    const orderBy =
+      sortType !== undefined
+        ? new Array<[K, Order]>([
+            props.nameMapping[sortType[0]] as K,
+            sortType[1],
+          ])
+        : new Array<[K, Order]>();
     const filterObj = {
-      filters: filters,
-      orderBy: orderBy,
+      filters,
+      orderBy,
     };
-    console.log(filterObj);
     return filterObj;
-  }
+  };
 
   return (
     <>
       <table className='w-full'>
-        <TableHeader columns={props.columns} filterMap={filterMap} sortType={sortType} setSortType={setSortType} setFilterField={setFocusedFilterField} />
+        <TableHeader
+          columns={props.columns}
+          filterMap={filterMap}
+          sortType={sortType}
+          setSortType={setSortType}
+          setFilterField={setFocusedFilterField}
+        />
         <TableRows data={props.data} columns={props.columns} />
       </table>
-      <input type="checkbox" id="my-filter-modal" className="modal-toggle" checked={focusedFilterField !== undefined} readOnly />
-      <label htmlFor="my-filter-modal" className="modal cursor-pointer" >
+      <input
+        type='checkbox'
+        id='my-filter-modal'
+        className='modal-toggle'
+        checked={focusedFilterField !== undefined}
+        readOnly
+      />
+      <label htmlFor='my-filter-modal' className='modal cursor-pointer'>
         <div
           className='absolute h-full w-full'
           onClick={() => {
@@ -179,13 +209,15 @@ export const Table = <T, K>(props: TableProps<T, K>): JSX.Element => {
           }}
         />
         <div className='modal-box bg-base-200'>
-          {focusedFilterField &&
-            <ColumnFilter field={props.fields.find((f) => f.name == focusedFilterField)}
+          {focusedFilterField !== undefined && (
+            <ColumnFilter
+              field={props.fields.find((f) => f.name === focusedFilterField)}
               filterTypes={filterMap.get(focusedFilterField) ?? []}
               setFilterTypes={(filter) => {
                 setFilterMapItem(focusedFilterField, filter);
-              }} />
-          }
+              }}
+            />
+          )}
         </div>
       </label>
     </>

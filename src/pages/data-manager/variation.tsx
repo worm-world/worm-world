@@ -37,7 +37,6 @@ const fields: Array<Field<db_VariationInfo>> = [
   },
 ];
 
-
 const nameMapping: { [key in keyof db_VariationInfo]: VariationFieldName } = {
   alleleName: 'AlleleName',
   chromosome: 'Chromosome',
@@ -47,13 +46,15 @@ const nameMapping: { [key in keyof db_VariationInfo]: VariationFieldName } = {
 };
 
 export default function VariationDataPage(): JSX.Element {
-  return <DataPage
-    title="Variations"
-    dataName='variation'
-    cols={cols}
-    fields={fields}
-    nameMapping={nameMapping}
-    getFilteredData={getFilteredVariations}
-    insertDatum={insertDbVariation}
-  />
+  return (
+    <DataPage
+      title='Variations'
+      dataName='variation'
+      cols={cols}
+      fields={fields}
+      nameMapping={nameMapping}
+      getFilteredData={getFilteredVariations}
+      insertDatum={insertDbVariation}
+    />
+  );
 }

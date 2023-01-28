@@ -82,6 +82,7 @@ impl InnerDbState {
 mod test {
 
     use crate::models::chromosome::Chromosome;
+    use crate::models::filter::Order;
     use crate::models::gene::{Gene, GeneFieldName};
     use crate::InnerDbState;
     use crate::{
@@ -121,7 +122,7 @@ mod test {
                         FilterType::Equal("IV".to_string()),
                     ),
                 ]],
-                order_by: vec![GeneFieldName::DescName],
+                order_by: vec![(GeneFieldName::DescName, Order::Asc)],
             })
             .await?;
 
@@ -144,7 +145,7 @@ mod test {
                         FilterType::Equal("IV".to_string()),
                     ),
                 ]],
-                order_by: vec![GeneFieldName::SysName],
+                order_by: vec![(GeneFieldName::SysName, Order::Asc)],
             })
             .await?;
 
@@ -201,7 +202,7 @@ mod test {
                         ),
                     ],
                 ],
-                order_by: vec![GeneFieldName::DescName],
+                order_by: vec![(GeneFieldName::DescName, Order::Asc)],
             })
             .await?;
 
@@ -217,7 +218,7 @@ mod test {
                     GeneFieldName::DescName,
                     FilterType::Like("in".to_string()),
                 )]],
-                order_by: vec![GeneFieldName::DescName],
+                order_by: vec![(GeneFieldName::DescName, Order::Asc)],
             })
             .await?;
 
@@ -233,7 +234,7 @@ mod test {
                     (GeneFieldName::SysName, FilterType::Like("T14".to_string())),
                     (GeneFieldName::DescName, FilterType::Like("lin".to_string())),
                 ]],
-                order_by: vec![GeneFieldName::DescName],
+                order_by: vec![(GeneFieldName::DescName, Order::Asc)],
             })
             .await?;
 

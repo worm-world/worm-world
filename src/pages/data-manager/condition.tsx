@@ -15,7 +15,7 @@ export const cols: Array<ColumnDefinitionType<db_Condition>> = [
   { key: 'maturationDays', header: 'Maturation Days' },
 ];
 
-const fields : Array<Field<db_Condition>> = [
+const fields: Array<Field<db_Condition>> = [
   {
     name: 'name',
     title: 'Condition Name',
@@ -64,14 +64,15 @@ const nameMapping: { [key in keyof db_Condition]: ConditionFieldName } = {
 };
 
 export default function ConditionDataPage(): JSX.Element {
-  return <DataPage
-    title="Conditions"
-    dataName='condition'
-    cols={cols}
-    fields={fields}
-    nameMapping={nameMapping}
-    getFilteredData={getFilteredConditions}
-    insertDatum={insertDbCondition}
-  />
+  return (
+    <DataPage
+      title='Conditions'
+      dataName='condition'
+      cols={cols}
+      fields={fields}
+      nameMapping={nameMapping}
+      getFilteredData={getFilteredConditions}
+      insertDatum={insertDbCondition}
+    />
+  );
 }
-

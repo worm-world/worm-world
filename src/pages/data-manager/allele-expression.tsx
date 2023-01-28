@@ -39,7 +39,9 @@ const fields: Array<Field<db_AlleleExpression>> = [
   },
 ];
 
-const nameMapping: { [key in keyof db_AlleleExpression]: AlleleExpressionFieldName } = {
+const nameMapping: {
+  [key in keyof db_AlleleExpression]: AlleleExpressionFieldName;
+} = {
   alleleName: 'AlleleName',
   expressingPhenotypeName: 'ExpressingPhenotypeName',
   expressingPhenotypeWild: 'ExpressingPhenotypeWild',
@@ -47,13 +49,15 @@ const nameMapping: { [key in keyof db_AlleleExpression]: AlleleExpressionFieldNa
 };
 
 export default function AlleleExpressionDataPage(): JSX.Element {
-  return <DataPage
-    title="Allele Expressions"
-    dataName='alleleExpression'
-    cols={cols}
-    fields={fields}
-    nameMapping={nameMapping}
-    getFilteredData={getFilteredAlleleExpressions}
-    insertDatum={insertDbAlleleExpression}
-  />
+  return (
+    <DataPage
+      title='Allele Expressions'
+      dataName='alleleExpression'
+      cols={cols}
+      fields={fields}
+      nameMapping={nameMapping}
+      getFilteredData={getFilteredAlleleExpressions}
+      insertDatum={insertDbAlleleExpression}
+    />
+  );
 }

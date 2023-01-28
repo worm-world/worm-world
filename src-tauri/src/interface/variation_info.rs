@@ -80,7 +80,7 @@ mod test {
 
     use crate::dummy::testdata;
     use crate::models::chromosome::Chromosome;
-    use crate::models::filter::{Filter, FilterType};
+    use crate::models::filter::{Filter, FilterType, Order};
     use crate::models::variation_info::{VariationFieldName, VariationInfo};
     use crate::InnerDbState;
     use anyhow::Result;
@@ -108,8 +108,8 @@ mod test {
                 vec![(VariationFieldName::Chromosome, FilterType::NotNull)],
             ],
             order_by: vec![
-                VariationFieldName::AlleleName,
-                VariationFieldName::Chromosome,
+                (VariationFieldName::AlleleName, Order::Asc),
+                (VariationFieldName::Chromosome, Order::Asc),
             ],
         };
         let exprs = state.get_filtered_variation_info(&filter).await?;
@@ -126,7 +126,7 @@ mod test {
                 VariationFieldName::GenLoc,
                 FilterType::Range("-1.46".to_string(), false, "4.72".to_string(), true),
             )]],
-            order_by: vec![VariationFieldName::AlleleName],
+            order_by: vec![(VariationFieldName::AlleleName, Order::Asc)],
         };
         let exprs = state.get_filtered_variation_info(&filter).await?;
 
@@ -141,7 +141,7 @@ mod test {
                 VariationFieldName::AlleleName,
                 FilterType::Like("IS".to_string()),
             )]],
-            order_by: vec![VariationFieldName::AlleleName],
+            order_by: vec![(VariationFieldName::AlleleName, Order::Asc)],
         };
         let exprs = state.get_filtered_variation_info(&filter).await?;
 

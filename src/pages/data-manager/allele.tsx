@@ -16,7 +16,7 @@ export const cols: Array<ColumnDefinitionType<db_Allele>> = [
   { key: 'variationName', header: 'Variation Name' },
   { key: 'contents', header: 'Contents' },
 ];
-const fields : Array<Field<db_Allele>> = [
+const fields: Array<Field<db_Allele>> = [
   {
     name: 'name',
     title: 'Allele Name',
@@ -47,14 +47,15 @@ const nameMapping: { [key in keyof db_Allele]: AlleleFieldName } = {
 };
 
 export default function AlleleDataPage(): JSX.Element {
-  return <DataPage
-    title="Alleles"
-    dataName='alleles'
-    cols={cols}
-    fields={fields}
-    nameMapping={nameMapping}
-    getFilteredData={getFilteredAlleles}
-    insertDatum={insertDbAllele}
-  />
+  return (
+    <DataPage
+      title='Alleles'
+      dataName='alleles'
+      cols={cols}
+      fields={fields}
+      nameMapping={nameMapping}
+      getFilteredData={getFilteredAlleles}
+      insertDatum={insertDbAllele}
+    />
+  );
 }
-

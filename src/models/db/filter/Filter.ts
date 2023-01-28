@@ -1,4 +1,5 @@
 import { FilterType } from 'models/db/filter/FilterType';
+import { Order } from './Order';
 
 export type FilterTuple<T> = [T, FilterType];
 /**
@@ -22,7 +23,7 @@ export interface Filter<T> {
    *   [ [field1, val1], [field2, val2], [field3, val3] ]
    * ]
    *
-   * ^ would generate: WHERE (field1 == val1 OR field2 == val2 OR field3 == val3);
+   * ^ would generate: WHERE (field1 === val1 OR field2 === val2 OR field3 === val3);
    *
    * -----------------------------------------------
    *
@@ -33,7 +34,7 @@ export interface Filter<T> {
    *   [ [field2, val3] ],
    * ]
    *
-   * ^ would generate: WHERE (field1 == val1) AND (field1 == val2) AND (field2 == val3);
+   * ^ would generate: WHERE (field1 === val1) AND (field1 === val2) AND (field2 === val3);
    *
    * -----------------------------------------------
    *
@@ -44,9 +45,9 @@ export interface Filter<T> {
    *   [ [field5, val5] ],
    * ]
    *
-   * ^ would generate: WHERE (field1 == val1 OR field2 == val2 OR field3 == OR val3) AND
-   *                         (field1 == val1 OR field4 == val4) AND
-   *                         (field5 == val5);
+   * ^ would generate: WHERE (field1 === val1 OR field2 === val2 OR field3 === OR val3) AND
+   *                         (field1 === val1 OR field4 === val4) AND
+   *                         (field5 === val5);
    */
   filters: Array<Array<FilterTuple<T>>>;
   /**
@@ -56,7 +57,7 @@ export interface Filter<T> {
    *
    * <select query> ... ORDER BY field1, field2;
    */
-  orderBy: T[];
+  orderBy: Array<[T, Order]>;
 }
 
 /**
@@ -89,3 +90,109 @@ export const getSingleRecordOrThrow = <T>(
     throw Error(error);
   }
 };
+
+export const getValuesForFilterType = (filter: FilterType): ValueType[] => {
+  const filterName = getFilterTypeName(filter);
+  switch (filterName) {
+    case 'LessThan':
+    case 'GreaterThan':
+    case 'Range':
+      return Object.values(filter)[0] as ValueType[];
+    case 'Equal':
+    case 'NotEqual':
+    case 'Like':
+      return [Object.values(filter)[0] as string];
+  }
+  return [];
+};
+
+export const valuesLengthForFilterTypeName: {
+  [key in FilterTypeName]: number;
+} = {
+  Null: 0,
+  NotNull: 0,
+  True: 0,
+  False: 0,
+  Equal: 1,
+  NotEqual: 1,
+  Like: 1,
+  LessThan: 2,
+  GreaterThan: 2,
+  Range: 4,
+};
+
+export type FilterTypeName =
+  | 'Range'
+  | 'LessThan'
+  | 'GreaterThan'
+  | 'Equal'
+  | 'NotEqual'
+  | 'Like'
+  | 'Null'
+  | 'NotNull'
+  | 'True'
+  | 'False';
+
+export const getFilterTypeName = (filter: FilterType): FilterTypeName => {
+  if (filter === 'Null') {
+    return 'Null';
+  } else if (filter === 'NotNull') {
+    return 'NotNull';
+  } else if (filter === 'True') {
+    return 'True';
+  } else if (filter === 'False') {
+    return 'False';
+  } else {
+    return Object.keys(filter)[0] as FilterTypeName;
+  }
+};
+
+export type ValueType = string | number | boolean;
+
+export const createFilterFromNameAndValues = (
+  name: FilterTypeName,
+  values: ValueType[]
+): FilterType => {
+  switch (name) {
+    case 'Range':
+      return {
+        Range: [
+          values[0].toString(),
+          values[1] as boolean,
+          values[2].toString(),
+          values[3] as boolean,
+        ],
+      };
+    case 'LessThan':
+      return { LessThan: [values[0].toString(), values[1] as boolean] };
+    case 'GreaterThan':
+      return { GreaterThan: [values[0].toString(), values[1] as boolean] };
+    case 'Equal':
+      return { Equal: values[0].toString() };
+    case 'NotEqual':
+      return { NotEqual: values[0].toString() };
+    case 'Like':
+      return { Like: values[0].toString() };
+    case 'Null':
+      return 'Null';
+    case 'NotNull':
+      return 'NotNull';
+    case 'True':
+      return 'True';
+    case 'False':
+      return 'False';
+  }
+};
+
+export const filterTypeNames: FilterTypeName[] = [
+  'Range',
+  'LessThan',
+  'GreaterThan',
+  'Equal',
+  'NotEqual',
+  'Like',
+  'Null',
+  'NotNull',
+  'True',
+  'False',
+];
