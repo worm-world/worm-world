@@ -70,7 +70,7 @@ describe('allele pair', () => {
     expect(pair2.strictEquals(pair1)).toBe(false);
   });
   test('.strictEquals() returns false for homozygous vs heterozygous pairs', () => {
-    const pair1 = new AllelePair({ top: e204, bot: WILD_ALLELE });
+    const pair1 = new AllelePair({ top: e204, bot: e204 });
     const pair2 = new AllelePair({ top: WILD_ALLELE, bot: e204 });
     expect(pair1.strictEquals(pair2)).toBe(false);
     expect(pair2.strictEquals(pair1)).toBe(false);

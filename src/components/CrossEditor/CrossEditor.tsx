@@ -110,15 +110,16 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
             >
               <CrossNodeForm
                 getFilteredAlleles={getFilteredAlleles}
-                addNewCrossNode={(newNode) =>
+                addNewCrossNode={(newNode) => {
                   addNewCrossNodeToFlow(
                     nodes,
                     setNodes,
                     newNode,
                     nextId,
                     setNextId
-                  )
-                }
+                  );
+                  setRightDrawerOpen(false);
+                }}
                 createAlleleFromRecord={Allele.createFromRecord}
               />
             </RightDrawer>

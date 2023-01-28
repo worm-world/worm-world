@@ -8,6 +8,7 @@ import { Filter } from 'models/db/filter/Filter';
 import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
+import { getMenuItems } from 'components/CrossNodeMenu/CrossNodeMenu';
 
 export interface CrossNodeFormProps {
   addNewCrossNode: (arg: CrossNodeModel) => void;
@@ -23,12 +24,12 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
   const [hetAlleles, setHetAlleles] = useState(new Set<db_Allele>());
 
   const onSubmit = (): void => {
-    const homoPairs = Array.from(hetAlleles).map(async (selectedAllele) => {
+    const hetPairs = Array.from(hetAlleles).map(async (selectedAllele) => {
       const allele = await props.createAlleleFromRecord(selectedAllele);
       return new AllelePair({ top: allele, bot: allele });
     });
 
-    const hetPairs = Array.from(homoAlleles).map(async (selectedAllele) => {
+    const homoPairs = Array.from(homoAlleles).map(async (selectedAllele) => {
       const allele = await props.createAlleleFromRecord(selectedAllele);
       return new AllelePair({ top: allele, bot: WILD_ALLELE });
     });
@@ -122,6 +123,7 @@ const createNewCrossNode = (
       notes: '',
     }),
     isSelected: false,
+    getMenuItems,
   };
   return crossNodeModel;
 };
