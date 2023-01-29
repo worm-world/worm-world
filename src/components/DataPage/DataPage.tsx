@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Table, ColumnDefinitionType } from 'components/Table/Table';
 import DataImportForm from 'components/DataImportForm/DataImportForm';
-import { Field } from 'components/Table/ColumnFilter';
+import { Field } from 'components/ColumnFilter/ColumnFilter';
 import { Filter } from 'models/db/filter/Filter';
 
 interface iDataPageProps<T, K> {

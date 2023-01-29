@@ -3,7 +3,7 @@ import { FilterType } from 'models/db/filter/FilterType';
 import { Order } from 'models/db/filter/Order';
 import { ReactNode, useState } from 'react';
 import { FaFilter, FaSortDown, FaSortUp } from 'react-icons/fa';
-import { ColumnFilter, Field } from './ColumnFilter';
+import { ColumnFilter, Field } from '../ColumnFilter/ColumnFilter';
 
 export interface ColumnDefinitionType<T> {
   key: keyof T;
@@ -19,7 +19,7 @@ const SortIcon = (props: any): JSX.Element => {
   }
 };
 
-interface TableHeaderCellProps<T, K> {
+interface TableHeaderCellProps<T> {
   column: ColumnDefinitionType<T>;
   index: number;
   sortType: SortType<T> | undefined;
@@ -29,9 +29,7 @@ interface TableHeaderCellProps<T, K> {
   runMyFilters: () => void;
 }
 
-const TableHeaderCell = <T, K>(
-  props: TableHeaderCellProps<T, K>
-): JSX.Element => {
+const TableHeaderCell = <T,>(props: TableHeaderCellProps<T>): JSX.Element => {
   const [hovered, setHovered] = useState<boolean>(false);
   return (
     <th
@@ -72,7 +70,7 @@ const TableHeaderCell = <T, K>(
   );
 };
 
-interface TableHeaderProps<T, K> {
+interface TableHeaderProps<T> {
   columns: Array<ColumnDefinitionType<T>>;
   filterMap: Map<keyof T, FilterType[]>;
   sortType?: SortType<T>;
@@ -81,7 +79,7 @@ interface TableHeaderProps<T, K> {
   runMyFilters: () => void;
 }
 
-const TableHeader = <T, K>(props: TableHeaderProps<T, K>): JSX.Element => {
+const TableHeader = <T,>(props: TableHeaderProps<T>): JSX.Element => {
   const headers = props.columns.map((column, index) => {
     return (
       <TableHeaderCell

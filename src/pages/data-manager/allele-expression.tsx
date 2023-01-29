@@ -6,7 +6,7 @@ import { db_AlleleExpression } from 'models/db/db_AlleleExpression';
 import { ColumnDefinitionType } from 'components/Table/Table';
 import { AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
 import DataPage from 'components/DataPage/DataPage';
-import { Field } from 'components/Table/ColumnFilter';
+import { Field } from 'components/ColumnFilter/ColumnFilter';
 
 export const cols: Array<ColumnDefinitionType<db_AlleleExpression>> = [
   { key: 'alleleName', header: 'Allele Name' },

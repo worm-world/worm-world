@@ -3,7 +3,7 @@ import { ColumnDefinitionType } from 'components/Table/Table';
 import { getFilteredPhenotypes, insertDbPhenotype } from 'api/phenotype';
 import { PhenotypeFieldName } from 'models/db/filter/db_PhenotypeFieldName';
 import DataPage from 'components/DataPage/DataPage';
-import { Field } from 'components/Table/ColumnFilter';
+import { Field } from 'components/ColumnFilter/ColumnFilter';
 
 export const cols: Array<ColumnDefinitionType<db_Phenotype>> = [
   { key: 'name', header: 'Name' },

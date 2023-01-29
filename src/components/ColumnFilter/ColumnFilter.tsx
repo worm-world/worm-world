@@ -32,7 +32,7 @@ const fieldTypeToFilterType: {
     'GreaterThan',
     'LessThan',
   ],
-  boolean: ['Equal', 'NotEqual', 'Null', 'NotNull', 'True', 'False'],
+  boolean: ['True', 'False', 'Null', 'NotNull'],
   select: ['Equal', 'NotEqual', 'Null', 'NotNull'],
 };
 
@@ -111,11 +111,14 @@ const FormControl = <T,>(props: iFormControlProps<T>): JSX.Element => {
     case 'Equal':
       return props.field?.type === 'select' ? (
         <div className='form-control flex flex-col'>
-          <select className='input-bordered input select' onChange={(e) => {
+          <select
+            className='input-bordered input select'
+            onChange={(e) => {
               const newValues = [...props.values];
               newValues[0] = e.target.value;
               props.setValues(newValues);
-          }}>
+            }}
+          >
             {props.field?.selectOptions?.map((option, i) => (
               <option key={i} value={option}>
                 {option}
@@ -173,14 +176,27 @@ export const ColumnFilter = <T,>(props: iColumnFilterProps<T>): JSX.Element => {
               return <></>;
             }
           })}
-          <div
+          <button
+            title='add-filter'
             className='flex w-full justify-center pt-4 text-2xl'
             onClick={() => {
-              props.setFilterTypes([...props.filterTypes, 'NotNull']);
+              if (props.field === undefined) {
+                return;
+              }
+              const firstFilterType =
+                fieldTypeToFilterType[props.field.type][0];
+              const valuesLen = valuesLengthForFilterTypeName[firstFilterType];
+              props.setFilterTypes([
+                ...props.filterTypes,
+                createFilterFromNameAndValues(
+                  firstFilterType,
+                  Array<ValueType>(valuesLen).fill('')
+                ),
+              ]);
             }}
           >
             <BiPlus />
-          </div>
+          </button>
         </div>
       ) : (
         <div></div>
@@ -242,14 +258,15 @@ const FilterEntry = <T,>(props: iFilterEntryProps<T>): JSX.Element => {
           }}
         />
       </div>
-      <div
-        className='pt-4 pl-2'
+      <button
+        title='delete-filter'
+        className='pt-4 pl-2 text-xl'
         onClick={() => {
           props.setFilterType(null);
         }}
       >
         <CloseIcon />
-      </div>
+      </button>
     </div>
   );
 };

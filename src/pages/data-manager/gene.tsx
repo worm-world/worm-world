@@ -2,7 +2,7 @@ import { getFilteredGenes, insertDbGene } from 'api/gene';
 import { db_Gene } from 'models/db/db_Gene';
 import { ColumnDefinitionType } from 'components/Table/Table';
 import { chromosomes } from 'models/frontend/Chromosome';
-import { Field } from 'components/Table/ColumnFilter';
+import { Field } from 'components/ColumnFilter/ColumnFilter';
 import { GeneFieldName } from 'models/db/filter/db_GeneFieldName';
 import DataPage from 'components/DataPage/DataPage';
 

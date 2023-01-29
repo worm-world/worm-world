@@ -5,7 +5,7 @@ import {
 import { db_ExpressionRelation } from 'models/db/db_ExpressionRelation';
 import { ColumnDefinitionType } from 'components/Table/Table';
 import { ExpressionRelationFieldName } from 'models/db/filter/db_ExpressionRelationFieldName';
-import { Field } from 'components/Table/ColumnFilter';
+import { Field } from 'components/ColumnFilter/ColumnFilter';
 import DataPage from 'components/DataPage/DataPage';
 
 export const cols: Array<ColumnDefinitionType<db_ExpressionRelation>> = [
