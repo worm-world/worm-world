@@ -1,10 +1,12 @@
-import { WILD_ALLELE } from 'models/frontend/Allele/Allele';
+import { WildAllele, WILD_ALLELE } from 'models/frontend/Allele/Allele';
 import {
   cn64,
   e204,
+  e53,
   e873,
   ed3,
   jsSi1949,
+  md299,
   ox11000,
   ox802,
   oxSi1168,
@@ -14,12 +16,15 @@ import {
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { Strain, StrainOption } from 'models/frontend/Strain/Strain';
 import {
+  DifChromSimpleSelfCross,
   HeterozygousCross,
   HomoHetCross,
   HomoHetSelfCross,
   HomoWildCross,
   HomozygousCross,
-  SelfCross2,
+  PartialAdvancedSelfCross,
+  ItermediateSelfCross,
+  IntermediateCross,
 } from 'models/frontend/Strain/Strain.mock';
 import { expect, test, describe } from 'vitest';
 
@@ -206,7 +211,7 @@ describe('cross algorithm', () => {
   test('cross between homozygous and wild strain', () => {
     const homoPairs: AllelePair[] = [new AllelePair({ top: e204, bot: e204 })];
     const wildPairs: AllelePair[] = [
-      new AllelePair({ top: WILD_ALLELE, bot: WILD_ALLELE }),
+      new AllelePair({ top: new WildAllele(e204), bot: new WildAllele(e204) }),
     ];
 
     const homoStrain = new Strain({ allelePairs: homoPairs });
@@ -257,7 +262,7 @@ describe('cross algorithm', () => {
     testStrainResults(crossStrains, HomoHetSelfCross);
   });
 
-  test('intermediate self cross', () => {
+  test('intermediate self cross on single chromosome', () => {
     const allelePairs: AllelePair[] = [
       new AllelePair({ top: e204, bot: WILD_ALLELE }),
       new AllelePair({ top: WILD_ALLELE, bot: ox802 }),
@@ -265,6 +270,64 @@ describe('cross algorithm', () => {
 
     const strain = new Strain({ allelePairs });
     const crossStrains = strain.selfCross();
-    testStrainResults(crossStrains, SelfCross2);
+    testStrainResults(crossStrains, ItermediateSelfCross);
+  });
+
+  test('simple self cross of het alleles on different chromosomes', () => {
+    const allelePairs: AllelePair[] = [
+      new AllelePair({ top: ed3, bot: new WildAllele(ed3) }), // chrom III
+      new AllelePair({ top: md299, bot: new WildAllele(md299) }), // chrom X
+    ];
+    const strain = new Strain({ allelePairs });
+    const crossStrains = strain.selfCross();
+    testStrainResults(crossStrains, DifChromSimpleSelfCross);
+  });
+
+  test('advanced self cross on multiple chromosomes', () => {
+    const allelePairs: AllelePair[] = [
+      // chrom II
+      new AllelePair({ top: cn64, bot: WILD_ALLELE }),
+      new AllelePair({ top: oxTi75, bot: WILD_ALLELE }),
+      // chrom III
+      new AllelePair({ top: ed3, bot: WILD_ALLELE }),
+      // chrom IV
+      new AllelePair({ top: e53, bot: e53 }),
+      new AllelePair({ top: e204, bot: WILD_ALLELE }),
+    ];
+    const strain = new Strain({ allelePairs });
+    const crossStrains = strain.selfCross();
+
+    expect(crossStrains.length).toBe(90);
+
+    const probSum = crossStrains.reduce((prev, curr) => prev + curr.prob, 0);
+    expect(probSum).toBeCloseTo(1.0);
+
+    // test first 28 strains for correctness
+    testStrainResults(
+      crossStrains.slice(0, PartialAdvancedSelfCross.length),
+      PartialAdvancedSelfCross
+    );
+  });
+
+  test('cross on multiple chromosomes', () => {
+    const allelePairs1: AllelePair[] = [
+      // chrom II
+      new AllelePair({ top: oxTi75, bot: new WildAllele(oxTi75) }),
+      new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+      // chrom IV
+      new AllelePair({ top: ox802, bot: new WildAllele(ox802) }),
+    ];
+    const allelePairs2: AllelePair[] = [
+      // chrom III
+      new AllelePair({ top: ox11000, bot: ox11000 }),
+      // chrom IV
+      new AllelePair({ top: e53, bot: e53 }),
+      new AllelePair({ top: e204, bot: new WildAllele(e204) }),
+    ];
+    const strain1 = new Strain({ allelePairs: allelePairs1 });
+    const strain2 = new Strain({ allelePairs: allelePairs2 });
+    const crossStrains = strain1.crossWith(strain2);
+
+    testStrainResults(crossStrains, IntermediateCross);
   });
 });

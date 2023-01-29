@@ -182,7 +182,7 @@ export class Strain {
       });
     });
 
-    return strainOptions;
+    return newStrainOptions;
   };
 
   /**
@@ -202,8 +202,10 @@ export class Strain {
 
       otherChromPairs.forEach((otherPair) => {
         const alreadyHasAllele: boolean =
-          chromosomePairs.findIndex((pair) =>
-            pair.hasSameBaseAllele(otherPair)
+          chromosomePairs.findIndex(
+            (pair) =>
+              pair.hasSameBaseAllele(otherPair) ||
+              (pair.isWild() && pair.hasSameGenLoc(otherPair))
           ) >= 0;
 
         // Add wild pair to pairList to match other strain
@@ -257,6 +259,7 @@ export class Strain {
         });
       });
     });
+    this.reduceChromosomeOptions(chromosomeOptions);
     return chromosomeOptions;
   };
 
@@ -308,13 +311,34 @@ export class Strain {
       // Check for duplicates and combine probabilities
       for (let j = i + 1; j < chromatids.length; j++) {
         const nextChromatid = chromatids[j];
-        const duplicateChainOption: boolean =
-          this.getChainString(currChromatid) ===
-          this.getChainString(nextChromatid);
+        const duplicateChromatids: boolean =
+          this.getChromatidString(currChromatid) ===
+          this.getChromatidString(nextChromatid);
 
-        if (duplicateChainOption) {
+        if (duplicateChromatids) {
           currChromatid.prob += nextChromatid.prob;
           chromatids.splice(j, 1);
+        }
+      }
+    }
+  };
+
+  /**
+   * Combines probabilities of duplicate chromosomes such that the resulting list has unique chromosomes
+   */
+  private readonly reduceChromosomeOptions = (
+    chromosomes: ChromosomeOption[]
+  ): void => {
+    // Check each option against every other option
+    for (let i = 0; i < chromosomes.length; i++) {
+      const currChrom = chromosomes[i];
+
+      // Check for duplicates and combine probabilities
+      for (let j = i + 1; j < chromosomes.length; j++) {
+        const nextChrom = chromosomes[j];
+        if (AllelePair.chromosomesMatch(currChrom.pairs, nextChrom.pairs)) {
+          currChrom.prob += nextChrom.prob;
+          chromosomes.splice(j, 1);
         }
       }
     }
@@ -442,10 +466,10 @@ export class Strain {
   };
 
   /**
-   * Converts an AlleleChainOption into a string of allele names (to be used for equality checks)
+   * Converts a chromatid into a string of allele names (to be used for equality checks)
    */
-  private readonly getChainString = (chainOption: ChromatidOption): string =>
-    chainOption.alleles.map((allele) => allele.name).join('');
+  private readonly getChromatidString = (chromatid: ChromatidOption): string =>
+    chromatid.alleles.map((allele) => allele.name).join('');
 
   /* #endregion private methods */
 }
