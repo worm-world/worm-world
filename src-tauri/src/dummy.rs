@@ -9,7 +9,7 @@ pub mod testdata {
         gene::Gene,
         phenotype::Phenotype,
         task::{Action, Task},
-        variation_info::VariationInfo,
+        variation_info::VariationInfo, tree::Tree,
     };
     /* #region Allele Test Data */
     pub fn get_alleles() -> Vec<Allele> {
@@ -2067,4 +2067,39 @@ pub mod testdata {
         ]
     }
     /* #endregion Tasks Test Data */
+
+    /* #region Trees Test Data */
+    pub fn get_trees() -> Vec<Tree> {
+        vec![
+            Tree{
+                id: 1,
+                name: "test1".to_string(),
+                last_edited: "2012-01-01".to_string(),
+                data: "{}".to_string(),
+            },
+            Tree{
+                id: 2,
+                name: "test2".to_string(),
+                last_edited: "2012-01-02".to_string(),
+                data: "{}".to_string(),
+            },
+            Tree{
+                id: 3,
+                name: "test3".to_string(),
+                last_edited: "2012-01-03".to_string(),
+                data: "{}".to_string(),
+            },
+        ]
+    }
+    pub fn get_filtered_trees() -> Vec<Tree> {
+        vec![
+            Tree{
+                id: 1,
+                name: "test1".to_string(),
+                last_edited: "2012-01-01".to_string(),
+                data: "{}".to_string(),
+            },
+        ]
+    }
+    /* #endregion Trees Test Data */
 }

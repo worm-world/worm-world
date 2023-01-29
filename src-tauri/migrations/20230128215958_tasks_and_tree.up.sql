@@ -41,8 +41,8 @@ CREATE TABLE task_deps
 CREATE TABLE trees
 (
   id          INTEGER NOT NULL,
-  name        TEXT    NULL    ,
-  last_edited TEXT    NULL    ,
-  data        TEXT    NULL    ,
+  name        TEXT    NOT NULL,
+  last_edited TEXT    NOT NULL,
+  data        TEXT    NOT NULL,
   PRIMARY KEY (id)
 );

@@ -20,7 +20,7 @@ impl InnerDbState {
             Ok(tasks) => Ok(tasks.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
                 eprint!("Get tasks error: {e}");
-                Err(DbError::SqlQueryError(e.to_string()))
+                Err(DbError::Query(e.to_string()))
             }
         }
     }
@@ -42,7 +42,7 @@ impl InnerDbState {
             Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
                 eprint!("Get Filtered Task error: {e}");
-                Err(DbError::SqlQueryError(e.to_string()))
+                Err(DbError::Query(e.to_string()))
             }
         }
     }
@@ -65,7 +65,7 @@ impl InnerDbState {
             Ok(_) => Ok(()),
             Err(e) => {
                 eprint!("Insert Task error: {e}");
-                Err(DbError::SqlInsertError(e.to_string()))
+                Err(DbError::Insert(e.to_string()))
             }
         }
     }
@@ -92,7 +92,7 @@ impl InnerDbState {
             Ok(_) => Ok(()),
             Err(e) => {
                 eprint!("Update Task error: {e}");
-                Err(DbError::SqlUpdateError(e.to_string()))
+                Err(DbError::Update(e.to_string()))
             }
         }
     }

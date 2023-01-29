@@ -138,4 +138,10 @@ VALUES
     (4, "2012-01-03", 2, "{}", "{}"),
     (5, "2012-01-04", 3, "{}", "{}");
     
+INSERT INTO trees (id, name, last_edited, data)
+VALUES
+    (1, "test1", "2012-01-01", "{}"),
+    (2, "test2", "2012-01-02", "{}"),
+    (3, "test3", "2012-01-03", "{}");
+
 COMMIT TRANSACTION;

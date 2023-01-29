@@ -36,7 +36,7 @@ impl InnerDbState {
             Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
                 eprint!("Get Expr Relations error: {e}");
-                Err(DbError::SqlQueryError(e.to_string()))
+                Err(DbError::Query(e.to_string()))
             }
         }
     }
@@ -67,7 +67,7 @@ impl InnerDbState {
             Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
                 eprint!("Get Filtered Exprs Relation error: {e}");
-                Err(DbError::SqlQueryError(e.to_string()))
+                Err(DbError::Query(e.to_string()))
             }
         }
     }
@@ -99,7 +99,7 @@ impl InnerDbState {
             Ok(_) => Ok(()),
             Err(e) => {
                 eprint!("Insert ExprRelation error: {e}");
-                Err(DbError::SqlInsertError(e.to_string()))
+                Err(DbError::Insert(e.to_string()))
             }
         }
     }

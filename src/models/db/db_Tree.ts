@@ -3,5 +3,6 @@
 export interface db_Tree {
   id: bigint;
   name: string;
-  lastEdited: bigint;
+  lastEdited: string;
+  data: string;
 }
