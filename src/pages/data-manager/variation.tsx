@@ -1,12 +1,10 @@
-import { useEffect, useState } from 'react';
 import { getFilteredVariations, insertDbVariation } from 'api/variationInfo';
-import { toast } from 'react-toastify';
 import { db_VariationInfo } from 'models/db/db_VariationInfo';
-import { Table, ColumnDefinitionType } from 'components/Table/Table';
-import DataImportForm, {
-  FieldType,
-} from 'components/DataImportForm/DataImportForm';
+import { ColumnDefinitionType } from 'components/Table/Table';
 import { chromosomes } from 'models/frontend/Chromosome';
+import { VariationFieldName } from 'models/db/filter/db_VariationFieldName';
+import DataPage from 'components/DataPage/DataPage';
+import { Field } from 'components/ColumnFilter/ColumnFilter';
 
 export const cols: Array<ColumnDefinitionType<db_VariationInfo>> = [
   { key: 'alleleName', header: 'Allele Name' },
@@ -15,7 +13,7 @@ export const cols: Array<ColumnDefinitionType<db_VariationInfo>> = [
   { key: 'geneticLoc', header: 'Genetic Location' },
 ];
 
-const fields = [
+const fields: Array<Field<db_VariationInfo>> = [
   {
     name: 'alleleName',
     title: 'Allele Name',
@@ -39,58 +37,24 @@ const fields = [
   },
 ];
 
-const DataPage = (): JSX.Element => {
-  const [data, setData] = useState<db_VariationInfo[]>([]);
-  const onRecordInsertionFormSubmission = (
-    record: db_VariationInfo,
-    successCallback: () => void
-  ): void => {
-    insertDbVariation(record)
-      .then((resp) => {
-        successCallback();
-        refresh();
-      })
-      .catch((e: Error) => {
-        toast.error(
-          'An error has occured when inserting data: ' + JSON.stringify(e)
-        );
-      });
-  };
-
-  const refresh = (): void => {
-    getFilteredVariations({
-      filters: [],
-      orderBy: [],
-    })
-      .then((ds) => setData(ds))
-      .catch((e) =>
-        toast.error(
-          <div>{'Unable to get variations:' + JSON.stringify(e)}</div>,
-          {
-            toastId: 'variations',
-          }
-        )
-      );
-  };
-
-  useEffect(() => {
-    refresh();
-  }, []);
-
-  return (
-    <div>
-      <div className='grid grid-cols-3 place-items-center items-center px-6'>
-        <h1 className='data-table-title col-start-2'>Variations</h1>
-        <DataImportForm
-          className='justify-self-end'
-          dataName='Variation'
-          fields={fields as Array<FieldType<db_VariationInfo>>}
-          onSubmitCallback={onRecordInsertionFormSubmission}
-        ></DataImportForm>
-      </div>
-      <Table data={data} columns={cols} />
-    </div>
-  );
+const nameMapping: { [key in keyof db_VariationInfo]: VariationFieldName } = {
+  alleleName: 'AlleleName',
+  chromosome: 'Chromosome',
+  physLoc: 'PhysLoc',
+  geneticLoc: 'GenLoc',
+  recombSuppressor: 'RecombSuppressor',
 };
 
-export default DataPage;
+export default function VariationDataPage(): JSX.Element {
+  return (
+    <DataPage
+      title='Variations'
+      dataName='variation'
+      cols={cols}
+      fields={fields}
+      nameMapping={nameMapping}
+      getFilteredData={getFilteredVariations}
+      insertDatum={insertDbVariation}
+    />
+  );
+}

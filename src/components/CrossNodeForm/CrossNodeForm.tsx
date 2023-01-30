@@ -4,7 +4,7 @@ import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import { Sex } from 'models/enums';
 import { DynamicMultiSelect } from 'components/DynamicMultiSelect/DynamicMultiSelect';
 import { db_Allele } from 'models/db/db_Allele';
-import { Filter } from 'models/db/filter/Filter';
+import { FilterGroup } from 'models/db/filter/FilterGroup';
 import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
@@ -12,7 +12,9 @@ import { getMenuItems } from 'components/CrossNodeMenu/CrossNodeMenu';
 
 export interface CrossNodeFormProps {
   addNewCrossNode: (arg: CrossNodeModel) => void;
-  getFilteredAlleles: (filter: Filter<AlleleFieldName>) => Promise<db_Allele[]>;
+  getFilteredAlleles: (
+    filter: FilterGroup<AlleleFieldName>
+  ) => Promise<db_Allele[]>;
   createAlleleFromRecord: (dbAllele: db_Allele) => Promise<Allele>;
 }
 

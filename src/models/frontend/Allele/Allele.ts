@@ -4,7 +4,7 @@ import { getVariation } from 'api/variationInfo';
 import { db_Allele } from 'models/db/db_Allele';
 import { AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
-import { Filter } from 'models/db/filter/Filter';
+import { FilterGroup } from 'models/db/filter/FilterGroup';
 import { AlleleExpression } from 'models/frontend/AlleleExpression';
 import { Gene } from 'models/frontend/Gene/Gene';
 import GeneticLocation from 'models/frontend/GeneticLocation';
@@ -105,8 +105,8 @@ export class Allele {
 
   private static readonly setAlleleExpressionsFilter = (
     alleleName: string
-  ): Filter<AlleleExpressionFieldName> => {
-    const filter: Filter<AlleleExpressionFieldName> = {
+  ): FilterGroup<AlleleExpressionFieldName> => {
+    const filter: FilterGroup<AlleleExpressionFieldName> = {
       filters: [[['AlleleName', { Equal: alleleName }]]],
       orderBy: [],
     };

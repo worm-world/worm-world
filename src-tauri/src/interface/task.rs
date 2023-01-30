@@ -1,6 +1,6 @@
 use super::{DbError, InnerDbState};
 use crate::models::{
-    filter::{Filter, FilterQueryBuilder},
+    filter::{FilterGroup, FilterQueryBuilder},
     task::{Task, TaskDb, TaskFieldName},
 };
 use anyhow::Result;
@@ -27,7 +27,7 @@ impl InnerDbState {
 
     pub async fn get_filtered_tasks(
         &self,
-        filter: &Filter<TaskFieldName>,
+        filter: &FilterGroup<TaskFieldName>,
     ) -> Result<Vec<Task>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT id, due_date, action, strain1, strain2 FROM tasks",
@@ -105,7 +105,7 @@ mod test {
     use crate::InnerDbState;
     use crate::{
         dummy::testdata,
-        models::filter::{Filter, FilterType},
+        models::filter::{FilterGroup, Filter},
     };
     use anyhow::Result;
     use pretty_assertions::assert_eq;
@@ -129,11 +129,11 @@ mod test {
     async fn test_get_filtered_tasks(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_tasks(&Filter::<TaskFieldName> {
+            .get_filtered_tasks(&FilterGroup::<TaskFieldName> {
                 filters: vec![vec![
                     (
                         TaskFieldName::Id,
-                        FilterType::Equal("1".to_owned()),
+                        Filter::Equal("1".to_owned()),
                     ),
                 ]],
                 order_by: vec![],

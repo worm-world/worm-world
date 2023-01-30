@@ -2,7 +2,7 @@ use super::{DbError, InnerDbState};
 use crate::models::{
     condition::{Condition, ConditionDb, ConditionFieldName},
     expr_relation::ExpressionRelationFieldName,
-    filter::{Filter, FilterQueryBuilder},
+    filter::{FilterGroup, FilterQueryBuilder},
 };
 use anyhow::Result;
 use sqlx::{QueryBuilder, Sqlite};
@@ -40,7 +40,7 @@ impl InnerDbState {
 
     pub async fn get_filtered_conditions(
         &self,
-        filter: &Filter<ConditionFieldName>,
+        filter: &FilterGroup<ConditionFieldName>,
     ) -> Result<Vec<Condition>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT
@@ -70,8 +70,8 @@ impl InnerDbState {
 
     pub async fn get_altering_conditions(
         &self,
-        expr_relation_filter: &Filter<ExpressionRelationFieldName>,
-        condition_filter: &Filter<ConditionFieldName>,
+        expr_relation_filter: &FilterGroup<ExpressionRelationFieldName>,
+        condition_filter: &FilterGroup<ConditionFieldName>,
     ) -> Result<Vec<Condition>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT DISTINCT
@@ -140,7 +140,7 @@ mod test {
     use crate::dummy::testdata;
     use crate::models::condition::{Condition, ConditionFieldName};
     use crate::models::expr_relation::ExpressionRelationFieldName;
-    use crate::models::filter::{Filter, FilterType};
+    use crate::models::filter::{FilterGroup, Filter, Order};
     use crate::InnerDbState;
     use anyhow::Result;
     use pretty_assertions::assert_eq;
@@ -163,12 +163,12 @@ mod test {
     async fn test_get_filtered_conditions(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_conditions(&Filter::<ConditionFieldName> {
+            .get_filtered_conditions(&FilterGroup::<ConditionFieldName> {
                 filters: vec![vec![(
                     ConditionFieldName::MaturationDays,
-                    FilterType::LessThan("4".to_owned(), false),
+                    Filter::LessThan("4".to_owned(), false),
                 )]],
-                order_by: vec![ConditionFieldName::Name],
+                order_by: vec![(ConditionFieldName::Name, Order::Asc)],
             })
             .await?;
 
@@ -177,15 +177,34 @@ mod test {
     }
 
     #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_conditions_desc(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_conditions(&FilterGroup::<ConditionFieldName> {
+                filters: vec![vec![(
+                    ConditionFieldName::MaturationDays,
+                    Filter::LessThan("4".to_owned(), false),
+                )]],
+                order_by: vec![(ConditionFieldName::Name, Order::Desc)],
+            })
+            .await?;
+        let mut fc = testdata::get_filtered_conditions();
+        fc.reverse();
+        assert_eq!(exprs, fc);
+        Ok(())
+    }
+
+
+    #[sqlx::test(fixtures("dummy"))]
     async fn test_get_filtered_conditions_not_3_maturation_days(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_conditions(&Filter::<ConditionFieldName> {
+            .get_filtered_conditions(&FilterGroup::<ConditionFieldName> {
                 filters: vec![vec![(
                     ConditionFieldName::MaturationDays,
-                    FilterType::NotEqual("3".to_owned()),
+                    Filter::NotEqual("3".to_owned()),
                 )]],
-                order_by: vec![ConditionFieldName::Name],
+                order_by: vec![(ConditionFieldName::Name, Order::Asc)],
             })
             .await?;
 
@@ -200,12 +219,12 @@ mod test {
     async fn test_search_conditions_by_name(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_conditions(&Filter::<ConditionFieldName> {
+            .get_filtered_conditions(&FilterGroup::<ConditionFieldName> {
                 filters: vec![vec![(
                     ConditionFieldName::Name,
-                    FilterType::Like("ami".to_owned()),
+                    Filter::Like("ami".to_owned()),
                 )]],
-                order_by: vec![ConditionFieldName::Name],
+                order_by: vec![(ConditionFieldName::Name, Order::Asc)],
             })
             .await?;
 
@@ -218,30 +237,30 @@ mod test {
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_altering_conditions(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
-        let expr_relation_filter = Filter::<ExpressionRelationFieldName> {
+        let expr_relation_filter = FilterGroup::<ExpressionRelationFieldName> {
             filters: vec![
                 vec![(
                     ExpressionRelationFieldName::AlleleName,
-                    FilterType::Equal("n765".to_owned()),
+                    Filter::Equal("n765".to_owned()),
                 )],
                 vec![(
                     ExpressionRelationFieldName::ExpressingPhenotypeName,
-                    FilterType::Equal("lin-15B".to_owned()),
+                    Filter::Equal("lin-15B".to_owned()),
                 )],
                 vec![(
                     ExpressionRelationFieldName::ExpressingPhenotypeWild,
-                    FilterType::False,
+                    Filter::False,
                 )],
                 vec![(
                     ExpressionRelationFieldName::IsSuppressing,
-                    FilterType::False,
+                    Filter::False,
                 )],
             ],
             order_by: vec![],
         };
-        let condition_filter = Filter::<ConditionFieldName> {
+        let condition_filter = FilterGroup::<ConditionFieldName> {
             filters: vec![],
-            order_by: vec![ConditionFieldName::Name],
+            order_by: vec![(ConditionFieldName::Name, Order::Asc)],
         };
 
         let conditions = state

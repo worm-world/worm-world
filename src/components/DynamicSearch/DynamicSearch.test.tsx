@@ -3,14 +3,14 @@ import { render, screen } from '@testing-library/react';
 import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
 import { db_Allele } from 'models/db/db_Allele';
 import { getDbAlleles } from 'components/DynamicSearch/DynamicSearch.mock';
-import { Filter } from 'models/db/filter/Filter';
+import { FilterGroup } from 'models/db/filter/FilterGroup';
 import {
   DynamicSearch,
   iSearchProps,
 } from 'components/DynamicSearch/DynamicSearch';
 
 const getAlleleApi = async (
-  filter: Filter<AlleleFieldName>
+  filter: FilterGroup<AlleleFieldName>
 ): Promise<db_Allele[]> => {
   return getDbAlleles();
 };

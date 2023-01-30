@@ -3,10 +3,10 @@ import { db_Phenotype } from 'models/db/db_Phenotype';
 import { ExpressionRelationFieldName } from 'models/db/filter/db_ExpressionRelationFieldName';
 import { PhenotypeFieldName } from 'models/db/filter/db_PhenotypeFieldName';
 import {
-  Filter,
+  FilterGroup,
   getDbBoolean,
   getSingleRecordOrThrow,
-} from 'models/db/filter/Filter';
+} from 'models/db/filter/FilterGroup';
 import { Phenotype } from 'models/frontend/Phenotype';
 
 export const getPhenotypes = async (): Promise<db_Phenotype[]> => {
@@ -14,7 +14,7 @@ export const getPhenotypes = async (): Promise<db_Phenotype[]> => {
 };
 
 export const getFilteredPhenotypes = async (
-  filter: Filter<PhenotypeFieldName>
+  filter: FilterGroup<PhenotypeFieldName>
 ): Promise<db_Phenotype[]> => {
   return await invoke('get_filtered_phenotypes', {
     filter,
@@ -25,7 +25,7 @@ export const getPhenotype = async (
   name: string,
   wild: boolean
 ): Promise<db_Phenotype> => {
-  const filter: Filter<PhenotypeFieldName> = {
+  const filter: FilterGroup<PhenotypeFieldName> = {
     filters: [[['Name', { Equal: name }]], [['Wild', getDbBoolean(wild)]]],
     orderBy: [],
   };
@@ -42,7 +42,7 @@ export const getAlteringPhenotypes = async (
   phenotypeWild: boolean,
   isSuppressing: boolean
 ): Promise<db_Phenotype[]> => {
-  const exprRelationFilter: Filter<ExpressionRelationFieldName> = {
+  const exprRelationFilter: FilterGroup<ExpressionRelationFieldName> = {
     filters: [
       [['AlleleName', { Equal: alleleName }]],
       [['ExpressingPhenotypeName', { Equal: phenotypeName }]],
@@ -51,7 +51,7 @@ export const getAlteringPhenotypes = async (
     ],
     orderBy: [],
   };
-  const phenotypeFilter: Filter<PhenotypeFieldName> = {
+  const phenotypeFilter: FilterGroup<PhenotypeFieldName> = {
     filters: [],
     orderBy: [],
   };

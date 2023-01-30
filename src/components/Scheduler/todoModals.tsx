@@ -6,7 +6,7 @@ const TodoModals = (props: {}): JSX.Element => {
         <div className='modal-box relative'>
           <label
             htmlFor='conditions'
-            className='btn-sm btn-circle btn absolute right-2 top-2'
+            className='btn btn-sm btn-circle absolute right-2 top-2'
           >
             ✕
           </label>
@@ -20,7 +20,7 @@ const TodoModals = (props: {}): JSX.Element => {
         <div className='modal-box relative h-32'>
           <label
             htmlFor='my-modal-3'
-            className='btn-sm btn-circle btn absolute right-2 top-2'
+            className='btn btn-sm btn-circle absolute right-2 top-2'
           >
             ✕
           </label>

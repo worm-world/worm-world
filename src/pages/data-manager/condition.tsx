@@ -1,11 +1,9 @@
-import { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
 import { db_Condition } from 'models/db/db_Condition';
-import { Table, ColumnDefinitionType } from 'components/Table/Table';
+import { ColumnDefinitionType } from 'components/Table/Table';
 import { getFilteredConditions, insertDbCondition } from 'api/condition';
-import DataImportForm, {
-  FieldType,
-} from 'components/DataImportForm/DataImportForm';
+import { Field } from 'components/ColumnFilter/ColumnFilter';
+import { ConditionFieldName } from 'models/db/filter/db_ConditionFieldName';
+import DataPage from 'components/DataPage/DataPage';
 
 export const cols: Array<ColumnDefinitionType<db_Condition>> = [
   { key: 'name', header: 'Name' },
@@ -17,7 +15,7 @@ export const cols: Array<ColumnDefinitionType<db_Condition>> = [
   { key: 'maturationDays', header: 'Maturation Days' },
 ];
 
-const fields = [
+const fields: Array<Field<db_Condition>> = [
   {
     name: 'name',
     title: 'Condition Name',
@@ -55,55 +53,26 @@ const fields = [
   },
 ];
 
-const DataPage = (): JSX.Element => {
-  const [data, setData] = useState<db_Condition[]>([]);
-  const onRecordInsertionFormSubmission = (
-    record: db_Condition,
-    successCallback: () => void
-  ): void => {
-    insertDbCondition(record)
-      .then((resp) => {
-        successCallback();
-        refresh();
-      })
-      .catch((e: Error) => {
-        toast.error(
-          'An error has occured when inserting data: ' + JSON.stringify(e)
-        );
-      });
-  };
-
-  const refresh = (): void => {
-    getFilteredConditions({
-      filters: [],
-      orderBy: [],
-    })
-      .then((ds) => setData(ds))
-      .catch((e) =>
-        toast.error('Unable to get conditions: ' + JSON.stringify(e), {
-          toastId: 'conditions',
-        })
-      );
-  };
-
-  useEffect(() => {
-    refresh();
-  }, []);
-
-  return (
-    <div>
-      <div className='grid grid-cols-3 place-items-center items-center px-6'>
-        <h1 className='data-table-title col-start-2'>Conditions</h1>
-        <DataImportForm
-          className='justify-self-end'
-          dataName='Condition'
-          fields={fields as Array<FieldType<db_Condition>>}
-          onSubmitCallback={onRecordInsertionFormSubmission}
-        ></DataImportForm>
-      </div>
-      <Table data={data} columns={cols} />
-    </div>
-  );
+const nameMapping: { [key in keyof db_Condition]: ConditionFieldName } = {
+  name: 'Name',
+  description: 'Description',
+  maleMating: 'MaleMating',
+  maturationDays: 'MaturationDays',
+  lethal: 'Lethal',
+  femaleSterile: 'FemaleSterile',
+  arrested: 'Arrested',
 };
 
-export default DataPage;
+export default function ConditionDataPage(): JSX.Element {
+  return (
+    <DataPage
+      title='Conditions'
+      dataName='condition'
+      cols={cols}
+      fields={fields}
+      nameMapping={nameMapping}
+      getFilteredData={getFilteredConditions}
+      insertDatum={insertDbCondition}
+    />
+  );
+}

@@ -1,4 +1,4 @@
-import { Filter } from 'models/db/filter/Filter';
+import { FilterGroup } from 'models/db/filter/FilterGroup';
 import React, { useState } from 'react';
 
 /**
@@ -7,7 +7,7 @@ import React, { useState } from 'react';
  */
 export interface iSearchProps<T, U> {
   /** provide the api call that will fetch filtered db records */
-  getFilteredRecordApi: (filter: Filter<T>) => Promise<U[]>;
+  getFilteredRecordApi: (filter: FilterGroup<T>) => Promise<U[]>;
   /** db Field Name you want to search on */
   searchOn: T;
   /** db Record field that corresponds to user input */
@@ -23,7 +23,7 @@ export const DynamicSearch = <T, U>(props: iSearchProps<T, U>): JSX.Element => {
   const [, setSelectedRecord] = useState<U | undefined>();
   const onInputChange = (val: React.ChangeEvent<HTMLInputElement>): void => {
     setUserInput(val.target.value);
-    const filter: Filter<T> = {
+    const filter: FilterGroup<T> = {
       filters: [[[props.searchOn, { Like: val.target.value }]]],
       orderBy: [],
     };

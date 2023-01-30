@@ -1,7 +1,11 @@
 import { render, screen } from '@testing-library/react';
-import { Table } from 'components/Table/Table';
+import userEvent from '@testing-library/user-event';
+import { vi } from 'vitest';
+import { ColumnDefinitionType, Table } from 'components/Table/Table';
 import { cols as alleleCols } from 'pages/data-manager/allele';
 import { db_Allele } from 'models/db/db_Allele';
+import { Field } from 'components/ColumnFilter/ColumnFilter';
+import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
 
 const alleleData: db_Allele[] = [
   {
@@ -24,16 +28,71 @@ const alleleData: db_Allele[] = [
   },
 ];
 
+export const cols: Array<ColumnDefinitionType<db_Allele>> = [
+  { key: 'name', header: 'Name' },
+  { key: 'sysGeneName', header: 'Systematic Gene Name' },
+  { key: 'variationName', header: 'Variation Name' },
+  { key: 'contents', header: 'Contents' },
+];
+
+const fields: Array<Field<db_Allele>> = [
+  {
+    name: 'name',
+    title: 'Allele Name',
+    type: 'text',
+  },
+  {
+    name: 'contents',
+    title: 'Allele Contents',
+    type: 'text',
+  },
+  {
+    name: 'sysGeneName',
+    title: 'Systematic Gene Name',
+    type: 'text',
+  },
+  {
+    name: 'variationName',
+    title: 'Variation Name',
+    type: 'text',
+  },
+];
+
+const nameMapping: { [key in keyof db_Allele]: AlleleFieldName } = {
+  name: 'Name',
+  sysGeneName: 'SysGeneName',
+  variationName: 'VariationName',
+  contents: 'Contents',
+};
+
 describe('Table component', () => {
   test('successfully renders', () => {
-    render(<Table data={alleleData} columns={alleleCols} />);
+    const runFilters = vi.fn();
+    render(
+      <Table
+        data={alleleData}
+        columns={alleleCols}
+        nameMapping={nameMapping}
+        fields={fields}
+        runFilters={runFilters}
+      />
+    );
 
     const table = screen.getByRole('table');
     expect(table).toBeDefined();
   });
 
   test('displays listed columns', () => {
-    render(<Table data={alleleData} columns={alleleCols} />);
+    const runFilters = vi.fn();
+    render(
+      <Table
+        data={alleleData}
+        columns={alleleCols}
+        nameMapping={nameMapping}
+        fields={fields}
+        runFilters={runFilters}
+      />
+    );
     const colHeaders = screen.getAllByRole('columnheader');
     expect(colHeaders).toHaveLength(alleleCols.length);
 
@@ -44,7 +103,16 @@ describe('Table component', () => {
   });
 
   test('displays inputted row data', () => {
-    render(<Table data={alleleData} columns={alleleCols} />);
+    const runFilters = vi.fn();
+    render(
+      <Table
+        data={alleleData}
+        columns={alleleCols}
+        nameMapping={nameMapping}
+        fields={fields}
+        runFilters={runFilters}
+      />
+    );
     const rows = screen.getAllByRole('row');
     expect(rows).toHaveLength(alleleData.length + 1); // include col header row
     rows.shift(); // only consider row data
@@ -60,11 +128,69 @@ describe('Table component', () => {
   });
 
   test('can handle empty row data', () => {
-    render(<Table data={[]} columns={alleleCols} />);
+    const runFilters = vi.fn();
+    render(
+      <Table
+        data={[]}
+        columns={alleleCols}
+        nameMapping={nameMapping}
+        fields={fields}
+        runFilters={runFilters}
+      />
+    );
     const headers = screen.getAllByRole('columnheader');
     expect(headers).toHaveLength(alleleCols.length);
 
     const rows = screen.getAllByRole('row');
     expect(rows).toHaveLength(1);
+    expect(runFilters).not.toBeCalled();
+  });
+
+  test('hovering header shows filter icon', async () => {
+    userEvent.setup();
+    const runFilters = vi.fn();
+    render(
+      <Table
+        data={[]}
+        columns={alleleCols}
+        nameMapping={nameMapping}
+        fields={fields}
+        runFilters={runFilters}
+      />
+    );
+    const headers = screen.getAllByRole('columnheader');
+    expect(headers).toHaveLength(alleleCols.length);
+
+    await userEvent.hover(headers[0]);
+
+    const filterButtons = screen.getAllByRole('button', {
+      name: 'filter-icon',
+    });
+    const sortButtons = screen.getAllByRole('button', { name: 'sort-icon' });
+
+    expect(filterButtons[0].firstChild).toBeVisible();
+  });
+
+  test('clicking sort calls runFilters', async () => {
+    userEvent.setup();
+    const runFilters = vi.fn();
+    render(
+      <Table
+        data={[]}
+        columns={alleleCols}
+        nameMapping={nameMapping}
+        fields={fields}
+        runFilters={runFilters}
+      />
+    );
+    const headers = screen.getAllByRole('columnheader');
+    expect(headers).toHaveLength(alleleCols.length);
+
+    await userEvent.hover(headers[0]);
+
+    const sortButtons = screen.getAllByRole('button', { name: 'sort-icon' });
+    expect(runFilters).not.toBeCalled();
+    await userEvent.click(sortButtons[0]);
+    expect(runFilters).toBeCalled();
   });
 });

@@ -1,7 +1,7 @@
 import { DynamicMultiSelect, iDynamicMultiSelect } from './DynamicMultiSelect';
 import { useState } from 'react';
 import { Meta, StoryFn } from '@storybook/react';
-import { Filter } from 'models/db/filter/Filter';
+import { FilterGroup } from 'models/db/filter/FilterGroup';
 
 type StringWrapper = { field: string };
 
@@ -35,7 +35,7 @@ const testRecords: StringWrapper[] = [
 ];
 
 const getFilteredRecordApi = (
-  filter: Filter<string>
+  filter: FilterGroup<string>
 ): Promise<StringWrapper[]> => {
   const expr = filter.filters.at(0)?.at(0)?.at(1) as { Like: string };
   const filtered = testRecords.filter((record) => {

@@ -1,4 +1,4 @@
-import { Filter } from 'models/db/filter/Filter';
+import { FilterGroup } from 'models/db/filter/FilterGroup';
 import React, { useState } from 'react';
 import { getSelectedPills } from 'components/SelectedPill/SelectedPill';
 
@@ -8,7 +8,7 @@ import { getSelectedPills } from 'components/SelectedPill/SelectedPill';
  */
 export interface iDynamicMultiSelect<T, U> {
   /** provide the api call that will fetch filtered db records */
-  getFilteredRecordApi: (filter: Filter<T>) => Promise<U[]>;
+  getFilteredRecordApi: (filter: FilterGroup<T>) => Promise<U[]>;
   /** db Field Name you want to search on */
   searchOn: T;
   /** db Record field that corresponds to user input */
@@ -39,7 +39,7 @@ export const DynamicMultiSelect = <T, U>(
       setSearchRes([]);
       return;
     }
-    const filter: Filter<T> = {
+    const filter: FilterGroup<T> = {
       filters: [[[props.searchOn, { Like: event.target.value }]]],
       orderBy: [],
     };

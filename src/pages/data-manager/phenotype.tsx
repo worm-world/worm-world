@@ -1,11 +1,9 @@
-import { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
 import { db_Phenotype } from 'models/db/db_Phenotype';
-import { Table, ColumnDefinitionType } from 'components/Table/Table';
+import { ColumnDefinitionType } from 'components/Table/Table';
 import { getFilteredPhenotypes, insertDbPhenotype } from 'api/phenotype';
-import DataImportForm, {
-  FieldType,
-} from 'components/DataImportForm/DataImportForm';
+import { PhenotypeFieldName } from 'models/db/filter/db_PhenotypeFieldName';
+import DataPage from 'components/DataPage/DataPage';
+import { Field } from 'components/ColumnFilter/ColumnFilter';
 
 export const cols: Array<ColumnDefinitionType<db_Phenotype>> = [
   { key: 'name', header: 'Name' },
@@ -19,7 +17,7 @@ export const cols: Array<ColumnDefinitionType<db_Phenotype>> = [
   { key: 'shortName', header: 'Short Name' },
 ];
 
-const fields = [
+const fields: Array<Field<db_Phenotype>> = [
   {
     name: 'name',
     title: 'Phenotype Name',
@@ -67,55 +65,28 @@ const fields = [
   },
 ];
 
-const DataPage = (): JSX.Element => {
-  const [data, setData] = useState<db_Phenotype[]>([]);
-  const onRecordInsertionFormSubmission = (
-    record: db_Phenotype,
-    successCallback: () => void
-  ): void => {
-    insertDbPhenotype(record)
-      .then((resp) => {
-        successCallback();
-        refresh();
-      })
-      .catch((e: Error) => {
-        toast.error(
-          'An error has occured when inserting data: ' + JSON.stringify(e)
-        );
-      });
-  };
-
-  const refresh = (): void => {
-    getFilteredPhenotypes({
-      filters: [],
-      orderBy: [],
-    })
-      .then((ds) => setData(ds))
-      .catch((e) =>
-        toast.error('Unable to get phenotypes: ' + JSON.stringify(e), {
-          toastId: 'phenotypes',
-        })
-      );
-  };
-
-  useEffect(() => {
-    refresh();
-  }, []);
-
-  return (
-    <div>
-      <div className='grid grid-cols-3 place-items-center items-center px-6'>
-        <h1 className='data-table-title col-start-2'>Phenotypes</h1>
-        <DataImportForm
-          className='justify-self-end'
-          dataName='Phenotype'
-          fields={fields as Array<FieldType<db_Phenotype>>}
-          onSubmitCallback={onRecordInsertionFormSubmission}
-        ></DataImportForm>
-      </div>
-      <Table data={data} columns={cols} />
-    </div>
-  );
+const nameMapping: { [key in keyof db_Phenotype]: PhenotypeFieldName } = {
+  name: 'Name',
+  shortName: 'ShortName',
+  description: 'Description',
+  maleMating: 'MaleMating',
+  maturationDays: 'MaturationDays',
+  wild: 'Wild',
+  lethal: 'Lethal',
+  femaleSterile: 'FemaleSterile',
+  arrested: 'Arrested',
 };
 
-export default DataPage;
+export default function PhenotypeDataPage(): JSX.Element {
+  return (
+    <DataPage
+      title='Phenotypes'
+      dataName='phenotype'
+      cols={cols}
+      fields={fields}
+      nameMapping={nameMapping}
+      getFilteredData={getFilteredPhenotypes}
+      insertDatum={insertDbPhenotype}
+    />
+  );
+}

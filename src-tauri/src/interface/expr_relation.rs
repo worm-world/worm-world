@@ -1,7 +1,7 @@
 use super::{DbError, InnerDbState};
 use crate::models::{
     expr_relation::{ExpressionRelation, ExpressionRelationDb, ExpressionRelationFieldName},
-    filter::{Filter, FilterQueryBuilder},
+    filter::{FilterGroup, FilterQueryBuilder},
 };
 use anyhow::Result;
 use sqlx::{QueryBuilder, Sqlite};
@@ -43,7 +43,7 @@ impl InnerDbState {
 
     pub async fn get_filtered_expr_relations(
         &self,
-        filter: &Filter<ExpressionRelationFieldName>,
+        filter: &FilterGroup<ExpressionRelationFieldName>,
     ) -> Result<Vec<ExpressionRelation>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT
@@ -110,7 +110,7 @@ mod test {
 
     use crate::dummy::testdata;
     use crate::models::expr_relation::ExpressionRelationFieldName;
-    use crate::models::filter::{Filter, FilterType};
+    use crate::models::filter::{FilterGroup, Filter, Order};
     use crate::models::{
         allele::Allele, allele_expr::AlleleExpression, expr_relation::ExpressionRelation,
         phenotype::Phenotype, variation_info::VariationInfo,
@@ -135,18 +135,18 @@ mod test {
     async fn test_get_filtered_expr_relations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_expr_relations(&Filter::<ExpressionRelationFieldName> {
+            .get_filtered_expr_relations(&FilterGroup::<ExpressionRelationFieldName> {
                 filters: vec![
                     vec![(
                         ExpressionRelationFieldName::AlteringCondition,
-                        FilterType::Equal("Histamine".to_owned()),
+                        Filter::Equal("Histamine".to_owned()),
                     )],
                     vec![(
                         ExpressionRelationFieldName::ExpressingPhenotypeName,
-                        FilterType::Equal("paralyzed".to_owned()),
+                        Filter::Equal("paralyzed".to_owned()),
                     )],
                 ],
-                order_by: vec![ExpressionRelationFieldName::AlleleName],
+                order_by: vec![(ExpressionRelationFieldName::AlleleName, Order::Asc)],
             })
             .await?;
 
@@ -158,34 +158,34 @@ mod test {
     async fn test_get_filtered_expr_relations_many_and_clauses(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_expr_relations(&Filter::<ExpressionRelationFieldName> {
+            .get_filtered_expr_relations(&FilterGroup::<ExpressionRelationFieldName> {
                 filters: vec![
                     vec![(
                         ExpressionRelationFieldName::ExpressingPhenotypeName,
-                        FilterType::Equal("paralyzed".to_owned()),
+                        Filter::Equal("paralyzed".to_owned()),
                     )],
                     vec![(
                         ExpressionRelationFieldName::AlteringCondition,
-                        FilterType::NotNull,
+                        Filter::NotNull,
                     )],
                     vec![(
                         ExpressionRelationFieldName::ExpressingPhenotypeWild,
-                        FilterType::False,
+                        Filter::False,
                     )],
                     vec![(
                         ExpressionRelationFieldName::AlteringPhenotypeName,
-                        FilterType::Null,
+                        Filter::Null,
                     )],
                     vec![(
                         ExpressionRelationFieldName::IsSuppressing,
-                        FilterType::False,
+                        Filter::False,
                     )],
                     vec![(
                         ExpressionRelationFieldName::AlleleName,
-                        FilterType::Equal("oxEx219999".to_string()),
+                        Filter::Equal("oxEx219999".to_string()),
                     )],
                 ],
-                order_by: vec![ExpressionRelationFieldName::AlleleName],
+                order_by: vec![(ExpressionRelationFieldName::AlleleName, Order::Asc)],
             })
             .await?;
 
@@ -199,12 +199,12 @@ mod test {
     async fn test_search_expr_relations_by_allele_name(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_expr_relations(&Filter::<ExpressionRelationFieldName> {
+            .get_filtered_expr_relations(&FilterGroup::<ExpressionRelationFieldName> {
                 filters: vec![vec![(
                     ExpressionRelationFieldName::AlleleName,
-                    FilterType::Like("6".to_owned()),
+                    Filter::Like("6".to_owned()),
                 )]],
-                order_by: vec![ExpressionRelationFieldName::AlleleName],
+                order_by: vec![(ExpressionRelationFieldName::AlleleName, Order::Asc)],
             })
             .await?;
 
@@ -217,18 +217,18 @@ mod test {
     ) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_expr_relations(&Filter::<ExpressionRelationFieldName> {
+            .get_filtered_expr_relations(&FilterGroup::<ExpressionRelationFieldName> {
                 filters: vec![
                     vec![(
                         ExpressionRelationFieldName::AlleleName,
-                        FilterType::Like("ox".to_owned()),
+                        Filter::Like("ox".to_owned()),
                     )],
                     vec![(
                         ExpressionRelationFieldName::ExpressingPhenotypeName,
-                        FilterType::Like("yfp".to_owned()),
+                        Filter::Like("yfp".to_owned()),
                     )],
                 ],
-                order_by: vec![ExpressionRelationFieldName::AlleleName],
+                order_by: vec![(ExpressionRelationFieldName::AlleleName, Order::Asc)],
             })
             .await?;
 

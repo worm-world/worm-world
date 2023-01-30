@@ -2,10 +2,10 @@ import { invoke } from '@tauri-apps/api/tauri';
 import { db_AlleleExpression } from 'models/db/db_AlleleExpression';
 import { AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
 import {
-  Filter,
+  FilterGroup,
   getDbBoolean,
   getSingleRecordOrThrow,
-} from 'models/db/filter/Filter';
+} from 'models/db/filter/FilterGroup';
 import { AlleleExpression } from 'models/frontend/AlleleExpression';
 
 export const getAlleleExpressions = async (): Promise<
@@ -15,7 +15,7 @@ export const getAlleleExpressions = async (): Promise<
 };
 
 export const getFilteredAlleleExpressions = async (
-  filter: Filter<AlleleExpressionFieldName>
+  filter: FilterGroup<AlleleExpressionFieldName>
 ): Promise<db_AlleleExpression[]> => {
   return await invoke('get_filtered_allele_exprs', { filter });
 };
@@ -25,7 +25,7 @@ export const getAlleleExpression = async (
   expressingPhenotypeName: string,
   expressingPhenotypeWild: boolean
 ): Promise<db_AlleleExpression> => {
-  const filter: Filter<AlleleExpressionFieldName> = {
+  const filter: FilterGroup<AlleleExpressionFieldName> = {
     filters: [
       [['AlleleName', { Equal: alleleName }]],
       [['ExpressingPhenotypeName', { Equal: expressingPhenotypeName }]],

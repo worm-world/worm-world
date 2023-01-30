@@ -1,7 +1,7 @@
 use super::{DbError, InnerDbState};
 use crate::models::{
     expr_relation::ExpressionRelationFieldName,
-    filter::{Filter, FilterQueryBuilder},
+    filter::{FilterGroup, FilterQueryBuilder},
     phenotype::{Phenotype, PhenotypeDb, PhenotypeFieldName},
 };
 use anyhow::Result;
@@ -42,7 +42,7 @@ impl InnerDbState {
 
     pub async fn get_filtered_phenotypes(
         &self,
-        filter: &Filter<PhenotypeFieldName>,
+        filter: &FilterGroup<PhenotypeFieldName>,
     ) -> Result<Vec<Phenotype>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT
@@ -73,8 +73,8 @@ impl InnerDbState {
 
     pub async fn get_altering_phenotypes(
         &self,
-        expr_relation_filter: &Filter<ExpressionRelationFieldName>,
-        phenotype_filter: &Filter<PhenotypeFieldName>,
+        expr_relation_filter: &FilterGroup<ExpressionRelationFieldName>,
+        phenotype_filter: &FilterGroup<PhenotypeFieldName>,
     ) -> Result<Vec<Phenotype>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT DISTINCT
@@ -148,7 +148,7 @@ mod test {
 
     use crate::dummy::testdata;
     use crate::models::expr_relation::ExpressionRelationFieldName;
-    use crate::models::filter::{Filter, FilterType};
+    use crate::models::filter::{FilterGroup, Filter, Order};
     use crate::models::phenotype::{Phenotype, PhenotypeFieldName};
     use crate::InnerDbState;
     use anyhow::Result;
@@ -172,15 +172,15 @@ mod test {
     async fn test_get_filtered_phenotypes(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_phenotypes(&Filter::<PhenotypeFieldName> {
+            .get_filtered_phenotypes(&FilterGroup::<PhenotypeFieldName> {
                 filters: vec![
                     vec![(
                         PhenotypeFieldName::MaleMating,
-                        FilterType::LessThan("2".to_owned(), false),
+                        Filter::LessThan("2".to_owned(), false),
                     )],
-                    vec![(PhenotypeFieldName::MaturationDays, FilterType::Null)],
+                    vec![(PhenotypeFieldName::MaturationDays, Filter::Null)],
                 ],
-                order_by: vec![PhenotypeFieldName::Name],
+                order_by: vec![(PhenotypeFieldName::Name, Order::Asc)],
             })
             .await?;
 
@@ -192,12 +192,12 @@ mod test {
     async fn test_get_phenotypes_maturation_less_equal_3(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_phenotypes(&Filter::<PhenotypeFieldName> {
+            .get_filtered_phenotypes(&FilterGroup::<PhenotypeFieldName> {
                 filters: vec![vec![(
                     PhenotypeFieldName::MaturationDays,
-                    FilterType::LessThan("3".to_owned(), true),
+                    Filter::LessThan("3".to_owned(), true),
                 )]],
-                order_by: vec![PhenotypeFieldName::Name],
+                order_by: vec![(PhenotypeFieldName::Name, Order::Asc)],
             })
             .await?;
 
@@ -209,12 +209,12 @@ mod test {
     async fn test_search_phenotypes_by_short_name(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_phenotypes(&Filter::<PhenotypeFieldName> {
+            .get_filtered_phenotypes(&FilterGroup::<PhenotypeFieldName> {
                 filters: vec![vec![(
                     PhenotypeFieldName::ShortName,
-                    FilterType::Like("NLS".to_owned()),
+                    Filter::Like("NLS".to_owned()),
                 )]],
-                order_by: vec![PhenotypeFieldName::Name],
+                order_by: vec![(PhenotypeFieldName::Name, Order::Asc)],
             })
             .await?;
 
@@ -226,34 +226,34 @@ mod test {
     /* #region get_altering_phenotypes tests */
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_altering_phenotypes(pool: Pool<Sqlite>) -> Result<()> {
-        let expr_relation_filter = Filter::<ExpressionRelationFieldName> {
+        let expr_relation_filter = FilterGroup::<ExpressionRelationFieldName> {
             filters: vec![
                 vec![(
                     ExpressionRelationFieldName::AlleleName,
-                    FilterType::Equal("oxIs644".to_owned()),
+                    Filter::Equal("oxIs644".to_owned()),
                 )],
                 vec![(
                     ExpressionRelationFieldName::ExpressingPhenotypeName,
-                    FilterType::Equal("YFP(pharynx)".to_owned()),
+                    Filter::Equal("YFP(pharynx)".to_owned()),
                 )],
                 vec![(
                     ExpressionRelationFieldName::ExpressingPhenotypeWild,
-                    FilterType::False,
+                    Filter::False,
                 )],
                 vec![(
                     ExpressionRelationFieldName::IsSuppressing,
-                    FilterType::False,
+                    Filter::False,
                 )],
             ],
             order_by: vec![],
         };
 
-        let phenotype_filter = Filter::<PhenotypeFieldName> {
+        let phenotype_filter = FilterGroup::<PhenotypeFieldName> {
             filters: vec![
-                vec![(PhenotypeFieldName::Wild, FilterType::True)],
+                vec![(PhenotypeFieldName::Wild, Filter::True)],
                 vec![(
                     PhenotypeFieldName::MaturationDays,
-                    FilterType::GreaterThan("3".to_owned(), true),
+                    Filter::GreaterThan("3".to_owned(), true),
                 )],
             ],
             order_by: vec![],

@@ -8,8 +8,15 @@ pub trait FilterQueryBuilder {
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, TS)]
-#[ts(export, export_to = "../src/models/db/filter/FilterType.ts")]
-pub enum FilterType {
+#[ts(export, export_to = "../src/models/db/filter/Order.ts")]
+pub enum Order {
+    Asc,
+    Desc,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, TS)]
+#[ts(export, export_to = "../src/models/db/filter/Filter.ts")]
+pub enum Filter {
     /// the left value to compare to, bool is whether it's inclusive, right is the same
     Range(String, bool, String, bool),
     /// the value to compare to, bool is whether it's inclusive
@@ -25,7 +32,7 @@ pub enum FilterType {
     True,
     False,
 }
-impl FilterType {
+impl Filter {
     pub fn add_to_query(&self, col_name: &String, qb: &mut QueryBuilder<Sqlite>) {
         qb.push(col_name.to_owned());
         match self {
@@ -87,8 +94,8 @@ impl FilterType {
 }
 
 #[derive(Serialize, Deserialize, Debug, TS)]
-#[ts(export_to = "../src/models/db/filter/Filter.ts")]
-pub struct Filter<T>
+#[ts(export_to = "../src/models/db/filter/FilterGroup.ts")]
+pub struct FilterGroup<T>
 where
     T: TS + std::cmp::Eq + std::hash::Hash,
 {
@@ -129,12 +136,12 @@ where
      *                         (col1 == val1 OR col4 == val4) AND
      *                         (col5 == val5);
      */
-    pub filters: Vec<Vec<(T, FilterType)>>,
+    pub filters: Vec<Vec<(T, Filter)>>,
     #[serde(rename = "orderBy")]
-    pub order_by: Vec<T>,
+    pub order_by: Vec<(T, Order)>,
 }
 
-impl<T: FieldNameEnum> FilterQueryBuilder for Filter<T> {
+impl<T: FieldNameEnum> FilterQueryBuilder for FilterGroup<T> {
     fn add_filtered_query(&self, qb: &mut QueryBuilder<Sqlite>) {
         if !self.filters.is_empty() {
             // WHERE
@@ -162,8 +169,12 @@ impl<T: FieldNameEnum> FilterQueryBuilder for Filter<T> {
         if !self.order_by.is_empty() {
             qb.push(" ORDER BY ");
             let mut qb_separated = qb.separated(", ");
-            for order_field in self.order_by.iter() {
-                qb_separated.push(format!("{} COLLATE NOCASE", order_field.get_col_name()));
+            for (order_field, order_dir) in self.order_by.iter() {
+                let order_dir_str = match order_dir {
+                    Order::Asc => "ASC",
+                    Order::Desc => "DESC",
+                };
+                qb_separated.push(format!("{} COLLATE NOCASE {}", order_field.get_col_name(), order_dir_str));
             }
             qb_separated.push_unseparated(" ");
         }

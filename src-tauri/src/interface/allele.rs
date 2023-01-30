@@ -1,7 +1,7 @@
 use super::{DbError, InnerDbState};
 use crate::models::{
     allele::{Allele, AlleleFieldName},
-    filter::{Filter, FilterQueryBuilder},
+    filter::{FilterGroup, FilterQueryBuilder},
 };
 
 use anyhow::Result;
@@ -28,7 +28,7 @@ impl InnerDbState {
 
     pub async fn get_filtered_alleles(
         &self,
-        filter: &Filter<AlleleFieldName>,
+        filter: &FilterGroup<AlleleFieldName>,
     ) -> Result<Vec<Allele>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT name, contents, systematic_gene_name, variation_name FROM alleles",
@@ -74,7 +74,7 @@ mod test {
     use crate::dummy::testdata;
     use crate::models::allele::AlleleFieldName;
     use crate::models::chromosome::Chromosome;
-    use crate::models::filter::{Filter, FilterType};
+    use crate::models::filter::{FilterGroup, Filter, Order};
     use crate::models::{allele::Allele, gene::Gene, variation_info::VariationInfo};
     use crate::InnerDbState;
     use anyhow::Result;
@@ -200,18 +200,18 @@ mod test {
     async fn test_get_filtered_alleles(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_alleles(&Filter::<AlleleFieldName> {
+            .get_filtered_alleles(&FilterGroup::<AlleleFieldName> {
                 filters: vec![vec![
                     (
                         AlleleFieldName::SysGeneName,
-                        FilterType::Equal("F27D9.1".to_owned()),
+                        Filter::Equal("F27D9.1".to_owned()),
                     ),
                     (
                         AlleleFieldName::SysGeneName,
-                        FilterType::Equal("T14B4.7".to_owned()),
+                        Filter::Equal("T14B4.7".to_owned()),
                     ),
                 ]],
-                order_by: vec![AlleleFieldName::Name],
+                order_by: vec![(AlleleFieldName::Name, Order::Asc)],
             })
             .await?;
 
@@ -223,10 +223,10 @@ mod test {
     async fn test_get_filtered_alleles_no_results(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_alleles(&Filter::<AlleleFieldName> {
+            .get_filtered_alleles(&FilterGroup::<AlleleFieldName> {
                 filters: vec![vec![(
                     AlleleFieldName::Name,
-                    FilterType::Equal("non-existant-allele".to_owned()),
+                    Filter::Equal("non-existant-allele".to_owned()),
                 )]],
                 order_by: vec![],
             })
@@ -240,9 +240,9 @@ mod test {
     async fn test_get_filtered_alleles_not_null_contents(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_alleles(&Filter::<AlleleFieldName> {
-                filters: vec![vec![(AlleleFieldName::Contents, FilterType::NotNull)]],
-                order_by: vec![AlleleFieldName::Name],
+            .get_filtered_alleles(&FilterGroup::<AlleleFieldName> {
+                filters: vec![vec![(AlleleFieldName::Contents, Filter::NotNull)]],
+                order_by: vec![(AlleleFieldName::Name, Order::Asc)],
             })
             .await?;
 
@@ -251,12 +251,28 @@ mod test {
     }
 
     #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_alleles_not_null_contents_desc(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_alleles(&FilterGroup::<AlleleFieldName> {
+                filters: vec![vec![(AlleleFieldName::Contents, Filter::NotNull)]],
+                order_by: vec![(AlleleFieldName::Name, Order::Desc)],
+            })
+            .await?;
+        let mut alleles = testdata::get_alleles_with_content();
+        alleles.reverse();
+        assert_eq!(exprs, alleles);
+        Ok(())
+    }
+
+
+    #[sqlx::test(fixtures("dummy"))]
     async fn test_get_filtered_alleles_null_contents(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_alleles(&Filter::<AlleleFieldName> {
-                filters: vec![vec![(AlleleFieldName::Contents, FilterType::Null)]],
-                order_by: vec![AlleleFieldName::Name],
+            .get_filtered_alleles(&FilterGroup::<AlleleFieldName> {
+                filters: vec![vec![(AlleleFieldName::Contents, Filter::Null)]],
+                order_by: vec![(AlleleFieldName::Name, Order::Asc)],
             })
             .await?;
 
@@ -268,12 +284,12 @@ mod test {
     async fn test_search_allele_by_name(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_alleles(&Filter::<AlleleFieldName> {
+            .get_filtered_alleles(&FilterGroup::<AlleleFieldName> {
                 filters: vec![vec![(
                     AlleleFieldName::Name,
-                    FilterType::Like("oxEx".to_string()),
+                    Filter::Like("oxEx".to_string()),
                 )]],
-                order_by: vec![AlleleFieldName::Name],
+                order_by: vec![(AlleleFieldName::Name, Order::Asc)],
             })
             .await?;
 
