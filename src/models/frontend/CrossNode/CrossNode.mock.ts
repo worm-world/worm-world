@@ -3,18 +3,23 @@ import { Sex } from 'models/enums';
 import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
 import * as mockAlleles from 'models/frontend/Allele/Allele.mock';
 import { Allele, WILD_ALLELE, WildAllele } from '../Allele/Allele';
-import { AllelePair } from '../Strain/AllelePair';
+import { AllelePair } from 'models/frontend/Strain/AllelePair';
+import { getMenuItems } from 'components/CrossNodeMenu/CrossNodeMenu';
+
+// Empty Cross Node ///////////////////////////////////////////////////////////
 
 export const empty: CrossNodeModel = {
   sex: Sex.Hermaphrodite,
   strain: new Strain({ name: 'empty', allelePairs: [] }),
   isSelected: false,
+  getMenuItems,
 };
 
 export const emptyMale: CrossNodeModel = {
   sex: Sex.Male,
   strain: new Strain({ name: 'empty', notes: '', allelePairs: [] }),
   isSelected: false,
+  getMenuItems,
 };
 
 export const wild: CrossNodeModel = {
@@ -33,6 +38,7 @@ export const wild: CrossNodeModel = {
       }), // eca
     ],
   }),
+  getMenuItems,
   isSelected: false,
 };
 
@@ -75,6 +81,7 @@ export const mutated: CrossNodeModel = {
   sex: Sex.Male,
   strain: mutatedStrain,
   isSelected: false,
+  getMenuItems,
 };
 
 export const smallMutated: CrossNodeModel = {
@@ -91,6 +98,7 @@ export const smallMutated: CrossNodeModel = {
     ],
     notes: '',
   }),
+  getMenuItems,
 };
 
 export const badMutationLists: CrossNodeModel = {
@@ -111,6 +119,7 @@ export const badMutationLists: CrossNodeModel = {
     notes: '',
   }),
   isSelected: false,
+  getMenuItems,
 };
 
 export const badAllele: CrossNodeModel = {
@@ -132,6 +141,7 @@ export const badAllele: CrossNodeModel = {
     notes: '',
   }),
   isSelected: false,
+  getMenuItems,
 };
 
 export const monoid: CrossNodeModel = {
@@ -147,6 +157,7 @@ export const monoid: CrossNodeModel = {
     notes: '',
   }),
   isSelected: false,
+  getMenuItems,
 };
 
 export const diploid: CrossNodeModel = {
@@ -162,6 +173,7 @@ export const diploid: CrossNodeModel = {
     notes: '',
   }),
   isSelected: false,
+  getMenuItems,
 };
 
 export const ed3HetMale: CrossNodeModel = {
@@ -177,6 +189,7 @@ export const ed3HetMale: CrossNodeModel = {
     notes: '',
   }),
   isSelected: false,
+  getMenuItems,
 };
 
 export const ed3HetHerm: CrossNodeModel = {
@@ -207,6 +220,7 @@ export const ed3HomoHerm: CrossNodeModel = {
     notes: '',
   }),
   isSelected: false,
+  getMenuItems,
 };
 
 export const e204WildMale: CrossNodeModel = {
@@ -221,6 +235,7 @@ export const e204WildMale: CrossNodeModel = {
     notes: '',
   }),
   isSelected: false,
+  getMenuItems,
 };
 
 export const e204HomoHerm: CrossNodeModel = {
@@ -236,6 +251,7 @@ export const e204HomoHerm: CrossNodeModel = {
     notes: '',
   }),
   isSelected: false,
+  getMenuItems,
 };
 
 export const e204HetMale: CrossNodeModel = {
@@ -251,6 +267,7 @@ export const e204HetMale: CrossNodeModel = {
     notes: '',
   }),
   isSelected: false,
+  getMenuItems,
 };
 
 export const ox802HomoHerm: CrossNodeModel = {
@@ -266,6 +283,7 @@ export const ox802HomoHerm: CrossNodeModel = {
     notes: '',
   }),
   isSelected: false,
+  getMenuItems,
 };
 
 export const e204HetOx802Het: CrossNodeModel = {
@@ -285,6 +303,7 @@ export const e204HetOx802Het: CrossNodeModel = {
     notes: '',
   }),
   isSelected: false,
+  getMenuItems,
 };
 
 export const e204HomoOx802HetHerm: CrossNodeModel = {
@@ -304,6 +323,7 @@ export const e204HomoOx802HetHerm: CrossNodeModel = {
     notes: '',
   }),
   isSelected: false,
+  getMenuItems,
 };
 
 export const e204HomoOx802HomoHerm: CrossNodeModel = {
@@ -323,4 +343,5 @@ export const e204HomoOx802HomoHerm: CrossNodeModel = {
     notes: '',
   }),
   isSelected: false,
+  getMenuItems,
 };

@@ -20,7 +20,7 @@ impl InnerDbState {
             Ok(genes) => Ok(genes.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
                 eprint!("Get genes error: {e}");
-                Err(DbError::SqlQueryError(e.to_string()))
+                Err(DbError::Query(e.to_string()))
             }
         }
     }
@@ -42,7 +42,7 @@ impl InnerDbState {
             Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
                 eprint!("Get Filtered Gene error: {e}");
-                Err(DbError::SqlQueryError(e.to_string()))
+                Err(DbError::Query(e.to_string()))
             }
         }
     }
@@ -72,7 +72,7 @@ impl InnerDbState {
             Ok(_) => Ok(()),
             Err(e) => {
                 eprint!("Insert Gene error: {e}");
-                Err(DbError::SqlInsertError(e.to_string()))
+                Err(DbError::Insert(e.to_string()))
             }
         }
     }

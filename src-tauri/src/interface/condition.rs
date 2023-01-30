@@ -33,7 +33,7 @@ impl InnerDbState {
                 .collect::<Vec<Condition>>()),
             Err(e) => {
                 eprint!("Get genes error: {e}");
-                Err(DbError::SqlQueryError(e.to_string()))
+                Err(DbError::Query(e.to_string()))
             }
         }
     }
@@ -63,7 +63,7 @@ impl InnerDbState {
             Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
                 eprint!("Get Filtered Condition error: {e}");
-                Err(DbError::SqlQueryError(e.to_string()))
+                Err(DbError::Query(e.to_string()))
             }
         }
     }
@@ -104,7 +104,7 @@ impl InnerDbState {
             Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
                 eprint!("Get Altering Conditions error: {e}");
-                Err(DbError::SqlQueryError(e.to_string()))
+                Err(DbError::Query(e.to_string()))
             }
         }
     }
@@ -128,7 +128,7 @@ impl InnerDbState {
             Ok(_) => Ok(()),
             Err(e) => {
                 eprint!("Insert Condition error: {e}");
-                Err(DbError::SqlQueryError(e.to_string()))
+                Err(DbError::Query(e.to_string()))
             }
         }
     }

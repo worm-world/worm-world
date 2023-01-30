@@ -66,7 +66,7 @@ export const DynamicMultiSelect = <T, U>(
       {props.label === undefined ? (
         <></> // Don't show label if undefined
       ) : (
-        <label htmlFor={'dynamicSearch'} className='label'>
+        <label htmlFor='dynamicSearch' className='label'>
           <span className='label-text'>{props.label}</span>
         </label>
       )}

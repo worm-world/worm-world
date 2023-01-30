@@ -1,10 +1,11 @@
+import React from 'react';
 import iCrossNode from 'models/frontend/CrossNode/CrossNode';
-import { BiDotsHorizontalRounded as MoreHorizIcon } from 'react-icons/bi';
 import { Sex } from 'models/enums';
 import { IoMale, IoFemale, IoMaleFemale } from 'react-icons/io5';
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
+import { CrossNodeMenu } from 'components/CrossNodeMenu/CrossNodeMenu';
 
 const getSexIcon = (sex: Sex, className: string): JSX.Element => {
   switch (sex) {
@@ -18,6 +19,8 @@ const getSexIcon = (sex: Sex, className: string): JSX.Element => {
 };
 
 const CrossNode = (props: iCrossNode): JSX.Element => {
+  const menuItems =
+    props.getMenuItems !== undefined ? props.getMenuItems(props) : [];
   return (
     <div
       data-testid='crossNode'
@@ -28,11 +31,7 @@ const CrossNode = (props: iCrossNode): JSX.Element => {
     >
       <div className='flex h-6 justify-between'>
         {getSexIcon(props.sex, 'mt-2 ml-1 text-xl')}
-        <label htmlFor='right-cross-drawer' className='drawer-button pr-2'>
-          <button>
-            <MoreHorizIcon />
-          </button>
-        </label>
+        <CrossNodeMenu items={menuItems} />
       </div>
       <div className='my-2 overflow-x-auto px-3 pb-2'>
         <div

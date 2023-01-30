@@ -5,6 +5,8 @@ pub mod expr_relation;
 pub mod gene;
 pub mod phenotype;
 pub mod variation_info;
+pub mod task;
+pub mod tree;
 
 use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Sqlite};
@@ -16,9 +18,11 @@ use ts_rs::TS;
 #[serde(rename = "db_Error")]
 pub enum DbError {
     #[error("Failed to execute query: {0}")]
-    SqlQueryError(String),
+    Query(String),
     #[error("Failed to execute insert: {0}")]
-    SqlInsertError(String),
+    Insert(String),
+    #[error("Failed to execute update: {0}")]
+    Update(String),
 }
 
 pub struct InnerDbState {

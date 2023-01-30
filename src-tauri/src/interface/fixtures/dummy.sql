@@ -130,4 +130,18 @@ VALUES
     ("oxIs644", "YFP(pharynx)", 0, "Flp", 1, NULL, 0),
     ("oxEx219999", "paralyzed", 0, NULL, NULL, "Histamine", 0);
 
+INSERT INTO tasks (id, due_date, action, strain1, strain2)
+VALUES
+    (1, "2012-01-01", 0, "{}", "{}"),
+    (2, "2012-01-02", 1, "{}", "{}"),
+    (3, "2012-01-03", 0, "{}", "{}"),
+    (4, "2012-01-03", 2, "{}", "{}"),
+    (5, "2012-01-04", 3, "{}", "{}");
+    
+INSERT INTO trees (id, name, last_edited, data)
+VALUES
+    (1, "test1", "2012-01-01", "{}"),
+    (2, "test2", "2012-01-02", "{}"),
+    (3, "test3", "2012-01-03", "{}");
+
 COMMIT TRANSACTION;

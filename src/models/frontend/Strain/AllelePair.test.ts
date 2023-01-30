@@ -2,14 +2,55 @@ import { WildAllele, WILD_ALLELE } from 'models/frontend/Allele/Allele';
 import {
   e204,
   ed3,
+  md299,
+  n765,
   ox1059,
+  ox750,
   ox802,
+  oxEx12345,
+  oxEx219999,
+  oxSi1168,
   oxTi302,
 } from 'models/frontend/Allele/Allele.mock';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { expect, test, describe } from 'vitest';
 
 describe('allele pair', () => {
+  test('constructs homozygous pair', () => {
+    const pair1 = new AllelePair({ top: ed3, bot: ed3 });
+    const pair2 = new AllelePair({ top: md299 });
+
+    expect(pair1.top.name).toBe(ed3.name);
+    expect(pair1.bot.name).toBe(ed3.name);
+
+    expect(pair2.top.name).toBe(md299.name);
+    expect(pair2.bot.name).toBe(md299.name);
+  });
+
+  test('constructs heterozygous pair', () => {
+    const pair1 = new AllelePair({ top: WILD_ALLELE, bot: ed3 });
+    const pair2 = new AllelePair({ top: md299, bot: WILD_ALLELE });
+
+    expect(pair1.top.name).toBe(WILD_ALLELE.name);
+    expect(pair1.bot.name).toBe(ed3.name);
+
+    expect(pair2.top.name).toBe(md299.name);
+    expect(pair2.bot.name).toBe(WILD_ALLELE.name);
+  });
+
+  test('auto assigns empty wild to an allele', () => {
+    const pair1 = new AllelePair({ top: WILD_ALLELE, bot: ed3 });
+    const pair2 = new AllelePair({ top: md299, bot: WILD_ALLELE });
+
+    expect(pair1.top.name).toBe(WILD_ALLELE.name);
+    expect(pair1.top.getChromosome()).toBe(ed3.getChromosome());
+    expect(pair1.top.getGenPosition()).toBe(ed3.getGenPosition());
+
+    expect(pair2.bot.name).toBe(WILD_ALLELE.name);
+    expect(pair2.bot.getChromosome()).toBe(md299.getChromosome());
+    expect(pair2.bot.getGenPosition()).toBe(md299.getGenPosition());
+  });
+
   test('.looseEquals() for duplicate allele pairs', () => {
     const pair1 = new AllelePair({ top: e204, bot: e204 });
     const pair2 = new AllelePair({ top: e204, bot: e204 });
@@ -70,7 +111,7 @@ describe('allele pair', () => {
     expect(pair2.strictEquals(pair1)).toBe(false);
   });
   test('.strictEquals() returns false for homozygous vs heterozygous pairs', () => {
-    const pair1 = new AllelePair({ top: e204, bot: WILD_ALLELE });
+    const pair1 = new AllelePair({ top: e204, bot: e204 });
     const pair2 = new AllelePair({ top: WILD_ALLELE, bot: e204 });
     expect(pair1.strictEquals(pair2)).toBe(false);
     expect(pair2.strictEquals(pair1)).toBe(false);
@@ -144,6 +185,113 @@ describe('allele pair', () => {
     expect(hetOx802.hasSameBaseAllele(homoE204)).toBe(false);
     expect(homoOx802.hasSameBaseAllele(hetE204)).toBe(false);
     expect(hetE204.hasSameBaseAllele(homoOx802)).toBe(false);
+  });
+
+  test('.hasSameGenLoc() returns true on homo <--> homo pairs', () => {
+    // both alleles belong to unc-44 gene --> same gen loc
+    const homoOx750 = new AllelePair({ top: ox750 });
+    const homoOx802 = new AllelePair({ top: ox802 });
+
+    expect(homoOx750.hasSameGenLoc(homoOx750)).toBe(true);
+    expect(homoOx750.hasSameGenLoc(homoOx802)).toBe(true);
+    expect(homoOx802.hasSameGenLoc(homoOx802)).toBe(true);
+    expect(homoOx802.hasSameGenLoc(homoOx750)).toBe(true);
+  });
+  test('.hasSameGenLoc() returns true on homo <--> het pairs', () => {
+    // both alleles belong to unc-44 gene --> same gen loc
+    const homoOx750 = new AllelePair({ top: ox750 });
+    const hetOx802 = new AllelePair({ top: ox802, bot: WILD_ALLELE });
+
+    expect(homoOx750.hasSameGenLoc(hetOx802)).toBe(true);
+    expect(hetOx802.hasSameGenLoc(homoOx750)).toBe(true);
+  });
+  test('.hasSameGenLoc() returns true on het <--> het pairs', () => {
+    // both alleles belong to unc-44 gene --> same gen loc
+    const hetOx750 = new AllelePair({ top: ox750, bot: WILD_ALLELE });
+    const hetOx802 = new AllelePair({ top: WILD_ALLELE, bot: ox802 });
+
+    expect(hetOx750.hasSameGenLoc(hetOx802)).toBe(true);
+    expect(hetOx802.hasSameGenLoc(hetOx750)).toBe(true);
+  });
+  test('.hasSameGenLoc() returns true on homo <--> wild pairs', () => {
+    // both alleles belong to unc-44 gene --> same gen loc
+    const homoOx750 = new AllelePair({ top: ox750 });
+    const wildOx750 = new AllelePair({ top: new WildAllele(ox750) });
+
+    expect(homoOx750.hasSameGenLoc(wildOx750)).toBe(true);
+    expect(wildOx750.hasSameGenLoc(homoOx750)).toBe(true);
+  });
+  test('.hasSameGenLoc() returns true on het <--> wild pairs', () => {
+    // both alleles belong to unc-44 gene --> same gen loc
+    const hetOx750 = new AllelePair({ top: ox750, bot: WILD_ALLELE });
+    const wildOx750 = new AllelePair({ top: new WildAllele(ox750) });
+
+    expect(hetOx750.hasSameGenLoc(wildOx750)).toBe(true);
+    expect(wildOx750.hasSameGenLoc(hetOx750)).toBe(true);
+  });
+  test('.hasSameGenLoc() returns false on pairs with different locations', () => {
+    // both alleles are variations with unknown genetic locations
+    const homoEd3 = new AllelePair({ top: ed3 });
+    const hetEd3 = new AllelePair({ top: ed3, bot: WILD_ALLELE });
+    const wildEd3 = new AllelePair({
+      top: new WildAllele(ed3),
+      bot: new WildAllele(ed3),
+    });
+
+    const homoN765 = new AllelePair({ top: n765 });
+    const hetN765 = new AllelePair({ top: n765, bot: WILD_ALLELE });
+    const wildn765 = new AllelePair({
+      top: new WildAllele(n765),
+      bot: new WildAllele(n765),
+    });
+
+    expect(homoEd3.hasSameGenLoc(homoN765)).toBe(false);
+    expect(homoEd3.hasSameGenLoc(hetN765)).toBe(false);
+    expect(homoEd3.hasSameGenLoc(wildn765)).toBe(false);
+    expect(hetEd3.hasSameGenLoc(hetN765)).toBe(false);
+    expect(hetEd3.hasSameGenLoc(wildn765)).toBe(false);
+    expect(wildEd3.hasSameGenLoc(wildn765)).toBe(false);
+  });
+  test('.hasSameGenLoc() returns false on pairs with undefined loc', () => {
+    // both alleles are variations with unknown genetic locations
+    const homoOxEx12345 = new AllelePair({ top: oxEx12345 });
+    const hetOxEx12345 = new AllelePair({ top: oxEx12345, bot: WILD_ALLELE });
+    const wildOxEx12345 = new AllelePair({
+      top: new WildAllele(oxEx12345),
+      bot: new WildAllele(oxEx12345),
+    });
+
+    const homoOxEx219999 = new AllelePair({ top: oxEx219999 });
+    const hetOxEx219999 = new AllelePair({ top: oxEx219999, bot: WILD_ALLELE });
+    const wildOxEx219999 = new AllelePair({
+      top: new WildAllele(oxEx219999),
+      bot: new WildAllele(oxEx219999),
+    });
+
+    expect(homoOxEx12345.hasSameGenLoc(homoOxEx12345)).toBe(false);
+    expect(homoOxEx12345.hasSameGenLoc(homoOxEx219999)).toBe(false);
+    expect(homoOxEx12345.hasSameGenLoc(hetOxEx219999)).toBe(false);
+    expect(homoOxEx12345.hasSameGenLoc(wildOxEx219999)).toBe(false);
+    expect(hetOxEx12345.hasSameGenLoc(hetOxEx219999)).toBe(false);
+    expect(hetOxEx12345.hasSameGenLoc(wildOxEx219999)).toBe(false);
+    expect(wildOxEx12345.hasSameGenLoc(wildOxEx219999)).toBe(false);
+  });
+
+  test('.isWild() returns true on wild pairs', () => {
+    const wildEd3 = new AllelePair({ top: new WildAllele(ed3) });
+    const wildStrain = new AllelePair({ top: WILD_ALLELE });
+    expect(wildEd3.isWild()).toBe(true);
+    expect(wildStrain.isWild()).toBe(true);
+  });
+  test('.isWild() returns false on wild het pairs', () => {
+    const hetEd3 = new AllelePair({ top: new WildAllele(ed3), bot: ed3 });
+    const hetOx750 = new AllelePair({ top: ox750, bot: WILD_ALLELE });
+    expect(hetEd3.isWild()).toBe(false);
+    expect(hetOx750.isWild()).toBe(false);
+  });
+  test('.isWild() returns false on wild homo pairs', () => {
+    const homoEd3 = new AllelePair({ top: ed3, bot: ed3 });
+    expect(homoEd3.isWild()).toBe(false);
   });
 
   test('.getFlippedPair() on homozygous pair', () => {

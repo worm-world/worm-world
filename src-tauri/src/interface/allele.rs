@@ -21,7 +21,7 @@ impl InnerDbState {
             Ok(db_conds) => Ok(db_conds),
             Err(e) => {
                 eprint!("Get alleles error: {e}");
-                Err(DbError::SqlQueryError(e.to_string()))
+                Err(DbError::Query(e.to_string()))
             }
         }
     }
@@ -42,7 +42,7 @@ impl InnerDbState {
             Ok(exprs) => Ok(exprs.into_iter().collect()),
             Err(e) => {
                 eprint!("Get Filtered Allele error: {e}");
-                Err(DbError::SqlQueryError(e.to_string()))
+                Err(DbError::Query(e.to_string()))
             }
         }
     }
@@ -63,7 +63,7 @@ impl InnerDbState {
             Ok(_) => Ok(()),
             Err(e) => {
                 eprint!("Insert Allele error: {e}");
-                Err(DbError::SqlQueryError(e.to_string()))
+                Err(DbError::Query(e.to_string()))
             }
         }
     }
