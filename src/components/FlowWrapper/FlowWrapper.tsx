@@ -1,17 +1,15 @@
 import CrossNode from 'components/CrossNode/CrossNode';
 import { Sex } from 'models/enums';
-import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
+import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import { Handle, Position } from 'reactflow';
 import { XNode } from 'components/XNode/XNode';
 import { SelfNode } from 'components/SelfNode/SelfNode';
 
-export interface CrossNodeFlowWrapperProps {
+export interface iStrainFlowWrapper {
   data: CrossNodeModel;
 }
 
-export const CrossNodeFlowWrapper = (
-  props: CrossNodeFlowWrapperProps
-): JSX.Element => {
+export const StrainFlowWrapper = (props: iStrainFlowWrapper): JSX.Element => {
   const handleElements = [
     <Handle key='top' id='top' type='target' position={Position.Top} />,
   ];
@@ -41,7 +39,7 @@ export const CrossNodeFlowWrapper = (
 };
 
 // Container used to wrap components for use in React Flow
-export const XNodeFlowWrapper = (): JSX.Element => {
+export const XIconFlowWrapper = (): JSX.Element => {
   return (
     <div className='h-fit w-fit'>
       <Handle key='left' id='left' type='target' position={Position.Left} />
@@ -57,7 +55,7 @@ export const XNodeFlowWrapper = (): JSX.Element => {
   );
 };
 
-export const SelfNodeFlowWrapper = (): JSX.Element => {
+export const SelfIconFlowWrapper = (): JSX.Element => {
   return (
     <div className='h-fit w-fit'>
       <Handle key='top' id='top' type='target' position={Position.Top} />

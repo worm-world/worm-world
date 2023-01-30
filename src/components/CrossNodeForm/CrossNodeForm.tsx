@@ -1,47 +1,44 @@
 import { useState } from 'react';
 import { Allele, WILD_ALLELE } from 'models/frontend/Allele/Allele';
-import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
-import { Sex } from 'models/enums';
+import { Sex, sexToString, stringToSex } from 'models/enums';
 import { DynamicMultiSelect } from 'components/DynamicMultiSelect/DynamicMultiSelect';
 import { db_Allele } from 'models/db/db_Allele';
 import { FilterGroup } from 'models/db/filter/FilterGroup';
 import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
-import { Strain } from 'models/frontend/Strain/Strain';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
-import { getMenuItems } from 'components/CrossNodeMenu/CrossNodeMenu';
 
 export interface CrossNodeFormProps {
-  addNewCrossNode: (arg: CrossNodeModel) => void;
+  onSubmitCallback: (sex: Sex, allelePairs: AllelePair[]) => void;
   getFilteredAlleles: (
     filter: FilterGroup<AlleleFieldName>
   ) => Promise<db_Allele[]>;
   createAlleleFromRecord: (dbAllele: db_Allele) => Promise<Allele>;
+  enforcedSex?: Sex;
 }
 
 // CrossNode form specifies a new cross node
 const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
   // Save selected options
-  const [sex, setSex] = useState(Sex.Male);
+  const [sex, setSex] = useState(props.enforcedSex ?? Sex.Male);
   const [homoAlleles, setHomoAlleles] = useState(new Set<db_Allele>());
   const [hetAlleles, setHetAlleles] = useState(new Set<db_Allele>());
 
   const onSubmit = (): void => {
-    const hetPairs = Array.from(hetAlleles).map(async (selectedAllele) => {
+    const homoPairs = Array.from(homoAlleles).map(async (selectedAllele) => {
       const allele = await props.createAlleleFromRecord(selectedAllele);
       return new AllelePair({ top: allele, bot: allele });
     });
 
-    const homoPairs = Array.from(homoAlleles).map(async (selectedAllele) => {
+    const hetPairs = Array.from(hetAlleles).map(async (selectedAllele) => {
       const allele = await props.createAlleleFromRecord(selectedAllele);
       return new AllelePair({ top: allele, bot: WILD_ALLELE });
     });
 
     Promise.all(homoPairs.concat(hetPairs))
       .then((allelePairs) => {
-        const newNode = createNewCrossNode(sex, allelePairs);
-        props.addNewCrossNode(newNode);
         setHomoAlleles(new Set());
         setHetAlleles(new Set());
+        props.onSubmitCallback(sex, allelePairs);
       })
       .catch((err) => err);
   };
@@ -49,7 +46,7 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
   return (
     <>
       <h2 className='text-lg'>Add a New Cross Node</h2>
-      <SexSelector setSelectedSex={setSex} />
+      <SexSelector setSelectedSex={setSex} enforcedSex={props.enforcedSex} />
 
       <DynamicMultiSelect
         placeholder='Type allele name'
@@ -92,42 +89,33 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
 
 const SexSelector = (props: {
   setSelectedSex: (sex: Sex) => void;
+  enforcedSex?: Sex;
 }): JSX.Element => {
+  let disabled = false;
+  let selectedValue: string | undefined;
+  if (props.enforcedSex !== undefined) {
+    disabled = true;
+    selectedValue = sexToString(props.enforcedSex);
+    props.setSelectedSex(props.enforcedSex);
+  }
   return (
     <>
       <label className='label'>
         <span className='label-text'>Sex</span>
       </label>
       <select
+        disabled={disabled}
         onChange={(event) => {
-          props.setSelectedSex(
-            event.target.value === 'male' ? Sex.Male : Sex.Hermaphrodite
-          );
+          props.setSelectedSex(stringToSex(event.target.value));
         }}
+        value={selectedValue}
         className='select-bordered select mb-4 w-full max-w-xs'
       >
-        <option value='male'>male</option>
-        <option value='hermaphrodite'>hermaphrodite</option>
+        <option value={sexToString(Sex.Male)}>male</option>
+        <option value={sexToString(Sex.Hermaphrodite)}>hermaphrodite</option>
       </select>
     </>
   );
-};
-
-const createNewCrossNode = (
-  sex: Sex,
-  allelePairs: AllelePair[]
-): CrossNodeModel => {
-  const crossNodeModel: CrossNodeModel = {
-    sex,
-    strain: new Strain({
-      name: '',
-      allelePairs,
-      notes: '',
-    }),
-    isSelected: false,
-    getMenuItems,
-  };
-  return crossNodeModel;
 };
 
 function shouldIncludeAllele(

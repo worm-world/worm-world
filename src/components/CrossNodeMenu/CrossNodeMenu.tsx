@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sex } from 'models/enums';
-import CrossNode from 'models/frontend/CrossNode/CrossNode';
+import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import {
   BsLightningCharge as MenuIcon,
   BsUiChecks as ScheduleIcon,
@@ -51,7 +51,7 @@ const MenuOption = (item: MenuItem, key: number): JSX.Element => {
   );
 };
 
-export const getMenuItems = (node: CrossNode): MenuItem[] => {
+export const getMenuItems = (node: CrossNodeModel): MenuItem[] => {
   const canSelfCross = node.sex === Sex.Hermaphrodite;
   const selfOption: MenuItem = {
     icon: <SelfCrossIcon />,

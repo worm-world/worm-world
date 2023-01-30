@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { CrossNodeFlowWrapper } from 'components/FlowWrapper/FlowWrapper';
+import { StrainFlowWrapper } from 'components/FlowWrapper/FlowWrapper';
 import * as mock from 'models/frontend/CrossNode/CrossNode.mock';
 import { ReactFlowProvider } from 'reactflow';
 
@@ -8,7 +8,7 @@ describe('FlowWrapper', () => {
     const mutatedCrossNode = mock.mutated;
     const wrapperInFlow = (
       <ReactFlowProvider>
-        <CrossNodeFlowWrapper data={mutatedCrossNode} />
+        <StrainFlowWrapper data={mutatedCrossNode} />
       </ReactFlowProvider>
     );
     render(wrapperInFlow);

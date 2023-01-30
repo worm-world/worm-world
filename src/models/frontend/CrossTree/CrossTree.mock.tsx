@@ -2,12 +2,26 @@ import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { Gene } from 'models/frontend/Gene/Gene';
 import * as mockCrossNode from 'models/frontend/CrossNode/CrossNode.mock';
 import { Edge, Node } from 'reactflow';
+import { FlowType } from 'components/CrossFlow/CrossFlow';
+
+export const emptyCrossTree = new CrossTree({
+  id: 0,
+  description: 'New',
+  name: 'Empty cross tree',
+  settings: {
+    longName: false,
+    contents: false,
+  },
+  nodes: [],
+  edges: [],
+  lastSaved: new Date(),
+});
 
 // Simple cross tree ///////////////////////////////////
 
 export const ed3HeteroMale: Node = {
   id: '0',
-  type: 'crossNodeFlowWrapper',
+  type: FlowType.Strain,
   data: mockCrossNode.ed3HetMale,
   position: {
     x: -300,
@@ -17,7 +31,7 @@ export const ed3HeteroMale: Node = {
 
 export const ed3HeteroHerm: Node = {
   id: '1',
-  type: 'crossNodeFlowWrapper',
+  type: FlowType.Strain,
   data: mockCrossNode.ed3HetHerm,
   position: {
     x: 300,
@@ -27,7 +41,7 @@ export const ed3HeteroHerm: Node = {
 
 export const ed3HomoHerm: Node = {
   id: '2',
-  type: 'crossNodeFlowWrapper',
+  type: FlowType.Strain,
   data: mockCrossNode.ed3HomoHerm,
   position: {
     x: 0,
@@ -37,7 +51,7 @@ export const ed3HomoHerm: Node = {
 
 export const xNode: Node = {
   id: '3',
-  type: 'xNodeFlowWrapper',
+  type: FlowType.XIcon,
   data: null,
   position: {
     x: 96,
@@ -82,7 +96,7 @@ export const simpleCrossTree = new CrossTree({
 // Medium cross tree ////////////////////////////////////////////////
 export const node0: Node = {
   id: '0',
-  type: 'crossNodeFlowWrapper',
+  type: FlowType.Strain,
   data: mockCrossNode.e204WildMale,
   position: {
     x: -600,
@@ -91,7 +105,7 @@ export const node0: Node = {
 };
 export const node1: Node = {
   id: '1',
-  type: 'crossNodeFlowWrapper',
+  type: FlowType.Strain,
   data: mockCrossNode.e204HomoHerm,
   position: {
     x: 0,
@@ -100,7 +114,7 @@ export const node1: Node = {
 };
 export const node2: Node = {
   id: '2',
-  type: 'crossNodeFlowWrapper',
+  type: FlowType.Strain,
   data: mockCrossNode.e204HetMale,
   position: {
     x: -300,
@@ -109,7 +123,7 @@ export const node2: Node = {
 };
 export const node3: Node = {
   id: '3',
-  type: 'crossNodeFlowWrapper',
+  type: FlowType.Strain,
   data: mockCrossNode.ox802HomoHerm,
   position: {
     x: 300,
@@ -118,7 +132,7 @@ export const node3: Node = {
 };
 export const node4: Node = {
   id: '4',
-  type: 'crossNodeFlowWrapper',
+  type: FlowType.Strain,
   data: mockCrossNode.e204HetOx802Het,
   position: {
     x: 0,
@@ -127,7 +141,7 @@ export const node4: Node = {
 };
 export const node5: Node = {
   id: '5',
-  type: 'crossNodeFlowWrapper',
+  type: FlowType.Strain,
   data: mockCrossNode.e204HomoOx802HetHerm,
   position: {
     x: 0,
@@ -136,7 +150,7 @@ export const node5: Node = {
 };
 export const node6: Node = {
   id: '6',
-  type: 'crossNodeFlowWrapper',
+  type: FlowType.Strain,
   data: mockCrossNode.e204HomoOx802HomoHerm,
   position: {
     x: 0,
@@ -146,7 +160,7 @@ export const node6: Node = {
 
 export const xNode0: Node = {
   id: '7',
-  type: 'xNodeFlowWrapper',
+  type: FlowType.XIcon,
   data: null,
   position: {
     x: -204,
@@ -156,7 +170,7 @@ export const xNode0: Node = {
 
 export const xNode1: Node = {
   id: '8',
-  type: 'xNodeFlowWrapper',
+  type: FlowType.XIcon,
   data: null,
   position: {
     x: 96,
@@ -166,7 +180,7 @@ export const xNode1: Node = {
 
 export const selfNode0: Node = {
   id: '9',
-  type: 'selfNodeFlowWrapper',
+  type: FlowType.SelfIcon,
   data: null,
   position: {
     x: 96,
@@ -176,7 +190,7 @@ export const selfNode0: Node = {
 
 export const selfNode1: Node = {
   id: '10',
-  type: 'selfNodeFlowWrapper',
+  type: FlowType.SelfIcon,
   data: null,
   position: {
     x: 96,

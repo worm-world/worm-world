@@ -16,9 +16,9 @@ import { FiShare } from 'react-icons/fi';
 import 'reactflow/dist/style.css';
 import { fs } from '@tauri-apps/api';
 import {
-  CrossNodeFlowWrapper,
-  SelfNodeFlowWrapper,
-  XNodeFlowWrapper,
+  StrainFlowWrapper,
+  SelfIconFlowWrapper,
+  XIconFlowWrapper,
 } from 'components/FlowWrapper/FlowWrapper';
 import { Options } from 'html-to-image/lib/types';
 
@@ -128,12 +128,18 @@ const CustomControls = (props: ControlProps): JSX.Element => {
   );
 };
 
+export enum FlowType {
+  Strain = 'strain',
+  XIcon = 'xIcon',
+  SelfIcon = 'selfIcon',
+}
+
 const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
   const nodeTypes = useMemo(
     () => ({
-      crossNodeFlowWrapper: CrossNodeFlowWrapper,
-      xNodeFlowWrapper: XNodeFlowWrapper,
-      selfNodeFlowWrapper: SelfNodeFlowWrapper,
+      strain: StrainFlowWrapper,
+      xIcon: XIconFlowWrapper,
+      selfIcon: SelfIconFlowWrapper,
     }),
     []
   );

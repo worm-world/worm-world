@@ -1,23 +1,28 @@
 import { render, screen } from '@testing-library/react';
 import CrossNodeForm from 'components/CrossNodeForm/CrossNodeForm';
-import CrossNodeModel from 'models/frontend/CrossNode/CrossNode';
+import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import { db_Allele } from 'models/db/db_Allele';
 import user from '@testing-library/user-event';
 import * as mock from 'components/CrossNodeForm/CrossNodeForm.mock';
+import { Sex } from 'models/enums';
+import { AllelePair } from 'models/frontend/Strain/AllelePair';
+import { Strain } from 'models/frontend/Strain/Strain';
 
 describe('Cross node form', () => {
   test('Create a new node', async () => {
     user.setup();
 
     let crossNodeModel: CrossNodeModel | undefined;
-
-    const addNewCrossNode = (model: CrossNodeModel): void => {
-      crossNodeModel = model;
+    const addNewNodeToFlow = (sex: Sex, pairs: AllelePair[]): void => {
+      crossNodeModel = {
+        sex,
+        strain: new Strain({ allelePairs: pairs }),
+      };
     };
 
     render(
       <CrossNodeForm
-        addNewCrossNode={addNewCrossNode}
+        onSubmitCallback={addNewNodeToFlow}
         getFilteredAlleles={mock.getFilteredAlleles}
         createAlleleFromRecord={mock.alleleCreateFromRecord}
       />
@@ -54,7 +59,7 @@ describe('Cross node form', () => {
 
     render(
       <CrossNodeForm
-        addNewCrossNode={() => {}}
+        onSubmitCallback={() => {}}
         getFilteredAlleles={getFilteredAlleles}
         createAlleleFromRecord={mock.alleleCreateDoesNotMatter}
       />
@@ -76,7 +81,7 @@ describe('Cross node form', () => {
 
     render(
       <CrossNodeForm
-        addNewCrossNode={() => {}}
+        onSubmitCallback={() => {}}
         getFilteredAlleles={mock.getFilteredAlleles}
         createAlleleFromRecord={mock.alleleCreateDoesNotMatter}
       />
@@ -96,7 +101,7 @@ describe('Cross node form', () => {
 
     render(
       <CrossNodeForm
-        addNewCrossNode={() => {}}
+        onSubmitCallback={() => {}}
         getFilteredAlleles={mock.getFilteredAlleles}
         createAlleleFromRecord={mock.alleleCreateDoesNotMatter}
       />

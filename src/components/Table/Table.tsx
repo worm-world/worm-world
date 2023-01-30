@@ -7,10 +7,7 @@ import {
   FaSortDown as SortDownIcon,
   FaSortUp as SortUpIcon,
 } from 'react-icons/fa';
-import {
-  Field,
-  ColumnFilterModalBox,
-} from '../ColumnFilter/ColumnFilter';
+import { Field, ColumnFilterModalBox } from '../ColumnFilter/ColumnFilter';
 
 export interface ColumnDefinitionType<T> {
   key: keyof T;

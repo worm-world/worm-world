@@ -132,6 +132,16 @@
     },
     "query": "INSERT INTO phenotypes (name, wild, short_name, description, male_mating, lethal, female_sterile, arrested, maturation_days)\n            VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)\n            "
   },
+  "5cc23ada20bce353e0b4feb96bd0835e9378daade38b49394988fa808b1207e1": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 4
+      }
+    },
+    "query": "UPDATE trees\n            SET name = $2,\n                last_edited = $3,\n                data = $4\n            WHERE\n                id = $1"
+  },
   "6baa7d74cc45dcd766d9fd616976257368c915b1a4d75172453e31f77de4e73f": {
     "describe": {
       "columns": [
@@ -198,6 +208,48 @@
     },
     "query": "\n            SELECT\n                name, \n                wild,\n                short_name,\n                description, \n                male_mating,\n                lethal,\n                female_sterile,\n                arrested,\n                maturation_days\n            FROM phenotypes\n            ORDER BY name, wild\n            "
   },
+  "81097cff4f31eb9f7e57f7ca4aef5eee5d23b2a1b7c556b7bf919aebba784b97": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "due_date",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "action",
+          "ordinal": 2,
+          "type_info": "Int64"
+        },
+        {
+          "name": "strain1",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "strain2",
+          "ordinal": 4,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT id, due_date, action, strain1, strain2 FROM tasks ORDER BY id\n            "
+  },
   "8441cefea899ffb8ae7a1e5cc3c5bd5d059248886ab8af8aa1b2a0da34266b30": {
     "describe": {
       "columns": [
@@ -233,6 +285,16 @@
       }
     },
     "query": "\n            SELECT allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance \n            FROM allele_exprs \n            ORDER BY allele_name, expressing_phenotype_name, expressing_phenotype_wild\n            "
+  },
+  "8888aba38c62d860a37c8b28e94d95ac1ed61b0f2ca76a68a2990aadb5a84e7c": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 5
+      }
+    },
+    "query": "UPDATE tasks\n            SET due_date = $2,\n                action = $3,\n                strain1 = $4,\n                strain2 = $5\n            WHERE\n                id = $1"
   },
   "89de9146eafad7c2cb5ac9b10041fdd9cf961f8106daf09691e5136b8d92d94a": {
     "describe": {
@@ -344,6 +406,52 @@
     },
     "query": "INSERT INTO allele_exprs (allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance)\n            VALUES($1, $2, $3, $4)\n            "
   },
+  "ae32cda21f8509ea4728c94d7d00121c9dfff4769bdebfe829b239cdcc1b4e3a": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 5
+      }
+    },
+    "query": "INSERT INTO tasks (id, due_date, action, strain1, strain2)\n            VALUES($1, $2, $3, $4, $5)\n            "
+  },
+  "b821d8076dbb91978c68c3c634653f9acc7cc405194d2748c259646d7ee9b8ad": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "last_edited",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "data",
+          "ordinal": 3,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT id, name, last_edited, data FROM trees ORDER BY id\n            "
+  },
   "c1e43fa299477f63abcf76b9c75bf94de3c769eaaa917790ffbe3829a282c32f": {
     "describe": {
       "columns": [
@@ -407,6 +515,16 @@
       }
     },
     "query": "INSERT INTO genes (systematic_name, descriptive_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end)\n            VALUES($1, $2, $3, $4, $5, $6, $7)\n            "
+  },
+  "d2c7f8d93c630d7bd071834d8ee0e90340df66a5e5a3486eff43409041aef852": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 4
+      }
+    },
+    "query": "INSERT INTO trees (id, name, last_edited, data)\n            VALUES($1, $2, $3, $4)\n            "
   },
   "f13067dabb927b051246a195865a73d848e506d71ce434dee87f9c4e33216197": {
     "describe": {
