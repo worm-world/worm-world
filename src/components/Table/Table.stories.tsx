@@ -1,6 +1,5 @@
-import React from 'react';
 import { Meta, StoryFn } from '@storybook/react';
-import { ColumnDefinitionType, Table, TableProps } from 'components/Table/Table';
+import { Table, TableProps } from 'components/Table/Table';
 import { cols as alleleCols } from 'pages/data-manager/allele';
 import { db_Allele } from 'models/db/db_Allele';
 import { Field } from '../ColumnFilter/ColumnFilter';
@@ -38,13 +37,6 @@ const alleleData: db_Allele[] = [
     variationName: 'variation1',
     contents: null,
   },
-];
-
-export const cols: Array<ColumnDefinitionType<db_Allele>> = [
-  { key: 'name', header: 'Name' },
-  { key: 'sysGeneName', header: 'Systematic Gene Name' },
-  { key: 'variationName', header: 'Variation Name' },
-  { key: 'contents', header: 'Contents' },
 ];
 
 const fields: Array<Field<db_Allele>> = [

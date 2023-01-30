@@ -1,10 +1,11 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { vi } from 'vitest';
 import { ColumnDefinitionType, Table } from 'components/Table/Table';
 import { cols as alleleCols } from 'pages/data-manager/allele';
 import { db_Allele } from 'models/db/db_Allele';
 import { Field } from 'components/ColumnFilter/ColumnFilter';
 import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
-import { Filter } from 'models/db/filter/Filter';
 
 const alleleData: db_Allele[] = [
   {
@@ -66,15 +67,14 @@ const nameMapping: { [key in keyof db_Allele]: AlleleFieldName } = {
 
 describe('Table component', () => {
   test('successfully renders', () => {
+    const runFilters = vi.fn();
     render(
       <Table
         data={alleleData}
         columns={alleleCols}
         nameMapping={nameMapping}
         fields={fields}
-        runFilters={function (filterObj: Filter<unknown>): void {
-          throw new Error('Function not implemented.');
-        }}
+        runFilters={runFilters}
       />
     );
 
@@ -83,15 +83,14 @@ describe('Table component', () => {
   });
 
   test('displays listed columns', () => {
+    const runFilters = vi.fn();
     render(
       <Table
         data={alleleData}
         columns={alleleCols}
         nameMapping={nameMapping}
         fields={fields}
-        runFilters={function (filterObj: Filter<unknown>): void {
-          throw new Error('Function not implemented.');
-        }}
+        runFilters={runFilters}
       />
     );
     const colHeaders = screen.getAllByRole('columnheader');
@@ -104,15 +103,14 @@ describe('Table component', () => {
   });
 
   test('displays inputted row data', () => {
+    const runFilters = vi.fn();
     render(
       <Table
         data={alleleData}
         columns={alleleCols}
         nameMapping={nameMapping}
         fields={fields}
-        runFilters={function (filterObj: Filter<unknown>): void {
-          throw new Error('Function not implemented.');
-        }}
+        runFilters={runFilters}
       />
     );
     const rows = screen.getAllByRole('row');
@@ -130,15 +128,14 @@ describe('Table component', () => {
   });
 
   test('can handle empty row data', () => {
+    const runFilters = vi.fn();
     render(
       <Table
         data={[]}
         columns={alleleCols}
         nameMapping={nameMapping}
         fields={fields}
-        runFilters={function (filterObj: Filter<unknown>): void {
-          throw new Error('Function not implemented.');
-        }}
+        runFilters={runFilters}
       />
     );
     const headers = screen.getAllByRole('columnheader');
@@ -146,5 +143,54 @@ describe('Table component', () => {
 
     const rows = screen.getAllByRole('row');
     expect(rows).toHaveLength(1);
+    expect(runFilters).not.toBeCalled();
+  });
+
+  test('hovering header shows filter icon', async () => {
+    userEvent.setup();
+    const runFilters = vi.fn();
+    render(
+      <Table
+        data={[]}
+        columns={alleleCols}
+        nameMapping={nameMapping}
+        fields={fields}
+        runFilters={runFilters}
+      />
+    );
+    const headers = screen.getAllByRole('columnheader');
+    expect(headers).toHaveLength(alleleCols.length);
+
+    await userEvent.hover(headers[0]);
+
+    const filterButtons = screen.getAllByRole('button', {
+      name: 'filter-icon',
+    });
+    const sortButtons = screen.getAllByRole('button', { name: 'sort-icon' });
+
+    expect(filterButtons[0].firstChild).toBeVisible();
+  });
+
+  test('clicking sort calls runFilters', async () => {
+    userEvent.setup();
+    const runFilters = vi.fn();
+    render(
+      <Table
+        data={[]}
+        columns={alleleCols}
+        nameMapping={nameMapping}
+        fields={fields}
+        runFilters={runFilters}
+      />
+    );
+    const headers = screen.getAllByRole('columnheader');
+    expect(headers).toHaveLength(alleleCols.length);
+
+    await userEvent.hover(headers[0]);
+
+    const sortButtons = screen.getAllByRole('button', { name: 'sort-icon' });
+    expect(runFilters).not.toBeCalled();
+    await userEvent.click(sortButtons[0]);
+    expect(runFilters).toBeCalled();
   });
 });

@@ -4,17 +4,17 @@ import { Meta, StoryFn } from '@storybook/react';
 import { ColumnDefinitionType, Table, TableProps } from 'components/Table/Table';
 import { db_Allele } from 'models/db/db_Allele';
 import { ColumnFilter, Field, iColumnFilterProps } from './ColumnFilter';
-import { FilterType } from 'models/db/filter/FilterType';
+import { Filter } from 'models/db/filter/Filter';
 
 interface iColumnFilterWrapperProps<T> {
     field: Field<T>;
 }
 
 const ColumnFilterWrapper = <T,>(props: iColumnFilterWrapperProps<T>): JSX.Element => {
-    const [filterTypes, setFilterTypes] = useState<FilterType[]>(new Array<FilterType>());
+    const [filterTypes, setFilterTypes] = useState<Filter[]>(new Array<Filter>());
     return (
         <div className="modal-box">
-            <ColumnFilter field={props.field} filterTypes={filterTypes} setFilterTypes={setFilterTypes} />
+            <ColumnFilter field={props.field} columnFilters={filterTypes} setColumnFilters={setFilterTypes} />
         </div>
     );
 };

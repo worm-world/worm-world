@@ -1,6 +1,6 @@
 use super::{DbError, InnerDbState};
 use crate::models::{
-    filter::{Filter, FilterQueryBuilder},
+    filter::{FilterGroup, FilterQueryBuilder},
     gene::{Gene, GeneDb, GeneFieldName},
 };
 use anyhow::Result;
@@ -27,7 +27,7 @@ impl InnerDbState {
 
     pub async fn get_filtered_genes(
         &self,
-        filter: &Filter<GeneFieldName>,
+        filter: &FilterGroup<GeneFieldName>,
     ) -> Result<Vec<Gene>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT systematic_name, descriptive_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end FROM genes",
@@ -87,7 +87,7 @@ mod test {
     use crate::InnerDbState;
     use crate::{
         dummy::testdata,
-        models::filter::{Filter, FilterType},
+        models::filter::{FilterGroup, Filter},
     };
     use anyhow::Result;
     use pretty_assertions::assert_eq;
@@ -111,15 +111,15 @@ mod test {
     async fn test_get_filtered_genes(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_genes(&Filter::<GeneFieldName> {
+            .get_filtered_genes(&FilterGroup::<GeneFieldName> {
                 filters: vec![vec![
                     (
                         GeneFieldName::Chromosome,
-                        FilterType::Equal("X".to_string()),
+                        Filter::Equal("X".to_string()),
                     ),
                     (
                         GeneFieldName::Chromosome,
-                        FilterType::Equal("IV".to_string()),
+                        Filter::Equal("IV".to_string()),
                     ),
                 ]],
                 order_by: vec![(GeneFieldName::DescName, Order::Asc)],
@@ -134,15 +134,15 @@ mod test {
     async fn test_get_filtered_genes_alternate_ordering(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_genes(&Filter::<GeneFieldName> {
+            .get_filtered_genes(&FilterGroup::<GeneFieldName> {
                 filters: vec![vec![
                     (
                         GeneFieldName::Chromosome,
-                        FilterType::Equal("X".to_string()),
+                        Filter::Equal("X".to_string()),
                     ),
                     (
                         GeneFieldName::Chromosome,
-                        FilterType::Equal("IV".to_string()),
+                        Filter::Equal("IV".to_string()),
                     ),
                 ]],
                 order_by: vec![(GeneFieldName::SysName, Order::Asc)],
@@ -157,15 +157,15 @@ mod test {
     async fn test_get_filtered_genes_and_clause(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_genes(&Filter::<GeneFieldName> {
+            .get_filtered_genes(&FilterGroup::<GeneFieldName> {
                 filters: vec![
                     vec![(
                         GeneFieldName::Chromosome,
-                        FilterType::Equal("X".to_string()),
+                        Filter::Equal("X".to_string()),
                     )],
                     vec![(
                         GeneFieldName::PhysLoc,
-                        FilterType::Equal("7682896".to_string()),
+                        Filter::Equal("7682896".to_string()),
                     )],
                 ],
                 order_by: vec![],
@@ -179,26 +179,26 @@ mod test {
     async fn test_get_filtered_genes_and_with_or_clause(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_genes(&Filter::<GeneFieldName> {
+            .get_filtered_genes(&FilterGroup::<GeneFieldName> {
                 filters: vec![
                     vec![
                         (
                             GeneFieldName::Chromosome,
-                            FilterType::Equal("X".to_string()),
+                            Filter::Equal("X".to_string()),
                         ),
                         (
                             GeneFieldName::GeneticLoc,
-                            FilterType::GreaterThan("5".to_string(), true),
+                            Filter::GreaterThan("5".to_string(), true),
                         ),
                     ],
                     vec![
                         (
                             GeneFieldName::PhysLoc,
-                            FilterType::Equal("7682896".to_string()),
+                            Filter::Equal("7682896".to_string()),
                         ),
                         (
                             GeneFieldName::GeneticLoc,
-                            FilterType::GreaterThan("5".to_string(), true),
+                            Filter::GreaterThan("5".to_string(), true),
                         ),
                     ],
                 ],
@@ -213,10 +213,10 @@ mod test {
     async fn test_search_genes_by_desc_name(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_genes(&Filter::<GeneFieldName> {
+            .get_filtered_genes(&FilterGroup::<GeneFieldName> {
                 filters: vec![vec![(
                     GeneFieldName::DescName,
-                    FilterType::Like("in".to_string()),
+                    Filter::Like("in".to_string()),
                 )]],
                 order_by: vec![(GeneFieldName::DescName, Order::Asc)],
             })
@@ -229,10 +229,10 @@ mod test {
     async fn test_search_genes_by_sys_or_desc_name(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_genes(&Filter::<GeneFieldName> {
+            .get_filtered_genes(&FilterGroup::<GeneFieldName> {
                 filters: vec![vec![
-                    (GeneFieldName::SysName, FilterType::Like("T14".to_string())),
-                    (GeneFieldName::DescName, FilterType::Like("lin".to_string())),
+                    (GeneFieldName::SysName, Filter::Like("T14".to_string())),
+                    (GeneFieldName::DescName, Filter::Like("lin".to_string())),
                 ]],
                 order_by: vec![(GeneFieldName::DescName, Order::Asc)],
             })

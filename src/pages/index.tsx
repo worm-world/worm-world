@@ -177,7 +177,7 @@ const Home = (): JSX.Element => {
       <h1 className='pt-6 pb-4'>Toast Buttons</h1>
       <div className='toast-btns px-6'>
         <button
-          className='btn-error btn m-2'
+          className='btn btn-error m-2'
           onClick={() => {
             toast.error('Example error');
           }}
@@ -185,7 +185,7 @@ const Home = (): JSX.Element => {
           error toast
         </button>
         <button
-          className='btn-success btn m-2'
+          className='btn btn-success m-2'
           onClick={() => {
             toast.success('Example success');
           }}

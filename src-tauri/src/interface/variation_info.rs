@@ -2,7 +2,7 @@ use super::{DbError, InnerDbState};
 use crate::models::filter::FilterQueryBuilder;
 use crate::models::variation_info::VariationInfoDb;
 use crate::models::{
-    filter::Filter,
+    filter::FilterGroup,
     variation_info::{VariationFieldName, VariationInfo},
 };
 use anyhow::Result;
@@ -28,7 +28,7 @@ impl InnerDbState {
     }
     pub async fn get_filtered_variation_info(
         &self,
-        filter: &Filter<VariationFieldName>,
+        filter: &FilterGroup<VariationFieldName>,
     ) -> Result<Vec<VariationInfo>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end FROM variation_info",
@@ -80,7 +80,7 @@ mod test {
 
     use crate::dummy::testdata;
     use crate::models::chromosome::Chromosome;
-    use crate::models::filter::{Filter, FilterType, Order};
+    use crate::models::filter::{FilterGroup, Filter, Order};
     use crate::models::variation_info::{VariationFieldName, VariationInfo};
     use crate::InnerDbState;
     use anyhow::Result;
@@ -102,10 +102,10 @@ mod test {
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_filtered_variation_info(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
-        let filter = Filter::<VariationFieldName> {
+        let filter = FilterGroup::<VariationFieldName> {
             filters: vec![
-                vec![(VariationFieldName::PhysLoc, FilterType::NotNull)],
-                vec![(VariationFieldName::Chromosome, FilterType::NotNull)],
+                vec![(VariationFieldName::PhysLoc, Filter::NotNull)],
+                vec![(VariationFieldName::Chromosome, Filter::NotNull)],
             ],
             order_by: vec![
                 (VariationFieldName::AlleleName, Order::Asc),
@@ -121,10 +121,10 @@ mod test {
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_filtered_variation_gen_loc_range(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
-        let filter = Filter::<VariationFieldName> {
+        let filter = FilterGroup::<VariationFieldName> {
             filters: vec![vec![(
                 VariationFieldName::GenLoc,
-                FilterType::Range("-1.46".to_string(), false, "4.72".to_string(), true),
+                Filter::Range("-1.46".to_string(), false, "4.72".to_string(), true),
             )]],
             order_by: vec![(VariationFieldName::AlleleName, Order::Asc)],
         };
@@ -136,10 +136,10 @@ mod test {
     #[sqlx::test(fixtures("dummy"))]
     async fn test_search_variation_by_allele_name(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
-        let filter = Filter::<VariationFieldName> {
+        let filter = FilterGroup::<VariationFieldName> {
             filters: vec![vec![(
                 VariationFieldName::AlleleName,
-                FilterType::Like("IS".to_string()),
+                Filter::Like("IS".to_string()),
             )]],
             order_by: vec![(VariationFieldName::AlleleName, Order::Asc)],
         };

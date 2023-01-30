@@ -4,7 +4,7 @@ import {
   DynamicSearch,
   iSearchProps,
 } from 'components/DynamicSearch/DynamicSearch';
-import { Filter } from 'models/db/filter/Filter';
+import { FilterGroup } from 'models/db/filter/FilterGroup';
 import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
 import { db_Allele } from 'models/db/db_Allele';
 import { getDbAlleles } from 'components/DynamicSearch/DynamicSearch.mock';
@@ -23,7 +23,7 @@ const Template =
     <DynamicSearch {...props} />;
 
 const getAlleleApi = async (
-  filter: Filter<AlleleFieldName>
+  filter: FilterGroup<AlleleFieldName>
 ): Promise<db_Allele[]> => {
   return getDbAlleles().filter((allele) =>
     allele.name.includes((filter.filters[0][0][1] as any)['Like'] as string)

@@ -1,26 +1,27 @@
 import { ColumnFilter, Field } from './ColumnFilter';
-import { FilterType } from 'models/db/filter/FilterType';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { Filter } from 'models/db/filter/Filter';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { db_Allele } from 'models/db/db_Allele';
 import { useState } from 'react';
 
 interface iColumnFilterWrapperProps<T> {
   field: Field<T>;
-  filterTypes?: FilterType[];
+  filterTypes?: Filter[];
 }
 
 const ColumnFilterWrapper = <T,>(
   props: iColumnFilterWrapperProps<T>
 ): JSX.Element => {
-  const [filterTypes, setFilterTypes] = useState<FilterType[]>(
-    props.filterTypes ?? new Array<FilterType>()
+  const [filterTypes, setFilterTypes] = useState<Filter[]>(
+    props.filterTypes ?? new Array<Filter>()
   );
   return (
     <div className='modal-box'>
       <ColumnFilter
         field={props.field}
-        filterTypes={filterTypes}
-        setFilterTypes={setFilterTypes}
+        columnFilters={filterTypes}
+        setColumnFilters={setFilterTypes}
       />
     </div>
   );
@@ -74,19 +75,21 @@ describe('ColumnFilter', () => {
     expect(selects[0].childElementCount).toBe(4); // true, false, null, notNull
   });
 
-  it('delete button removes filter', () => {
-    const filterTypes: FilterType[] = [{ Equal: 'foo' }];
+  it('delete button removes filter', async () => {
+    userEvent.setup();
+    const filterTypes: Filter[] = [{ Equal: 'foo' }];
     render(<ColumnFilterWrapper field={field} filterTypes={filterTypes} />);
     expect(screen.getByRole('textbox')).toBeInTheDocument();
-    fireEvent.click(screen.getByTitle('delete-filter'));
+    await userEvent.click(screen.getByTitle('delete-filter'));
     expect(screen.queryByRole('textbox')).toBeNull();
   });
 
-  it('add button creates filter', () => {
-    const filterTypes: FilterType[] = [];
+  it('add button creates filter', async () => {
+    userEvent.setup();
+    const filterTypes: Filter[] = [];
     render(<ColumnFilterWrapper field={field} filterTypes={filterTypes} />);
     expect(screen.queryByRole('textbox')).toBeNull();
-    fireEvent.click(screen.getByTitle('add-filter'));
+    await userEvent.click(screen.getByTitle('add-filter'));
     expect(screen.queryByRole('textbox')).toBeInTheDocument();
   });
 });

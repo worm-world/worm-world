@@ -1,7 +1,7 @@
 import { StoryFn, Meta } from '@storybook/react';
 import CrossNodeForm, { CrossNodeFormProps } from './CrossNodeForm';
 import CrossNode from 'models/frontend/CrossNode/CrossNode';
-import { Filter } from 'models/db/filter/Filter';
+import { FilterGroup } from 'models/db/filter/FilterGroup';
 import { GeneFieldName } from 'models/db/filter/db_GeneFieldName';
 import { db_Gene } from 'models/db/db_Gene';
 import * as mockGenes from 'models/frontend/Gene/Gene.mock';
@@ -16,7 +16,7 @@ import { Gene } from 'models/frontend/Gene/Gene';
 import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
 
 const mockGetFilteredGenes = (
-  filter: Filter<GeneFieldName>
+  filter: FilterGroup<GeneFieldName>
 ): Promise<db_Gene[]> => {
   const genes = [
     mockGenes.dpy10,
@@ -38,7 +38,7 @@ const mockGetFilteredGenes = (
 };
 
 const mockGetFilteredVariations = (
-  filter: Filter<VariationFieldName>
+  filter: FilterGroup<VariationFieldName>
 ): Promise<db_VariationInfo[]> => {
   const variations = [
     mockVariations.oxEx219999,
@@ -78,7 +78,7 @@ const alleles = [
 ];
 
 const mockGetFilteredAlleles = (
-  filter: Filter<AlleleFieldName>
+  filter: FilterGroup<AlleleFieldName>
 ): Promise<db_Allele[]> => {
   const matches: db_Allele[] = [];
 

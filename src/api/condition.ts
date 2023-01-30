@@ -3,10 +3,10 @@ import { db_Condition } from 'models/db/db_Condition';
 import { ConditionFieldName } from 'models/db/filter/db_ConditionFieldName';
 import { ExpressionRelationFieldName } from 'models/db/filter/db_ExpressionRelationFieldName';
 import {
-  Filter,
+  FilterGroup,
   getDbBoolean,
   getSingleRecordOrThrow,
-} from 'models/db/filter/Filter';
+} from 'models/db/filter/FilterGroup';
 import { Condition } from 'models/frontend/Condition';
 
 export const getConditions = async (): Promise<db_Condition[]> => {
@@ -14,7 +14,7 @@ export const getConditions = async (): Promise<db_Condition[]> => {
 };
 
 export const getFilteredConditions = async (
-  filter: Filter<ConditionFieldName>
+  filter: FilterGroup<ConditionFieldName>
 ): Promise<db_Condition[]> => {
   return await invoke('get_filtered_conditions', {
     filter,
@@ -22,7 +22,7 @@ export const getFilteredConditions = async (
 };
 
 export const getCondition = async (name: string): Promise<db_Condition> => {
-  const filter: Filter<ConditionFieldName> = {
+  const filter: FilterGroup<ConditionFieldName> = {
     filters: [[['Name', { Equal: name }]]],
     orderBy: [],
   };
@@ -41,7 +41,7 @@ export const getAlteringConditions = async (
   isSuppressing: boolean
 ): Promise<db_Condition[]> => {
   // Build expression relation filter
-  const exprRelationFilter: Filter<ExpressionRelationFieldName> = {
+  const exprRelationFilter: FilterGroup<ExpressionRelationFieldName> = {
     filters: [
       [['AlleleName', { Equal: alleleName }]],
       [['ExpressingPhenotypeName', { Equal: phenotypeName }]],
@@ -51,7 +51,7 @@ export const getAlteringConditions = async (
     orderBy: [],
   };
 
-  const conditionFilter: Filter<ConditionFieldName> = {
+  const conditionFilter: FilterGroup<ConditionFieldName> = {
     filters: [],
     orderBy: [],
   };

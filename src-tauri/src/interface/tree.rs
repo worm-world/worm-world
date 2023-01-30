@@ -1,6 +1,6 @@
 use super::{DbError, InnerDbState};
 use crate::models::{
-    filter::{Filter, FilterQueryBuilder},
+    filter::{FilterGroup, FilterQueryBuilder},
     tree::{Tree, TreeFieldName},
 };
 use anyhow::Result;
@@ -27,7 +27,7 @@ impl InnerDbState {
 
     pub async fn get_filtered_trees(
         &self,
-        filter: &Filter<TreeFieldName>,
+        filter: &FilterGroup<TreeFieldName>,
     ) -> Result<Vec<Tree>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT id, name, last_edited, data FROM trees",
@@ -100,7 +100,7 @@ mod test {
     use crate::InnerDbState;
     use crate::{
         dummy::testdata,
-        models::filter::{Filter, FilterType},
+        models::filter::{FilterGroup, Filter},
     };
     use anyhow::Result;
     use pretty_assertions::assert_eq;
@@ -124,11 +124,11 @@ mod test {
     async fn test_get_filtered_trees(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_trees(&Filter::<TreeFieldName> {
+            .get_filtered_trees(&FilterGroup::<TreeFieldName> {
                 filters: vec![vec![
                     (
                         TreeFieldName::Id,
-                        FilterType::Equal("1".to_owned()),
+                        Filter::Equal("1".to_owned()),
                     ),
                 ]],
                 order_by: vec![],

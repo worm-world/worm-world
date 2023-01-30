@@ -1,9 +1,16 @@
-import { Filter, FilterTuple } from 'models/db/filter/Filter';
-import { FilterType } from 'models/db/filter/FilterType';
+import { FilterGroup, FilterTuple } from 'models/db/filter/FilterGroup';
+import { Filter } from 'models/db/filter/Filter';
 import { Order } from 'models/db/filter/Order';
 import { ReactNode, useState } from 'react';
-import { FaFilter, FaSortDown, FaSortUp } from 'react-icons/fa';
-import { ColumnFilter, Field } from '../ColumnFilter/ColumnFilter';
+import {
+  FaFilter as FilterIcon,
+  FaSortDown as SortDownIcon,
+  FaSortUp as SortUpIcon,
+} from 'react-icons/fa';
+import {
+  Field,
+  ColumnFilterModalBox,
+} from '../ColumnFilter/ColumnFilter';
 
 export interface ColumnDefinitionType<T> {
   key: keyof T;
@@ -13,24 +20,47 @@ export interface ColumnDefinitionType<T> {
 
 const SortIcon = (props: any): JSX.Element => {
   if (props.sortdir === 'Asc') {
-    return <FaSortUp {...props} />;
+    return <SortUpIcon {...props} />;
   } else {
-    return <FaSortDown {...props} />;
+    return <SortDownIcon {...props} />;
   }
 };
 
 interface TableHeaderCellProps<T> {
   column: ColumnDefinitionType<T>;
   index: number;
-  sortType: SortType<T> | undefined;
-  colFilter: FilterType[];
-  setSortType: (key: SortType<T>) => void;
+  sortType: SortTuple<T> | undefined;
+  colFilters: Filter[];
+  setSortType: (key: SortTuple<T>) => void;
   setFilterField: (key: keyof T) => void;
   runMyFilters: () => void;
 }
 
+/**
+ * TableHeaderCell is a generic component that appears in each column of the header of a table.
+ * It displays the column header, and has a sort icon and filter icon when hovering.
+ * The sort icon will display without hovering when this column is currently sorted.
+ * The filter icon will display without hovering when this column has a filter applied.
+ *
+ * Clicking the sort icon will flip the sort direction and refresh the data.
+ * Clicking the filter icon will open the filter modal for that column.
+ *
+ * This component is not stateful beside tracking if the cell is currently hovered.
+ * It calls a parent component's stateful functions to update the sort type and filter field.
+ */
 const TableHeaderCell = <T,>(props: TableHeaderCellProps<T>): JSX.Element => {
   const [hovered, setHovered] = useState<boolean>(false);
+  const flipSortAndRun = (): void => {
+    if (props.sortType?.[0] === props.column.key) {
+      props.setSortType([
+        props.column.key,
+        props.sortType[1] === 'Asc' ? 'Desc' : 'Asc',
+      ]);
+    } else {
+      props.setSortType([props.column.key, 'Asc']);
+    }
+    props.runMyFilters();
+  };
   return (
     <th
       key={`headCell-${props.index}`}
@@ -39,32 +69,32 @@ const TableHeaderCell = <T,>(props: TableHeaderCellProps<T>): JSX.Element => {
       onMouseOut={() => setHovered(false)}
     >
       <div className='flex flex-row items-center justify-between'>
-        <SortIcon
-          onClick={() => {
-            if (props.sortType?.[0] === props.column.key) {
-              props.setSortType([
-                props.column.key,
-                props.sortType[1] === 'Asc' ? 'Desc' : 'Asc',
-              ]);
-            } else {
-              props.setSortType([props.column.key, 'Asc']);
-            }
-            props.runMyFilters();
-          }}
+        <button
+          onClick={flipSortAndRun}
           className='cursor-pointer text-xl transition-colors'
-          sortdir={props.sortType?.[1] ?? 'Asc'}
-          visibility={
-            hovered || props.sortType?.[0] === props.column.key ? '' : 'hidden'
-          }
-        />
+          title='sort-icon'
+        >
+          <SortIcon
+            sortdir={props.sortType?.[1] ?? 'Asc'}
+            visibility={
+              hovered || props.sortType?.[0] === props.column.key
+                ? ''
+                : 'hidden'
+            }
+          />
+        </button>
         <h2 className='px-1 text-2xl'>{props.column.header}</h2>
-        <FaFilter
-          className={'cursor-pointer'}
-          visibility={hovered || props.colFilter.length > 0 ? '' : 'hidden'}
+        <button
+          className='m-0 cursor-pointer p-0'
+          title='filter-icon'
           onClick={() => {
             props.setFilterField(props.column.key);
           }}
-        />
+        >
+          <FilterIcon
+            visibility={hovered || props.colFilters.length > 0 ? '' : 'hidden'}
+          />
+        </button>
       </div>
     </th>
   );
@@ -72,9 +102,9 @@ const TableHeaderCell = <T,>(props: TableHeaderCellProps<T>): JSX.Element => {
 
 interface TableHeaderProps<T> {
   columns: Array<ColumnDefinitionType<T>>;
-  filterMap: Map<keyof T, FilterType[]>;
-  sortType?: SortType<T>;
-  setSortType: (key: SortType<T>) => void;
+  filterMap: Map<keyof T, Filter[]>;
+  sortType?: SortTuple<T>;
+  setSortType: (key: SortTuple<T>) => void;
   setFilterField: (key: keyof T) => void;
   runMyFilters: () => void;
 }
@@ -90,7 +120,7 @@ const TableHeader = <T,>(props: TableHeaderProps<T>): JSX.Element => {
         setSortType={props.setSortType}
         column={column}
         index={index}
-        colFilter={props.filterMap.get(column.key) ?? []}
+        colFilters={props.filterMap.get(column.key) ?? []}
       />
     );
   });
@@ -141,19 +171,34 @@ export interface TableProps<T, K> {
   data: T[];
   fields: Array<Field<T>>;
   columns: Array<ColumnDefinitionType<T>>;
-  runFilters: (filterObj: Filter<K>) => void;
+  runFilters: (filterObj: FilterGroup<K>) => void;
 }
 
-type FilterMap<T> = Map<keyof T, FilterType[]>;
-type SortType<T> = [keyof T, Order];
+type FilterMap<T> = Map<keyof T, Filter[]>;
+type SortTuple<T> = [keyof T, Order];
 
+/**
+ * The Table component is the main component for the table.
+ * It is responsible for managing all the state for sorting & filtering of the table.
+ * The data is passed in as a prop.
+ *
+ * Table is generic over the type of the data and the type of the name mapping.
+ * It uses a name mapping to map the column names of the data fields to the column names of filters in the FilterGroup.
+ *
+ * It passes stateful functions down to its children components to update the sort & filtering states.
+ * For example, the TableHeaderCell component will call the setSortType function to update the sort type.
+ * The ColumnFilter component will call the setFilterMapItem function to update the filter map.
+ *
+ * It can construct a full FilterGroup object from the state and pass it to the prop runFilters function
+ * to run filters on the data.
+ */
 export const Table = <T, K>(props: TableProps<T, K>): JSX.Element => {
   const [filterMap, setFilterMap] = useState<FilterMap<T>>(new Map());
-  const [sortType, setSortType] = useState<SortType<T> | undefined>(undefined);
+  const [sortType, setSortType] = useState<SortTuple<T> | undefined>(undefined);
   const [focusedFilterField, setFocusedFilterField] = useState<
     keyof T | undefined
   >(undefined);
-  const setFilterMapItem = (key: keyof T, value: FilterType[]): void => {
+  const setFilterMapItem = (key: keyof T, value: Filter[]): void => {
     const newFilterMap = new Map(filterMap);
     if (value.length === 0) {
       newFilterMap.delete(key);
@@ -162,7 +207,7 @@ export const Table = <T, K>(props: TableProps<T, K>): JSX.Element => {
     }
     setFilterMap(newFilterMap);
   };
-  const createFilters = (): Filter<K> => {
+  const createFilterGroup = (): FilterGroup<K> => {
     const filters = new Array<Array<FilterTuple<K>>>();
     filterMap.forEach((filterTypes, key) => {
       const filter = new Array<FilterTuple<K>>();
@@ -186,7 +231,7 @@ export const Table = <T, K>(props: TableProps<T, K>): JSX.Element => {
   };
 
   const runMyFilters = (): void => {
-    props.runFilters(createFilters());
+    props.runFilters(createFilterGroup());
   };
 
   return (
@@ -217,17 +262,15 @@ export const Table = <T, K>(props: TableProps<T, K>): JSX.Element => {
             runMyFilters();
           }}
         />
-        <div className='modal-box bg-base-200'>
-          {focusedFilterField !== undefined && (
-            <ColumnFilter
-              field={props.fields.find((f) => f.name === focusedFilterField)}
-              filterTypes={filterMap.get(focusedFilterField) ?? []}
-              setFilterTypes={(filter) => {
-                setFilterMapItem(focusedFilterField, filter);
-              }}
-            />
-          )}
-        </div>
+        {focusedFilterField !== undefined && (
+          <ColumnFilterModalBox
+            field={props.fields.find((f) => f.name === focusedFilterField)}
+            columnFilters={filterMap.get(focusedFilterField) ?? []}
+            setColumnFilters={(filter) => {
+              setFilterMapItem(focusedFilterField, filter);
+            }}
+          />
+        )}
       </label>
     </>
   );

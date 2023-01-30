@@ -12,7 +12,7 @@ const TodoActions = (props: {}): JSX.Element => {
             <label htmlFor='my-modal-3' className='btn'>
               Postpone
             </label>
-            <button className='btn-active btn'>Set Complete</button>
+            <button className='btn btn-active'>Set Complete</button>
           </div>
         </div>
       </div>

@@ -1,7 +1,10 @@
 import { invoke } from '@tauri-apps/api/tauri';
 import { db_Gene } from 'models/db/db_Gene';
 import { GeneFieldName } from 'models/db/filter/db_GeneFieldName';
-import { Filter, getSingleRecordOrThrow } from 'models/db/filter/Filter';
+import {
+  FilterGroup,
+  getSingleRecordOrThrow,
+} from 'models/db/filter/FilterGroup';
 import { Gene } from 'models/frontend/Gene/Gene';
 
 export const getGenes = async (): Promise<db_Gene[]> => {
@@ -9,7 +12,7 @@ export const getGenes = async (): Promise<db_Gene[]> => {
 };
 
 export const getFilteredGenes = async (
-  filter: Filter<GeneFieldName>
+  filter: FilterGroup<GeneFieldName>
 ): Promise<db_Gene[]> => {
   return await invoke('get_filtered_genes', {
     filter,
@@ -17,7 +20,7 @@ export const getFilteredGenes = async (
 };
 
 export const getGene = async (name: string): Promise<db_Gene> => {
-  const filter: Filter<GeneFieldName> = {
+  const filter: FilterGroup<GeneFieldName> = {
     filters: [[['SysName', { Equal: name }]]],
     orderBy: [],
   };

@@ -1,7 +1,7 @@
 use super::{DbError, InnerDbState};
 use crate::models::{
     allele_expr::{AlleleExpression, AlleleExpressionDb, AlleleExpressionFieldName},
-    filter::{Filter, FilterQueryBuilder},
+    filter::{FilterGroup, FilterQueryBuilder},
 };
 use anyhow::Result;
 use sqlx::{QueryBuilder, Sqlite};
@@ -29,7 +29,7 @@ impl InnerDbState {
 
     pub async fn get_filtered_allele_exprs(
         &self,
-        filter: &Filter<AlleleExpressionFieldName>,
+        filter: &FilterGroup<AlleleExpressionFieldName>,
     ) -> Result<Vec<AlleleExpression>, DbError> {
         let mut qb: QueryBuilder<Sqlite> =
             QueryBuilder::new("SELECT allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance FROM allele_exprs");
@@ -75,7 +75,7 @@ mod test {
     use crate::dummy::testdata;
     use crate::models::allele_expr::AlleleExpressionFieldName;
     use crate::models::chromosome::Chromosome;
-    use crate::models::filter::{Filter, FilterType, Order};
+    use crate::models::filter::{FilterGroup, Filter, Order};
     use crate::models::{
         allele::Allele, allele_expr::AlleleExpression, gene::Gene, phenotype::Phenotype,
     };
@@ -99,10 +99,10 @@ mod test {
     async fn test_get_filtered_allele_expr(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_allele_exprs(&Filter::<AlleleExpressionFieldName> {
+            .get_filtered_allele_exprs(&FilterGroup::<AlleleExpressionFieldName> {
                 filters: vec![vec![(
                     AlleleExpressionFieldName::AlleleName,
-                    FilterType::Equal("cn64".to_owned()),
+                    Filter::Equal("cn64".to_owned()),
                 )]],
                 order_by: vec![(AlleleExpressionFieldName::AlleleName, Order::Asc)],
             })
@@ -116,15 +116,15 @@ mod test {
     async fn test_get_filtered_allele_expr_wild_unc119(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_allele_exprs(&Filter::<AlleleExpressionFieldName> {
+            .get_filtered_allele_exprs(&FilterGroup::<AlleleExpressionFieldName> {
                 filters: vec![
                     vec![(
                         AlleleExpressionFieldName::ExpressingPhenotypeWild,
-                        FilterType::True,
+                        Filter::True,
                     )],
                     vec![(
                         AlleleExpressionFieldName::ExpressingPhenotypeName,
-                        FilterType::Equal("unc-119".to_string()),
+                        Filter::Equal("unc-119".to_string()),
                     )],
                 ],
                 order_by: vec![(AlleleExpressionFieldName::AlleleName, Order::Asc)],
@@ -139,7 +139,7 @@ mod test {
     async fn test_get_allele_expr_empty_filter_multi_order_by(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_allele_exprs(&Filter::<AlleleExpressionFieldName> {
+            .get_filtered_allele_exprs(&FilterGroup::<AlleleExpressionFieldName> {
                 filters: vec![],
                 order_by: vec![
                     (AlleleExpressionFieldName::Dominance, Order::Asc),
@@ -157,10 +157,10 @@ mod test {
     async fn test_search_allele_expr_by_allele_name(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_allele_exprs(&Filter::<AlleleExpressionFieldName> {
+            .get_filtered_allele_exprs(&FilterGroup::<AlleleExpressionFieldName> {
                 filters: vec![vec![(
                     AlleleExpressionFieldName::AlleleName,
-                    FilterType::Like("2".to_string()),
+                    Filter::Like("2".to_string()),
                 )]],
                 order_by: vec![
                     (AlleleExpressionFieldName::AlleleName, Order::Asc),
@@ -177,10 +177,10 @@ mod test {
     async fn test_search_allele_expr_by_phenotype_name(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
-            .get_filtered_allele_exprs(&Filter::<AlleleExpressionFieldName> {
+            .get_filtered_allele_exprs(&FilterGroup::<AlleleExpressionFieldName> {
                 filters: vec![vec![(
                     AlleleExpressionFieldName::ExpressingPhenotypeName,
-                    FilterType::Like("unc-".to_string()),
+                    Filter::Like("unc-".to_string()),
                 )]],
                 order_by: vec![
                     (AlleleExpressionFieldName::ExpressingPhenotypeName, Order::Asc),

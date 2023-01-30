@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import { Table, ColumnDefinitionType } from 'components/Table/Table';
 import DataImportForm from 'components/DataImportForm/DataImportForm';
 import { Field } from 'components/ColumnFilter/ColumnFilter';
-import { Filter } from 'models/db/filter/Filter';
+import { FilterGroup } from 'models/db/filter/FilterGroup';
 
 interface iDataPageProps<T, K> {
   title: string;
@@ -12,7 +12,7 @@ interface iDataPageProps<T, K> {
   fields: Array<Field<T>>;
   nameMapping: { [key in keyof T]: K };
   insertDatum: (record: T) => Promise<void>;
-  getFilteredData: (filterObj: Filter<K>) => Promise<T[]>;
+  getFilteredData: (filterObj: FilterGroup<K>) => Promise<T[]>;
 }
 
 const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
@@ -34,7 +34,7 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
       });
   };
 
-  const runFilters = (filterObj: Filter<K>): void => {
+  const runFilters = (filterObj: FilterGroup<K>): void => {
     props
       .getFilteredData(filterObj)
       .then((ds) => setData(ds))

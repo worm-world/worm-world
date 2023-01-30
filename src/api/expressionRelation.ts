@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/tauri';
 import { db_ExpressionRelation } from 'models/db/db_ExpressionRelation';
 import { ExpressionRelationFieldName } from 'models/db/filter/db_ExpressionRelationFieldName';
-import { Filter } from 'models/db/filter/Filter';
+import { FilterGroup } from 'models/db/filter/FilterGroup';
 
 export const getExpressionRelations = async (): Promise<
   db_ExpressionRelation[]
@@ -10,7 +10,7 @@ export const getExpressionRelations = async (): Promise<
 };
 
 export const getFilteredExpressionRelations = async (
-  filter: Filter<ExpressionRelationFieldName>
+  filter: FilterGroup<ExpressionRelationFieldName>
 ): Promise<db_ExpressionRelation[]> => {
   return await invoke('get_filtered_expr_relations', {
     filter,

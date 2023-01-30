@@ -1,7 +1,10 @@
 import { invoke } from '@tauri-apps/api/tauri';
 import { db_Allele } from 'models/db/db_Allele';
 import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
-import { Filter, getSingleRecordOrThrow } from 'models/db/filter/Filter';
+import {
+  FilterGroup,
+  getSingleRecordOrThrow,
+} from 'models/db/filter/FilterGroup';
 import { Allele } from 'models/frontend/Allele/Allele';
 
 export const getAlleles = async (): Promise<db_Allele[]> => {
@@ -9,13 +12,13 @@ export const getAlleles = async (): Promise<db_Allele[]> => {
 };
 
 export const getFilteredAlleles = async (
-  filter: Filter<AlleleFieldName>
+  filter: FilterGroup<AlleleFieldName>
 ): Promise<db_Allele[]> => {
   return await invoke('get_filtered_alleles', { filter });
 };
 
 export const getAllele = async (name: string): Promise<db_Allele> => {
-  const filter: Filter<AlleleFieldName> = {
+  const filter: FilterGroup<AlleleFieldName> = {
     filters: [[['Name', { Equal: name }]]],
     orderBy: [],
   };
