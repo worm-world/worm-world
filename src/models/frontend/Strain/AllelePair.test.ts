@@ -9,7 +9,6 @@ import {
   ox802,
   oxEx12345,
   oxEx219999,
-  oxSi1168,
   oxTi302,
 } from 'models/frontend/Allele/Allele.mock';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';

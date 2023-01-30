@@ -2,7 +2,7 @@ import { StoryFn, Meta } from '@storybook/react';
 import CrossNode from 'components/CrossNode/CrossNode';
 import { ReactFlowProvider } from 'reactflow';
 import * as crossNodeMock from 'models/frontend/CrossNode/CrossNode.mock';
-import iCrossNode from 'models/frontend/CrossNode/CrossNode';
+import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 
 export default {
   title: 'Components/Cross Node',
@@ -16,7 +16,7 @@ export default {
   },
 } as Meta<typeof CrossNode>;
 
-const Template: StoryFn<typeof CrossNode> = (args: iCrossNode) => {
+const Template: StoryFn<typeof CrossNode> = (args: CrossNodeModel) => {
   return (
     <ReactFlowProvider>
       <CrossNode {...args}></CrossNode>

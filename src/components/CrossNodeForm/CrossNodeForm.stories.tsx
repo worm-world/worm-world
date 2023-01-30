@@ -1,7 +1,6 @@
 import { StoryFn, Meta } from '@storybook/react';
 import CrossNodeForm, { CrossNodeFormProps } from './CrossNodeForm';
-import CrossNode from 'models/frontend/CrossNode/CrossNode';
-import { FilterGroup } from 'models/db/filter/FilterGroup';
+import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import { GeneFieldName } from 'models/db/filter/db_GeneFieldName';
 import { db_Gene } from 'models/db/db_Gene';
 import * as mockGenes from 'models/frontend/Gene/Gene.mock';
@@ -14,6 +13,7 @@ import * as mockAlleles from 'models/frontend/Allele/Allele.mock';
 import { Allele } from 'models/frontend/Allele/Allele';
 import { Gene } from 'models/frontend/Gene/Gene';
 import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
+import { FilterGroup } from 'models/db/filter/FilterGroup';
 
 const mockGetFilteredGenes = (
   filter: FilterGroup<GeneFieldName>
@@ -103,9 +103,6 @@ const mockAlleleCreateFromRecord = (dbAllele: db_Allele): Promise<Allele> => {
   });
   return Promise.resolve(allele);
 };
-const addNewCrossNode = (crossNode: CrossNode): void => {
-  alert('Would add new node \n' + JSON.stringify(crossNode, null, 2));
-};
 
 export default {
   title: 'Components/CrossNodeForm',
@@ -117,9 +114,11 @@ const Template: StoryFn<typeof CrossNodeForm> = (args: CrossNodeFormProps) => {
     <div className='flex justify-between'>
       <div>
         <CrossNodeForm
-          addNewCrossNode={addNewCrossNode}
           getFilteredAlleles={mockGetFilteredAlleles}
           createAlleleFromRecord={mockAlleleCreateFromRecord}
+          onSubmitCallback={() => {
+            alert('clicked submit');
+          }}
         />
       </div>
     </div>

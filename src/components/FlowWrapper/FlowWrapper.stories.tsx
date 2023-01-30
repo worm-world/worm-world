@@ -2,26 +2,25 @@ import { StoryFn, Meta } from '@storybook/react';
 import { ReactFlowProvider } from 'reactflow';
 import * as crossNodeMock from 'models/frontend/CrossNode/CrossNode.mock';
 import {
-  CrossNodeFlowWrapper,
-  CrossNodeFlowWrapperProps,
+  StrainFlowWrapper,
+  iStrainFlowWrapper,
 } from 'components/FlowWrapper/FlowWrapper';
+import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 
 export default {
   title: 'Components/CrossNodeFlowWrapper',
-  component: CrossNodeFlowWrapper,
-} as Meta<typeof CrossNodeFlowWrapper>;
+  component: StrainFlowWrapper,
+} as Meta<typeof StrainFlowWrapper>;
 
-const Template: StoryFn<typeof CrossNodeFlowWrapper> = (
-  args: CrossNodeFlowWrapperProps
+const Template: StoryFn<typeof StrainFlowWrapper> = (
+  args: iStrainFlowWrapper
 ) => {
   return (
     <ReactFlowProvider>
-      <CrossNodeFlowWrapper {...args}></CrossNodeFlowWrapper>
+      <StrainFlowWrapper {...args}></StrainFlowWrapper>
     </ReactFlowProvider>
   );
 };
 
 export const wrapperOfCrossNode = Template.bind({});
-wrapperOfCrossNode.args = {
-  data: crossNodeMock.mutated,
-};
+wrapperOfCrossNode.args = { data: crossNodeMock.mutated };

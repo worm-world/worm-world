@@ -1,5 +1,5 @@
 import React from 'react';
-import iCrossNode from 'models/frontend/CrossNode/CrossNode';
+import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import { Sex } from 'models/enums';
 import { IoMale, IoFemale, IoMaleFemale } from 'react-icons/io5';
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
@@ -18,16 +18,13 @@ const getSexIcon = (sex: Sex, className: string): JSX.Element => {
   }
 };
 
-const CrossNode = (props: iCrossNode): JSX.Element => {
+const CrossNode = (props: CrossNodeModel): JSX.Element => {
   const menuItems =
     props.getMenuItems !== undefined ? props.getMenuItems(props) : [];
   return (
     <div
       data-testid='crossNode'
-      className={
-        'h-28 w-64 rounded bg-base-100 shadow hover:cursor-grab' +
-        (props.isSelected ? ' border border-primary' : '')
-      }
+      className='h-28 w-64 rounded bg-base-100 shadow hover:cursor-grab'
     >
       <div className='flex h-6 justify-between'>
         {getSexIcon(props.sex, 'mt-2 ml-1 text-xl')}
