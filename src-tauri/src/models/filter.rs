@@ -167,5 +167,7 @@ impl<T: FieldNameEnum> FilterQueryBuilder for Filter<T> {
             }
             qb_separated.push_unseparated(" ");
         }
+        // DEBUG (uncomment line below)
+        // println!("{}", qb.sql());
     }
 }

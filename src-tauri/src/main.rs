@@ -21,8 +21,9 @@ use models::{
     expr_relation::{ExpressionRelation, ExpressionRelationFieldName},
     filter::Filter,
     gene::{Gene, GeneFieldName},
+    task::{Task, TaskFieldName},
     phenotype::{Phenotype, PhenotypeFieldName},
-    variation_info::{VariationFieldName, VariationInfo},
+    variation_info::{VariationFieldName, VariationInfo}, tree::{Tree, TreeFieldName},
 };
 use thiserror::Error;
 use tokio::sync::RwLock;
@@ -64,6 +65,14 @@ async fn main() {
             get_expr_relations,
             get_filtered_expr_relations,
             insert_expr_relation,
+            get_tasks,
+            get_filtered_tasks,
+            insert_task,
+            update_task,
+            get_trees,
+            get_filtered_trees,
+            insert_tree,
+            update_tree,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -297,4 +306,50 @@ async fn insert_expr_relation(
 ) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
     state_guard.insert_expr_relation(&expr_relation).await
+}
+
+#[tauri::command]
+async fn get_tasks(state: tauri::State<'_, DbState>) -> Result<Vec<Task>, DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.get_tasks().await
+}
+
+#[tauri::command]
+async fn get_filtered_tasks(state: tauri::State<'_, DbState>, filter: Filter<TaskFieldName>) -> Result<Vec<Task>, DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.get_filtered_tasks(&filter).await
+}
+#[tauri::command]
+async fn insert_task(state: tauri::State<'_, DbState>, task: Task) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.insert_task(&task).await
+}
+
+#[tauri::command]
+async fn update_task(state: tauri::State<'_, DbState>, task: Task) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.update_task(&task).await
+}
+
+#[tauri::command]
+async fn get_trees(state: tauri::State<'_, DbState>) -> Result<Vec<Tree>, DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.get_trees().await
+}
+
+#[tauri::command]
+async fn get_filtered_trees(state: tauri::State<'_, DbState>, filter: Filter<TreeFieldName>) -> Result<Vec<Tree>, DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.get_filtered_trees(&filter).await
+}
+#[tauri::command]
+async fn insert_tree(state: tauri::State<'_, DbState>, tree: Tree) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.insert_tree(&tree).await
+}
+
+#[tauri::command]
+async fn update_tree(state: tauri::State<'_, DbState>, tree: Tree) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.update_tree(&tree).await
 }
