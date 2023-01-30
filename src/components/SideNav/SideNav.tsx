@@ -23,7 +23,7 @@ const SideNavItems: SideNavItem[] = [
   },
   {
     name: 'Scheduler',
-    path: '/scheduler',
+    path: '/scheduler/todo',
     icon: <EventNoteIcon className='text-2xl' />,
   },
   {
