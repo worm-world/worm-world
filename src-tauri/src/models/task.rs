@@ -31,6 +31,9 @@ pub struct Task {
     pub action: Action,
     pub strain1: String,
     pub strain2: Option<String>,
+    pub notes: Option<String>,
+    pub completed: bool,
+    pub tree_id: i64,
 }
 
 impl From<TaskDb> for Task {
@@ -41,6 +44,9 @@ impl From<TaskDb> for Task {
             action: item.action.into(),
             strain1: item.strain1,
             strain2: item.strain2,
+            notes: item.notes,
+            completed: item.completed == 1,
+            tree_id: item.tree_id,
         }
     }
 }
@@ -52,6 +58,9 @@ pub struct TaskDb {
     pub action: i64,
     pub strain1: String,
     pub strain2: Option<String>,
+    pub notes: Option<String>,
+    pub completed: i64,
+    pub tree_id: i64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, TS)]
@@ -62,6 +71,9 @@ pub enum TaskFieldName {
     Action,
     Strain1,
     Strain2,
+    Notes,
+    Completed,
+    TreeId,
 }
 
 impl FieldNameEnum for TaskFieldName {
@@ -72,6 +84,9 @@ impl FieldNameEnum for TaskFieldName {
             TaskFieldName::Action => "action".to_owned(),
             TaskFieldName::Strain1 => "strain1".to_owned(),
             TaskFieldName::Strain2 => "strain2".to_owned(),
+            TaskFieldName::Notes => "notes".to_owned(),
+            TaskFieldName::Completed => "completed".to_owned(),
+            TaskFieldName::TreeId => "tree_id".to_owned(),
         }
     }
 }

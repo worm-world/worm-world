@@ -2024,6 +2024,9 @@ pub mod testdata {
                 action: Action::Cross,
                 strain1: "{}".to_string(),
                 strain2: Some("{}".to_string()),
+                notes: Some("example note".to_string()),
+                tree_id: 1,
+                completed: true,
             },
             Task {
                 id: 2,
@@ -2031,6 +2034,9 @@ pub mod testdata {
                 action: Action::SelfCross,
                 strain1: "{}".to_string(),
                 strain2: Some("{}".to_string()),
+                notes: None,
+                tree_id: 1,
+                completed: false,
             },
             Task {
                 id: 3,
@@ -2038,6 +2044,9 @@ pub mod testdata {
                 action: Action::Cross,
                 strain1: "{}".to_string(),
                 strain2: Some("{}".to_string()),
+                notes: Some("example note".to_string()),
+                tree_id: 2,
+                completed: false,
             },
             Task {
                 id: 4,
@@ -2045,6 +2054,9 @@ pub mod testdata {
                 action: Action::Freeze,
                 strain1: "{}".to_string(),
                 strain2: Some("{}".to_string()),
+                notes: None,
+                tree_id: 2,
+                completed: true,
             },
             Task {
                 id: 5,
@@ -2052,6 +2064,9 @@ pub mod testdata {
                 action: Action::Pcr,
                 strain1: "{}".to_string(),
                 strain2: Some("{}".to_string()),
+                notes: Some("example note".to_string()),
+                tree_id: 3,
+                completed: true,
             },
         ]
     }
@@ -2063,6 +2078,9 @@ pub mod testdata {
                 action: Action::Cross,
                 strain1: "{}".to_string(),
                 strain2: Some("{}".to_string()),
+                notes: Some("example note".to_string()),
+                tree_id: 1,
+                completed: true,
             },
         ]
     }
@@ -2076,18 +2094,21 @@ pub mod testdata {
                 name: "test1".to_string(),
                 last_edited: "2012-01-01".to_string(),
                 data: "{}".to_string(),
+                editable: true,
             },
             Tree{
                 id: 2,
                 name: "test2".to_string(),
                 last_edited: "2012-01-02".to_string(),
                 data: "{}".to_string(),
+                editable: false,
             },
             Tree{
                 id: 3,
                 name: "test3".to_string(),
                 last_edited: "2012-01-03".to_string(),
                 data: "{}".to_string(),
+                editable: true
             },
         ]
     }
@@ -2098,6 +2119,7 @@ pub mod testdata {
                 name: "test1".to_string(),
                 last_edited: "2012-01-01".to_string(),
                 data: "{}".to_string(),
+                editable: true,
             },
         ]
     }

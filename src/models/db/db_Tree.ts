@@ -5,4 +5,5 @@ export interface db_Tree {
   name: string;
   lastEdited: string;
   data: string;
+  editable: boolean;
 }

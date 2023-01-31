@@ -69,10 +69,12 @@ async fn main() {
             get_filtered_tasks,
             insert_task,
             update_task,
+            delete_task,
             get_trees,
             get_filtered_trees,
             insert_tree,
             update_tree,
+            delete_tree,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -332,6 +334,12 @@ async fn update_task(state: tauri::State<'_, DbState>, task: Task) -> Result<(),
 }
 
 #[tauri::command]
+async fn delete_task(state: tauri::State<'_, DbState>, id: i64) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.delete_task(id).await
+}
+
+#[tauri::command]
 async fn get_trees(state: tauri::State<'_, DbState>) -> Result<Vec<Tree>, DbError> {
     let state_guard = state.0.read().await;
     state_guard.get_trees().await
@@ -352,4 +360,10 @@ async fn insert_tree(state: tauri::State<'_, DbState>, tree: Tree) -> Result<(),
 async fn update_tree(state: tauri::State<'_, DbState>, tree: Tree) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
     state_guard.update_tree(&tree).await
+}
+
+#[tauri::command]
+async fn delete_tree(state: tauri::State<'_, DbState>, id: i64) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.delete_tree(id).await
 }

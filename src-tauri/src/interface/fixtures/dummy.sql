@@ -129,19 +129,19 @@ VALUES
     ("n765", "lin-15B", 0, NULL, NULL,"25C", 0),
     ("oxIs644", "YFP(pharynx)", 0, "Flp", 1, NULL, 0),
     ("oxEx219999", "paralyzed", 0, NULL, NULL, "Histamine", 0);
-
-INSERT INTO tasks (id, due_date, action, strain1, strain2)
-VALUES
-    (1, "2012-01-01", 0, "{}", "{}"),
-    (2, "2012-01-02", 1, "{}", "{}"),
-    (3, "2012-01-03", 0, "{}", "{}"),
-    (4, "2012-01-03", 2, "{}", "{}"),
-    (5, "2012-01-04", 3, "{}", "{}");
     
-INSERT INTO trees (id, name, last_edited, data)
+INSERT INTO trees (id, name, last_edited, data, editable)
 VALUES
-    (1, "test1", "2012-01-01", "{}"),
-    (2, "test2", "2012-01-02", "{}"),
-    (3, "test3", "2012-01-03", "{}");
+    (1, "test1", "2012-01-01", "{}", 1),
+    (2, "test2", "2012-01-02", "{}", 0),
+    (3, "test3", "2012-01-03", "{}", 1);
+
+INSERT INTO tasks (id, due_date, action, strain1, strain2, notes, tree_id, completed)
+VALUES
+    (1, "2012-01-01", 0, "{}", "{}", "example note", 1, 1),
+    (2, "2012-01-02", 1, "{}", "{}", NULL, 1, 0),
+    (3, "2012-01-03", 0, "{}", "{}", "example note", 2, 0),
+    (4, "2012-01-03", 2, "{}", "{}", NULL, 2, 1),
+    (5, "2012-01-04", 3, "{}", "{}", "example note", 3, 1);
 
 COMMIT TRANSACTION;
