@@ -86,8 +86,6 @@ export const simpleCrossTree = new CrossTree({
     longName: false,
     contents: false,
   },
-  genes: [new Gene({ sysName: 'M142.1', chromosome: 'III' })],
-  variations: [],
   nodes: [ed3HeteroHerm, ed3HeteroMale, ed3HomoHerm, xNode],
   edges: [edgeMale, edgeFemale, edgeChild],
   lastSaved: new Date(),
@@ -246,7 +244,5 @@ export const mediumCrossTree = new CrossTree({
     selfNode1,
   ],
   edges,
-  genes: [new Gene({ sysName: 'CB204', chromosome: 'IV' })],
-  variations: [],
   lastSaved: new Date('2023-01-18'),
 });

@@ -26,7 +26,7 @@ import {
 } from 'reactflow';
 import { saveCrossTree } from 'api/crossTree';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
-import { Strain, StrainOption } from 'models/frontend/Strain/Strain';
+import { Strain } from 'models/frontend/Strain/Strain';
 import { Sex } from 'models/enums';
 import { MenuItem } from 'components/CrossNodeMenu/CrossNodeMenu';
 import { BsUiChecks as ScheduleIcon } from 'react-icons/bs';
@@ -35,56 +35,52 @@ import { ImLoop2 as SelfCrossIcon } from 'react-icons/im';
 import { toast } from 'react-toastify';
 
 export interface CrossEditorProps {
-  currentTree: CrossTree;
+  crossTree: CrossTree;
 }
 
 type DrawerState = 'default' | 'cross';
 
+const DefaultNode: Node = {
+  id: '-1',
+  position: { x: 0, y: 0 },
+  data: {},
+};
+
 const CrossEditor = (props: CrossEditorProps): JSX.Element => {
-  const treeRef = useRef(props.currentTree);
+  const treeRef = useRef(props.crossTree);
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
   const [drawerState, setDrawerState] = useState<DrawerState>('default');
-  const [nodes, setNodes] = useState<Node[]>(treeRef.current.nodes);
-  const [edges, setEdges] = useState<Edge[]>(treeRef.current.edges);
+  const [nodes, setNodes] = useState<Node[]>(props.crossTree.nodes);
+  const [edges, setEdges] = useState<Edge[]>(props.crossTree.edges);
 
-  const onNodesChange = useCallback(
-    (changes: NodeChange[]) =>
-      (treeRef.current.nodes = applyNodeChanges(
-        changes,
-        treeRef.current.nodes
-      )),
-    []
-  );
-  const onEdgesChange = useCallback(
-    (changes: EdgeChange[]) =>
-      (treeRef.current.edges = applyEdgeChanges(
-        changes,
-        treeRef.current.edges
-      )),
-    []
-  );
-  const onConnect = useCallback(
-    (connection: Connection) =>
-      (treeRef.current.edges = addEdge(connection, treeRef.current.edges)),
-    []
-  );
+  const onNodesChange = useCallback((changes: NodeChange[]) => {
+    treeRef.current.nodes = applyNodeChanges(changes, treeRef.current.nodes);
+    refresh();
+  }, []);
+  const onEdgesChange = useCallback((changes: EdgeChange[]) => {
+    treeRef.current.edges = applyEdgeChanges(changes, treeRef.current.edges);
+    refresh();
+  }, []);
+  const onConnect = useCallback((connection: Connection) => {
+    treeRef.current.edges = addEdge(connection, treeRef.current.edges);
+    refresh();
+  }, []);
 
   const refresh = (() => {
-    const [setVal, set] = useState(false);
-    return useCallback(() => set(!setVal), []);
+    const [_, set] = useState(false);
+    return useCallback(() => set((a) => !a), []);
   })();
   useEffect(() => {
     setNodes([...treeRef.current.nodes]);
     setEdges([...treeRef.current.edges]);
-  });
-
+  }, [treeRef.current.nodes, treeRef.current.edges]);
   // #region Flow Component Creation
   const createStrainNode = (
     sex: Sex,
     strain: Strain,
     position: XYPosition
   ): Node => {
-    const nodeId = props.currentTree.getNextId();
+    const nodeId = treeRef.current.getNextId();
     const strainNode: Node = {
       id: nodeId,
       type: FlowType.Strain,
@@ -101,7 +97,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
 
   const createXIcon = (position: XYPosition): Node => {
     const newXIcon: Node = {
-      id: props.currentTree.getNextId(),
+      id: treeRef.current.getNextId(),
       type: FlowType.XIcon,
       position,
       data: {},
@@ -112,7 +108,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
 
   const createSelfIcon = (position: XYPosition): Node => {
     const newSelfIcon: Node = {
-      id: props.currentTree.getNextId(),
+      id: treeRef.current.getNextId(),
       type: FlowType.SelfIcon,
       position,
       data: {},
@@ -127,7 +123,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     args?: { sourceHandle?: string; targetHandle?: string }
   ): Edge => {
     const edge: Edge = {
-      id: props.currentTree.getNextId(),
+      id: treeRef.current.getNextId(),
       source: source.id,
       target: target.id,
       sourceHandle: args?.sourceHandle,
@@ -155,44 +151,42 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       { x: 0, y: 0 }
     );
     treeRef.current.addNode(newStrain);
-    refresh();
+    setRightDrawerOpen(false);
   };
 
   const selfCross = (): void => {
+    const currNode = treeRef.current.getCurrNode();
     const selfIconPos = treeRef.current.getSelfIconPos();
     const selfIcon = createSelfIcon(selfIconPos);
-    const edge = createEdge(treeRef.current.getCurrNode(), selfIcon, {
-      sourceHandle: 'bottom',
-    });
-    const currStrain: CrossNodeModel = treeRef.current.getCurrNode().data;
+    const edge = createEdge(currNode, selfIcon, { sourceHandle: 'bottom' });
+
+    const currStrain: CrossNodeModel = currNode.data;
     if (currStrain === undefined) toast.error('something went wrong...');
     const children = currStrain.strain.selfCross();
 
-    const childPositions = calculateChildPositions(
+    const childPositions = treeRef.current.calculateChildPositions(
       selfIcon.position,
       children,
       selfIcon.width ?? undefined,
-      treeRef.current.getCurrNode().width ?? undefined
+      currNode.width ?? undefined
     );
-    const childrenNodes = children.map((child, i) => {
+    const childNodes = children.map((child, i) => {
       return createStrainNode(
         Sex.Hermaphrodite,
         child.strain,
         childPositions[i]
       );
     });
-    const childrenEdges = childrenNodes.map((node) =>
-      createEdge(selfIcon, node)
-    );
-
-    treeRef.current.addNodes([selfIcon, ...childrenNodes]);
-    treeRef.current.addEdges([edge, ...childrenEdges]);
+    const childEdges = childNodes.map((node) => createEdge(selfIcon, node));
+    treeRef.current.addNodes([selfIcon, ...childNodes]);
+    treeRef.current.addEdges([edge, ...childEdges]);
     refresh();
   };
 
   const crossNodes = (sex: Sex, pairs: AllelePair[]): void => {
-    const xIconPos = treeRef.current.getXIconPos();
-    const strainPos = treeRef.current.getCrossStrainPos();
+    const currNode = treeRef.current.getCurrNode();
+    const xIconPos = props.crossTree.getXIconPos();
+    const strainPos = props.crossTree.getCrossStrainPos();
 
     const xIcon = createXIcon(xIconPos);
     const newStrainNode = createStrainNode(
@@ -201,23 +195,22 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       strainPos
     );
 
-    const e1 = createEdge(treeRef.current.getCurrNode(), xIcon, {
-      targetHandle:
-        treeRef.current.getCurrNode().data.sex === Sex.Male ? 'left' : 'right',
+    const e1 = createEdge(currNode, xIcon, {
+      targetHandle: currNode.data.sex === Sex.Male ? 'left' : 'right',
     });
     const e2 = createEdge(newStrainNode, xIcon, {
       targetHandle: newStrainNode.data.sex === Sex.Male ? 'left' : 'right',
     });
 
     const newStrain: CrossNodeModel = newStrainNode.data;
-    const otherStrain: CrossNodeModel = treeRef.current.getCurrNode().data;
+    const otherStrain: CrossNodeModel = currNode.data;
     const children = newStrain.strain.crossWith(otherStrain.strain);
 
-    const childPositions = calculateChildPositions(
+    const childPositions = treeRef.current.calculateChildPositions(
       xIcon.position,
       children,
       xIcon.width ?? undefined,
-      treeRef.current.getCurrNode().width ?? undefined
+      currNode.width ?? undefined
     );
 
     const childrenNodes = children.map((child, i) => {
@@ -231,7 +224,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     const childrenEdges = childrenNodes.map((node) => createEdge(xIcon, node));
     treeRef.current.addNodes([xIcon, newStrainNode, ...childrenNodes]);
     treeRef.current.addEdges([e1, e2, ...childrenEdges]);
-    refresh();
+    setRightDrawerOpen(false);
   };
 
   const getCrossNodeMenuItems = (
@@ -272,7 +265,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     <button
       key='save'
       className='btn-primary btn mr-4'
-      onClick={() => saveTree(nodes, edges, props.currentTree)}
+      onClick={() => saveTree(treeRef.current)}
     >
       Save
     </button>,
@@ -308,7 +301,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
           />
           <div className='drawer-content flex h-screen flex-col'>
             <EditorTop
-              name={props.currentTree.name ?? ''}
+              name={props.crossTree.name ?? ''}
               buttons={buttons}
             ></EditorTop>
             <div className='grow'>
@@ -349,38 +342,9 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   );
 };
 
-const saveTree = (nodes: Node[], edges: Edge[], tree: CrossTree): void => {
+const saveTree = (tree: CrossTree): void => {
   tree.lastSaved = new Date();
-  tree.nodes = nodes;
-  tree.edges = edges;
   saveCrossTree(tree).catch((error) => error);
-};
-
-const calculateChildPositions = (
-  parentPos: XYPosition,
-  children: StrainOption[],
-  parentWidth?: number,
-  childWidth?: number
-): XYPosition[] => {
-  const parWidth = parentWidth ?? 64;
-  const width = childWidth ?? 256;
-  const startingX = parentPos.x + parWidth / 2;
-  const nodePadding = 10;
-  const xDistance = width + nodePadding;
-  const totalWidth = xDistance * children.length - nodePadding;
-  const offSet = totalWidth / 2;
-  const yPos = parentPos.y + 150;
-
-  let currXPos = startingX - offSet;
-  const positions: XYPosition[] = [];
-  children.forEach((_) => {
-    positions.push({
-      x: currXPos,
-      y: yPos,
-    });
-    currXPos += xDistance;
-  });
-  return positions;
 };
 
 export default CrossEditor;

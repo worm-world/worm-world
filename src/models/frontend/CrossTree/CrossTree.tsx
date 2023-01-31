@@ -1,5 +1,6 @@
 import { Sex } from 'models/enums';
 import { Gene } from 'models/frontend/Gene/Gene';
+import { StrainOption } from 'models/frontend/Strain/Strain';
 import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
 import { Node, Edge, XYPosition } from 'reactflow';
 
@@ -15,8 +16,6 @@ interface iCrossTree {
   nodes: Node[];
   edges: Edge[];
   lastSaved: Date;
-  genes: Gene[]; // To display in each node
-  variations: VariationInfo[]; // To display in each node
 }
 
 // Uses React Flow nodes and edges. The nodes contain a data property
@@ -65,15 +64,15 @@ export default class CrossTree {
   };
 
   public readonly addNode = (node: Node): void => {
-    this.nodes.push(node);
+    this.nodes = this.nodes.concat(node);
   };
 
   public readonly addNodes = (nodes: Node[]): void => {
-    nodes.forEach((node) => this.addNode(node));
+    this.nodes = this.nodes.concat(nodes);
   };
 
   public readonly addEdge = (edge: Edge): void => {
-    this.edges.push(edge);
+    this.edges = this.edges.concat(edge);
   };
 
   public readonly addEdges = (edges: Edge[]): void => {
@@ -119,4 +118,51 @@ export default class CrossTree {
   };
 
   public readonly getCurrNode = (): Node => this.currNode;
+
+  public readonly calculateChildPositions = (
+    parentPos: XYPosition,
+    children: StrainOption[],
+    parentWidth?: number,
+    childWidth?: number
+  ): XYPosition[] => {
+    const parWidth = parentWidth ?? 64;
+    const width = childWidth ?? 256;
+    const startingX = parentPos.x + parWidth / 2;
+    const nodePadding = 10;
+    const xDistance = width + nodePadding;
+    const totalWidth = xDistance * children.length - nodePadding;
+    const offSet = totalWidth / 2;
+    const yPos = parentPos.y + 150;
+
+    let currXPos = startingX - offSet;
+    const positions: XYPosition[] = [];
+    children.forEach((_) => {
+      positions.push({
+        x: currXPos,
+        y: yPos,
+      });
+      currXPos += xDistance;
+    });
+    return positions;
+  };
+
+  public readonly getChildNodesAndEdges = (
+    parent: Node,
+    graph: [Node[], Edge[]]
+  ): [Node[], Edge[]] => {
+    const [graphNodes, graphEdges] = graph;
+    let childEdges = graphEdges.filter((edge) => edge.source === parent.id);
+    let childNodes = graphEdges.flatMap(
+      (edge) => graphNodes.find((node) => node.id === edge.target) ?? []
+    );
+
+    // recursively get children
+    childNodes.forEach((child) => {
+      const [recNodes, recEdges] = this.getChildNodesAndEdges(child, graph);
+      childNodes = childNodes.concat(recNodes);
+      childEdges = childEdges.concat(recEdges);
+    });
+
+    return [childNodes, childEdges];
+  };
 }
