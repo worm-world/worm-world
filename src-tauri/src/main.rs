@@ -21,9 +21,10 @@ use models::{
     expr_relation::{ExpressionRelation, ExpressionRelationFieldName},
     filter::FilterGroup,
     gene::{Gene, GeneFieldName},
-    task::{Task, TaskFieldName},
     phenotype::{Phenotype, PhenotypeFieldName},
-    variation_info::{VariationFieldName, VariationInfo}, tree::{Tree, TreeFieldName},
+    task::{Task, TaskFieldName},
+    tree::{Tree, TreeFieldName},
+    variation_info::{VariationFieldName, VariationInfo},
 };
 use thiserror::Error;
 use tokio::sync::RwLock;
@@ -317,7 +318,10 @@ async fn get_tasks(state: tauri::State<'_, DbState>) -> Result<Vec<Task>, DbErro
 }
 
 #[tauri::command]
-async fn get_filtered_tasks(state: tauri::State<'_, DbState>, filter: FilterGroup<TaskFieldName>) -> Result<Vec<Task>, DbError> {
+async fn get_filtered_tasks(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<TaskFieldName>,
+) -> Result<Vec<Task>, DbError> {
     let state_guard = state.0.read().await;
     state_guard.get_filtered_tasks(&filter).await
 }
@@ -334,7 +338,7 @@ async fn update_task(state: tauri::State<'_, DbState>, task: Task) -> Result<(),
 }
 
 #[tauri::command]
-async fn delete_task(state: tauri::State<'_, DbState>, id: i64) -> Result<(), DbError> {
+async fn delete_task(state: tauri::State<'_, DbState>, id: String) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
     state_guard.delete_task(id).await
 }
@@ -346,7 +350,10 @@ async fn get_trees(state: tauri::State<'_, DbState>) -> Result<Vec<Tree>, DbErro
 }
 
 #[tauri::command]
-async fn get_filtered_trees(state: tauri::State<'_, DbState>, filter: FilterGroup<TreeFieldName>) -> Result<Vec<Tree>, DbError> {
+async fn get_filtered_trees(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<TreeFieldName>,
+) -> Result<Vec<Tree>, DbError> {
     let state_guard = state.0.read().await;
     state_guard.get_filtered_trees(&filter).await
 }
@@ -363,7 +370,7 @@ async fn update_tree(state: tauri::State<'_, DbState>, tree: Tree) -> Result<(),
 }
 
 #[tauri::command]
-async fn delete_tree(state: tauri::State<'_, DbState>, id: i64) -> Result<(), DbError> {
+async fn delete_tree(state: tauri::State<'_, DbState>, id: String) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
     state_guard.delete_tree(id).await
 }

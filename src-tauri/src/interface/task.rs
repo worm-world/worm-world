@@ -105,7 +105,7 @@ impl InnerDbState {
             }
         }
     }
-    pub async fn delete_task(&self, id: i64) -> Result<(), DbError> {
+    pub async fn delete_task(&self, id: String) -> Result<(), DbError> {
         match sqlx::query!(
             "DELETE FROM tasks
             WHERE id = $1",
@@ -127,11 +127,11 @@ impl InnerDbState {
 mod test {
 
     use crate::models::task::{Action, Task, TaskFieldName};
-    use crate::InnerDbState;
     use crate::models::tree::Tree;
+    use crate::InnerDbState;
     use crate::{
         dummy::testdata,
-        models::filter::{FilterGroup, Filter},
+        models::filter::{Filter, FilterGroup},
     };
     use anyhow::Result;
     use pretty_assertions::assert_eq;
@@ -156,12 +156,7 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_tasks(&FilterGroup::<TaskFieldName> {
-                filters: vec![vec![
-                    (
-                        TaskFieldName::Id,
-                        Filter::Equal("1".to_owned()),
-                    ),
-                ]],
+                filters: vec![vec![(TaskFieldName::Id, Filter::Equal("1".to_owned()))]],
                 order_by: vec![],
             })
             .await?;
@@ -180,7 +175,7 @@ mod test {
         assert_eq!(tasks.len(), 0);
 
         let tree = Tree {
-            id: 1,
+            id: "1".to_string(),
             name: "test1".to_string(),
             last_edited: "2012-01-01".to_string(),
             data: "{}".to_string(),
@@ -189,13 +184,13 @@ mod test {
         state.insert_tree(&tree).await?;
 
         let expected = Task {
-            id: 1,
+            id: "1".to_string(),
             due_date: Some("2012-01-01".to_string()),
             action: Action::Cross,
             strain1: "{}".to_string(),
             strain2: Some("{}".to_string()),
             notes: None,
-            tree_id: 1,
+            tree_id: "1".to_string(),
             completed: true,
         };
 
@@ -217,7 +212,7 @@ mod test {
         assert_eq!(tasks.len(), 0);
 
         let tree = Tree {
-            id: 1,
+            id: "1".to_string(),
             name: "test1".to_string(),
             last_edited: "2012-01-01".to_string(),
             data: "{}".to_string(),
@@ -226,13 +221,13 @@ mod test {
         state.insert_tree(&tree).await?;
 
         let expected = Task {
-            id: 1,
+            id: "1".to_string(),
             due_date: Some("2012-01-01".to_string()),
             action: Action::Cross,
             strain1: "{}".to_string(),
             strain2: Some("{}".to_string()),
             notes: None,
-            tree_id: 1,
+            tree_id: "1".to_string(),
             completed: true,
         };
 
@@ -242,13 +237,13 @@ mod test {
         assert_eq!(vec![expected], tasks);
 
         let new_expected = Task {
-            id: 1,
+            id: "1".to_string(),
             due_date: Some("2012-01-02".to_string()),
             action: Action::Cross,
             strain1: "{blah}".to_string(),
             strain2: Some("{foo}".to_string()),
             notes: Some("foo note".to_string()),
-            tree_id: 1,
+            tree_id: "1".to_string(),
             completed: false,
         };
         state.update_task(&new_expected).await?;
@@ -258,7 +253,7 @@ mod test {
         Ok(())
     }
     /* #endregion */
-    
+
     /* #region delete_task tests */
     #[sqlx::test]
     async fn test_delete_task(pool: Pool<Sqlite>) -> Result<()> {
@@ -268,7 +263,7 @@ mod test {
         assert_eq!(tasks.len(), 0);
 
         let tree = Tree {
-            id: 1,
+            id: "1".to_string(),
             name: "test1".to_string(),
             last_edited: "2012-01-01".to_string(),
             data: "{}".to_string(),
@@ -277,13 +272,13 @@ mod test {
         state.insert_tree(&tree).await?;
 
         let expected = Task {
-            id: 1,
+            id: "1".to_string(),
             due_date: Some("2012-01-01".to_string()),
             action: Action::Cross,
             strain1: "{}".to_string(),
             strain2: Some("{}".to_string()),
             notes: None,
-            tree_id: 1,
+            tree_id: "1".to_string(),
             completed: true,
         };
 
@@ -292,10 +287,10 @@ mod test {
 
         assert_eq!(vec![expected], tasks);
 
-        state.delete_task(1).await?;
+        state.delete_task("1".to_string()).await?;
         let tasks: Vec<Task> = state.get_tasks().await?;
         assert_eq!(tasks.len(), 0);
-        
+
         Ok(())
     }
 

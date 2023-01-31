@@ -9,7 +9,8 @@ pub mod testdata {
         gene::Gene,
         phenotype::Phenotype,
         task::{Action, Task},
-        variation_info::VariationInfo, tree::Tree,
+        tree::Tree,
+        variation_info::VariationInfo,
     };
     /* #region Allele Test Data */
     pub fn get_alleles() -> Vec<Allele> {
@@ -2019,109 +2020,105 @@ pub mod testdata {
     pub fn get_tasks() -> Vec<Task> {
         vec![
             Task {
-                id: 1,
+                id: "1".to_string(),
                 due_date: Some("2012-01-01".to_string()),
                 action: Action::Cross,
                 strain1: "{}".to_string(),
                 strain2: Some("{}".to_string()),
                 notes: Some("example note".to_string()),
-                tree_id: 1,
+                tree_id: "1".to_string(),
                 completed: true,
             },
             Task {
-                id: 2,
+                id: "2".to_string(),
                 due_date: Some("2012-01-02".to_string()),
                 action: Action::SelfCross,
                 strain1: "{}".to_string(),
                 strain2: Some("{}".to_string()),
                 notes: None,
-                tree_id: 1,
+                tree_id: "1".to_string(),
                 completed: false,
             },
             Task {
-                id: 3,
+                id: "3".to_string(),
                 due_date: Some("2012-01-03".to_string()),
                 action: Action::Cross,
                 strain1: "{}".to_string(),
                 strain2: Some("{}".to_string()),
                 notes: Some("example note".to_string()),
-                tree_id: 2,
+                tree_id: "2".to_string(),
                 completed: false,
             },
             Task {
-                id: 4,
+                id: "4".to_string(),
                 due_date: Some("2012-01-03".to_string()),
                 action: Action::Freeze,
                 strain1: "{}".to_string(),
                 strain2: Some("{}".to_string()),
                 notes: None,
-                tree_id: 2,
+                tree_id: "2".to_string(),
                 completed: true,
             },
             Task {
-                id: 5,
+                id: "5".to_string(),
                 due_date: Some("2012-01-04".to_string()),
                 action: Action::Pcr,
                 strain1: "{}".to_string(),
                 strain2: Some("{}".to_string()),
                 notes: Some("example note".to_string()),
-                tree_id: 3,
+                tree_id: "3".to_string(),
                 completed: true,
             },
         ]
     }
     pub fn get_filtered_tasks() -> Vec<Task> {
-        vec![
-            Task {
-                id: 1,
-                due_date: Some("2012-01-01".to_string()),
-                action: Action::Cross,
-                strain1: "{}".to_string(),
-                strain2: Some("{}".to_string()),
-                notes: Some("example note".to_string()),
-                tree_id: 1,
-                completed: true,
-            },
-        ]
+        vec![Task {
+            id: "1".to_string(),
+            due_date: Some("2012-01-01".to_string()),
+            action: Action::Cross,
+            strain1: "{}".to_string(),
+            strain2: Some("{}".to_string()),
+            notes: Some("example note".to_string()),
+            tree_id: "1".to_string(),
+            completed: true,
+        }]
     }
     /* #endregion Tasks Test Data */
 
     /* #region Trees Test Data */
     pub fn get_trees() -> Vec<Tree> {
         vec![
-            Tree{
-                id: 1,
+            Tree {
+                id: "1".to_string(),
                 name: "test1".to_string(),
                 last_edited: "2012-01-01".to_string(),
                 data: "{}".to_string(),
                 editable: true,
             },
-            Tree{
-                id: 2,
+            Tree {
+                id: "2".to_string(),
                 name: "test2".to_string(),
                 last_edited: "2012-01-02".to_string(),
                 data: "{}".to_string(),
                 editable: false,
             },
-            Tree{
-                id: 3,
+            Tree {
+                id: "3".to_string(),
                 name: "test3".to_string(),
                 last_edited: "2012-01-03".to_string(),
-                data: "{}".to_string(),
-                editable: true
-            },
-        ]
-    }
-    pub fn get_filtered_trees() -> Vec<Tree> {
-        vec![
-            Tree{
-                id: 1,
-                name: "test1".to_string(),
-                last_edited: "2012-01-01".to_string(),
                 data: "{}".to_string(),
                 editable: true,
             },
         ]
+    }
+    pub fn get_filtered_trees() -> Vec<Tree> {
+        vec![Tree {
+            id: "1".to_string(),
+            name: "test1".to_string(),
+            last_edited: "2012-01-01".to_string(),
+            data: "{}".to_string(),
+            editable: true,
+        }]
     }
     /* #endregion Trees Test Data */
 }

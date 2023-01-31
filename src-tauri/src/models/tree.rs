@@ -7,7 +7,7 @@ use super::FieldNameEnum;
 #[ts(export, export_to = "../src/models/db/db_Tree.ts")]
 #[serde(rename = "db_Tree")]
 pub struct Tree {
-    pub id: i64,
+    pub id: String,
     pub name: String,
     #[serde(rename = "lastEdited")]
     pub last_edited: String,
@@ -17,7 +17,7 @@ pub struct Tree {
 
 #[derive(Serialize, Deserialize, Debug, sqlx::FromRow, PartialEq, Eq)]
 pub struct TreeDb {
-    pub id: i64,
+    pub id: String,
     pub name: String,
     #[serde(rename = "lastEdited")]
     pub last_edited: String,
