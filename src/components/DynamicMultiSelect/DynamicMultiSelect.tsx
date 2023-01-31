@@ -61,18 +61,17 @@ export const DynamicMultiSelect = <T, U>(
     props.setSelectedRecords(newSelectedRecords);
   };
 
+  const showLabel = props.label !== undefined;
   return (
     <>
-      {props.label === undefined ? (
-        <></> // Don't show label if undefined
-      ) : (
-        <label htmlFor='dynamicSearch' className='label'>
+      {showLabel && (
+        <label htmlFor={`dynamicSearch-${props.label}`} className='label'>
           <span className='label-text'>{props.label}</span>
         </label>
       )}
       <div className='dropdown w-full max-w-md'>
         <input
-          id='dynamicSearch'
+          id={`dynamicSearch-${props.label}`}
           type='text'
           placeholder={props.placeholder}
           className='input-bordered input w-full max-w-xs'

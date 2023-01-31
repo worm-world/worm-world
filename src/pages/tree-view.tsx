@@ -22,7 +22,7 @@ const TreeViewPage = (): JSX.Element => {
   if (currentTree === null) {
     return <>Loading</>;
   } else {
-    return <CrossEditor currentTree={currentTree} />;
+    return <CrossEditor crossTree={currentTree} />;
   }
 };
 
