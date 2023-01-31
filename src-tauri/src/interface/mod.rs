@@ -23,6 +23,8 @@ pub enum DbError {
     Insert(String),
     #[error("Failed to execute update: {0}")]
     Update(String),
+    #[error("Failed to execute delete: {0}")]
+    Delete(String),
 }
 
 pub struct InnerDbState {

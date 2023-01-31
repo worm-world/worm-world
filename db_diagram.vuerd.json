@@ -3,9 +3,9 @@
     "version": "2.2.11",
     "width": 3000,
     "height": 3000,
-    "scrollTop": -761.0000119018522,
-    "scrollLeft": -801.999978027347,
-    "zoomLevel": 0.5,
+    "scrollTop": -365.47999681396203,
+    "scrollLeft": -1272.3999959716816,
+    "zoomLevel": 0.8,
     "show": {
       "tableComment": true,
       "columnComment": true,
@@ -980,13 +980,36 @@
               "widthDefault": 60
             },
             "id": "f33e5f3e-6acb-4d65-b417-bf4c93886633"
+          },
+          {
+            "name": "editable",
+            "comment": "",
+            "dataType": "INTEGER",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": true
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": false,
+              "pfk": false,
+              "widthName": 60,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            },
+            "id": "90a45088-6e8d-47af-8093-4e4736202226"
           }
         ],
         "ui": {
           "active": false,
-          "left": 1459.1069,
+          "left": 1472.3069,
           "top": 198.9163,
-          "zIndex": 14,
+          "zIndex": 63,
           "widthName": 60,
           "widthComment": 60
         },
@@ -1396,13 +1419,82 @@
               "widthDefault": 60
             },
             "id": "4c246bd2-bf1a-4342-9248-2dbca407c400"
+          },
+          {
+            "name": "tree_id",
+            "comment": "",
+            "dataType": "INTEGER",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": true
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": true,
+              "pfk": false,
+              "widthName": 60,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            },
+            "id": "9cff8bd5-8b23-4b50-917a-398ffc7efb62"
+          },
+          {
+            "name": "notes",
+            "comment": "",
+            "dataType": "TEXT",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": false
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": false,
+              "pfk": false,
+              "widthName": 60,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            },
+            "id": "9eaff1c0-deb6-4d0d-84c8-40d3c2a9a1bf"
+          },
+          {
+            "name": "completed",
+            "comment": "",
+            "dataType": "INTEGER",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": false
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": false,
+              "pfk": false,
+              "widthName": 61.97900390625,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            },
+            "id": "7ec0b79e-1b8a-45be-867a-5bdbedb94b39"
           }
         ],
         "ui": {
-          "active": false,
+          "active": true,
           "left": 2104.3337,
           "top": 223.3335,
-          "zIndex": 11,
+          "zIndex": 70,
           "widthName": 60,
           "widthComment": 60
         },
@@ -1889,8 +1981,8 @@
           "columnIds": [
             "67975396-030b-4b16-b899-f4fde0da5f07"
           ],
-          "x": 2162.1670333333336,
-          "y": 394.83349999999996,
+          "x": 2162.4968673177086,
+          "y": 456.33349999999996,
           "direction": "bottom"
         },
         "end": {
@@ -1898,9 +1990,9 @@
           "columnIds": [
             "78f7bfc9-099b-4b84-b343-acc070bef1f2"
           ],
-          "x": 2049,
-          "y": 545,
-          "direction": "top"
+          "x": 2309.25,
+          "y": 627.5,
+          "direction": "right"
         },
         "constraintName": "fk_tasks_to_taskdependants",
         "visible": true,
@@ -1915,8 +2007,8 @@
           "columnIds": [
             "67975396-030b-4b16-b899-f4fde0da5f07"
           ],
-          "x": 2277.8337,
-          "y": 394.83349999999996,
+          "x": 2278.823201953125,
+          "y": 456.33349999999996,
           "direction": "bottom"
         },
         "end": {
@@ -1924,9 +2016,9 @@
           "columnIds": [
             "5d2a2ac0-8463-40c1-a824-82d596b78a9b"
           ],
-          "x": 2222.5,
-          "y": 545,
-          "direction": "top"
+          "x": 2309.25,
+          "y": 572.5,
+          "direction": "right"
         },
         "constraintName": "fk_tasks_to_taskdependants",
         "visible": true,
@@ -1941,8 +2033,8 @@
           "columnIds": [
             "67975396-030b-4b16-b899-f4fde0da5f07"
           ],
-          "x": 2393.5003666666667,
-          "y": 394.83349999999996,
+          "x": 2395.1495365885417,
+          "y": 456.33349999999996,
           "direction": "bottom"
         },
         "end": {
@@ -1983,6 +2075,32 @@
         "constraintName": "fk_conditions_to_task_conds",
         "visible": true,
         "id": "8f9cdc6a-2aa5-4a9e-809e-a1405143f56d"
+      },
+      {
+        "identification": false,
+        "relationshipType": "ZeroN",
+        "startRelationshipType": "Dash",
+        "start": {
+          "tableId": "9546fb7b-5f49-45c6-812a-11d517a1f0e1",
+          "columnIds": [
+            "c06762bc-abe9-4b7e-8586-c484617d3ce5"
+          ],
+          "x": 1824.1867828125,
+          "y": 284.6663,
+          "direction": "right"
+        },
+        "end": {
+          "tableId": "82028dde-cc17-4c19-b4d9-5f3b8be8a045",
+          "columnIds": [
+            "9cff8bd5-8b23-4b50-917a-398ffc7efb62"
+          ],
+          "x": 2104.3337,
+          "y": 339.83349999999996,
+          "direction": "left"
+        },
+        "constraintName": "fk_trees_to_tasks",
+        "visible": true,
+        "id": "90e5240b-5b6a-4af1-9008-2700ca807bb9"
       }
     ]
   }

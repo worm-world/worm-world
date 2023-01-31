@@ -3,4 +3,5 @@
 export type db_Error =
   | { Query: string }
   | { Insert: string }
-  | { Update: string };
+  | { Update: string }
+  | { Delete: string };
