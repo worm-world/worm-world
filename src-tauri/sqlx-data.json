@@ -400,7 +400,7 @@
         {
           "name": "id",
           "ordinal": 0,
-          "type_info": "Int64"
+          "type_info": "Text"
         },
         {
           "name": "due_date",
@@ -430,7 +430,7 @@
         {
           "name": "tree_id",
           "ordinal": 6,
-          "type_info": "Int64"
+          "type_info": "Text"
         },
         {
           "name": "completed",
@@ -534,7 +534,7 @@
         {
           "name": "id",
           "ordinal": 0,
-          "type_info": "Int64"
+          "type_info": "Text"
         },
         {
           "name": "name",

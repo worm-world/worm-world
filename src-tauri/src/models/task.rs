@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, TS)]
-#[ts(export, export_to = "../src/models/db/db_Task.ts")]
+#[ts(export, export_to = "../src/models/db/task/Action.ts")]
 pub enum Action {
     Cross,
     SelfCross,
@@ -23,22 +23,22 @@ impl From<i64> for Action {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, TS)]
-#[ts(export, export_to = "../src/models/db/db_Task.ts")]
+#[ts(export, export_to = "../src/models/db/task/db_Task.ts")]
 #[serde(rename = "db_Task")]
 pub struct Task {
-    pub id: i64,
+    pub id: String,
     pub due_date: Option<String>,
     pub action: Action,
     pub strain1: String,
     pub strain2: Option<String>,
     pub notes: Option<String>,
     pub completed: bool,
-    pub tree_id: i64,
+    pub tree_id: String,
 }
 
 impl From<TaskDb> for Task {
     fn from(item: TaskDb) -> Self {
-        Self{
+        Self {
             id: item.id,
             due_date: item.due_date,
             action: item.action.into(),
@@ -53,14 +53,14 @@ impl From<TaskDb> for Task {
 
 #[derive(Serialize, Deserialize, Debug, sqlx::FromRow)]
 pub struct TaskDb {
-    pub id: i64,
+    pub id: String,
     pub due_date: Option<String>,
     pub action: i64,
     pub strain1: String,
     pub strain2: Option<String>,
     pub notes: Option<String>,
     pub completed: i64,
-    pub tree_id: i64,
+    pub tree_id: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, TS)]

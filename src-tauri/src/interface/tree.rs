@@ -96,7 +96,7 @@ impl InnerDbState {
         }
     }
 
-    pub async fn delete_tree(&self, id: i64) -> Result<(), DbError> {
+    pub async fn delete_tree(&self, id: String) -> Result<(), DbError> {
         match sqlx::query!(
             "DELETE FROM trees
             WHERE id = $1",
@@ -121,7 +121,7 @@ mod test {
     use crate::InnerDbState;
     use crate::{
         dummy::testdata,
-        models::filter::{FilterGroup, Filter},
+        models::filter::{Filter, FilterGroup},
     };
     use anyhow::Result;
     use pretty_assertions::assert_eq;
@@ -146,12 +146,7 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_trees(&FilterGroup::<TreeFieldName> {
-                filters: vec![vec![
-                    (
-                        TreeFieldName::Id,
-                        Filter::Equal("1".to_owned()),
-                    ),
-                ]],
+                filters: vec![vec![(TreeFieldName::Id, Filter::Equal("1".to_owned()))]],
                 order_by: vec![],
             })
             .await?;
@@ -170,7 +165,7 @@ mod test {
         assert_eq!(trees.len(), 0);
 
         let expected = Tree {
-            id: 1,
+            id: "1".to_string(),
             name: "test1".to_string(),
             last_edited: "2012-01-01".to_string(),
             data: "{}".to_string(),
@@ -195,7 +190,7 @@ mod test {
         assert_eq!(trees.len(), 0);
 
         let expected = Tree {
-            id: 1,
+            id: "1".to_string(),
             name: "test1".to_string(),
             last_edited: "2012-01-01".to_string(),
             data: "{}".to_string(),
@@ -208,7 +203,7 @@ mod test {
         assert_eq!(vec![expected], trees);
 
         let new_expected = Tree {
-            id: 1,
+            id: "1".to_string(),
             name: "test11341".to_string(),
             last_edited: "2012-05-13".to_string(),
             data: "{foo}".to_string(),
@@ -230,7 +225,7 @@ mod test {
         assert_eq!(trees.len(), 0);
 
         let expected = Tree {
-            id: 1,
+            id: "1".to_string(),
             name: "test1".to_string(),
             last_edited: "2012-01-01".to_string(),
             data: "{}".to_string(),
@@ -242,7 +237,7 @@ mod test {
 
         assert_eq!(vec![expected], trees);
 
-        state.delete_tree(1).await?;
+        state.delete_tree("1".to_string()).await?;
         let trees: Vec<Tree> = state.get_trees().await?;
         assert_eq!(trees.len(), 0);
 
