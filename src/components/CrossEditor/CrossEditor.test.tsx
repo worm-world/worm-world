@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import * as mockCrossTrees from 'models/frontend/CrossTree/CrossTree.mock';
 import CrossEditor from 'components/CrossEditor/CrossEditor';
+import CrossTree from 'models/frontend/CrossTree/CrossTree';
+import { BrowserRouter } from 'react-router-dom';
 
 describe('CrossEditor', () => {
   test('dummy test', () => {});
@@ -14,8 +16,14 @@ describe('CrossEditor', () => {
     }));
   });
 
+  const renderComponent = (tree: CrossTree): void => {
+    render(<CrossEditor crossTree={tree} />, {
+      wrapper: BrowserRouter, // Need this wrapper since the component uses the react router
+    });
+  };
+
   test('successfully renders', () => {
-    render(<CrossEditor crossTree={mockCrossTrees.simpleCrossTree} />);
+    renderComponent(mockCrossTrees.simpleCrossTree);
 
     const nodes = screen.getAllByTestId('crossNode');
     expect(nodes).toHaveLength(3);
@@ -36,7 +44,7 @@ describe('CrossEditor', () => {
   test('can add cross nodes', async () => {
     const user = userEvent.setup();
 
-    render(<CrossEditor crossTree={mockCrossTrees.simpleCrossTree} />);
+    renderComponent(mockCrossTrees.simpleCrossTree);
 
     let nodes = screen.getAllByTestId('crossNode');
     expect(nodes).toHaveLength(3);

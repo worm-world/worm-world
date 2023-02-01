@@ -24,7 +24,7 @@ import {
   NodeChange,
   XYPosition,
 } from 'reactflow';
-import { saveCrossTree } from 'api/crossTree';
+import { insertTree } from 'api/crossTree';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { Sex } from 'models/enums';
@@ -33,6 +33,8 @@ import { BsUiChecks as ScheduleIcon } from 'react-icons/bs';
 import { TbArrowsCross as CrossIcon } from 'react-icons/tb';
 import { ImLoop2 as SelfCrossIcon } from 'react-icons/im';
 import { toast } from 'react-toastify';
+import { insertDbTasks } from 'api/task';
+import { useNavigate } from 'react-router-dom';
 
 export interface CrossEditorProps {
   crossTree: CrossTree;
@@ -42,6 +44,7 @@ type DrawerState = 'default' | 'cross';
 
 const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   const treeRef = useRef(props.crossTree);
+  const navigate = useNavigate();
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
   const [drawerState, setDrawerState] = useState<DrawerState>('default');
   const [nodes, setNodes] = useState<Node[]>(props.crossTree.nodes);
@@ -246,7 +249,20 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     const exportOption: MenuItem = {
       icon: <ScheduleIcon />,
       text: 'schedule',
-      menuCallback: () => {},
+      menuCallback: () => {
+        const clonedTree = treeRef.current.clone();
+        clonedTree.setCurrNode(nodeId);
+        const tasks = clonedTree.generateTasks(clonedTree.getCurrNode());
+
+        insertTree(clonedTree.generateRecord(false))
+          .then(
+            async () =>
+              await insertDbTasks(tasks)
+                .then(() => navigate('/scheduler/todo'))
+                .catch((error) => console.error(error))
+          )
+          .catch((error) => console.error(error));
+      },
     };
 
     const items = [crossOption, exportOption];
@@ -338,7 +354,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
 
 const saveTree = (tree: CrossTree): void => {
   tree.lastSaved = new Date();
-  saveCrossTree(tree).catch((error) => error);
+  insertTree(tree.generateRecord(true)).catch((error) => error);
 };
 
 export default CrossEditor;

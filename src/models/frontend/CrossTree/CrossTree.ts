@@ -1,3 +1,5 @@
+import { FlowType } from 'components/CrossFlow/CrossFlow';
+import { db_Tree } from 'models/db/db_Tree';
 import type { Action } from 'models/db/task/Action';
 import { db_Task } from 'models/db/task/db_Task';
 import { Sex } from 'models/enums';
@@ -7,7 +9,6 @@ import { Node, Edge, XYPosition } from 'reactflow';
 import { ulid } from 'ulid';
 
 export interface iCrossTree {
-  id: number;
   name: string;
   description: string;
   settings: {
@@ -24,7 +25,7 @@ export interface iCrossTree {
 // which, for cross nodes, contains the model. This way,
 // the tree can be traversed and relevant data gotten from it
 export default class CrossTree {
-  public readonly id: number;
+  public readonly id: string;
   public name: string;
   public description: string;
   public lastSaved: Date;
@@ -44,7 +45,7 @@ export default class CrossTree {
   };
 
   constructor(params: iCrossTree) {
-    this.id = params.id; // TODO: Get from DB if undefined to ensure uniqueness
+    this.id = ulid();
     this.name = params.name;
     this.description = params.description;
     this.lastSaved = params.lastSaved;
@@ -199,7 +200,7 @@ export default class CrossTree {
 
   public readonly generateTasks = (node: Node): db_Task[] => {
     const ancestryChain = this.getAncestryChain(node);
-    const treeId = ulid();
+    const treeId = this.id;
     const tasks: db_Task[] = [];
     this.generateTasksRec(treeId, ancestryChain, tasks);
     return tasks;
@@ -211,10 +212,18 @@ export default class CrossTree {
     tasks: db_Task[]
   ): void => {
     if (ancestryChain.parents.length === 0) return;
-    const strain1 = JSON.stringify(ancestryChain.parents[0].strain);
+    const strain1 = JSON.stringify({
+      sex: ancestryChain.parents[0].strain.sex,
+      strain: ancestryChain.parents[0].strain.strain.toJsonString(),
+    });
     const otherStrain = ancestryChain.parents.at(1)?.strain;
     const strain2 =
-      otherStrain !== undefined ? JSON.stringify(otherStrain) : null;
+      otherStrain !== undefined
+        ? JSON.stringify({
+            sex: otherStrain.sex,
+            strain: otherStrain.strain.toJsonString(),
+          })
+        : null;
 
     const action: Action =
       ancestryChain.parents.length === 1 ? 'SelfCross' : 'Cross';
@@ -261,6 +270,64 @@ export default class CrossTree {
       strain: child.data,
       parents: parents.map((parent) => this.getAncestryChain(parent)),
     };
+  };
+
+  public readonly clone = (): CrossTree => {
+    const treeProps: iCrossTree = {
+      name: this.name,
+      description: this.description,
+      settings: {
+        longName: false,
+        contents: false,
+      },
+      nodes: [...this.nodes],
+      edges: [...this.edges],
+      lastSaved: new Date(),
+    };
+    const tree = new CrossTree(treeProps);
+    return tree;
+  };
+
+  public readonly generateRecord = (editable: boolean): db_Tree => {
+    return {
+      id: this.id,
+      name: this.name,
+      data: this.dataAsJSON(),
+      lastEdited: this.lastSaved.toString(),
+      editable,
+    };
+  };
+
+  public readonly dataAsJSON = (): string => {
+    const nodeJson = this.nodes.map((node) => {
+      let data = {};
+
+      if (node.type === FlowType.Strain) {
+        const strainData: CrossNodeModel = node.data;
+        data = {
+          sex: strainData.sex,
+          strain: strainData.strain.toJsonString(),
+        };
+      }
+
+      return JSON.stringify({
+        id: node.id,
+        position: node.position,
+        type: node.type,
+        data,
+      });
+    });
+
+    const obj = {
+      description: this.description,
+      nodes: nodeJson,
+      edges: JSON.stringify(this.edges),
+      settings: {
+        longName: this.settings.longName,
+        contents: this.settings.contents,
+      },
+    };
+    return JSON.stringify(obj);
   };
 }
 
