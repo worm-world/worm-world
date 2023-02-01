@@ -1,5 +1,4 @@
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
-import { Gene } from 'models/frontend/Gene/Gene';
 import * as mockCrossNode from 'models/frontend/CrossNode/CrossNode.mock';
 import { Edge, Node } from 'reactflow';
 import { FlowType } from 'components/CrossFlow/CrossFlow';
