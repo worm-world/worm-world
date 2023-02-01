@@ -36,6 +36,18 @@ export class Strain {
   }
   /* #endregion initializers */
 
+  private readonly getAllelePairs = (): AllelePair[] => {
+    return [...this.chromPairMap.values()].flat();
+  };
+
+  public readonly toJsonString = (): string => {
+    return JSON.stringify({
+      name: this.name,
+      pairs: this.getAllelePairs(),
+      notes: this.notes,
+    });
+  };
+
   /* #region public methods */
   /**
    * Checks if both strains contain the same chromosomal information

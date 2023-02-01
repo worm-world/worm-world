@@ -1,7 +1,9 @@
+import { invoke } from '@tauri-apps/api';
+import { db_Tree } from 'models/db/db_Tree';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import * as mockCrossTree from 'models/frontend/CrossTree/CrossTree.mock';
 
-let temp = mockCrossTree.emptyCrossTree;
+const temp = mockCrossTree.emptyCrossTree;
 
 // Mocked for now
 export const getAllCrossTrees = async (): Promise<CrossTree[]> => {
@@ -15,9 +17,8 @@ export const getCrossTreeById = async (id: number): Promise<CrossTree> => {
 };
 
 // Mocked for now
-export const saveCrossTree = async (tree: CrossTree): Promise<void> => {
-  // await invoke('save_cross_tree', { id: tree.id, tree });
-  temp = tree;
+export const insertTree = async (tree: db_Tree): Promise<void> => {
+  await invoke('insert_tree', { tree });
 };
 
 // export const getNextTreeId = async (): Promise<number> => {
