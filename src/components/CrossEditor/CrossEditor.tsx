@@ -40,12 +40,6 @@ export interface CrossEditorProps {
 
 type DrawerState = 'default' | 'cross';
 
-const DefaultNode: Node = {
-  id: '-1',
-  position: { x: 0, y: 0 },
-  data: {},
-};
-
 const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   const treeRef = useRef(props.crossTree);
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
@@ -67,7 +61,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   }, []);
 
   const refresh = (() => {
-    const [_, set] = useState(false);
+    const [, set] = useState(false);
     return useCallback(() => set((a) => !a), []);
   })();
   useEffect(() => {

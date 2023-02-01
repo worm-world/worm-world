@@ -1,10 +1,12 @@
+import type { Action } from 'models/db/task/Action';
+import { db_Task } from 'models/db/task/db_Task';
 import { Sex } from 'models/enums';
-import { Gene } from 'models/frontend/Gene/Gene';
+import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import { StrainOption } from 'models/frontend/Strain/Strain';
-import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
 import { Node, Edge, XYPosition } from 'reactflow';
+import { ulid } from 'ulid';
 
-interface iCrossTree {
+export interface iCrossTree {
   id: number;
   name: string;
   description: string;
@@ -54,9 +56,10 @@ export default class CrossTree {
   }
 
   private readonly instantiateCurrId = (): number => {
-    if (this.nodes.length > 0) {
-      return Math.max(...this.nodes.map((node) => parseInt(node.id)));
-    } else return 0;
+    const ids = this.nodes
+      .map((node) => parseInt(node.id))
+      .concat(this.edges.map((edge) => parseInt(edge.id)));
+    return ids.length > 0 ? Math.max(...ids) : -1;
   };
 
   private readonly instantiateCurrNode = (): Node => {
@@ -146,23 +149,122 @@ export default class CrossTree {
     return positions;
   };
 
-  public readonly getChildNodesAndEdges = (
+  private readonly isChildEdge = (
+    edgeId: string,
+    parentId: string,
+    usedEdges: Set<string>
+  ): boolean => edgeId === parentId && !usedEdges.has(edgeId);
+
+  private readonly isChildNode = (
+    nodeId: string,
+    parentId: string,
+    edgeId: string,
+    usedNodes: Set<string>
+  ): boolean => nodeId === edgeId && !usedNodes.has(nodeId);
+
+  public readonly getDecendentNodesAndEdges = (
     parent: Node,
-    graph: [Node[], Edge[]]
+    usedNodes: Set<string> = new Set<string>(),
+    usedEdges: Set<string> = new Set<string>()
   ): [Node[], Edge[]] => {
-    const [graphNodes, graphEdges] = graph;
-    let childEdges = graphEdges.filter((edge) => edge.source === parent.id);
-    let childNodes = graphEdges.flatMap(
-      (edge) => graphNodes.find((node) => node.id === edge.target) ?? []
+    const [graphNodes, graphEdges] = [this.nodes, this.edges];
+    usedNodes.add(parent.id);
+
+    let childEdges = graphEdges.filter((edge) =>
+      this.isChildEdge(edge.source, parent.id, usedEdges)
+    );
+    let childNodes = childEdges.flatMap(
+      (edge) =>
+        graphNodes.find((node) =>
+          this.isChildNode(node.id, parent.id, edge.target, usedNodes)
+        ) ?? []
     );
 
+    childNodes.forEach((node) => usedNodes.add(node.id));
+    childEdges.forEach((edge) => usedEdges.add(edge.id));
+
     // recursively get children
-    childNodes.forEach((child) => {
-      const [recNodes, recEdges] = this.getChildNodesAndEdges(child, graph);
+    [...childNodes].forEach((child) => {
+      const [recNodes, recEdges] = this.getDecendentNodesAndEdges(
+        child,
+        usedNodes,
+        usedEdges
+      );
       childNodes = childNodes.concat(recNodes);
       childEdges = childEdges.concat(recEdges);
     });
 
     return [childNodes, childEdges];
   };
+
+  public readonly generateTasks = (node: Node): db_Task[] => {
+    const ancestryChain = this.getAncestryChain(node);
+    const treeId = ulid();
+    const tasks: db_Task[] = [];
+    this.generateTasksRec(treeId, ancestryChain, tasks);
+    return tasks;
+  };
+
+  private readonly generateTasksRec = (
+    treeId: string,
+    ancestryChain: StrainAncestry,
+    tasks: db_Task[]
+  ): void => {
+    if (ancestryChain.parents.length === 0) return;
+    const strain1 = JSON.stringify(ancestryChain.parents[0].strain);
+    const otherStrain = ancestryChain.parents.at(1)?.strain;
+    const strain2 =
+      otherStrain !== undefined ? JSON.stringify(otherStrain) : null;
+
+    const action: Action =
+      ancestryChain.parents.length === 1 ? 'SelfCross' : 'Cross';
+
+    const task: db_Task = {
+      id: ulid(),
+      due_date: new Date().toString(), // todo calculate this
+      action,
+      strain1,
+      strain2,
+      notes: null,
+      completed: false,
+      tree_id: treeId,
+    };
+    tasks.push(task);
+
+    ancestryChain.parents.forEach((chain) =>
+      this.generateTasksRec(treeId, chain, tasks)
+    );
+  };
+
+  private readonly getParentStrains = (child: Node): Node[] => {
+    const [graphNodes, graphEdges] = [this.nodes, this.edges];
+    const parentEdges = graphEdges.filter((edge) => edge.target === child.id);
+    const crossIcon = parentEdges.flatMap(
+      (edge) => graphNodes.find((node) => node.id === edge.source) ?? []
+    );
+
+    if (crossIcon.length === 0) return [];
+
+    const iconParentEdges = graphEdges.filter(
+      (edge) => edge.target === crossIcon[0].id
+    );
+    const parentStrains = iconParentEdges.flatMap(
+      (edge) => graphNodes.find((node) => node.id === edge.source) ?? []
+    );
+
+    return parentStrains;
+  };
+
+  private readonly getAncestryChain = (child: Node): StrainAncestry => {
+    const parents = this.getParentStrains(child);
+    return {
+      strain: child.data,
+      parents: parents.map((parent) => this.getAncestryChain(parent)),
+    };
+  };
+}
+
+interface StrainAncestry {
+  strain: CrossNodeModel;
+  parents: StrainAncestry[];
 }
