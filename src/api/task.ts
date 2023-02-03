@@ -36,3 +36,7 @@ export const insertDbTasks = async (records: db_Task[]): Promise<void> => {
 export const insertDbTask = async (record: db_Task): Promise<void> => {
   await invoke('insert_task', { task: record });
 };
+
+export const updateDbTask = async (record: db_Task): Promise<void> => {
+  await invoke('update_task', { task: record });
+};

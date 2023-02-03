@@ -166,7 +166,6 @@ describe('Table component', () => {
     const filterButtons = screen.getAllByRole('button', {
       name: 'filter-icon',
     });
-    const sortButtons = screen.getAllByRole('button', { name: 'sort-icon' });
 
     expect(filterButtons[0].firstChild).toBeVisible();
   });

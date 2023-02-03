@@ -4,7 +4,7 @@ import type { Chromosome } from './filter/db_ChromosomeEnum';
 export interface db_VariationInfo {
   alleleName: string;
   chromosome: Chromosome | null;
-  physLoc: bigint | null;
+  physLoc: number | null;
   geneticLoc: number | null;
-  recombSuppressor: [bigint, bigint] | null;
+  recombSuppressor: [number, number] | null;
 }

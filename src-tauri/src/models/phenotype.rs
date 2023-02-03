@@ -12,7 +12,7 @@ pub struct Phenotype {
     pub short_name: String,
     pub description: Option<String>,
     #[serde(rename = "maleMating")]
-    pub male_mating: Option<i64>,
+    pub male_mating: Option<i32>,
     pub lethal: Option<bool>,
     #[serde(rename = "femaleSterile")]
     pub female_sterile: Option<bool>,
@@ -31,7 +31,7 @@ impl From<PhenotypeDb> for Phenotype {
             wild: item.wild == 1,
             short_name: item.short_name,
             description: item.description,
-            male_mating: item.male_mating,
+            male_mating: item.male_mating.map(|v| v as i32),
             lethal: item.lethal.map(|v| v == 1),
             female_sterile: item.female_sterile.map(|v| v == 1),
             arrested: item.arrested.map(|v| v == 1),

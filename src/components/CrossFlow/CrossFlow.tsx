@@ -78,7 +78,7 @@ const saveImg = (saveMethod: SaveMethod): void => {
       } else if (
         node.classList.contains('react-flow__minimap') ||
         node.classList.contains('react-flow__controls') ||
-        node.classList.contains('react-flow__background') ||
+        node.classList.contains('react-flow_Background') ||
         node.classList.contains('react-flow__attribution')
       ) {
         return false;

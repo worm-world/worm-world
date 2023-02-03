@@ -10,8 +10,8 @@ pub enum Action {
     Freeze,
     Pcr,
 }
-impl From<i64> for Action {
-    fn from(item: i64) -> Self {
+impl From<i32> for Action {
+    fn from(item: i32) -> Self {
         match item {
             0 => Self::Cross,
             1 => Self::SelfCross,
@@ -41,7 +41,7 @@ impl From<TaskDb> for Task {
         Self {
             id: item.id,
             due_date: item.due_date,
-            action: item.action.into(),
+            action: (item.action as i32).into(),
             strain1: item.strain1,
             strain2: item.strain2,
             notes: item.notes,

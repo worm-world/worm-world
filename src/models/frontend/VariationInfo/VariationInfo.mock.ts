@@ -1,5 +1,4 @@
 import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
-import GeneticLocation from '../GeneticLocation';
 
 export const chromUnknownVariation1 = new VariationInfo({
   name: 'chromUnknownVariation1',
@@ -31,14 +30,14 @@ export const oxIs12 = new VariationInfo({
 export const oxTi302 = new VariationInfo({
   name: 'oxTi302',
   chromosome: 'I',
-  physLoc: new GeneticLocation(10166146),
-  geneticLoc: new GeneticLocation(4.72),
+  physLoc: 10166146,
+  geneticLoc: 4.72,
 });
 export const oxTi75 = new VariationInfo({
   name: 'oxTi75',
   chromosome: 'II',
   physLoc: undefined,
-  geneticLoc: new GeneticLocation(-1.46),
+  geneticLoc: -1.46,
 });
 export const tmC5 = new VariationInfo({
   name: 'tmC5',
@@ -61,8 +60,8 @@ export const oxEx2254 = new VariationInfo({
 export const oxSi1168 = new VariationInfo({
   name: 'oxSi1168',
   chromosome: 'II',
-  physLoc: new GeneticLocation(8420158),
-  geneticLoc: new GeneticLocation(0.77),
+  physLoc: 8420158,
+  geneticLoc: 0.77,
 });
 export const oxEx219999 = new VariationInfo({
   name: 'oxEx219999',
@@ -80,8 +79,8 @@ export const oxEx12345 = new VariationInfo({
 export const jsSi1949 = new VariationInfo({
   name: 'jsSi1949',
   chromosome: 'I',
-  physLoc: new GeneticLocation(6503678),
-  geneticLoc: new GeneticLocation(1.17),
+  physLoc: 6503678,
+  geneticLoc: 1.17,
 });
 export const eT1V = new VariationInfo({
   name: 'eT1(V)',
@@ -92,8 +91,8 @@ export const eT1V = new VariationInfo({
 export const eT1III = new VariationInfo({
   name: 'eT1(III)',
   chromosome: 'III',
-  physLoc: new GeneticLocation(8193843),
-  geneticLoc: new GeneticLocation(-0.37),
+  physLoc: 8193843,
+  geneticLoc: -0.37,
 });
 export const ox1111 = new VariationInfo({
   name: 'ox1111',

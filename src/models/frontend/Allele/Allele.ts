@@ -1,13 +1,13 @@
 import { getFilteredAlleleExpressions } from 'api/alleleExpressions';
 import { getGene } from 'api/gene';
 import { getVariation } from 'api/variationInfo';
+import { instanceToPlain, plainToInstance, Type } from 'class-transformer';
 import { db_Allele } from 'models/db/db_Allele';
 import { AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 import { FilterGroup } from 'models/db/filter/FilterGroup';
 import { AlleleExpression } from 'models/frontend/AlleleExpression';
 import { Gene } from 'models/frontend/Gene/Gene';
-import GeneticLocation from 'models/frontend/GeneticLocation';
 import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
 
 interface IAllele {
@@ -29,9 +29,16 @@ interface AlleleState {
 // Allele should always have exactly one of (1) gene or (2) variationInfo
 export class Allele {
   name: string = '';
+
+  @Type(() => Gene)
   gene?: Gene;
+
+  @Type(() => VariationInfo)
   variation?: VariationInfo;
+
+  @Type(() => AlleleExpression)
   alleleExpressions: AlleleExpression[] = [];
+
   contents?: string;
 
   constructor(fields: AlleleState) {
@@ -61,10 +68,10 @@ export class Allele {
     return allele;
   }
 
-  private static readonly setGeneOrVariation = async (
+  private static async setGeneOrVariation(
     partialAllele: AlleleState,
     fields: IAllele
-  ): Promise<void> => {
+  ): Promise<void> {
     if (fields.sysGeneName !== undefined) {
       await Allele.setGene(partialAllele, fields.sysGeneName);
     } else if (fields.variationName !== undefined) {
@@ -74,44 +81,44 @@ export class Allele {
         `Neither geneName nor variationName was provided for allele "${fields.name}"`
       );
     }
-  };
+  }
 
-  private static readonly setGene = async (
+  private static async setGene(
     partialAllele: { name: string; gene?: Gene },
     geneName: string
-  ): Promise<void> => {
+  ): Promise<void> {
     const res = await getGene(geneName);
     partialAllele.gene = Gene.createFromRecord(res);
-  };
+  }
 
-  private static readonly setVariation = async (
+  private static async setVariation(
     partialAllele: { name: string; variation?: VariationInfo },
     variationName: string
-  ): Promise<void> => {
+  ): Promise<void> {
     const res = await getVariation(variationName);
     partialAllele.variation = VariationInfo.createFromRecord(res);
-  };
+  }
 
-  private static readonly setAlleleExpressions = async (
+  private static async setAlleleExpressions(
     partialAllele: AlleleState,
     alleleName: string
-  ): Promise<void> => {
+  ): Promise<void> {
     const filter = Allele.setAlleleExpressionsFilter(alleleName);
     const res = await getFilteredAlleleExpressions(filter);
     partialAllele.alleleExpressions = res.map((record) =>
       AlleleExpression.createFromRecord(record)
     );
-  };
+  }
 
-  private static readonly setAlleleExpressionsFilter = (
+  private static setAlleleExpressionsFilter(
     alleleName: string
-  ): FilterGroup<AlleleExpressionFieldName> => {
+  ): FilterGroup<AlleleExpressionFieldName> {
     const filter: FilterGroup<AlleleExpressionFieldName> = {
       filters: [[['AlleleName', { Equal: alleleName }]]],
       orderBy: [],
     };
     return filter;
-  };
+  }
 
   static async createFromRecord(record: db_Allele): Promise<Allele> {
     return await Allele.build({
@@ -122,20 +129,30 @@ export class Allele {
     });
   }
 
-  public generateRecord = (): db_Allele => {
+  public generateRecord(): db_Allele {
     return {
       name: this.name,
       sysGeneName: this.gene?.sysName ?? null,
       variationName: this.variation?.name ?? null,
       contents: this.contents ?? null,
     };
-  };
+  }
 
-  public getChromosome = (): Chromosome | undefined =>
-    this.gene?.chromosome ?? this.variation?.chromosome;
+  public getChromosome(): Chromosome | undefined {
+    return this.gene?.chromosome ?? this.variation?.chromosome;
+  }
 
-  public getGenPosition = (): number | undefined =>
-    this.gene?.geneticLoc?.getLoc() ?? this.variation?.geneticLoc?.getLoc();
+  public getGenPosition(): number | undefined {
+    return this.gene?.geneticLoc ?? this.variation?.geneticLoc;
+  }
+
+  public toJSON(): string {
+    return JSON.stringify(instanceToPlain(this));
+  }
+
+  static fromJSON(json: string): Allele {
+    return [plainToInstance(Allele, JSON.parse(json))].flat()[0];
+  }
 }
 
 export class WildAllele extends Allele {
@@ -145,7 +162,7 @@ export class WildAllele extends Allele {
       variation = new VariationInfo({
         name: '+',
         chromosome: refAllele.getChromosome(),
-        geneticLoc: new GeneticLocation(refAllele.getGenPosition() ?? null),
+        geneticLoc: refAllele.getGenPosition(),
       });
     }
     super({ name: '+', variation });

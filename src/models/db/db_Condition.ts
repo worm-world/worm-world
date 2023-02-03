@@ -3,7 +3,7 @@
 export interface db_Condition {
   name: string;
   description: string | null;
-  maleMating: bigint | null;
+  maleMating: number | null;
   lethal: boolean | null;
   femaleSterile: boolean | null;
   arrested: boolean | null;

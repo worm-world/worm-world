@@ -1,12 +1,17 @@
-import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { db_Tree } from 'models/db/db_Tree';
 import type { Action } from 'models/db/task/Action';
 import { db_Task } from 'models/db/task/db_Task';
 import { Sex } from 'models/enums';
-import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
+import { iCrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import { StrainOption } from 'models/frontend/Strain/Strain';
 import { Node, Edge, XYPosition } from 'reactflow';
 import { ulid } from 'ulid';
+import {
+  Exclude,
+  instanceToPlain,
+  plainToInstance,
+  Type,
+} from 'class-transformer';
 
 export interface iCrossTree {
   name: string;
@@ -28,16 +33,24 @@ export default class CrossTree {
   public readonly id: string;
   public name: string;
   public description: string;
+  @Type(() => Date)
   public lastSaved: Date;
+
   public settings: {
     longName: boolean;
     contents: boolean;
   };
 
+  // @Type(() => Node)
   public nodes: Node[];
+
   public edges: Edge[];
   private currId: number;
+
+  @Exclude()
   private currNode: Node;
+
+  @Exclude()
   private readonly defaultNode: Node = {
     id: '-1',
     position: { x: 0, y: 0 },
@@ -45,6 +58,19 @@ export default class CrossTree {
   };
 
   constructor(params: iCrossTree) {
+    if (params === null || params === undefined) {
+      params = {
+        name: '',
+        description: '',
+        settings: {
+          longName: false,
+          contents: false,
+        },
+        nodes: [],
+        edges: [],
+        lastSaved: new Date(),
+      };
+    }
     this.id = ulid();
     this.name = params.name;
     this.description = params.description;
@@ -56,44 +82,57 @@ export default class CrossTree {
     this.currNode = this.instantiateCurrNode();
   }
 
-  private readonly instantiateCurrId = (): number => {
+  static fromJSON(json: string): CrossTree {
+    return [plainToInstance(CrossTree, JSON.parse(json))].flat()[0];
+  }
+
+  public toJSON(): string {
+    return JSON.stringify(instanceToPlain(this));
+  }
+
+  private instantiateCurrId(): number {
     const ids = this.nodes
       .map((node) => parseInt(node.id))
       .concat(this.edges.map((edge) => parseInt(edge.id)));
     return ids.length > 0 ? Math.max(...ids) : -1;
-  };
+  }
 
-  private readonly instantiateCurrNode = (): Node => {
+  private instantiateCurrNode(): Node {
     return this.nodes.length > 0 ? this.nodes[0] : this.defaultNode;
-  };
+  }
 
-  public readonly addNode = (node: Node): void => {
+  public addNode(node: Node): void {
     this.nodes = this.nodes.concat(node);
-  };
+  }
 
-  public readonly addNodes = (nodes: Node[]): void => {
+  public addNodes(nodes: Node[]): void {
     this.nodes = this.nodes.concat(nodes);
-  };
+  }
 
-  public readonly addEdge = (edge: Edge): void => {
+  public addEdge(edge: Edge): void {
     this.edges = this.edges.concat(edge);
-  };
+  }
 
-  public readonly addEdges = (edges: Edge[]): void => {
+  public addEdges(edges: Edge[]): void {
     edges.forEach((edge) => this.addEdge(edge));
-  };
+  }
 
-  public readonly getCurrId = (): string => this.currId.toString();
-  public readonly getNextId = (): string => (++this.currId).toString();
+  public getCurrId(): string {
+    return this.currId.toString();
+  }
 
-  public readonly getSelfIconPos = (): XYPosition => {
+  public getNextId(): string {
+    return (++this.currId).toString();
+  }
+
+  public getSelfIconPos(): XYPosition {
     return {
       x: this.currNode.position.x + 96,
       y: this.currNode.position.y + 150,
     };
-  };
+  }
 
-  public readonly getXIconPos = (): XYPosition => {
+  public getXIconPos(): XYPosition {
     const padding = 40;
     const strainWidth = this.currNode.width ?? 256;
     const strainHeight = this.currNode.height ?? 100;
@@ -105,30 +144,32 @@ export default class CrossTree {
 
     const y = this.currNode.position.y + strainHeight / 2 - xSide / 2;
     return { x, y };
-  };
+  }
 
-  public readonly getCrossStrainPos = (): XYPosition => {
+  public getCrossStrainPos(): XYPosition {
     const posX =
       this.currNode.data.sex === Sex.Male
         ? this.currNode.position.x + 400
         : this.currNode.position.x - 400;
     return { x: posX, y: this.currNode.position.y };
-  };
+  }
 
-  public readonly setCurrNode = (nodeId: string): void => {
+  public setCurrNode(nodeId: string): void {
     const nodeToSet =
       this.nodes.find((node) => node.id === nodeId) ?? this.defaultNode;
     this.currNode = nodeToSet;
-  };
+  }
 
-  public readonly getCurrNode = (): Node => this.currNode;
+  public getCurrNode(): Node {
+    return this.currNode;
+  }
 
-  public readonly calculateChildPositions = (
+  public calculateChildPositions(
     parentPos: XYPosition,
     children: StrainOption[],
     parentWidth?: number,
     childWidth?: number
-  ): XYPosition[] => {
+  ): XYPosition[] {
     const parWidth = parentWidth ?? 64;
     const width = childWidth ?? 256;
     const startingX = parentPos.x + parWidth / 2;
@@ -148,26 +189,30 @@ export default class CrossTree {
       currXPos += xDistance;
     });
     return positions;
-  };
+  }
 
-  private readonly isChildEdge = (
+  private isChildEdge(
     edgeId: string,
     parentId: string,
     usedEdges: Set<string>
-  ): boolean => edgeId === parentId && !usedEdges.has(edgeId);
+  ): boolean {
+    return edgeId === parentId && !usedEdges.has(edgeId);
+  }
 
-  private readonly isChildNode = (
+  private isChildNode(
     nodeId: string,
     parentId: string,
     edgeId: string,
     usedNodes: Set<string>
-  ): boolean => nodeId === edgeId && !usedNodes.has(nodeId);
+  ): boolean {
+    return nodeId === edgeId && !usedNodes.has(nodeId);
+  }
 
-  public readonly getDecendentNodesAndEdges = (
+  public getDecendentNodesAndEdges(
     parent: Node,
     usedNodes: Set<string> = new Set<string>(),
     usedEdges: Set<string> = new Set<string>()
-  ): [Node[], Edge[]] => {
+  ): [Node[], Edge[]] {
     const [graphNodes, graphEdges] = [this.nodes, this.edges];
     usedNodes.add(parent.id);
 
@@ -196,34 +241,33 @@ export default class CrossTree {
     });
 
     return [childNodes, childEdges];
-  };
+  }
 
-  public readonly generateTasks = (node: Node): db_Task[] => {
+  public generateTasks(node: Node): db_Task[] {
     const ancestryChain = this.getAncestryChain(node);
     const treeId = this.id;
     const tasks: db_Task[] = [];
     this.generateTasksRec(treeId, ancestryChain, tasks);
     return tasks;
-  };
+  }
 
-  private readonly generateTasksRec = (
+  private generateTasksRec(
     treeId: string,
     ancestryChain: StrainAncestry,
     tasks: db_Task[]
-  ): void => {
+  ): void {
     if (ancestryChain.parents.length === 0) return;
-    const strain1 = JSON.stringify({
-      sex: ancestryChain.parents[0].strain.sex,
-      strain: ancestryChain.parents[0].strain.strain.toJsonString(),
-    });
-    const otherStrain = ancestryChain.parents.at(1)?.strain;
-    const strain2 =
-      otherStrain !== undefined
-        ? JSON.stringify({
-            sex: otherStrain.sex,
-            strain: otherStrain.strain.toJsonString(),
-          })
-        : null;
+
+    const strain1String = JSON.stringify(
+      instanceToPlain(ancestryChain.parents[0].strain)
+    );
+
+    let strain2String: string | null = null;
+    if (ancestryChain.parents.at(1) !== undefined) {
+      strain2String = JSON.stringify(
+        instanceToPlain(ancestryChain.parents.at(1)?.strain)
+      );
+    }
 
     const action: Action =
       ancestryChain.parents.length === 1 ? 'SelfCross' : 'Cross';
@@ -232,8 +276,8 @@ export default class CrossTree {
       id: ulid(),
       due_date: new Date().toString(), // todo calculate this
       action,
-      strain1,
-      strain2,
+      strain1: strain1String,
+      strain2: strain2String,
       notes: null,
       completed: false,
       tree_id: treeId,
@@ -243,9 +287,9 @@ export default class CrossTree {
     ancestryChain.parents.forEach((chain) =>
       this.generateTasksRec(treeId, chain, tasks)
     );
-  };
+  }
 
-  private readonly getParentStrains = (child: Node): Node[] => {
+  private getParentStrains(child: Node): Node[] {
     const [graphNodes, graphEdges] = [this.nodes, this.edges];
     const parentEdges = graphEdges.filter((edge) => edge.target === child.id);
     const crossIcon = parentEdges.flatMap(
@@ -262,17 +306,17 @@ export default class CrossTree {
     );
 
     return parentStrains;
-  };
+  }
 
-  private readonly getAncestryChain = (child: Node): StrainAncestry => {
+  private getAncestryChain(child: Node): StrainAncestry {
     const parents = this.getParentStrains(child);
     return {
       strain: child.data,
       parents: parents.map((parent) => this.getAncestryChain(parent)),
     };
-  };
+  }
 
-  public readonly clone = (): CrossTree => {
+  public clone(): CrossTree {
     const treeProps: iCrossTree = {
       name: this.name,
       description: this.description,
@@ -286,52 +330,20 @@ export default class CrossTree {
     };
     const tree = new CrossTree(treeProps);
     return tree;
-  };
+  }
 
-  public readonly generateRecord = (editable: boolean): db_Tree => {
+  public generateRecord(editable: boolean): db_Tree {
     return {
       id: this.id,
       name: this.name,
-      data: this.dataAsJSON(),
+      data: JSON.stringify(instanceToPlain(this)),
       lastEdited: this.lastSaved.toString(),
       editable,
     };
-  };
-
-  public readonly dataAsJSON = (): string => {
-    const nodeJson = this.nodes.map((node) => {
-      let data = {};
-
-      if (node.type === FlowType.Strain) {
-        const strainData: CrossNodeModel = node.data;
-        data = {
-          sex: strainData.sex,
-          strain: strainData.strain.toJsonString(),
-        };
-      }
-
-      return JSON.stringify({
-        id: node.id,
-        position: node.position,
-        type: node.type,
-        data,
-      });
-    });
-
-    const obj = {
-      description: this.description,
-      nodes: nodeJson,
-      edges: JSON.stringify(this.edges),
-      settings: {
-        longName: this.settings.longName,
-        contents: this.settings.contents,
-      },
-    };
-    return JSON.stringify(obj);
-  };
+  }
 }
 
 interface StrainAncestry {
-  strain: CrossNodeModel;
+  strain: iCrossNodeModel;
   parents: StrainAncestry[];
 }
