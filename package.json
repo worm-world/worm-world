@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@tauri-apps/api": "^1.2.0",
+    "class-transformer": "^0.5.1",
     "daisyui": "^2.46.1",
     "html-to-image": "^1.11.4",
     "insert-line": "^1.1.0",
@@ -30,6 +31,7 @@
     "react-router-dom": "^6.4.3",
     "react-toastify": "^9.1.1",
     "reactflow": "^11.4.2",
+    "reflect-metadata": "^0.1.13",
     "theme-change": "^2.3.0",
     "ulid": "^2.3.0"
   },

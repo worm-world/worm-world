@@ -18,27 +18,39 @@ const getSexIcon = (sex: Sex, className: string): JSX.Element => {
   }
 };
 
-const CrossNode = (props: CrossNodeModel): JSX.Element => {
+export interface iCrossNodeProps {
+  model: CrossNodeModel;
+}
+
+const CrossNode = (props: iCrossNodeProps): JSX.Element => {
   const menuItems =
-    props.getMenuItems !== undefined ? props.getMenuItems(props) : [];
+    props.model?.getMenuItems !== undefined
+      ? props.model.getMenuItems(props.model)
+      : [];
   return (
-    <div
-      data-testid='crossNode'
-      className='h-28 w-64 rounded bg-base-100 shadow hover:cursor-grab'
-    >
-      <div className='flex h-6 justify-between'>
-        {getSexIcon(props.sex, 'mt-2 ml-1 text-xl')}
-        <CrossNodeMenu items={menuItems} />
-      </div>
-      <div className='my-2 overflow-x-auto px-3 pb-2'>
+    <>
+      {props.model !== undefined && (
         <div
-          className='flex min-w-min justify-center text-sm'
-          data-testid='crossNodeBody'
+          data-testid='crossNode'
+          className='h-28 w-64 rounded bg-base-100 shadow hover:cursor-grab'
         >
-          {getChromosomeBoxes(props.strain)}
+          <div className='flex h-6 justify-between'>
+            {getSexIcon(props.model.sex, 'mt-2 ml-1 text-xl')}
+            {props.model.getMenuItems !== undefined && (
+              <CrossNodeMenu items={menuItems} />
+            )}
+          </div>
+          <div className='my-2 overflow-x-auto px-3 pb-2'>
+            <div
+              className='flex min-w-min justify-center text-sm'
+              data-testid='crossNodeBody'
+            >
+              {getChromosomeBoxes(props.model.strain)}
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 

@@ -8,21 +8,20 @@ import { getMenuItems } from 'components/CrossNodeMenu/CrossNodeMenu';
 
 // Empty Cross Node ///////////////////////////////////////////////////////////
 
-export const empty: CrossNodeModel = {
+export const empty = new CrossNodeModel({
   sex: Sex.Hermaphrodite,
   strain: new Strain({ name: 'empty', allelePairs: [] }),
-
   getMenuItems,
-};
+});
 
-export const emptyMale: CrossNodeModel = {
+export const emptyMale = new CrossNodeModel({
   sex: Sex.Male,
   strain: new Strain({ name: 'empty', notes: '', allelePairs: [] }),
 
   getMenuItems,
-};
+});
 
-export const wild: CrossNodeModel = {
+export const wild = new CrossNodeModel({
   sex: Sex.Hermaphrodite,
   strain: new Strain({
     name: 'wild',
@@ -39,7 +38,7 @@ export const wild: CrossNodeModel = {
     ],
   }),
   getMenuItems,
-};
+});
 
 const mutatedStrain: Strain = new Strain({
   name: 'mutated',
@@ -76,14 +75,14 @@ const mutatedStrain: Strain = new Strain({
   notes: '',
 });
 
-export const mutated: CrossNodeModel = {
+export const mutated = new CrossNodeModel({
   sex: Sex.Male,
   strain: mutatedStrain,
 
   getMenuItems,
-};
+});
 
-export const smallMutated: CrossNodeModel = {
+export const smallMutated = new CrossNodeModel({
   sex: Sex.Hermaphrodite,
 
   strain: new Strain({
@@ -97,9 +96,9 @@ export const smallMutated: CrossNodeModel = {
     notes: '',
   }),
   getMenuItems,
-};
+});
 
-export const badMutationLists: CrossNodeModel = {
+export const badMutationLists = new CrossNodeModel({
   sex: Sex.Hermaphrodite,
   strain: new Strain({
     name: 'referencingGene',
@@ -118,9 +117,9 @@ export const badMutationLists: CrossNodeModel = {
   }),
 
   getMenuItems,
-};
+});
 
-export const badAllele: CrossNodeModel = {
+export const badAllele = new CrossNodeModel({
   sex: Sex.Hermaphrodite,
   strain: new Strain({
     name: 'badStrain',
@@ -140,9 +139,9 @@ export const badAllele: CrossNodeModel = {
   }),
 
   getMenuItems,
-};
+});
 
-export const monoid: CrossNodeModel = {
+export const monoid = new CrossNodeModel({
   sex: Sex.Hermaphrodite,
   strain: new Strain({
     name: 'monoid',
@@ -156,9 +155,9 @@ export const monoid: CrossNodeModel = {
   }),
 
   getMenuItems,
-};
+});
 
-export const diploid: CrossNodeModel = {
+export const diploid = new CrossNodeModel({
   sex: Sex.Hermaphrodite,
   strain: new Strain({
     name: 'diploid',
@@ -172,9 +171,9 @@ export const diploid: CrossNodeModel = {
   }),
 
   getMenuItems,
-};
+});
 
-export const ed3HetMale: CrossNodeModel = {
+export const ed3HetMale = new CrossNodeModel({
   sex: Sex.Male,
   strain: new Strain({
     name: 'ed3Het',
@@ -188,9 +187,9 @@ export const ed3HetMale: CrossNodeModel = {
   }),
 
   getMenuItems,
-};
+});
 
-export const ed3HetHerm: CrossNodeModel = {
+export const ed3HetHerm = new CrossNodeModel({
   sex: Sex.Hermaphrodite,
   strain: new Strain({
     name: 'ed3Het',
@@ -202,9 +201,9 @@ export const ed3HetHerm: CrossNodeModel = {
     ],
     notes: '',
   }),
-};
+});
 
-export const ed3HomoHerm: CrossNodeModel = {
+export const ed3HomoHerm = new CrossNodeModel({
   sex: Sex.Hermaphrodite,
   strain: new Strain({
     name: 'ed3Hetero',
@@ -218,9 +217,9 @@ export const ed3HomoHerm: CrossNodeModel = {
   }),
 
   getMenuItems,
-};
+});
 
-export const e204WildMale: CrossNodeModel = {
+export const e204WildMale = new CrossNodeModel({
   sex: Sex.Male,
   strain: new Strain({
     name: 'e204Wild',
@@ -233,9 +232,9 @@ export const e204WildMale: CrossNodeModel = {
   }),
 
   getMenuItems,
-};
+});
 
-export const e204HomoHerm: CrossNodeModel = {
+export const e204HomoHerm = new CrossNodeModel({
   sex: Sex.Hermaphrodite,
   strain: new Strain({
     name: 'e204Homo',
@@ -249,9 +248,9 @@ export const e204HomoHerm: CrossNodeModel = {
   }),
 
   getMenuItems,
-};
+});
 
-export const e204HetMale: CrossNodeModel = {
+export const e204HetMale = new CrossNodeModel({
   sex: Sex.Male,
   strain: new Strain({
     name: 'e204Het',
@@ -265,9 +264,9 @@ export const e204HetMale: CrossNodeModel = {
   }),
 
   getMenuItems,
-};
+});
 
-export const ox802HomoHerm: CrossNodeModel = {
+export const ox802HomoHerm = new CrossNodeModel({
   sex: Sex.Hermaphrodite,
   strain: new Strain({
     name: 'ox802Homo',
@@ -279,11 +278,10 @@ export const ox802HomoHerm: CrossNodeModel = {
     ],
     notes: '',
   }),
-
   getMenuItems,
-};
+});
 
-export const e204HetOx802Het: CrossNodeModel = {
+export const e204HetOx802Het = new CrossNodeModel({
   sex: Sex.Hermaphrodite,
   strain: new Strain({
     name: 'e204HetOx802Het',
@@ -301,9 +299,9 @@ export const e204HetOx802Het: CrossNodeModel = {
   }),
 
   getMenuItems,
-};
+});
 
-export const e204HomoOx802HetHerm: CrossNodeModel = {
+export const e204HomoOx802HetHerm = new CrossNodeModel({
   sex: Sex.Hermaphrodite,
   strain: new Strain({
     name: 'e204HomoOx802Het',
@@ -321,9 +319,9 @@ export const e204HomoOx802HetHerm: CrossNodeModel = {
   }),
 
   getMenuItems,
-};
+});
 
-export const e204HomoOx802HomoHerm: CrossNodeModel = {
+export const e204HomoOx802HomoHerm = new CrossNodeModel({
   sex: Sex.Hermaphrodite,
   strain: new Strain({
     name: 'e204HomoOx802Homo',
@@ -341,4 +339,4 @@ export const e204HomoOx802HomoHerm: CrossNodeModel = {
   }),
 
   getMenuItems,
-};
+});

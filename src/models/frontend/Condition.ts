@@ -36,8 +36,7 @@ export class Condition {
     return {
       name: this.name,
       description: this.description ?? null,
-      maleMating:
-        this.maleMating !== undefined ? BigInt(this.maleMating) : null,
+      maleMating: this.maleMating !== undefined ? this.maleMating : null,
       lethal: this.lethal ?? null,
       femaleSterile: this.femaleSterile ?? null,
       arrested: this.arrested ?? null,

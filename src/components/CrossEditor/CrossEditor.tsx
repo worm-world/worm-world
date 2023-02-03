@@ -225,9 +225,10 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   };
 
   const getCrossNodeMenuItems = (
-    crossNode: CrossNodeModel,
+    crossNode: CrossNodeModel | null | undefined,
     nodeId: string
   ): MenuItem[] => {
+    if (crossNode === undefined || crossNode === null) return [];
     const canSelfCross = crossNode.sex === Sex.Hermaphrodite;
     const selfOption: MenuItem = {
       icon: <SelfCrossIcon />,
@@ -248,7 +249,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     };
     const exportOption: MenuItem = {
       icon: <ScheduleIcon />,
-      text: 'schedule',
+      text: 'Schedule',
       menuCallback: () => {
         const clonedTree = treeRef.current.clone();
         clonedTree.setCurrNode(nodeId);

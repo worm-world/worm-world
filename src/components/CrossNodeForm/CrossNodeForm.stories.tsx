@@ -1,6 +1,5 @@
 import { StoryFn, Meta } from '@storybook/react';
 import CrossNodeForm, { CrossNodeFormProps } from './CrossNodeForm';
-import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import { GeneFieldName } from 'models/db/filter/db_GeneFieldName';
 import { db_Gene } from 'models/db/db_Gene';
 import * as mockGenes from 'models/frontend/Gene/Gene.mock';

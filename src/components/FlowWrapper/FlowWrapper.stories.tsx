@@ -5,7 +5,6 @@ import {
   StrainFlowWrapper,
   iStrainFlowWrapper,
 } from 'components/FlowWrapper/FlowWrapper';
-import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 
 export default {
   title: 'Components/CrossNodeFlowWrapper',

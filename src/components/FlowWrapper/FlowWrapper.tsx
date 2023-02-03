@@ -33,7 +33,7 @@ export const StrainFlowWrapper = (props: iStrainFlowWrapper): JSX.Element => {
   return (
     <div className='h-fit w-fit'>
       {handleElements}
-      <CrossNode {...props.data} />
+      <CrossNode model={props.data} />
     </div>
   );
 };

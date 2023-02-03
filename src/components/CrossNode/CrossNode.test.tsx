@@ -5,7 +5,7 @@ import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 describe('CrossNode component', () => {
   test('Empty node shows no sections', () => {
     const emptyNode = mock.empty;
-    render(<CrossNode {...emptyNode} />);
+    render(<CrossNode model={emptyNode} />);
 
     const body = screen.getByTestId('crossNodeBody');
     expect(body).toBeEmptyDOMElement();
@@ -13,7 +13,7 @@ describe('CrossNode component', () => {
 
   test('Wild cross node shows sections', () => {
     const wildNode = mock.wild; // See wild node for details
-    render(<CrossNode {...wildNode} />);
+    render(<CrossNode model={wildNode} />);
 
     const body = screen.getByTestId('crossNodeBody');
     expect(body).not.toBeEmptyDOMElement();

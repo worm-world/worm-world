@@ -48,7 +48,7 @@ impl InnerDbState {
     }
     pub async fn insert_variation_info(&self, vi: &VariationInfo) -> Result<(), DbError> {
         let chromosome = vi.chromosome.as_ref().map(|v| v.to_string());
-        let (start, end): (Option<i64>, Option<i64>) = match vi.recomb_suppressor {
+        let (start, end): (Option<i32>, Option<i32>) = match vi.recomb_suppressor {
             Some(recomb_range) => (Some(recomb_range.0), Some(recomb_range.1)),
             None => (None, None),
         };

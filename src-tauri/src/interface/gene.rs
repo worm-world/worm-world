@@ -48,7 +48,7 @@ impl InnerDbState {
     }
 
     pub async fn insert_gene(&self, gene: &Gene) -> Result<(), DbError> {
-        let (start, end): (Option<i64>, Option<i64>) = match gene.recomb_suppressor {
+        let (start, end): (Option<i32>, Option<i32>) = match gene.recomb_suppressor {
             Some(recomb_range) => (Some(recomb_range.0), Some(recomb_range.1)),
             None => (None, None),
         };

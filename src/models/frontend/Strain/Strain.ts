@@ -2,6 +2,13 @@ import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 import { Allele, WildAllele } from 'models/frontend/Allele/Allele';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 
+import {
+  Type,
+  Transform,
+  instanceToPlain,
+  plainToInstance,
+} from 'class-transformer';
+
 export interface StrainOption {
   strain: Strain;
   prob: number;
@@ -24,36 +31,48 @@ interface iStrain {
 }
 export class Strain {
   /* #region initializers */
-  public chromPairMap: Map<Chromosome | undefined, AllelePair[]>;
+  @Type(() => AllelePair)
+  @Transform(
+    (data: { obj: any }) => {
+      // The way class-transformer works, it will call this function with an Object where key is "chromPairMap" and
+      // .obj is an object dictionary with the contents of chromPairMap, but it is not a Map.
+      // This means the object will have no functions like .keys() or .values() and will not be iterable.
+      // This function will then convert the object dictionary into a Map so we can use it as normal.
+      const d = data?.obj?.chromPairMap ?? {};
+      // undefined is written into the JSON as a string "undefined", so we need to convert it back to the literal undefined
+      return new Map(
+        Object.keys(d).map((k) => [k === 'undefined' ? undefined : k, d[k]]) ??
+          null
+      );
+    },
+    { toClassOnly: true }
+  )
+  public chromPairMap: Map<Chromosome | undefined, AllelePair[]> = new Map();
+
   public name?: string;
+
   public notes?: string;
 
   constructor(props: iStrain) {
-    this.name = props.name;
-    this.notes = props.notes;
-    this.chromPairMap = new Map<Chromosome | undefined, AllelePair[]>();
-    this.addPairsToStrain(props.allelePairs);
+    if (props !== undefined && props !== null) {
+      this.name = props.name;
+      this.notes = props.notes;
+      this.addPairsToStrain(props.allelePairs);
+    }
+    this.chromPairMap = new Map(this.chromPairMap);
   }
   /* #endregion initializers */
 
-  private readonly getAllelePairs = (): AllelePair[] => {
+  private getAllelePairs(): AllelePair[] {
     return [...this.chromPairMap.values()].flat();
-  };
-
-  public readonly toJsonString = (): string => {
-    return JSON.stringify({
-      name: this.name,
-      pairs: this.getAllelePairs(),
-      notes: this.notes,
-    });
-  };
+  }
 
   /* #region public methods */
   /**
    * Checks if both strains contain the same chromosomal information
    * @param other strain to compare against
    */
-  public equals = (other: Strain): boolean => {
+  public equals(other: Strain): boolean {
     const thisKeys = Array.from(this.chromPairMap.keys());
     const otherKeys = Array.from(other.chromPairMap.keys());
     if (thisKeys.length !== otherKeys.length) return false;
@@ -68,12 +87,12 @@ export class Strain {
         allPairsMatch = false;
     });
     return allPairsMatch;
-  };
+  }
 
   /**
    * Mostly for debugging, string representation of strain
    */
-  public toString = (): string => {
+  public toString(): string {
     let res = '';
     Array.from(this.chromPairMap.keys()).forEach((key) => {
       res += (key?.toString() ?? '?') + ': ';
@@ -85,12 +104,12 @@ export class Strain {
       res += '\n';
     });
     return res;
-  };
+  }
 
   /**
    * Returns a new strain with identical data to this
    */
-  public clone = (): Strain => {
+  public clone(): Strain {
     const allelePairs: AllelePair[] = [];
     this.chromPairMap.forEach((pairs) =>
       pairs.forEach((pair) => allelePairs.push(pair.clone()))
@@ -100,22 +119,22 @@ export class Strain {
       notes: this.notes,
       allelePairs,
     });
-  };
+  }
 
   /**
    * Crosses this strain with itself
    * @returns Permuted list of all possible strains and their respective probabilities
    */
-  public selfCross = (): StrainOption[] => {
+  public selfCross(): StrainOption[] {
     return this.crossWith(this.clone());
-  };
+  }
 
   /**
    * Crosses this strain with {other}
    * @param other strain to cross against
    * @returns Permuted list of all possible strains and their respective probabilities
    */
-  public crossWith = (other: Strain): StrainOption[] => {
+  public crossWith(other: Strain): StrainOption[] {
     const lStrain = this.clone();
     const rStrain = other.clone();
 
@@ -137,7 +156,7 @@ export class Strain {
     const strains = this.cartesianCross(multiChromOptions);
     this.reduceStrainOptions(strains);
     return strains;
-  };
+  }
   /* #endregion public methods */
 
   /* #region private methods */
@@ -146,9 +165,9 @@ export class Strain {
    * @param multiChromOptions Outer list represents a unique Chromosomes, inner list is the possible PairChains for that chromosome
    * @returns Complete permuted strains from all the different chromosomes
    */
-  private readonly cartesianCross = (
+  private cartesianCross(
     multiChromOptions: ChromosomeOption[][]
-  ): StrainOption[] => {
+  ): StrainOption[] {
     if (multiChromOptions.length === 0) return [];
 
     // Set strains initially with 1st available chromosome (and its allele options)
@@ -169,7 +188,7 @@ export class Strain {
       );
 
     return strainOptions;
-  };
+  }
 
   /**
    * Permutes new strains based on current permutation {strainOptions} and the provided {chromOptions}
@@ -179,10 +198,10 @@ export class Strain {
    * @param chromOptions
    * @returns new strain list containing the added permutations from {chromOptions}
    */
-  private readonly cartesianProduct = (
+  private cartesianProduct(
     strainOptions: StrainOption[],
     chromOptions: ChromosomeOption[]
-  ): StrainOption[] => {
+  ): StrainOption[] {
     const newStrainOptions = new Array<StrainOption>();
 
     strainOptions.forEach((strainOption) => {
@@ -195,16 +214,13 @@ export class Strain {
     });
 
     return newStrainOptions;
-  };
+  }
 
   /**
    * Populates {this} with any missing alleles from other (represented as wild strains)
    * @param other Strain to compare against and look for any missing alleles
    */
-  private readonly prepWithWilds = (
-    other: Strain,
-    defaultToLeftSide = true
-  ): void => {
+  private prepWithWilds(other: Strain, defaultToLeftSide = true): void {
     other.chromPairMap.forEach((otherChromPairs, chromosome) => {
       const chromosomePairs = this.chromPairMap.get(chromosome) ?? [];
 
@@ -225,7 +241,7 @@ export class Strain {
           this.insertWildPair(chromosomePairs, otherPair, defaultToLeftSide);
       });
     });
-  };
+  }
 
   /**
    * Inserts a wild pair into {chromosomePairs} based on the genetic location of {otherPair}
@@ -233,11 +249,11 @@ export class Strain {
    * @param otherPair Pair from other strain that will be represented as wild pair
    * @param defaultLeft If genetic location can't be determined, place wild on left side (or right side)
    */
-  private readonly insertWildPair = (
+  private insertWildPair(
     chromosomePairs: AllelePair[],
     otherPair: AllelePair,
     defaultLeft: boolean
-  ): void => {
+  ): void {
     const wildPair = new AllelePair({
       top: new WildAllele(otherPair.getAllele()),
       bot: new WildAllele(otherPair.getAllele()),
@@ -249,15 +265,15 @@ export class Strain {
       const p2 = pair2.getAllele().getGenPosition() ?? (defaultLeft ? -50 : 50);
       return p1 < p2 ? -1 : 1;
     });
-  };
+  }
 
   /**
    * Computes all possible permutations when crossing a chromosome between 2 strains
    */
-  private readonly crossChromosome = (
+  private crossChromosome(
     leftChrom: AllelePair[],
     rightChrom: AllelePair[]
-  ): ChromosomeOption[] => {
+  ): ChromosomeOption[] {
     const chromosomeOptions: ChromosomeOption[] = [];
     const leftOptions = this.getRecombOptions(leftChrom);
     const rightOptions = this.getRecombOptions(rightChrom);
@@ -273,15 +289,13 @@ export class Strain {
     });
     this.reduceChromosomeOptions(chromosomeOptions);
     return chromosomeOptions;
-  };
+  }
 
   /**
    * Permutes all of the possible chromatids due to a recombination event (or no recombination event)
    * @param chromosome All allele pairs belonging to a strain's chromosomes
    */
-  private readonly getRecombOptions = (
-    chromosome: AllelePair[]
-  ): ChromatidOption[] => {
+  private getRecombOptions(chromosome: AllelePair[]): ChromatidOption[] {
     const topAlleles = new Array<Allele>();
     const botAlleles = new Array<Allele>();
 
@@ -308,14 +322,12 @@ export class Strain {
     this.reduceChromatidOptions(totalRecombOptions);
 
     return totalRecombOptions;
-  };
+  }
 
   /**
    * Combines probabilities of duplicate chromatids such that the resulting list has unique chromatids
    */
-  private readonly reduceChromatidOptions = (
-    chromatids: ChromatidOption[]
-  ): void => {
+  private reduceChromatidOptions(chromatids: ChromatidOption[]): void {
     // Check each option against every other option
     for (let i = 0; i < chromatids.length; i++) {
       const currChromatid = chromatids[i];
@@ -333,14 +345,12 @@ export class Strain {
         }
       }
     }
-  };
+  }
 
   /**
    * Combines probabilities of duplicate chromosomes such that the resulting list has unique chromosomes
    */
-  private readonly reduceChromosomeOptions = (
-    chromosomes: ChromosomeOption[]
-  ): void => {
+  private reduceChromosomeOptions(chromosomes: ChromosomeOption[]): void {
     // Check each option against every other option
     for (let i = 0; i < chromosomes.length; i++) {
       const currChrom = chromosomes[i];
@@ -354,12 +364,12 @@ export class Strain {
         }
       }
     }
-  };
+  }
 
   /**
    * Combines probabilities of duplicate StrainOptions such that the resulting list has unique strains
    */
-  private readonly reduceStrainOptions = (strains: StrainOption[]): void => {
+  private reduceStrainOptions(strains: StrainOption[]): void {
     // Check each strain against every other strain
     for (let i = 0; i < strains.length; i++) {
       const currStrain = strains[i];
@@ -375,7 +385,7 @@ export class Strain {
         }
       }
     }
-  };
+  }
 
   /**
    * Computes the possible combinations (for a single chromosome) that can result due to genetic recombination
@@ -423,37 +433,31 @@ export class Strain {
   /**
    * @returns absolute value of the genetic difference of 2 allele pairs (or 0 if a pair doesn't have a genetic location)
    */
-  private readonly getRecombProb = (
-    pair1: AllelePair,
-    pair2: AllelePair
-  ): number => {
+  private getRecombProb(pair1: AllelePair, pair2: AllelePair): number {
     const genPos1 = pair1.getAllele().getGenPosition();
     const genPos2 = pair2.getAllele().getGenPosition();
     if (genPos1 === undefined || genPos2 === undefined) return 0;
 
     const halfDistance = Math.abs(genPos1 - genPos2) / 2;
     return halfDistance / 100; // convert to decimal form
-  };
+  }
 
   /**
    * Combine 2 chromatids into a single chromosome of allele pairs
    * @param top list of alleles that will be the top chromatid
    * @param bot list of alleles that will be the bottom chromatid
    */
-  private readonly combineChromatids = (
-    top: Allele[],
-    bot: Allele[]
-  ): AllelePair[] => {
+  private combineChromatids(top: Allele[], bot: Allele[]): AllelePair[] {
     const chromosome: AllelePair[] = [];
     for (let i = 0; i < top.length && i < bot.length; i++)
       chromosome.push(new AllelePair({ top: top[i], bot: bot[i] }));
     return chromosome;
-  };
+  }
 
   /**
    * Adds a provided Allele Pair to this strain
    */
-  private readonly addPairToStrain = (pairToAdd: AllelePair): void => {
+  private addPairToStrain(pairToAdd: AllelePair): void {
     const chromName = pairToAdd.getAllele().getChromosome();
     let chromosome = this.chromPairMap.get(chromName);
     if (chromosome === undefined) {
@@ -468,20 +472,29 @@ export class Strain {
       const pair2Pos = pair2.getAllele().getGenPosition() ?? 50; // gen pos never greater than 25
       return pair1Pos < pair2Pos ? -1 : 1;
     });
-  };
+  }
 
   /**
    * Adds a list of AllelePairs to this strain
    */
-  private readonly addPairsToStrain = (pairs: AllelePair[]): void => {
+  private addPairsToStrain(pairs: AllelePair[]): void {
     pairs.forEach((pair) => this.addPairToStrain(pair));
-  };
+  }
 
   /**
    * Converts a chromatid into a string of allele names (to be used for equality checks)
    */
-  private readonly getChromatidString = (chromatid: ChromatidOption): string =>
-    chromatid.alleles.map((allele) => allele.name).join('');
+  private getChromatidString(chromatid: ChromatidOption): string {
+    return chromatid.alleles.map((allele) => allele.name).join('');
+  }
+
+  public toJSON(): string {
+    return JSON.stringify(instanceToPlain(this));
+  }
+
+  static fromJSON(json: string): Strain {
+    return [plainToInstance(Strain, JSON.parse(json))].flat()[0];
+  }
 
   /* #endregion private methods */
 }

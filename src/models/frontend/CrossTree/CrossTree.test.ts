@@ -1,12 +1,14 @@
 import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { MenuItem } from 'components/CrossNodeMenu/CrossNodeMenu';
 import { Sex } from 'models/enums';
-import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
+import { iCrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { XYPosition, Node, Edge } from 'reactflow';
 import { expect, test, describe } from 'vitest';
+import { WILD_ALLELE } from '../Allele/Allele';
+import { ed3, ox1059 } from '../Allele/Allele.mock';
 
 describe('cross tree', () => {
   // #region generator functions
@@ -64,8 +66,8 @@ describe('cross tree', () => {
   }: {
     sex?: Sex;
     strain?: Strain;
-    getMenuItems?: (node: CrossNodeModel) => MenuItem[];
-  }): CrossNodeModel => {
+    getMenuItems?: (node: iCrossNodeModel) => MenuItem[];
+  }): iCrossNodeModel => {
     return { sex, strain, getMenuItems };
   };
 
@@ -730,6 +732,52 @@ describe('cross tree', () => {
     expect(tasks[1].action).toBe('Cross');
     // expect(tasks[1].strain1).toBe(JSON.stringify(strain1));
     // expect(tasks[1].strain2).toBe(JSON.stringify(strain2));
+  });
+  it('should be able to serialize and deserialize', () => {
+    let id = 0;
+    const strain1 = generateCrossNodeModel({
+      sex: Sex.Hermaphrodite,
+      strain: generateStrain({
+        allelePairs: [
+          new AllelePair({ top: ed3, bot: WILD_ALLELE }),
+          new AllelePair({ top: ox1059, bot: WILD_ALLELE }),
+        ],
+      }),
+    });
+    const strain2 = generateCrossNodeModel({ sex: Sex.Male });
+    const strain3 = generateCrossNodeModel({});
+    const nodes = [
+      generateNode({ id: id++, data: strain1 }),
+      generateNode({ id: id++, data: strain2 }),
+      generateNode({ id: id++, type: FlowType.XIcon }),
+      generateNode({ id: id++ }),
+      generateNode({ id: id++, type: FlowType.SelfIcon }),
+      generateNode({ id: id++, data: strain3 }),
+    ];
+    const edges = [
+      generateEdge({
+        id: id++,
+        source: '0',
+        target: '2',
+        sourceHandle: 'left',
+        targetHandle: 'right',
+      }),
+      generateEdge({
+        id: id++,
+        source: '1',
+        target: '2',
+        targetHandle: 'left',
+      }),
+      generateEdge({ id: id++, source: '2', target: '3' }),
+      generateEdge({ id: id++, source: '3', target: '4' }),
+      generateEdge({ id: id++, source: '4', target: '5' }),
+    ];
+
+    const tree = generateTree({ nodes, edges });
+    const treeBack = CrossTree.fromJSON(tree.toJSON());
+    expect(treeBack.toJSON()).toEqual(tree.toJSON());
+
+    expect(treeBack.generateRecord(false)).toEqual(tree.generateRecord(false));
   });
   // #endregion tests
 });

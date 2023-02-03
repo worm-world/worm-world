@@ -330,4 +330,17 @@ describe('cross algorithm', () => {
 
     testStrainResults(crossStrains, IntermediateCross);
   });
+  it('should be able to serialize and deserialize', () => {
+    const allelePairs1: AllelePair[] = [
+      // chrom II
+      new AllelePair({ top: oxTi75, bot: new WildAllele(oxTi75) }),
+      new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+      // chrom IV
+      new AllelePair({ top: ox802, bot: new WildAllele(ox802) }),
+    ];
+    const strain1 = new Strain({ allelePairs: allelePairs1 });
+    const str = strain1.toJSON();
+    const strain1Back = Strain.fromJSON(str);
+    expect(strain1.toJSON()).toEqual(strain1Back.toJSON());
+  });
 });

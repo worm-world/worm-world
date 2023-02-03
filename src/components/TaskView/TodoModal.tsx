@@ -1,4 +1,4 @@
-const TodoModals = (props: {}): JSX.Element => {
+const TodoModal = (props: {}): JSX.Element => {
   return (
     <>
       <input type='checkbox' id='conditions' className='modal-toggle' />
@@ -6,7 +6,7 @@ const TodoModals = (props: {}): JSX.Element => {
         <div className='modal-box relative'>
           <label
             htmlFor='conditions'
-            className='btn btn-sm btn-circle absolute right-2 top-2'
+            className='btn-sm btn-circle btn absolute right-2 top-2'
           >
             ✕
           </label>
@@ -20,12 +20,12 @@ const TodoModals = (props: {}): JSX.Element => {
         <div className='modal-box relative h-32'>
           <label
             htmlFor='my-modal-3'
-            className='btn btn-sm btn-circle absolute right-2 top-2'
+            className='btn-sm btn-circle btn absolute right-2 top-2'
           >
             ✕
           </label>
           <label htmlFor='start'>Postpone To: </label>
-          <input type='date' id='start' name='trip-start' value=''></input>
+          <input type='date' id='start' name='trip-start'></input>
           <br></br>
           Warning: Postponing this task will alter the due dates of future tasks
           and may add additional steps
@@ -35,4 +35,4 @@ const TodoModals = (props: {}): JSX.Element => {
   );
 };
 
-export default TodoModals;
+export default TodoModal;

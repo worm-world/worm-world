@@ -48,7 +48,7 @@ impl InnerDbState {
     }
 
     pub async fn insert_task(&self, task: &Task) -> Result<(), DbError> {
-        let action_val: i64 = (task.action as u8).into();
+        let action_val: i32 = (task.action as u8).into();
         match sqlx::query!(
             "INSERT INTO tasks (id, due_date, action, strain1, strain2, notes, tree_id, completed)
             VALUES($1, $2, $3, $4, $5, $6, $7, $8)
@@ -74,7 +74,7 @@ impl InnerDbState {
     }
 
     pub async fn update_task(&self, task: &Task) -> Result<(), DbError> {
-        let action_val: i64 = (task.action as u8).into();
+        let action_val: i32 = (task.action as u8).into();
         match sqlx::query!(
             "UPDATE tasks
             SET due_date = $2,

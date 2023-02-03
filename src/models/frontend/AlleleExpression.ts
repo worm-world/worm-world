@@ -1,5 +1,6 @@
 import { getAlteringConditions } from 'api/condition';
 import { getAlteringPhenotypes, getPhenotype } from 'api/phenotype';
+import { Type } from 'class-transformer';
 import { db_AlleleExpression } from 'models/db/db_AlleleExpression';
 import { Dominance } from 'models/enums';
 import { Condition } from 'models/frontend/Condition';
@@ -18,15 +19,25 @@ interface IAlleleExpression {
 export class AlleleExpression {
   alleleName: string;
   /** Phenotype attached to the allele that will be expressed */
+  @Type(() => Phenotype)
   expressingPhenotype: Phenotype;
+
   /** Phenotypes that need to be present for the expressing phenotype to be visible */
+  @Type(() => Phenotype)
   requiredPhenotypes: Phenotype[] = [];
+
   /** Phenotypes that "cover up" the visibility of the expressing phenotype */
+  @Type(() => Phenotype)
   suppressingPhenotypes: Phenotype[] = [];
+
   /** Environmental conditions that need to be present for expressing phenotype to be visible */
+  @Type(() => Condition)
   requiredConditions: Condition[] = [];
+
   /** Environmental that "cover up" the visibility of the expressing phenotype */
+  @Type(() => Condition)
   suppressingConditions: Condition[] = [];
+
   /** Recessive, SemiDominant, or Dominant */
   dominance?: Dominance;
 
@@ -36,38 +47,45 @@ export class AlleleExpression {
       shortName: '',
       wild: true,
     });
-    this.alleleName = fields.alleleName;
-    this.dominance = fields.dominance;
-    this.setExpressingPhenotype(
-      fields.phenotypeName,
-      fields.phenotypeWild
-    ).catch((err) => console.error('error setting expressing phenotype', err));
+    if (fields === null || fields === undefined) {
+      this.alleleName = '';
+      this.dominance = undefined;
+    } else {
+      this.alleleName = fields.alleleName;
+      this.dominance = fields.dominance;
+      this.setExpressingPhenotype(
+        fields.phenotypeName,
+        fields.phenotypeWild
+      ).catch((err) =>
+        console.error('error setting expressing phenotype', err)
+      );
 
-    this.setRequiredPhenotypes(fields).catch((err) =>
-      console.error('error setting required phenotypes', err)
-    );
-    this.setSuppressingPhenotypes(fields).catch((err) =>
-      console.error('error setting suppressing phenotypes', err)
-    );
-    this.setRequiredConditions(fields).catch((err) =>
-      console.error('error setting required conditions', err)
-    );
-    this.setSuppressingConditions(fields).catch((err) =>
-      console.error('error setting suppressing phenotype', err)
-    );
+      this.setRequiredPhenotypes(fields).catch((err) =>
+        console.error('error setting required phenotypes', err)
+      );
+      this.setSuppressingPhenotypes(fields).catch((err) =>
+        console.error('error setting suppressing phenotypes', err)
+      );
+      this.setRequiredConditions(fields).catch((err) =>
+        console.error('error setting required conditions', err)
+      );
+      this.setSuppressingConditions(fields).catch((err) =>
+        console.error('error setting suppressing phenotype', err)
+      );
+    }
   }
 
-  private readonly setExpressingPhenotype = async (
+  private async setExpressingPhenotype(
     name: string,
     wild: boolean
-  ): Promise<void> => {
+  ): Promise<void> {
     const res = await getPhenotype(name, wild);
     this.expressingPhenotype = Phenotype.createFromRecord(res);
-  };
+  }
 
-  private readonly setRequiredPhenotypes = async (
+  private async setRequiredPhenotypes(
     fields: IAlleleExpression
-  ): Promise<void> => {
+  ): Promise<void> {
     const res = await getAlteringPhenotypes(
       fields.alleleName,
       fields.phenotypeName,
@@ -77,11 +95,11 @@ export class AlleleExpression {
     this.requiredPhenotypes = res.map((record) =>
       Phenotype.createFromRecord(record)
     );
-  };
+  }
 
-  private readonly setSuppressingPhenotypes = async (
+  private async setSuppressingPhenotypes(
     fields: IAlleleExpression
-  ): Promise<void> => {
+  ): Promise<void> {
     const res = await getAlteringPhenotypes(
       fields.alleleName,
       fields.phenotypeName,
@@ -91,11 +109,11 @@ export class AlleleExpression {
     this.suppressingPhenotypes = res.map((record) =>
       Phenotype.createFromRecord(record)
     );
-  };
+  }
 
-  private readonly setRequiredConditions = async (
+  private async setRequiredConditions(
     fields: IAlleleExpression
-  ): Promise<void> => {
+  ): Promise<void> {
     const res = await getAlteringConditions(
       fields.alleleName,
       fields.phenotypeName,
@@ -105,11 +123,11 @@ export class AlleleExpression {
     this.requiredConditions = res.map((record) =>
       Condition.createFromRecord(record)
     );
-  };
+  }
 
-  private readonly setSuppressingConditions = async (
+  private async setSuppressingConditions(
     fields: IAlleleExpression
-  ): Promise<void> => {
+  ): Promise<void> {
     const res = await getAlteringConditions(
       fields.alleleName,
       fields.phenotypeName,
@@ -119,7 +137,7 @@ export class AlleleExpression {
     this.suppressingConditions = res.map((record) =>
       Condition.createFromRecord(record)
     );
-  };
+  }
 
   static createFromRecord(record: db_AlleleExpression): AlleleExpression {
     return new AlleleExpression({
@@ -130,12 +148,12 @@ export class AlleleExpression {
     });
   }
 
-  generateRecord = (): db_AlleleExpression => {
+  generateRecord(): db_AlleleExpression {
     return {
       alleleName: this.alleleName,
       expressingPhenotypeName: this.expressingPhenotype.name,
       expressingPhenotypeWild: this.expressingPhenotype.wild,
       dominance: this.dominance ?? null,
     };
-  };
+  }
 }

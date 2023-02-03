@@ -1,26 +1,36 @@
-import TodoItem from '../../components/Scheduler/components/todoItem';
+import { getFilteredTasks, updateDbTask } from 'api/task';
+import { TaskView } from 'components/TaskView/TaskView';
+import { Task } from 'models/frontend/Task/Task';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
-const Todo = (): JSX.Element => {
+export const SchedulePage = (): JSX.Element => {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const refreshTasks = async (): Promise<void> => {
+    const tasks = await getFilteredTasks({
+      filters: [],
+      orderBy: [],
+    });
+    setTasks(tasks.map((task) => new Task(task)));
+  };
+
+  const updateTask = (task: Task): void => {
+    updateDbTask(task.generateRecord())
+      .then(refreshTasks)
+      .catch((e) => toast.error('Unable to update task: ' + JSON.stringify(e)));
+  };
+
+  useEffect(() => {
+    refreshTasks().catch((e) =>
+      toast.error('Unable to get data: ' + JSON.stringify(e))
+    );
+  }, []);
+
   return (
-    <div className='grid '>
-      <div className='min-w-1000px m-6 '>
-        <p className='text-4xl font-medium'> Current Tasks:</p>
-      </div>
-      {/* Heres where we will map out all the current steps that are specified by the backend */}
-      <div className='min-w-1000px bg-base-300 text-center'>
-        <TodoItem isMarried></TodoItem>
-      </div>
-      <div className='min-w-1000px bg-base-200 text-center'>
-        <TodoItem isSingle></TodoItem>
-      </div>
-      <div className='min-w-1000px bg-base-300 text-center'>
-        <TodoItem shouldFreeze></TodoItem>
-      </div>
-      <div className='min-w-1000px bg-base-200 text-center'>
-        <TodoItem shouldPCR></TodoItem>
-      </div>
+    <div>
+      <TaskView tasks={tasks} updateTask={updateTask} />
     </div>
   );
 };
 
-export default Todo;
+export default SchedulePage;

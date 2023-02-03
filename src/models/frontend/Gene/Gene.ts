@@ -1,23 +1,24 @@
+import { Exclude, instanceToPlain, plainToInstance } from 'class-transformer';
 import { db_Gene } from 'models/db/db_Gene';
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
-import GeneticLocation from 'models/frontend/GeneticLocation';
 
 interface iGene {
   sysName: string;
   descName?: string;
   chromosome?: Chromosome;
-  physLoc?: GeneticLocation; // Physical location of the gene on a chromosome
-  geneticLoc?: GeneticLocation; // Gene's genetic distance from the middle of a chromosome
-  recombination?: GeneticLocation;
+  physLoc?: number; // Physical location of the gene on a chromosome
+  geneticLoc?: number; // Gene's genetic distance from the middle of a chromosome
+  recombination?: [number, number];
 }
 
 export class Gene {
   sysName: string = '';
   descName?: string;
   chromosome?: Chromosome;
-  physLoc?: GeneticLocation;
-  geneticLoc?: GeneticLocation;
-  recombination?: GeneticLocation;
+  physLoc?: number;
+
+  geneticLoc?: number;
+  recombination?: [number, number];
 
   constructor(fields: iGene) {
     Object.assign(this, fields);
@@ -27,22 +28,30 @@ export class Gene {
     return new Gene({
       sysName: record.sysName,
       descName: record.descName ?? undefined,
-      physLoc: new GeneticLocation(record.physLoc),
-      geneticLoc: new GeneticLocation(record.geneticLoc),
+      physLoc: record.physLoc ?? undefined,
+      geneticLoc: record.geneticLoc ?? undefined,
       chromosome: record.chromosome ?? undefined,
-      recombination: GeneticLocation.createFromTuple(record.recombSuppressor),
+      recombination: record.recombSuppressor ?? undefined,
     });
   }
 
+  @Exclude()
   generateRecord = (): db_Gene => {
-    const phys = this.physLoc?.getLoc();
     return {
       sysName: this.sysName,
       descName: this.descName ?? null,
-      physLoc: phys !== undefined ? BigInt(phys) : null,
-      geneticLoc: this.geneticLoc?.getLoc() ?? null,
+      physLoc: this.physLoc ?? null,
+      geneticLoc: this.geneticLoc ?? null,
       chromosome: this.chromosome ?? null,
-      recombSuppressor: this.recombination?.getBigRange() ?? null,
+      recombSuppressor: this.recombination ?? null,
     };
   };
+
+  public toJSON(): string {
+    return JSON.stringify(instanceToPlain(this));
+  }
+
+  static fromJSON(json: string): Gene {
+    return [plainToInstance(Gene, JSON.parse(json))].flat()[0];
+  }
 }

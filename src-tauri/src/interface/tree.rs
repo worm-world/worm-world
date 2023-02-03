@@ -47,7 +47,7 @@ impl InnerDbState {
     }
 
     pub async fn insert_tree(&self, tree: &Tree) -> Result<(), DbError> {
-        let editable = tree.editable as i64;
+        let editable = tree.editable as i32;
         match sqlx::query!(
             "INSERT INTO trees (id, name, last_edited, data, editable)
             VALUES($1, $2, $3, $4, $5)
@@ -70,7 +70,7 @@ impl InnerDbState {
     }
 
     pub async fn update_tree(&self, tree: &Tree) -> Result<(), DbError> {
-        let editable = tree.editable as i64;
+        let editable = tree.editable as i32;
         match sqlx::query!(
             "UPDATE trees
             SET name = $2,

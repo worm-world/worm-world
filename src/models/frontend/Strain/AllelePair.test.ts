@@ -420,4 +420,10 @@ describe('allele pair', () => {
     expect(AllelePair.chromosomesMatch(chrom1, chrom2)).toBe(false);
     expect(AllelePair.chromosomesMatch(chrom2, chrom1)).toBe(false);
   });
+  it('should be able to serialize and deserialize', () => {
+    const pair = new AllelePair({ top: e204, bot: WILD_ALLELE });
+    const str = pair.toJSON();
+    const pairBack = AllelePair.fromJSON(str);
+    expect(pair.strictEquals(pairBack)).toBe(true);
+  });
 });

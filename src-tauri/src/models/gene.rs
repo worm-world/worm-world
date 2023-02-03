@@ -12,11 +12,11 @@ pub struct Gene {
     pub descriptive_name: Option<String>,
     pub chromosome: Option<Chromosome>,
     #[serde(rename = "physLoc")]
-    pub phys_loc: Option<i64>,
+    pub phys_loc: Option<i32>,
     #[serde(rename = "geneticLoc")]
     pub gen_loc: Option<f64>,
     #[serde(rename = "recombSuppressor")]
-    pub recomb_suppressor: Option<(i64, i64)>,
+    pub recomb_suppressor: Option<(i32, i32)>,
 }
 
 impl From<GeneDb> for Gene {
@@ -25,10 +25,10 @@ impl From<GeneDb> for Gene {
             systematic_name: item.systematic_name,
             descriptive_name: item.descriptive_name,
             chromosome: item.chromosome.map(|v| v.into()),
-            phys_loc: item.phys_loc,
+            phys_loc: item.phys_loc.map(|v| v as i32),
             gen_loc: item.gen_loc,
             recomb_suppressor: match (item.recomb_suppressor_start, item.recomb_suppressor_end) {
-                (Some(start), Some(end)) => Some((start, end)),
+                (Some(start), Some(end)) => Some((start as i32, end as i32)),
                 _ => None,
             },
         }
