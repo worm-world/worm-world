@@ -1,9 +1,3 @@
-/**
- * The approach here is to 'load' the editor with a cross tree.
- * That cross tree model is unchanged when the user adds nodes and edges, but the editor's tree is updated through such
- * interaction. The in-editor tree is read into a cross tree model when save is clicked. This is to say,
- * the editor manages its own state and only exchanges state with the exterior software through load and save operations.
- */
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { getFilteredAlleles } from 'api/allele';
 import CrossFlow, { FlowType } from 'components/CrossFlow/CrossFlow';
@@ -35,20 +29,22 @@ import { ImLoop2 as SelfCrossIcon } from 'react-icons/im';
 import { toast } from 'react-toastify';
 import { insertDbTasks } from 'api/task';
 import { useNavigate } from 'react-router-dom';
+import NoteForm from 'components/NoteForm/NoteForm';
 
 export interface CrossEditorProps {
   crossTree: CrossTree;
 }
 
-type DrawerState = 'default' | 'cross';
+type DrawerState = 'addStrain' | 'cross' | 'addNote' | 'replaceNote';
 
 const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   const treeRef = useRef(props.crossTree);
   const navigate = useNavigate();
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
-  const [drawerState, setDrawerState] = useState<DrawerState>('default');
+  const [drawerState, setDrawerState] = useState<DrawerState>('addStrain');
   const [nodes, setNodes] = useState<Node[]>(props.crossTree.nodes);
   const [edges, setEdges] = useState<Edge[]>(props.crossTree.edges);
+  const [noteFormContent, setNoteFormContent] = useState('');
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     treeRef.current.nodes = applyNodeChanges(changes, treeRef.current.nodes);
@@ -88,6 +84,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         getMenuItems: (node: CrossNodeModel) =>
           getCrossNodeMenuItems(node, nodeId),
       },
+      className: 'nowheel',
     };
     return strainNode;
   };
@@ -98,7 +95,6 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       type: FlowType.XIcon,
       position,
       data: {},
-      connectable: true,
     };
     return newXIcon;
   };
@@ -109,7 +105,6 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       type: FlowType.SelfIcon,
       position,
       data: {},
-      connectable: true,
     };
     return newSelfIcon;
   };
@@ -128,17 +123,67 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     };
     return edge;
   };
+
+  const createNote = (content: string, position: XYPosition): Node => {
+    const noteNode: Node = {
+      id: treeRef.current.getNextId(),
+      type: FlowType.Note,
+      position,
+      data: {
+        content,
+        onDoubleClick: () => {
+          treeRef.current.setCurrNode(noteNode.id);
+          setNoteFormContent(content);
+          setDrawerState('replaceNote');
+          setRightDrawerOpen(true);
+        },
+      },
+      className: 'nowheel',
+    };
+    return noteNode;
+  };
+
   // #endregion Flow Component Creation
 
-  const getDrawerCallback = (): ((sex: Sex, pairs: AllelePair[]) => void) => {
+  const getCrossNodeFormCallback = (): ((
+    sex: Sex,
+    pairs: AllelePair[]
+  ) => void) => {
     switch (drawerState) {
-      case 'default':
+      case 'addStrain':
         return addStrain;
       case 'cross':
         return crossNodes;
       default:
         return () => {};
     }
+  };
+
+  const getNoteFormCallback = (): (() => void) => {
+    switch (drawerState) {
+      case 'addNote':
+        return addNote;
+      case 'replaceNote':
+        return replaceNote;
+      default:
+        return () => {};
+    }
+  };
+
+  const addNote = (): void => {
+    const newNote = createNote(noteFormContent, { x: 0, y: 0 });
+    treeRef.current.addNode(newNote);
+    setRightDrawerOpen(false);
+  };
+
+  const replaceNote = (): void => {
+    const newNote = createNote(
+      noteFormContent,
+      treeRef.current.getCurrNode()?.position
+    );
+    treeRef.current.removeNode(treeRef.current.getCurrNode());
+    treeRef.current.addNode(newNote);
+    setRightDrawerOpen(false);
   };
 
   const addStrain = (sex: Sex, pairs: AllelePair[]): void => {
@@ -275,20 +320,31 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   const buttons = [
     <button
       key='save'
-      className='btn-primary btn mr-4'
+      className='btn-primary btn'
       onClick={() => saveTree(treeRef.current)}
     >
       Save
     </button>,
     <button
       key='addNewNode'
-      className='btn ml-auto mr-10'
+      className='btn'
       onClick={() => {
         setRightDrawerOpen(true);
-        setDrawerState('default');
+        setDrawerState('addStrain');
       }}
     >
-      Add New Cross Node
+      Add Cross Node
+    </button>,
+    <button
+      className='btn'
+      key='addNotes'
+      onClick={() => {
+        setDrawerState('addNote');
+        setNoteFormContent('');
+        setRightDrawerOpen(true);
+      }}
+    >
+      Add Note
     </button>,
   ];
 
@@ -339,12 +395,30 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
               maxWidth={400}
               close={() => setRightDrawerOpen(false)}
             >
-              <CrossNodeForm
-                getFilteredAlleles={getFilteredAlleles}
-                onSubmitCallback={getDrawerCallback()}
-                createAlleleFromRecord={Allele.createFromRecord}
-                enforcedSex={enforcedSex}
-              />
+              {drawerState === 'addNote' ? (
+                <NoteForm
+                  header='Add a note'
+                  buttonText='Create'
+                  content={noteFormContent}
+                  setContent={setNoteFormContent}
+                  callback={getNoteFormCallback()}
+                />
+              ) : drawerState === 'replaceNote' ? (
+                <NoteForm
+                  header='Edit note'
+                  buttonText='Save changes'
+                  content={noteFormContent}
+                  setContent={setNoteFormContent}
+                  callback={getNoteFormCallback()}
+                />
+              ) : (
+                <CrossNodeForm
+                  getFilteredAlleles={getFilteredAlleles}
+                  onSubmitCallback={getCrossNodeFormCallback()}
+                  createAlleleFromRecord={Allele.createFromRecord}
+                  enforcedSex={enforcedSex}
+                />
+              )}
             </RightDrawer>
           </div>
         </div>
@@ -355,7 +429,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
 
 const saveTree = (tree: CrossTree): void => {
   tree.lastSaved = new Date();
-  insertTree(tree.generateRecord(true)).catch((error) => error);
+  insertTree(tree.generateRecord(true)).catch((error) => console.error(error));
 };
 
 export default CrossEditor;
