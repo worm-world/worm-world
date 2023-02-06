@@ -4,6 +4,7 @@ import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import { Handle, Position } from 'reactflow';
 import { XNode } from 'components/XNode/XNode';
 import { SelfNode } from 'components/SelfNode/SelfNode';
+import NoteNode, { NoteNodeProps } from 'components/NoteNode/NoteNode';
 
 export interface iStrainFlowWrapper {
   data: CrossNodeModel;
@@ -68,4 +69,10 @@ export const SelfIconFlowWrapper = (): JSX.Element => {
       <SelfNode />
     </div>
   );
+};
+
+export const NoteFlowWrapper = (props: {
+  data: NoteNodeProps;
+}): JSX.Element => {
+  return <NoteNode {...props.data}></NoteNode>;
 };

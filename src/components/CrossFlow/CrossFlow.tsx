@@ -19,6 +19,7 @@ import {
   StrainFlowWrapper,
   SelfIconFlowWrapper,
   XIconFlowWrapper,
+  NoteFlowWrapper,
 } from 'components/FlowWrapper/FlowWrapper';
 import { Options } from 'html-to-image/lib/types';
 
@@ -132,6 +133,7 @@ export enum FlowType {
   Strain = 'strain',
   XIcon = 'xIcon',
   SelfIcon = 'selfIcon',
+  Note = 'note',
 }
 
 const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
@@ -140,6 +142,7 @@ const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
       strain: StrainFlowWrapper,
       xIcon: XIconFlowWrapper,
       selfIcon: SelfIconFlowWrapper,
+      note: NoteFlowWrapper,
     }),
     []
   );
@@ -156,6 +159,7 @@ const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
       onNodesChange={props.onNodesChange}
       onEdgesChange={props.onEdgesChange}
       onConnect={props.onConnect}
+      nodesFocusable
     >
       <CustomControls
         position='top-left'

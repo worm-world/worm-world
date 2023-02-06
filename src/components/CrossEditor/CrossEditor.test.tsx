@@ -37,7 +37,7 @@ describe('CrossEditor', () => {
     const plusses = screen.getAllByText(/\+/i);
     expect(plusses).toHaveLength(2);
 
-    const addNewNodeButton = screen.getByText(/add new/i);
+    const addNewNodeButton = screen.getByText(/add cross node/i);
     expect(addNewNodeButton).toBeDefined();
   });
 
@@ -49,7 +49,9 @@ describe('CrossEditor', () => {
     let nodes = screen.getAllByTestId('crossNode');
     expect(nodes).toHaveLength(3);
 
-    const addNewNodeButton = screen.getByRole('button', { name: /add new/i });
+    const addNewNodeButton = screen.getByRole('button', {
+      name: /add cross node/i,
+    });
     await user.click(addNewNodeButton);
 
     const formSubmitButton = screen.getByRole('button', { name: /create/i });
@@ -60,6 +62,37 @@ describe('CrossEditor', () => {
     await waitFor(() => {
       nodes = screen.getAllByTestId('crossNode');
       expect(nodes).toHaveLength(4);
+    });
+  });
+
+  test('adds notes', async () => {
+    const user = userEvent.setup();
+
+    renderComponent(mockCrossTrees.emptyCrossTree);
+
+    const notes = screen.queryAllByTestId('noteNode');
+    expect(notes).toHaveLength(0);
+
+    const addNoteButton = screen.getByRole('button', {
+      name: /add note/i,
+    });
+    await user.click(addNoteButton);
+
+    const formSubmitButton = screen.getByRole('button', { name: /create/i });
+    expect(formSubmitButton).toBeDefined();
+    expect(formSubmitButton).toBeVisible();
+
+    await user.click(formSubmitButton);
+    await waitFor(() => {
+      const notes = screen.getAllByTestId('noteNode');
+      expect(notes).toHaveLength(1);
+    });
+
+    await user.click(addNoteButton);
+    await user.click(formSubmitButton);
+    await waitFor(() => {
+      const notes = screen.getAllByTestId('noteNode');
+      expect(notes).toHaveLength(2);
     });
   });
 });

@@ -105,6 +105,12 @@ export default class CrossTree {
     this.nodes = this.nodes.concat(node);
   }
 
+  public removeNode(node: Node): void {
+    if (node !== this.defaultNode) {
+      this.nodes = this.nodes.filter((nodeInList) => nodeInList.id !== node.id);
+    }
+  }
+
   public addNodes(nodes: Node[]): void {
     this.nodes = this.nodes.concat(nodes);
   }

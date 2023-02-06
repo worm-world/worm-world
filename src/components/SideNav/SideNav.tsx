@@ -18,7 +18,7 @@ interface SideNavItem {
 const SideNavItems: SideNavItem[] = [
   {
     name: 'Cross Designer',
-    path: '/cross-designer',
+    path: '/',
     icon: <AccountTreeIcon className='text-2xl' />,
   },
   {
