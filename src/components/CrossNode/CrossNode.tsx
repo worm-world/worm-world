@@ -27,6 +27,10 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
     props.model?.getMenuItems !== undefined
       ? props.model.getMenuItems(props.model)
       : [];
+  const probability =
+    props.model.probability !== undefined
+      ? `${(props.model.probability * 100).toFixed(2)}%`
+      : '';
   return (
     <>
       {props.model !== undefined && (
@@ -38,6 +42,7 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
             <div className=' btn-ghost btn-xs btn m-1 text-xl'>
               {getSexIcon(props.model.sex, props.model.toggleSex)}
             </div>
+            <div className='mt-1 text-accent'>{probability}</div>
             {props.model.getMenuItems !== undefined && (
               <CrossNodeMenu items={menuItems} />
             )}

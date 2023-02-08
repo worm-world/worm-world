@@ -72,7 +72,8 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   const createStrainNode = (
     sex: Sex,
     strain: Strain,
-    position: XYPosition
+    position: XYPosition,
+    probability?: number
   ): Node => {
     const nodeId = treeRef.current.getNextId();
     const strainNode: Node = {
@@ -82,6 +83,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       data: {
         sex,
         strain,
+        probability,
         getMenuItems: (node: CrossNodeModel) =>
           getCrossNodeMenuItems(node, nodeId),
         toggleSex: () => toggleCrossNodeSex(nodeId),
@@ -239,6 +241,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     const currStrain: CrossNodeModel = currNode.data;
     if (currStrain === undefined) toast.error('something went wrong...');
     const children = currStrain.strain.selfCross();
+    children.sort((c1, c2) => c1.prob - c2.prob);
 
     const childPositions = treeRef.current.calculateChildPositions(
       selfIcon.position,
@@ -250,7 +253,8 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       return createStrainNode(
         Sex.Hermaphrodite,
         child.strain,
-        childPositions[i]
+        childPositions[i],
+        child.prob
       );
     });
     const childEdges = childNodes.map((node) => createEdge(selfIcon, node));
@@ -281,6 +285,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     const newStrain: CrossNodeModel = newStrainNode.data;
     const otherStrain: CrossNodeModel = currNode.data;
     const children = newStrain.strain.crossWith(otherStrain.strain);
+    children.sort((c1, c2) => c1.prob - c2.prob);
 
     const childPositions = treeRef.current.calculateChildPositions(
       xIcon.position,
@@ -293,7 +298,8 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       return createStrainNode(
         Sex.Hermaphrodite,
         child.strain,
-        childPositions[i]
+        childPositions[i],
+        child.prob
       );
     });
 
