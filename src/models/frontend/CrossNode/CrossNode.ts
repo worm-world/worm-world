@@ -17,6 +17,7 @@ export class CrossNodeModel implements iCrossNodeModel {
   sex: Sex;
   @Type(() => Strain)
   strain: Strain;
+
   probability?: number;
 
   @Exclude()

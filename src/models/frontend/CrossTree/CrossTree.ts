@@ -12,6 +12,7 @@ import {
   plainToInstance,
   Type,
 } from 'class-transformer';
+import { FlowType } from 'components/CrossFlow/CrossFlow';
 
 export interface iCrossTree {
   name: string;
@@ -160,7 +161,7 @@ export default class CrossTree {
   public getSelfIconPos(): XYPosition {
     return {
       x: this.currNode.position.x + 96,
-      y: this.currNode.position.y + 150,
+      y: this.currNode.position.y + 125,
     };
   }
 
@@ -199,29 +200,39 @@ export default class CrossTree {
   }
 
   public calculateChildPositions(
-    parentPos: XYPosition,
-    children: StrainOption[],
-    parentWidth?: number,
-    childWidth?: number
+    parentIcon: Node,
+    refStrain: Node,
+    children: StrainOption[]
   ): XYPosition[] {
-    const parWidth = parentWidth ?? 64;
-    const width = childWidth ?? 256;
-    const startingX = parentPos.x + parWidth / 2;
+    const positions: XYPosition[] = [];
+    const nodesPerRow = 5;
+    const rowHeight = 150;
+
+    const parWidth = parentIcon.width ?? 64;
+    const parHeight = parentIcon.height ?? 64;
+    const width = refStrain.width ?? 256;
+    const startingX = parentIcon.position.x + parWidth / 2;
     const nodePadding = 10;
     const xDistance = width + nodePadding;
-    const totalWidth = xDistance * children.length - nodePadding;
-    const offSet = totalWidth / 2;
-    const yPos = parentPos.y + 150;
 
-    let currXPos = startingX - offSet;
-    const positions: XYPosition[] = [];
-    children.forEach((_) => {
-      positions.push({
-        x: currXPos,
-        y: yPos,
+    let currYPos = parentIcon.position.y + 187;
+    if (parentIcon.type === FlowType.SelfIcon) currYPos -= parHeight + 37;
+
+    for (let i = 0; i < children.length; i += nodesPerRow) {
+      const rowNodes = children.slice(i, i + nodesPerRow);
+      const totalWidth = xDistance * rowNodes.length - nodePadding;
+      const offSet = totalWidth / 2;
+      let currXPos = startingX - offSet;
+      rowNodes.forEach((_) => {
+        positions.push({
+          x: currXPos,
+          y: currYPos,
+        });
+        currXPos += xDistance;
       });
-      currXPos += xDistance;
-    });
+      currYPos += rowHeight;
+    }
+
     return positions;
   }
 
