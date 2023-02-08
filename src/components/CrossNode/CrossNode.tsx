@@ -7,14 +7,14 @@ import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { CrossNodeMenu } from 'components/CrossNodeMenu/CrossNodeMenu';
 
-const getSexIcon = (sex: Sex, className: string): JSX.Element => {
+const getSexIcon = (sex: Sex, toggleSex?: () => void): JSX.Element => {
   switch (sex) {
     case Sex.Male:
-      return <IoMale className={className} />;
+      return <IoMale onClick={toggleSex} />;
     case Sex.Hermaphrodite:
-      return <IoMaleFemale className={className} />;
+      return <IoMaleFemale onClick={toggleSex} />;
     case Sex.Female:
-      return <IoFemale className={className} />;
+      return <IoFemale onClick={toggleSex} />;
   }
 };
 
@@ -35,7 +35,9 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
           className='h-28 w-64 rounded bg-base-100 shadow hover:cursor-grab'
         >
           <div className='flex h-6 justify-between'>
-            {getSexIcon(props.model.sex, 'mt-2 ml-1 text-xl')}
+            <div className=' btn-ghost btn-xs btn m-1 text-xl'>
+              {getSexIcon(props.model.sex, props.model.toggleSex)}
+            </div>
             {props.model.getMenuItems !== undefined && (
               <CrossNodeMenu items={menuItems} />
             )}

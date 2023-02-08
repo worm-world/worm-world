@@ -105,14 +105,14 @@ export default class CrossTree {
     this.nodes = this.nodes.concat(node);
   }
 
-  public removeNode(node: Node): void {
-    if (node !== this.defaultNode) {
-      this.nodes = this.nodes.filter((nodeInList) => nodeInList.id !== node.id);
-    }
-  }
-
   public addNodes(nodes: Node[]): void {
     this.nodes = this.nodes.concat(nodes);
+  }
+
+  public removeNode(toRemove: Node): void {
+    if (toRemove !== this.defaultNode) {
+      this.nodes = this.nodes.filter((node) => node.id !== toRemove.id);
+    }
   }
 
   public addEdge(edge: Edge): void {
@@ -121,6 +121,32 @@ export default class CrossTree {
 
   public addEdges(edges: Edge[]): void {
     edges.forEach((edge) => this.addEdge(edge));
+  }
+
+  /**
+   * Flexible method allowing you to remove all edges with a {sourceId},
+   * OR all edges with a {targetId}
+   * OR all edges that have both the specified {sourceId} AND {targetId}
+   *
+   * @param sourceId -- string id of the source node of the edge
+   * @param targetId -- string id of the target node of the edge
+   */
+  public removeEdges({
+    sourceId,
+    targetId,
+  }: {
+    sourceId?: string;
+    targetId?: string;
+  }): void {
+    const sourceFilter = (edge: Edge): boolean => edge.source !== sourceId;
+    const targetFilter = (edge: Edge): boolean => edge.target !== targetId;
+    let combinedFilter = (_: Edge): boolean => true;
+    if (sourceId !== undefined) combinedFilter = sourceFilter;
+    if (targetId !== undefined) combinedFilter = targetFilter;
+    if (sourceId !== undefined && targetId !== undefined)
+      combinedFilter = (edge: Edge) => sourceFilter(edge) || targetFilter(edge);
+
+    this.edges = this.edges.filter(combinedFilter);
   }
 
   public getCurrId(): string {
@@ -160,10 +186,12 @@ export default class CrossTree {
     return { x: posX, y: this.currNode.position.y };
   }
 
+  public getNodeById(nodeId: string): Node {
+    return this.nodes.find((node) => node.id === nodeId) ?? this.defaultNode;
+  }
+
   public setCurrNode(nodeId: string): void {
-    const nodeToSet =
-      this.nodes.find((node) => node.id === nodeId) ?? this.defaultNode;
-    this.currNode = nodeToSet;
+    this.currNode = this.getNodeById(nodeId);
   }
 
   public getCurrNode(): Node {
@@ -205,13 +233,8 @@ export default class CrossTree {
     return edgeId === parentId && !usedEdges.has(edgeId);
   }
 
-  private isChildNode(
-    nodeId: string,
-    parentId: string,
-    edgeId: string,
-    usedNodes: Set<string>
-  ): boolean {
-    return nodeId === edgeId && !usedNodes.has(nodeId);
+  private isChildNode(node: Node, edge: Edge, usedNodes: Set<string>): boolean {
+    return node.id === edge.target && !usedNodes.has(node.id);
   }
 
   public getDecendentNodesAndEdges(
@@ -227,9 +250,7 @@ export default class CrossTree {
     );
     let childNodes = childEdges.flatMap(
       (edge) =>
-        graphNodes.find((node) =>
-          this.isChildNode(node.id, parent.id, edge.target, usedNodes)
-        ) ?? []
+        graphNodes.find((node) => this.isChildNode(node, edge, usedNodes)) ?? []
     );
 
     childNodes.forEach((node) => usedNodes.add(node.id));

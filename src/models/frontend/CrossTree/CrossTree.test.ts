@@ -291,6 +291,32 @@ describe('cross tree', () => {
     testTreeNodesAndEdges(tree, [...nodes, newNode]);
   });
 
+  test('.removeNode() removes node from tree', () => {
+    let id = 0;
+    const strainNode = generateNode({ id: id++ });
+    const nodes = [strainNode];
+    const tree = generateTree({ nodes });
+
+    testTreeNodesAndEdges(tree, [strainNode]);
+    tree.removeNode(strainNode);
+    testTreeNodesAndEdges(tree, []);
+  });
+  test(".removeNode() leaves tree unchanged if node isn't part of tree", () => {
+    let id = 0;
+    const strainNode = generateNode({ id: id++ });
+    const nodes = [strainNode];
+    const tree = generateTree({ nodes });
+
+    const nonExistant: Node = {
+      id: '-1',
+      position: { x: 0, y: 0 },
+      data: {},
+    };
+
+    tree.removeNode(nonExistant);
+    testTreeNodesAndEdges(tree, [strainNode]);
+  });
+
   test('.addEdge() adds to empty tree', () => {
     const tree = generateTree({});
     const edge = generateEdge({ source: '0', target: '1' });
@@ -422,6 +448,147 @@ describe('cross tree', () => {
     testTreeNodesAndEdges(tree, nodes, [newEdge]);
   });
 
+  test('.removeEdges() leaves edges as is with undefined arguments', () => {
+    let id = 0;
+    const nodes = [
+      generateNode({ id: id++ }), // id: 0
+      generateNode({ id: id++ }),
+      generateNode({ id: id++ }),
+    ];
+    const edges = [
+      generateEdge({ id: id++, source: '0', target: '1' }), // id: 3
+      generateEdge({ id: id++, source: '0', target: '2' }),
+    ];
+    const tree = generateTree({ nodes, edges });
+    testTreeNodesAndEdges(tree, nodes, edges);
+    tree.removeEdges({});
+    testTreeNodesAndEdges(tree, nodes, edges);
+  });
+  test('.removeEdges() leaves edges as is with non-matching ids', () => {
+    let id = 0;
+    const nodes = [
+      generateNode({ id: id++ }), // id: 0
+      generateNode({ id: id++ }),
+      generateNode({ id: id++ }),
+    ];
+    const edges = [
+      generateEdge({ id: id++, source: '0', target: '1' }), // id: 3
+      generateEdge({ id: id++, source: '0', target: '2' }),
+    ];
+    const tree = generateTree({ nodes, edges });
+    tree.removeEdges({ sourceId: '3' });
+    testTreeNodesAndEdges(tree, nodes, edges);
+    tree.removeEdges({ targetId: '4' });
+    testTreeNodesAndEdges(tree, nodes, edges);
+    tree.removeEdges({ sourceId: '0', targetId: '4' }); // source matches but target DOES NOT
+    testTreeNodesAndEdges(tree, nodes, edges);
+  });
+  test('.removeEdges() removes all edges with same source id', () => {
+    let id = 0;
+    const nodes = [
+      generateNode({ id: id++ }), // id: 0
+      generateNode({ id: id++ }),
+      generateNode({ id: id++ }),
+      generateNode({ id: id++ }),
+      generateNode({ id: id++ }),
+      generateNode({ id: id++ }), // id: 5
+    ];
+    const edges = [
+      generateEdge({ id: id++, source: '0', target: '1' }), // id: 6
+      generateEdge({ id: id++, source: '0', target: '2' }),
+      generateEdge({ id: id++, source: '0', target: '4' }),
+      generateEdge({ id: id++, source: '1', target: '3' }), // id: 9
+      generateEdge({ id: id++, source: '1', target: '4' }),
+      generateEdge({ id: id++, source: '2', target: '3' }), // id: 11
+      generateEdge({ id: id++, source: '2', target: '4' }),
+      generateEdge({ id: id++, source: '2', target: '5' }), // id: 13
+    ];
+    const tree = generateTree({ nodes, edges });
+    tree.removeEdges({ sourceId: '1' });
+    testTreeNodesAndEdges(tree, nodes, [
+      ...edges.slice(0, 3),
+      ...edges.slice(5),
+    ]);
+
+    tree.removeEdges({ sourceId: '2' });
+    testTreeNodesAndEdges(tree, nodes, [...edges.slice(0, 3)]);
+
+    tree.removeEdges({ sourceId: '0' });
+    testTreeNodesAndEdges(tree, nodes, []);
+  });
+  test('.removeEdges() removes all edges with same target id', () => {
+    let id = 0;
+    const nodes = [
+      generateNode({ id: id++ }), // id: 0
+      generateNode({ id: id++ }),
+      generateNode({ id: id++ }),
+      generateNode({ id: id++ }),
+      generateNode({ id: id++ }),
+      generateNode({ id: id++ }), // id: 5
+    ];
+    const edges = [
+      generateEdge({ id: id++, source: '0', target: '1' }), // id: 6
+      generateEdge({ id: id++, source: '0', target: '2' }),
+      generateEdge({ id: id++, source: '0', target: '4' }),
+      generateEdge({ id: id++, source: '1', target: '3' }), // id: 9
+      generateEdge({ id: id++, source: '1', target: '4' }),
+      generateEdge({ id: id++, source: '2', target: '3' }), // id: 11
+      generateEdge({ id: id++, source: '2', target: '4' }),
+      generateEdge({ id: id++, source: '2', target: '5' }), // id: 13
+    ];
+    const tree = generateTree({ nodes, edges });
+    tree.removeEdges({ targetId: '3' });
+    testTreeNodesAndEdges(tree, nodes, [
+      ...edges.slice(0, 3),
+      edges[4],
+      ...edges.slice(6),
+    ]);
+
+    tree.removeEdges({ targetId: '4' });
+    testTreeNodesAndEdges(tree, nodes, [...edges.slice(0, 2), edges[7]]);
+
+    tree.removeEdges({ targetId: '5' });
+    tree.removeEdges({ targetId: '1' });
+    testTreeNodesAndEdges(tree, nodes, [edges[1]]);
+
+    tree.removeEdges({ targetId: '2' });
+    testTreeNodesAndEdges(tree, nodes, []);
+  });
+  test('.removeEdges() removes all edges with same source AND target ids', () => {
+    let id = 0;
+    const nodes = [
+      generateNode({ id: id++ }), // id: 0
+      generateNode({ id: id++ }),
+      generateNode({ id: id++ }),
+      generateNode({ id: id++ }),
+      generateNode({ id: id++ }),
+      generateNode({ id: id++ }), // id: 5
+    ];
+    const edges = [
+      generateEdge({ id: id++, source: '0', target: '1' }), // id: 6
+      generateEdge({ id: id++, source: '0', target: '2' }),
+      generateEdge({ id: id++, source: '0', target: '4' }),
+      generateEdge({ id: id++, source: '1', target: '3' }), // id: 9
+      generateEdge({ id: id++, source: '1', target: '4' }),
+      generateEdge({ id: id++, source: '2', target: '3' }), // id: 11
+      generateEdge({ id: id++, source: '2', target: '4' }),
+      generateEdge({ id: id++, source: '2', target: '5' }), // id: 13
+    ];
+    const tree = generateTree({ nodes, edges });
+    tree.removeEdges({ sourceId: '1', targetId: '4' });
+    testTreeNodesAndEdges(tree, nodes, [
+      ...edges.slice(0, 4),
+      ...edges.slice(5),
+    ]);
+
+    tree.removeEdges({ sourceId: '0', targetId: '2' });
+    tree.removeEdges({ sourceId: '1', targetId: '3' });
+    tree.removeEdges({ sourceId: '2', targetId: '3' });
+    tree.removeEdges({ sourceId: '2', targetId: '5' });
+
+    testTreeNodesAndEdges(tree, nodes, [edges[0], edges[2], edges[6]]);
+  });
+
   test('.getNextId() returns 0 for new tree', () => {
     const tree = generateTree({});
     expect(tree.getNextId()).toBe('0');
@@ -502,6 +669,27 @@ describe('cross tree', () => {
     const tree = generateTree({ nodes });
     tree.setCurrNode('33');
     expect(tree.getCurrNode().id).toBe('-1');
+  });
+
+  test('.getNodeById() returns defaultNode if unable to find', () => {
+    const nodes = [
+      generateNode({ id: 6 }),
+      generateNode({ id: 12 }),
+      generateNode({ id: 11 }),
+    ];
+    const tree = generateTree({ nodes });
+    expect(tree.getNodeById('33').id).toBe('-1');
+  });
+  test('.getNodeById() returns node if exists in tree', () => {
+    const nodes = [
+      generateNode({ id: 6 }),
+      generateNode({ id: 12 }),
+      generateNode({ id: 11 }),
+    ];
+    const tree = generateTree({ nodes });
+    expect(tree.getNodeById('12')).toBe(nodes[1]);
+    expect(tree.getNodeById('6')).toBe(nodes[0]);
+    expect(tree.getNodeById('11')).toBe(nodes[2]);
   });
 
   test('.getChildNodeAndEdges() returns empty array for unconnected nodes', () => {

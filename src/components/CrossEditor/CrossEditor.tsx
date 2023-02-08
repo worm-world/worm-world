@@ -42,8 +42,8 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   const navigate = useNavigate();
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
   const [drawerState, setDrawerState] = useState<DrawerState>('addStrain');
-  const [nodes, setNodes] = useState<Node[]>(props.crossTree.nodes);
-  const [edges, setEdges] = useState<Edge[]>(props.crossTree.edges);
+  const [nodes, setNodes] = useState<Node[]>(treeRef.current.nodes);
+  const [edges, setEdges] = useState<Edge[]>(treeRef.current.edges);
   const [noteFormContent, setNoteFormContent] = useState('');
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
@@ -63,6 +63,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     const [, set] = useState(false);
     return useCallback(() => set((a) => !a), []);
   })();
+
   useEffect(() => {
     setNodes([...treeRef.current.nodes]);
     setEdges([...treeRef.current.edges]);
@@ -83,6 +84,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         strain,
         getMenuItems: (node: CrossNodeModel) =>
           getCrossNodeMenuItems(node, nodeId),
+        toggleSex: () => toggleCrossNodeSex(nodeId),
       },
       className: 'nowheel',
     };
@@ -143,6 +145,38 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     return noteNode;
   };
 
+  const toggleCrossNodeSex = (nodeId: string): void => {
+    const oldNode = treeRef.current.getNodeById(nodeId);
+    const data: CrossNodeModel = oldNode.data;
+    const [childNodes] = treeRef.current.getDecendentNodesAndEdges(oldNode);
+    if (data.sex === undefined || data.sex === null) return;
+    if (childNodes.length > 0) {
+      toast.error(
+        "Can't change the sex of a strain currently involved in a cross"
+      );
+      return;
+    }
+
+    // get dependent edges to update
+    const parentIconId =
+      treeRef.current.edges.find((edge) => edge.target === oldNode.id)
+        ?.source ?? '-1';
+    const parentIcon = treeRef.current.getNodeById(parentIconId);
+
+    // replace node with new node of opposite sex
+    const newSex = data.sex === Sex.Male ? Sex.Hermaphrodite : Sex.Male;
+    treeRef.current.removeNode(oldNode);
+    const newNode = createStrainNode(newSex, data.strain, oldNode.position);
+    treeRef.current.addNode(newNode);
+
+    // update edges with new id and add to map
+    treeRef.current.removeEdges({
+      sourceId: parentIconId,
+      targetId: oldNode.id,
+    });
+    if (parentIconId !== '-1')
+      treeRef.current.addEdge(createEdge(parentIcon, newNode));
+  };
   // #endregion Flow Component Creation
 
   const getCrossNodeFormCallback = (): ((

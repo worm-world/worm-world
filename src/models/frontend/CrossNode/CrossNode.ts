@@ -21,6 +21,9 @@ export class CrossNodeModel implements iCrossNodeModel {
   @Exclude()
   getMenuItems?: (node: iCrossNodeModel) => MenuItem[];
 
+  @Exclude()
+  toggleSex?: () => void;
+
   constructor(crossNodeModel: iCrossNodeModel) {
     if (crossNodeModel !== null && crossNodeModel !== undefined) {
       this.sex = crossNodeModel.sex;
