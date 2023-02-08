@@ -254,10 +254,9 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     children.sort((c1, c2) => c1.prob - c2.prob);
 
     const childPositions = treeRef.current.calculateChildPositions(
-      selfIcon.position,
-      children,
-      selfIcon.width ?? undefined,
-      currNode.width ?? undefined
+      selfIcon,
+      currNode,
+      children
     );
     const childNodes = children.map((child, i) => {
       return createStrainNode(
@@ -298,10 +297,9 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     children.sort((c1, c2) => c1.prob - c2.prob);
 
     const childPositions = treeRef.current.calculateChildPositions(
-      xIcon.position,
-      children,
-      xIcon.width ?? undefined,
-      currNode.width ?? undefined
+      xIcon,
+      currNode,
+      children
     );
 
     const childrenNodes = children.map((child, i) => {
