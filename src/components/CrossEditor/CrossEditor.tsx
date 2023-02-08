@@ -18,7 +18,7 @@ import {
   NodeChange,
   XYPosition,
 } from 'reactflow';
-import { insertTree } from 'api/crossTree';
+import { insertTree, updateTree } from 'api/crossTree';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { Sex } from 'models/enums';
@@ -68,6 +68,16 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     setNodes([...treeRef.current.nodes]);
     setEdges([...treeRef.current.edges]);
   }, [treeRef.current.nodes, treeRef.current.edges]);
+
+  // Reattach menu function for deserialized nodes
+  useEffect(() => {
+    nodes.forEach((node) => {
+      if (node.type === FlowType.Strain)
+        node.data.getMenuItems = (model: CrossNodeModel) =>
+          getCrossNodeMenuItems(model, node.id);
+    });
+  }, []);
+
   // #region Flow Component Creation
   const createStrainNode = (
     sex: Sex,
@@ -469,7 +479,12 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
 
 const saveTree = (tree: CrossTree): void => {
   tree.lastSaved = new Date();
-  insertTree(tree.generateRecord(true)).catch((error) => console.error(error));
+  updateTree(tree.generateRecord(true))
+    .then(() => toast.success('Successfully saved design'))
+    .catch((error) => {
+      toast.error('Error saving design');
+      console.error(error);
+    });
 };
 
 export default CrossEditor;

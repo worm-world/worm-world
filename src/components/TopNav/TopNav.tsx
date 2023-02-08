@@ -3,6 +3,7 @@ interface iTopNavInputProps {
   title: string;
   children?: JSX.Element[];
   tabIndex?: number | false;
+  buttons?: JSX.Element[];
 }
 
 export function TopNav(props: iTopNavInputProps): JSX.Element {
@@ -27,6 +28,7 @@ export function TopNav(props: iTopNavInputProps): JSX.Element {
           ))}
         </div>
       </div>
+      <div className='ml-auto mr-10'>{props.buttons}</div>
     </div>
   );
 }
