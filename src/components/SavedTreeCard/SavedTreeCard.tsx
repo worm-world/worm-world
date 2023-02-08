@@ -24,6 +24,9 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
         <div className='card-body h-full bg-base-200'>
           <div className='card-title'>{props.tree.name}</div>
           <div>{props.tree.description}</div>
+          <div className='ml-auto'>
+            {props.tree.lastSaved.toLocaleDateString()}
+          </div>
         </div>
       </Link>
     </div>
