@@ -11,6 +11,8 @@ pub mod testdata {
         task::{Action, Task},
         tree::Tree,
         variation_info::VariationInfo,
+        task_conds::TaskCondition,
+        task_deps::TaskDepenency,
     };
     /* #region Allele Test Data */
     pub fn get_alleles() -> Vec<Allele> {
@@ -2121,4 +2123,52 @@ pub mod testdata {
         }]
     }
     /* #endregion Trees Test Data */
+
+    pub fn get_task_conditions() -> Vec<TaskCondition> {
+        vec![
+            TaskCondition {
+                task_id: "1".to_string(),
+                cond_name: "Histamine".to_string(),
+            },
+            TaskCondition {
+                task_id: "2".to_string(),
+                cond_name: "Tetracycline".to_string(),
+            },
+            TaskCondition {
+                task_id: "3".to_string(),
+                cond_name: "Histamine".to_string(),
+            },
+        ]
+    }
+
+    pub fn get_filtered_task_conditions() -> Vec<TaskCondition> {
+        vec![
+            TaskCondition {
+                task_id: "1".to_string(),
+                cond_name: "Histamine".to_string(),
+            },
+        ]
+    }
+
+    pub fn get_task_dependancies() -> Vec<TaskDepenency> {
+        vec![
+            TaskDepenency {
+                parent_id: "1".to_string(),
+                child_id: "2".to_string(),
+            },
+            TaskDepenency {
+                parent_id: "2".to_string(),
+                child_id: "3".to_string(),
+            },
+        ]
+    }
+
+    pub fn get_filtered_task_depenency() -> Vec<TaskDepenency> {
+        vec![
+            TaskDepenency {
+                parent_id: "1".to_string() ,
+                child_id: "2".to_string(),
+            },
+        ]
+    }
 }

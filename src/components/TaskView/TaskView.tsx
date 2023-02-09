@@ -11,6 +11,7 @@ import TodoModal from './TodoModal';
 interface iTaskProps {
   task: Task;
   updateTask: (task: Task) => void;
+  refresh: () => Promise<void>;
 }
 
 const TaskItem = (props: iTaskProps): JSX.Element => {
@@ -26,9 +27,8 @@ const TaskItem = (props: iTaskProps): JSX.Element => {
                 checked={props.task.completed}
                 readOnly
                 onClick={(e) => {
-                  const newTask = new Task(props.task.generateRecord());
-                  newTask.completed = e.currentTarget.checked;
-                  props.updateTask(newTask);
+                  props.task.completed = e.currentTarget.checked;
+                  props.updateTask(props.task);
                 }}
               />
               <p className='top-0 pl-4 pb-4 text-3xl'>
@@ -49,7 +49,7 @@ const TaskItem = (props: iTaskProps): JSX.Element => {
               <div className='m-8 mx-6 mb-2 h-16 w-16 rounded-full border-2 border-neutral bg-accent text-accent-content'>
                 <div className='flex h-full items-center justify-center'>
                   {props.task.action === 'Cross' && (
-                    <CrossIcon size='35' className='stroke-neutral'></CrossIcon>
+                    <CrossIcon size='50' className='stroke-neutral'></CrossIcon>
                   )}
                   {props.task.action === 'SelfCross' && (
                     <SelfCrossIcon
@@ -81,7 +81,11 @@ const TaskItem = (props: iTaskProps): JSX.Element => {
           <textarea
             // value={props.task.notes ?? ""}
             className='textarea-accent textarea ml-16 h-32 w-32 justify-self-end'
-            placeholder='Notes'
+            value={props.task.notes}
+            onChange={(e) => {
+              props.task.notes = e.target.value;
+              props.updateTask(props.task);
+            }}
           ></textarea>
           <TodoModal />
         </div>
@@ -93,6 +97,7 @@ const TaskItem = (props: iTaskProps): JSX.Element => {
 interface iTaskViewProps {
   tasks: Task[];
   updateTask: (task: Task) => void;
+  refresh: () => Promise<void>;
 }
 
 export const TaskView = (props: iTaskViewProps): JSX.Element => {
@@ -100,7 +105,11 @@ export const TaskView = (props: iTaskViewProps): JSX.Element => {
     <div className='pt-4'>
       {props.tasks.map((task, i) => (
         <div key={i}>
-          <TaskItem task={task} updateTask={props.updateTask} />
+          <TaskItem
+            refresh={props.refresh}
+            task={task}
+            updateTask={props.updateTask}
+          />
           <div className='divider' />
         </div>
       ))}
