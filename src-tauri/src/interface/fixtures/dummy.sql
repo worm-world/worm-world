@@ -144,4 +144,16 @@ VALUES
     (4, "2012-01-03", 2, "{}", "{}", NULL, 2, 1),
     (5, "2012-01-04", 3, "{}", "{}", "example note", 3, 1);
 
+INSERT INTO task_conds (task_id, cond_name)
+VALUES
+    (1, "Histamine"),
+    (2, "Tetracycline"),
+    (3, "Histamine");
+    
+INSERT INTO task_deps (parent_id, child_id)
+VALUES
+    (1, 2),
+    (2, 3);
+
+
 COMMIT TRANSACTION;

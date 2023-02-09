@@ -7,6 +7,8 @@ pub mod phenotype;
 pub mod variation_info;
 pub mod task;
 pub mod tree;
+pub mod task_conds;
+pub mod task_deps;
 
 use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Sqlite};

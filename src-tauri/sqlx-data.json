@@ -48,6 +48,40 @@
     },
     "query": "\n            SELECT allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end FROM variation_info ORDER BY allele_name\n            "
   },
+  "1a74b1682e8ccaa5190ed221709a54346f48266a87cfac6b480a81491bdd5a49": {
+    "describe": {
+      "columns": [
+        {
+          "name": "parent_id",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "child_id",
+          "ordinal": 1,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT parent_id, child_id FROM task_deps ORDER BY parent_id\n            "
+  },
+  "1bc29c66345c0792359480b3c1e98cd812fee45484e62b06f9669f72cadac4f9": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 2
+      }
+    },
+    "query": "INSERT INTO task_conds (task_id, cond_name)\n            VALUES($1, $2)\n            "
+  },
   "29b3293714c9c3096488ad7fe41ea8955ca196cf1d46e29c901c675ef31769bb": {
     "describe": {
       "columns": [],
@@ -237,6 +271,16 @@
       }
     },
     "query": "\n            SELECT\n                name, \n                wild,\n                short_name,\n                description, \n                male_mating,\n                lethal,\n                female_sterile,\n                arrested,\n                maturation_days\n            FROM phenotypes\n            ORDER BY name, wild\n            "
+  },
+  "771ddda1bfcf34a378b098c034c459419b81402a3a2c938bf3e228c08861ad3e": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 2
+      }
+    },
+    "query": "INSERT INTO task_deps (parent_id, child_id)\n            VALUES($1, $2)\n            "
   },
   "8441cefea899ffb8ae7a1e5cc3c5bd5d059248886ab8af8aa1b2a0da34266b30": {
     "describe": {
@@ -507,6 +551,30 @@
       }
     },
     "query": "\n            SELECT\n                allele_name,\n                expressing_phenotype_name,\n                expressing_phenotype_wild,\n                altering_phenotype_name,\n                altering_phenotype_wild,\n                altering_condition,\n                is_suppressing\n            FROM\n                expr_relations\n            ORDER BY\n                allele_name,\n                expressing_phenotype_name,\n                expressing_phenotype_wild,\n                altering_phenotype_name,\n                altering_phenotype_wild,\n                altering_condition\n            "
+  },
+  "cc897c8284a72da83addf0fcd097dbcf49097900f4d859816d6033d1697d66ee": {
+    "describe": {
+      "columns": [
+        {
+          "name": "task_id",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "cond_name",
+          "ordinal": 1,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT * FROM task_conds ORDER BY task_id\n            "
   },
   "d275bce94ffe67128e35c038f1a99fba8ebb7929af80877a4f13e2097829d3e7": {
     "describe": {

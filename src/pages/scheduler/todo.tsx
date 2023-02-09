@@ -28,7 +28,7 @@ export const SchedulePage = (): JSX.Element => {
 
   return (
     <div>
-      <TaskView tasks={tasks} updateTask={updateTask} />
+      <TaskView refresh={refreshTasks} tasks={tasks} updateTask={updateTask} />
     </div>
   );
 };
