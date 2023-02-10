@@ -5,7 +5,6 @@ import { db_Allele } from 'models/db/db_Allele';
 import user from '@testing-library/user-event';
 import * as mock from 'components/CrossNodeForm/CrossNodeForm.mock';
 import { Sex } from 'models/enums';
-import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
 
 describe('Cross node form', () => {
@@ -13,11 +12,11 @@ describe('Cross node form', () => {
     user.setup();
 
     let crossNodeModel: CrossNodeModel | undefined;
-    const addNewNodeToFlow = (sex: Sex, pairs: AllelePair[]): void => {
-      crossNodeModel = {
+    const addNewNodeToFlow = (sex: Sex, strain: Strain): void => {
+      crossNodeModel = new CrossNodeModel({
         sex,
-        strain: new Strain({ allelePairs: pairs }),
-      };
+        strain,
+      });
     };
 
     render(

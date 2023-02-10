@@ -4,36 +4,44 @@ import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import { Handle, Position } from 'reactflow';
 import { XNode } from 'components/XNode/XNode';
 import { SelfNode } from 'components/SelfNode/SelfNode';
-import NoteNode, { NoteNodeProps } from 'components/NoteNode/NoteNode';
+import { NoteNode } from 'components/NoteNode/NoteNode';
+import { NoteNodeProps } from 'components/NoteNode/NoteNodeProps';
 
 export interface iStrainFlowWrapper {
   data: CrossNodeModel;
 }
 
 export const StrainFlowWrapper = (props: iStrainFlowWrapper): JSX.Element => {
-  const handleElements = [
-    <Handle key='top' id='top' type='target' position={Position.Top} />,
-  ];
+  const isMale = props.data.sex === Sex.Male;
 
-  if (props.data.sex === Sex.Male) {
-    handleElements.push(
-      <Handle key='right' id='right' type='source' position={Position.Right} />
-    );
-  } else {
-    handleElements.push(
-      <Handle key='left' id='left' type='source' position={Position.Left} />,
+  const rStyling = isMale ? '' : 'invisible';
+  const bStyling = isMale ? 'invisible' : '';
+  const lStyling = isMale ? 'invisible' : '';
+
+  return (
+    <div className='h-fit w-fit'>
+      <Handle key='top' id='top' type='target' position={Position.Top} />
+      <Handle
+        key='right'
+        className={rStyling}
+        id='right'
+        type='source'
+        position={Position.Right}
+      />
+      <Handle
+        key='left'
+        className={lStyling}
+        id='left'
+        type='source'
+        position={Position.Left}
+      />
       <Handle
         key='bottom'
+        className={bStyling}
         id='bottom'
         type='source'
         position={Position.Bottom}
       />
-    );
-  }
-
-  return (
-    <div className='h-fit w-fit'>
-      {handleElements}
       <CrossNode model={props.data} />
     </div>
   );

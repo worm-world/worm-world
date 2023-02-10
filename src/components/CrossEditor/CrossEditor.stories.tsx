@@ -3,6 +3,7 @@ import CrossEditor, {
   CrossEditorProps,
 } from 'components/CrossEditor/CrossEditor';
 import * as mockCrossTree from 'models/frontend/CrossTree/CrossTree.mock';
+import { BrowserRouter } from 'react-router-dom';
 
 export default {
   title: 'Components/CrossEditor',
@@ -10,7 +11,11 @@ export default {
 } as Meta<typeof CrossEditor>;
 
 const Template: StoryFn<typeof CrossEditor> = (args: CrossEditorProps) => {
-  return <CrossEditor {...args}></CrossEditor>;
+  return (
+    <BrowserRouter>
+      <CrossEditor {...args}></CrossEditor>;
+    </BrowserRouter>
+  );
 };
 
 export const primary = Template.bind({});

@@ -6,9 +6,10 @@ import { db_Allele } from 'models/db/db_Allele';
 import { FilterGroup } from 'models/db/filter/FilterGroup';
 import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
+import { Strain } from 'models/frontend/Strain/Strain';
 
 export interface CrossNodeFormProps {
-  onSubmitCallback: (sex: Sex, allelePairs: AllelePair[]) => void;
+  onSubmitCallback: (sex: Sex, strain: Strain) => void;
   getFilteredAlleles: (
     filter: FilterGroup<AlleleFieldName>
   ) => Promise<db_Allele[]>;
@@ -36,9 +37,10 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
 
     Promise.all(homoPairs.concat(hetPairs))
       .then((allelePairs) => {
-        setHomoAlleles(new Set());
+        setHomoAlleles(new Set()); // clear form values
         setHetAlleles(new Set());
-        props.onSubmitCallback(sex, allelePairs);
+        const strain = new Strain({ allelePairs });
+        props.onSubmitCallback(sex, strain);
       })
       .catch((err) => err);
   };
@@ -75,12 +77,7 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
           shouldIncludeAllele(homoAlleles, hetAlleles, allele)
         }
       />
-      <button
-        className='btn-primary btn mt-5 max-w-xs'
-        onClick={() => {
-          onSubmit();
-        }}
-      >
+      <button className='btn-primary btn mt-5 max-w-xs' onClick={onSubmit}>
         Create
       </button>
     </>
