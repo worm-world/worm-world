@@ -1,10 +1,55 @@
 import { Strain } from 'models/frontend/Strain/Strain';
 import { Sex } from 'models/enums';
-import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
+import {
+  CrossNodeModel,
+  iCrossNodeModel,
+} from 'models/frontend/CrossNode/CrossNode';
 import * as mockAlleles from 'models/frontend/Allele/Allele.mock';
 import { Allele, WILD_ALLELE, WildAllele } from '../Allele/Allele';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
-import { getMenuItems } from 'components/CrossNodeMenu/CrossNodeMenu';
+import { MenuItem } from 'components/Menu/Menu';
+import { ImLoop2 as SelfCrossIcon } from 'react-icons/im';
+import { TbArrowsCross as CrossIcon } from 'react-icons/tb';
+import { BsUiChecks as ScheduleIcon } from 'react-icons/bs';
+
+export const getMenuItems = (node: iCrossNodeModel): MenuItem[] => {
+  const canSelfCross = node.sex === Sex.Hermaphrodite;
+  const selfOption: MenuItem = {
+    icon: <SelfCrossIcon />,
+    text: 'Self cross',
+    menuCallback: () => {
+      const strains = node.strain.selfCross();
+      const strainOutput = strains
+        .map(
+          (strain, idx) =>
+            `Strain: ${idx} -- Prob: ${
+              strain.prob
+            }\n${strain.strain.toString()}`
+        )
+        .join('\n\n');
+      alert(strainOutput);
+    },
+  };
+  const crossOption: MenuItem = {
+    icon: <CrossIcon />,
+    text: 'Cross',
+    menuCallback: () => {
+      alert('not yet implemented');
+    },
+  };
+  const exportOption: MenuItem = {
+    icon: <ScheduleIcon />,
+    text: 'Schedule',
+    menuCallback: () => {
+      alert('not yet implemented');
+    },
+  };
+
+  const items = [crossOption, exportOption];
+  if (canSelfCross) items.unshift(selfOption);
+
+  return items;
+};
 
 // Empty Cross Node ///////////////////////////////////////////////////////////
 

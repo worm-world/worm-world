@@ -11,7 +11,7 @@ const MockSavedTreeCard = ({
 }): JSX.Element => {
   return (
     <BrowserRouter>
-      <SavedTreeCard tree={tree}></SavedTreeCard>
+      <SavedTreeCard tree={tree} refreshTrees={() => {}}></SavedTreeCard>
     </BrowserRouter>
   );
 };

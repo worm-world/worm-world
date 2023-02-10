@@ -27,7 +27,7 @@ const CrossDesignerPage = (): JSX.Element => {
       className='btn'
       onClick={() => {
         const newTree: CrossTree = new CrossTree({
-          name: 'Untitled',
+          name: '',
           description: '',
           lastSaved: new Date(),
           settings: {
@@ -60,7 +60,13 @@ const CrossDesignerPage = (): JSX.Element => {
       ) : (
         <div className='m-8 flex flex-wrap gap-10'>
           {crossTrees?.map((crossTree) => {
-            return <SavedTreeCard key={crossTree.id} tree={crossTree} />;
+            return (
+              <SavedTreeCard
+                refreshTrees={refreshTrees}
+                key={crossTree.id}
+                tree={crossTree}
+              />
+            );
           })}
         </div>
       )}

@@ -37,3 +37,7 @@ export const insertTree = async (record: db_Tree): Promise<void> => {
 export const updateTree = async (record: db_Tree): Promise<void> => {
   await invoke('update_tree', { tree: record });
 };
+
+export const deleteTree = async (id: string): Promise<db_Tree[]> => {
+  return await invoke('delete_tree', { id });
+};
