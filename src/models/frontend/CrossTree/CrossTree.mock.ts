@@ -4,7 +4,6 @@ import { Edge, Node } from 'reactflow';
 import { FlowType } from 'components/CrossFlow/CrossFlow';
 
 export const emptyCrossTree = new CrossTree({
-  id: 0,
   description: 'New',
   name: 'Empty cross tree',
   settings: {
@@ -68,7 +67,7 @@ export const edgeFemale: Edge = {
   id: 'e1-3',
   source: '1',
   target: '3',
-  targetHandle: 'right',
+  targetHandle: 'left',
 };
 
 export const edgeChild: Edge = {
@@ -78,7 +77,6 @@ export const edgeChild: Edge = {
 };
 
 export const simpleCrossTree = new CrossTree({
-  id: 0,
   description: 'Cross two ed3 heterozygous',
   name: 'ed3 Cross',
   settings: {
@@ -205,6 +203,7 @@ export const edges: Edge[] = [
     id: 'e1-7',
     source: '1',
     target: '7',
+    sourceHandle: 'left',
     targetHandle: 'right',
   },
   {
@@ -213,7 +212,13 @@ export const edges: Edge[] = [
     target: '2',
   },
   { id: 'e2-8', source: '2', target: '8' },
-  { id: 'e3-8', source: '3', target: '8', targetHandle: 'right' },
+  {
+    id: 'e3-8',
+    source: '3',
+    target: '8',
+    targetHandle: 'right',
+    sourceHandle: 'left',
+  },
   { id: 'e8-4', source: '8', target: '4' },
   { id: 'e4-9', source: '4', target: '9', sourceHandle: 'bottom' },
   { id: 'e9-5', source: '9', target: '5' },
@@ -222,7 +227,6 @@ export const edges: Edge[] = [
 ];
 
 export const mediumCrossTree = new CrossTree({
-  id: 1,
   description: 'Derive the unc-33(-) strain',
   name: 'Make unc-33(-)',
   settings: {

@@ -11,17 +11,20 @@ import {
 export interface iCrossNodeModel {
   sex: Sex;
   strain: Strain;
-  getMenuItems?: (node: iCrossNodeModel) => MenuItem[];
+  probability?: number;
+  getMenuItems?: (node: CrossNodeModel) => MenuItem[];
+  toggleSex?: () => void;
 }
 export class CrossNodeModel implements iCrossNodeModel {
   sex: Sex;
   @Type(() => Strain)
   strain: Strain;
 
+  isParent: boolean;
   probability?: number;
 
   @Exclude()
-  getMenuItems?: (node: iCrossNodeModel) => MenuItem[];
+  getMenuItems?: (node: CrossNodeModel) => MenuItem[];
 
   @Exclude()
   toggleSex?: () => void;
@@ -31,9 +34,12 @@ export class CrossNodeModel implements iCrossNodeModel {
       this.sex = crossNodeModel.sex;
       this.strain = crossNodeModel.strain;
       this.getMenuItems = crossNodeModel.getMenuItems;
+      this.toggleSex = crossNodeModel.toggleSex;
+      this.isParent = this.toggleSex === undefined;
     } else {
       this.sex = Sex.Male;
       this.strain = new Strain({ allelePairs: [] });
+      this.isParent = false;
     }
   }
 

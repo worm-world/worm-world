@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { getFilteredAlleles } from 'api/allele';
 import CrossFlow, { FlowType } from 'components/CrossFlow/CrossFlow';
 import CrossNodeForm from 'components/CrossNodeForm/CrossNodeForm';
@@ -13,13 +13,11 @@ import {
   addEdge,
   Node,
   applyNodeChanges,
-  applyEdgeChanges,
-  EdgeChange,
   NodeChange,
   XYPosition,
+  useEdgesState,
 } from 'reactflow';
 import { insertTree, updateTree } from 'api/crossTree';
-import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { Sex } from 'models/enums';
 import { MenuItem } from 'components/CrossNodeMenu/CrossNodeMenu';
@@ -30,82 +28,124 @@ import { toast } from 'react-toastify';
 import { insertDbTasks } from 'api/task';
 import { useNavigate } from 'react-router-dom';
 import NoteForm from 'components/NoteForm/NoteForm';
+import { NoteNodeProps } from 'components/NoteNode/NoteNodeProps';
 
 export interface CrossEditorProps {
   crossTree: CrossTree;
 }
 
-type DrawerState = 'addStrain' | 'cross' | 'addNote' | 'replaceNote';
+type DrawerState = 'addStrain' | 'cross' | 'addNote' | 'editNote';
 
 const CrossEditor = (props: CrossEditorProps): JSX.Element => {
-  const treeRef = useRef(props.crossTree);
   const navigate = useNavigate();
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
   const [drawerState, setDrawerState] = useState<DrawerState>('addStrain');
-  const [nodes, setNodes] = useState<Node[]>(treeRef.current.nodes);
-  const [edges, setEdges] = useState<Edge[]>(treeRef.current.edges);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(props.crossTree.edges);
   const [noteFormContent, setNoteFormContent] = useState('');
+  const [currNodeId, setCurrNodeId] = useState<string>('');
+  const [nodeMap, setNodeMap] = useState<Map<string, Node>>(
+    new Map(props.crossTree.nodes.map((node) => [node.id, node]))
+  );
 
-  const onNodesChange = useCallback((changes: NodeChange[]) => {
-    treeRef.current.nodes = applyNodeChanges(changes, treeRef.current.nodes);
-    refresh();
-  }, []);
-  const onEdgesChange = useCallback((changes: EdgeChange[]) => {
-    treeRef.current.edges = applyEdgeChanges(changes, treeRef.current.edges);
-    refresh();
-  }, []);
+  /**
+   * sets nodeMap state to include passed node
+   */
+  const addToOrUpdateNodeMap = (node: Node): void => {
+    setNodeMap((nodeMap) => new Map(nodeMap.set(node.id, node)));
+  };
+
+  /**
+   * Callback used by react flow to update the positions of each node when dragged
+   */
+  const onNodesChange = (changes: NodeChange[]): void => {
+    const newNodeMap = new Map();
+    const nodes = [...nodeMap.values()];
+    // nodes.forEach((node) => console.log(node.position));
+    const movedNodes = applyNodeChanges(changes, nodes);
+    movedNodes.forEach((node) => newNodeMap.set(node.id, node));
+
+    // movedNodes.forEach((node) => console.log('moved:', node.position));
+    setNodeMap(newNodeMap);
+  };
+
+  /**
+   * Callback used by react flow to add edges to node handles when dragged
+   */
   const onConnect = useCallback((connection: Connection) => {
-    treeRef.current.edges = addEdge(connection, treeRef.current.edges);
-    refresh();
+    setEdges((eds) => addEdge(connection, eds));
   }, []);
 
-  const refresh = (() => {
-    const [, set] = useState(false);
-    return useCallback(() => set((a) => !a), []);
-  })();
-
+  /**
+   * When we deserialize from a cross tree, all function member variables are
+   * undefined. Because of this, we need to "re-hydrate them" with our current
+   * functionality if we want to still be able to call/interact with them.
+   */
   useEffect(() => {
-    setNodes([...treeRef.current.nodes]);
-    setEdges([...treeRef.current.edges]);
-  }, [treeRef.current.nodes, treeRef.current.edges]);
+    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
+      const refreshedNodes = [...nodeMap.values()].map((node) => {
+        if (node.type === FlowType.Strain) {
+          const data: CrossNodeModel = node.data;
+          node.data = new CrossNodeModel({
+            sex: data.sex,
+            strain: data.strain,
+            probability: data.probability,
+            getMenuItems: (model: CrossNodeModel) =>
+              getCrossNodeMenuItems(model, node.id, data.isParent),
+            toggleSex: data.isParent
+              ? undefined
+              : () => toggleCrossNodeSex(node.id),
+          });
+        } else if (node.type === FlowType.Note) {
+          node.data = new NoteNodeProps({
+            content: node.data.content,
+            onDoubleClick: () => {
+              setCurrNodeId(node.id);
+              setNoteFormContent(node.data.content);
+              setDrawerState('editNote');
+              setRightDrawerOpen(true);
+            },
+          });
+        }
+        return node;
+      });
 
-  // Reattach menu function for deserialized nodes
-  useEffect(() => {
-    nodes.forEach((node) => {
-      if (node.type === FlowType.Strain)
-        node.data.getMenuItems = (model: CrossNodeModel) =>
-          getCrossNodeMenuItems(model, node.id);
+      refreshedNodes.forEach((node) => nodeMap.set(node.id, node));
+      return new Map(nodeMap);
     });
   }, []);
 
   // #region Flow Component Creation
+  /** Creates a node representing a strain */
   const createStrainNode = (
     sex: Sex,
     strain: Strain,
     position: XYPosition,
-    probability?: number
-  ): Node => {
-    const nodeId = treeRef.current.getNextId();
+    isParent: boolean,
+    probability?: number,
+    id?: string
+  ): Node<CrossNodeModel> => {
+    const nodeId = id ?? props.crossTree.createId();
     const strainNode: Node = {
       id: nodeId,
       type: FlowType.Strain,
       position,
-      data: {
+      data: new CrossNodeModel({
         sex,
         strain,
         probability,
         getMenuItems: (node: CrossNodeModel) =>
-          getCrossNodeMenuItems(node, nodeId),
-        toggleSex: () => toggleCrossNodeSex(nodeId),
-      },
+          getCrossNodeMenuItems(node, nodeId, isParent),
+        toggleSex: isParent ? undefined : () => toggleCrossNodeSex(nodeId),
+      }),
       className: 'nowheel',
     };
     return strainNode;
   };
 
+  /** Creates a node representing the x icon */
   const createXIcon = (position: XYPosition): Node => {
     const newXIcon: Node = {
-      id: treeRef.current.getNextId(),
+      id: props.crossTree.createId(),
       type: FlowType.XIcon,
       position,
       data: {},
@@ -113,9 +153,10 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     return newXIcon;
   };
 
+  /** Creates a node representing the self icon */
   const createSelfIcon = (position: XYPosition): Node => {
     const newSelfIcon: Node = {
-      id: treeRef.current.getNextId(),
+      id: props.crossTree.createId(),
       type: FlowType.SelfIcon,
       position,
       data: {},
@@ -123,203 +164,246 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     return newSelfIcon;
   };
 
+  /** Creates an edge connecting a source node to a target node */
   const createEdge = (
-    source: Node,
-    target: Node,
+    sourceId: string,
+    targetId: string,
     args?: { sourceHandle?: string; targetHandle?: string }
   ): Edge => {
     const edge: Edge = {
-      id: treeRef.current.getNextId(),
-      source: source.id,
-      target: target.id,
+      id: props.crossTree.createId(),
+      source: sourceId,
+      target: targetId,
       sourceHandle: args?.sourceHandle,
       targetHandle: args?.targetHandle,
     };
     return edge;
   };
 
+  /** Creates a node representing a note with content */
   const createNote = (content: string, position: XYPosition): Node => {
     const noteNode: Node = {
-      id: treeRef.current.getNextId(),
+      id: props.crossTree.createId(),
       type: FlowType.Note,
       position,
-      data: {
+      data: new NoteNodeProps({
         content,
         onDoubleClick: () => {
-          treeRef.current.setCurrNode(noteNode.id);
+          setCurrNodeId(noteNode.id);
           setNoteFormContent(content);
-          setDrawerState('replaceNote');
+          setDrawerState('editNote');
           setRightDrawerOpen(true);
         },
-      },
+      }),
       className: 'nowheel',
     };
     return noteNode;
   };
+  // #endregion Flow Component Creation
 
+  // #region editor interactions
+  /** Passed to cross node, determines what happens when the sex icon is clicked */
   const toggleCrossNodeSex = (nodeId: string): void => {
-    const oldNode = treeRef.current.getNodeById(nodeId);
-    const data: CrossNodeModel = oldNode.data;
-    const [childNodes] = treeRef.current.getDecendentNodesAndEdges(oldNode);
-    if (data.sex === undefined || data.sex === null) return;
-    if (childNodes.length > 0) {
-      toast.error(
-        "Can't change the sex of a strain currently involved in a cross"
+    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
+      const node = nodeMap.get(nodeId);
+      if (node === undefined || node.type !== FlowType.Strain) {
+        console.error(
+          'uh oh - you tried to toggle the sex of a node that is undefined/not a strain'
+        );
+        return nodeMap;
+      }
+      const graphNodes = [...nodeMap.values()];
+      const [childNodes] = CrossTree.getDecendentNodesAndEdges(
+        graphNodes,
+        edges,
+        node
+      );
+
+      const data: CrossNodeModel = node.data;
+      if (data.sex === undefined || data.sex === null) return nodeMap;
+
+      // need to create a new node with the updated data so the state knows something has changed
+      const newSex = data.sex === Sex.Male ? Sex.Hermaphrodite : Sex.Male;
+      const newNode = createStrainNode(
+        newSex,
+        data.strain,
+        node.position,
+        false,
+        data.probability,
+        node.id
+      );
+
+      // update the map with the new data for the node
+      nodeMap.set(node.id, newNode);
+      return new Map(nodeMap);
+    });
+  };
+
+  /** Adds note to editor */
+  const addNote = (): void => {
+    const newNote = createNote(noteFormContent, { x: 0, y: 0 });
+    addToOrUpdateNodeMap(newNote);
+    setRightDrawerOpen(false);
+  };
+
+  /** Edits a current note's content */
+  const editNote = (): void => {
+    const noteNode = nodeMap.get(currNodeId);
+    if (noteNode === undefined || noteNode.type !== FlowType.Note) {
+      console.error(
+        'yikes - tried to edit note with currNode is undefined/not a note type'
       );
       return;
     }
 
-    // get dependent edges to update
-    const parentIconId =
-      treeRef.current.edges.find((edge) => edge.target === oldNode.id)
-        ?.source ?? '-1';
-    const parentIcon = treeRef.current.getNodeById(parentIconId);
-
-    // replace node with new node of opposite sex
-    const newSex = data.sex === Sex.Male ? Sex.Hermaphrodite : Sex.Male;
-    treeRef.current.removeNode(oldNode);
-    const newNode = createStrainNode(newSex, data.strain, oldNode.position);
-    treeRef.current.addNode(newNode);
-
-    // update edges with new id and add to map
-    treeRef.current.removeEdges({
-      sourceId: parentIconId,
-      targetId: oldNode.id,
-    });
-    if (parentIconId !== '-1')
-      treeRef.current.addEdge(createEdge(parentIcon, newNode));
-  };
-  // #endregion Flow Component Creation
-
-  const getCrossNodeFormCallback = (): ((
-    sex: Sex,
-    pairs: AllelePair[]
-  ) => void) => {
-    switch (drawerState) {
-      case 'addStrain':
-        return addStrain;
-      case 'cross':
-        return crossNodes;
-      default:
-        return () => {};
-    }
-  };
-
-  const getNoteFormCallback = (): (() => void) => {
-    switch (drawerState) {
-      case 'addNote':
-        return addNote;
-      case 'replaceNote':
-        return replaceNote;
-      default:
-        return () => {};
-    }
-  };
-
-  const addNote = (): void => {
-    const newNote = createNote(noteFormContent, { x: 0, y: 0 });
-    treeRef.current.addNode(newNote);
+    const noteData: NoteNodeProps = noteNode.data;
+    noteData.content = noteFormContent;
+    addToOrUpdateNodeMap(noteNode);
     setRightDrawerOpen(false);
   };
 
-  const replaceNote = (): void => {
-    const newNote = createNote(
-      noteFormContent,
-      treeRef.current.getCurrNode()?.position
-    );
-    treeRef.current.removeNode(treeRef.current.getCurrNode());
-    treeRef.current.addNode(newNote);
+  /** Adds a "floating" strain node to the editor */
+  const addStrain = (sex: Sex, strain: Strain): void => {
+    const newStrain = createStrainNode(sex, strain, { x: 0, y: 0 }, false);
+    addToOrUpdateNodeMap(newStrain);
     setRightDrawerOpen(false);
   };
 
-  const addStrain = (sex: Sex, pairs: AllelePair[]): void => {
-    const newStrain = createStrainNode(
-      sex,
-      new Strain({ allelePairs: pairs }),
-      { x: 0, y: 0 }
-    );
-    treeRef.current.addNode(newStrain);
-    setRightDrawerOpen(false);
-  };
+  /** */
+  const selfCross = (refNodeId: string): void => {
+    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
+      const refNode = nodeMap.get(refNodeId);
+      if (refNode === undefined || refNode.type !== FlowType.Strain) {
+        console.error(
+          'uh oh - you tried to self cross a node that is undefined/not a strain'
+        );
+        return nodeMap;
+      }
 
-  const selfCross = (): void => {
-    const currNode = treeRef.current.getCurrNode();
-    const selfIconPos = treeRef.current.getSelfIconPos();
-    const selfIcon = createSelfIcon(selfIconPos);
-    const edge = createEdge(currNode, selfIcon, { sourceHandle: 'bottom' });
+      const selfIconPos = CrossTree.getSelfIconPos(refNode);
+      const selfIcon = createSelfIcon(selfIconPos);
+      const edgeToIcon = createEdge(refNode.id, selfIcon.id, {
+        sourceHandle: 'bottom',
+      });
 
-    const currStrain: CrossNodeModel = currNode.data;
-    if (currStrain === undefined) toast.error('something went wrong...');
-    const children = currStrain.strain.selfCross();
-    children.sort((c1, c2) => c1.prob - c2.prob);
+      const currStrain: CrossNodeModel = refNode.data;
+      const children = currStrain.strain.selfCross();
+      children.sort((c1, c2) => c1.prob - c2.prob);
 
-    const childPositions = treeRef.current.calculateChildPositions(
-      selfIcon,
-      currNode,
-      children
-    );
-    const childNodes = children.map((child, i) => {
-      return createStrainNode(
-        Sex.Hermaphrodite,
-        child.strain,
-        childPositions[i],
-        child.prob
+      const childPositions = CrossTree.calculateChildPositions(
+        selfIcon,
+        refNode,
+        children
       );
+
+      const childNodes = children.map((child, i) => {
+        return createStrainNode(
+          Sex.Hermaphrodite,
+          child.strain,
+          childPositions[i],
+          false,
+          child.prob
+        );
+      });
+
+      refNode.data = copyNodeAsParent(refNode);
+
+      // update state
+      [...childNodes, selfIcon, refNode].forEach((node) => {
+        nodeMap.set(node.id, node);
+      });
+
+      const childEdges = childNodes.map((node) =>
+        createEdge(selfIcon.id, node.id)
+      );
+      setEdges([...edges, edgeToIcon, ...childEdges]);
+      return nodeMap;
     });
-    const childEdges = childNodes.map((node) => createEdge(selfIcon, node));
-    treeRef.current.addNodes([selfIcon, ...childNodes]);
-    treeRef.current.addEdges([edge, ...childEdges]);
-    refresh();
   };
 
-  const crossNodes = (sex: Sex, pairs: AllelePair[]): void => {
-    const currNode = treeRef.current.getCurrNode();
-    const xIconPos = props.crossTree.getXIconPos();
-    const strainPos = props.crossTree.getCrossStrainPos();
+  /**
+   * Params are provided by the crossNode form's onSubmit callback function
+   */
+  const regularCrossWithFormData = (sex: Sex, strain: Strain): void => {
+    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
+      const currNode = nodeMap.get(currNodeId);
+      if (currNode === undefined || currNode.type !== FlowType.Strain) {
+        console.error(
+          'sad day - tried crossing currNode with a form node BUT currNode is undefined/not a strain'
+        );
+        return nodeMap;
+      }
 
-    const xIcon = createXIcon(xIconPos);
-    const newStrainNode = createStrainNode(
-      sex,
-      new Strain({ allelePairs: pairs }),
-      strainPos
-    );
+      const xIconPos = CrossTree.getXIconPos(currNode);
+      const strainPos = CrossTree.getCrossStrainPos(currNode);
 
-    const e1 = createEdge(currNode, xIcon, {
-      targetHandle: currNode.data.sex === Sex.Male ? 'left' : 'right',
-    });
-    const e2 = createEdge(newStrainNode, xIcon, {
-      targetHandle: newStrainNode.data.sex === Sex.Male ? 'left' : 'right',
-    });
+      const xIcon = createXIcon(xIconPos);
+      const formNode = createStrainNode(sex, strain, strainPos, true);
 
-    const newStrain: CrossNodeModel = newStrainNode.data;
-    const otherStrain: CrossNodeModel = currNode.data;
-    const children = newStrain.strain.crossWith(otherStrain.strain);
-    children.sort((c1, c2) => c1.prob - c2.prob);
+      const otherStrain: CrossNodeModel = currNode.data;
+      const newStrain: CrossNodeModel = formNode.data;
+      newStrain.toggleSex = undefined; // disable toggling functionality
 
-    const childPositions = treeRef.current.calculateChildPositions(
-      xIcon,
-      currNode,
-      children
-    );
+      const e1 = createEdge(currNode.id, xIcon.id, {
+        targetHandle: otherStrain.sex === Sex.Male ? 'left' : 'right',
+        sourceHandle: otherStrain.sex !== Sex.Male ? 'left' : 'right',
+      });
+      const e2 = createEdge(formNode.id, xIcon.id, {
+        targetHandle: newStrain.sex === Sex.Male ? 'left' : 'right',
+        sourceHandle: newStrain.sex !== Sex.Male ? 'left' : 'right',
+      });
 
-    const childrenNodes = children.map((child, i) => {
-      return createStrainNode(
-        Sex.Hermaphrodite,
-        child.strain,
-        childPositions[i],
-        child.prob
+      const children = newStrain.strain.crossWith(otherStrain.strain);
+      children.sort((c1, c2) => c1.prob - c2.prob);
+
+      const childPositions = CrossTree.calculateChildPositions(
+        xIcon,
+        currNode,
+        children
       );
-    });
 
-    const childrenEdges = childrenNodes.map((node) => createEdge(xIcon, node));
-    treeRef.current.addNodes([xIcon, newStrainNode, ...childrenNodes]);
-    treeRef.current.addEdges([e1, e2, ...childrenEdges]);
-    setRightDrawerOpen(false);
+      const childrenNodes = children.map((child, i) => {
+        return createStrainNode(
+          Sex.Hermaphrodite,
+          child.strain,
+          childPositions[i],
+          false,
+          child.prob
+        );
+      });
+
+      currNode.data = copyNodeAsParent(currNode);
+
+      const childrenEdges = childrenNodes.map((node) =>
+        createEdge(xIcon.id, node.id)
+      );
+
+      [currNode, xIcon, formNode, ...childrenNodes].forEach((node) =>
+        nodeMap.set(node.id, node)
+      );
+      setEdges([...edges, e1, e2, ...childrenEdges]);
+      setRightDrawerOpen(false);
+
+      return new Map(nodeMap);
+    });
+  };
+
+  /** Clones the passed nodes data and marks as a parent */
+  const copyNodeAsParent = (node: Node<CrossNodeModel>): CrossNodeModel => {
+    // update parent to no longer enable sex toggling
+    const updatedParentData = new CrossNodeModel({
+      sex: node.data.sex,
+      strain: node.data.strain,
+      getMenuItems: () => getCrossNodeMenuItems(node.data, node.id, true),
+      toggleSex: undefined, // disable toggle action
+    });
+    return updatedParentData;
   };
 
   const getCrossNodeMenuItems = (
     crossNode: CrossNodeModel | null | undefined,
-    nodeId: string
+    nodeId: string,
+    isParent: boolean = false
   ): MenuItem[] => {
     if (crossNode === undefined || crossNode === null) return [];
     const canSelfCross = crossNode.sex === Sex.Hermaphrodite;
@@ -327,26 +411,35 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       icon: <SelfCrossIcon />,
       text: 'Self cross',
       menuCallback: () => {
-        treeRef.current.setCurrNode(nodeId);
-        selfCross();
+        selfCross(nodeId);
       },
     };
     const crossOption: MenuItem = {
       icon: <CrossIcon />,
       text: 'Cross',
       menuCallback: () => {
-        treeRef.current.setCurrNode(nodeId);
+        setCurrNodeId(nodeId);
         setDrawerState('cross');
         setRightDrawerOpen(true);
       },
     };
-    const exportOption: MenuItem = {
+    const scheduleOption: MenuItem = {
       icon: <ScheduleIcon />,
       text: 'Schedule',
       menuCallback: () => {
-        const clonedTree = treeRef.current.clone();
-        clonedTree.setCurrNode(nodeId);
-        const tasks = clonedTree.generateTasks(clonedTree.getCurrNode());
+        const node = nodeMap.get(nodeId);
+        if (node === undefined || node.type !== FlowType.Strain) {
+          console.error(
+            'boooo - the node you are trying to schedule is undefined/not a strain'
+          );
+          return;
+        }
+
+        const clonedTree = props.crossTree.clone();
+        clonedTree.nodes = [...nodeMap.values()];
+        clonedTree.edges = edges;
+
+        const tasks = clonedTree.generateTasks(node);
 
         insertTree(clonedTree.generateRecord(false))
           .then(
@@ -359,17 +452,41 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       },
     };
 
-    const items = [crossOption, exportOption];
-    if (canSelfCross) items.unshift(selfOption);
+    if (isParent) return [scheduleOption];
+    if (canSelfCross) return [selfOption, crossOption, scheduleOption]; // herm strain
+    return [crossOption, scheduleOption]; // het strain
+  };
+  // #endregion editor interacions
 
-    return items;
+  // #region templating
+  /** Gets onSubmit callback for the strain form based on current state  */
+  const getOnSubmitForStrainForm = (): ((sex: Sex, strain: Strain) => void) => {
+    switch (drawerState) {
+      case 'addStrain':
+        return addStrain;
+      case 'cross':
+        return regularCrossWithFormData;
+      default:
+        return () => {};
+    }
   };
 
+  /** Gets onSubmit callback for the note form based on current state  */
+  const getOnSubmitForNoteForm = (): (() => void) => {
+    switch (drawerState) {
+      case 'addNote':
+        return addNote;
+      case 'editNote':
+        return editNote;
+      default:
+        return () => {};
+    }
+  };
   const buttons = [
     <button
       key='save'
       className='btn-primary btn'
-      onClick={() => saveTree(treeRef.current)}
+      onClick={() => saveTree(props.crossTree, [...nodeMap.values()], edges)}
     >
       Save
     </button>,
@@ -397,11 +514,10 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   ];
 
   let enforcedSex: Sex | undefined;
+  const currNode = nodeMap.get(currNodeId);
   if (drawerState === 'cross')
     enforcedSex =
-      treeRef.current.getCurrNode().data?.sex === Sex.Male
-        ? Sex.Hermaphrodite
-        : Sex.Male;
+      currNode?.data?.sex === Sex.Male ? Sex.Hermaphrodite : Sex.Male;
 
   return (
     <>
@@ -422,7 +538,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
             <div className='grow'>
               <div className='h-full w-full'>
                 <CrossFlow
-                  nodes={nodes}
+                  nodes={[...nodeMap.values()]}
                   edges={edges}
                   onNodesChange={onNodesChange}
                   onEdgesChange={onEdgesChange}
@@ -449,20 +565,20 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
                   buttonText='Create'
                   content={noteFormContent}
                   setContent={setNoteFormContent}
-                  callback={getNoteFormCallback()}
+                  callback={getOnSubmitForNoteForm()}
                 />
-              ) : drawerState === 'replaceNote' ? (
+              ) : drawerState === 'editNote' ? (
                 <NoteForm
                   header='Edit note'
                   buttonText='Save changes'
                   content={noteFormContent}
                   setContent={setNoteFormContent}
-                  callback={getNoteFormCallback()}
+                  callback={getOnSubmitForNoteForm()}
                 />
               ) : (
                 <CrossNodeForm
                   getFilteredAlleles={getFilteredAlleles}
-                  onSubmitCallback={getCrossNodeFormCallback()}
+                  onSubmitCallback={getOnSubmitForStrainForm()}
                   createAlleleFromRecord={Allele.createFromRecord}
                   enforcedSex={enforcedSex}
                 />
@@ -473,9 +589,12 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       </div>
     </>
   );
+  // #endregion templating
 };
 
-const saveTree = (tree: CrossTree): void => {
+const saveTree = (tree: CrossTree, nodes: Node[], edges: Edge[]): void => {
+  tree.nodes = nodes;
+  tree.edges = edges;
   tree.lastSaved = new Date();
   updateTree(tree.generateRecord(true))
     .then(() => toast.success('Successfully saved design'))
