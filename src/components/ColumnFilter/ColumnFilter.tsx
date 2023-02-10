@@ -191,7 +191,7 @@ export const ColumnFilter = <T,>(props: iColumnFilterProps<T>): JSX.Element => {
       {props.field !== undefined ? (
         <div className='mb-4 p-3'>
           <div className='mb-4 flex w-full justify-between text-3xl'>
-            {props.field.title}
+            {props.field.title + " Filters"}
           </div>
           {props.columnFilters.map((filterType, i) => (
             <FilterEntry

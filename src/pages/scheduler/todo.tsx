@@ -3,6 +3,7 @@ import { TaskView } from 'components/TaskView/TaskView';
 import { Task } from 'models/frontend/Task/Task';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import { GiCheckboxTree as TreeIcon } from 'react-icons/gi';
 
 export const SchedulePage = (): JSX.Element => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -28,6 +29,15 @@ export const SchedulePage = (): JSX.Element => {
 
   return (
     <div>
+      {tasks.length === 0 && (
+        <div className='m-14 flex flex-col items-center justify-center'>
+          <h2 className='text-2xl'>No scheduled tasks yet.</h2>
+          <h3 className='my-4 text-xl'>
+            Use the Cross Designer to send cross tasks to the scheduler.
+          </h3>
+          <TreeIcon className='my-4 text-9xl text-base-300' />
+        </div>
+      )}
       <TaskView refresh={refreshTasks} tasks={tasks} updateTask={updateTask} />
     </div>
   );

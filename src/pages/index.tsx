@@ -4,6 +4,7 @@ import { getFilteredTrees, insertTree } from 'api/crossTree';
 import { db_Tree } from 'models/db/db_Tree';
 import SavedTreeCard from 'components/SavedTreeCard/SavedTreeCard';
 import { TopNav } from 'components/TopNav/TopNav';
+import { GiEarthWorm as WormIcon } from 'react-icons/gi';
 
 const CrossDesignerPage = (): JSX.Element => {
   const [crossTrees, setCrossTrees] = useState<CrossTree[] | null>(null);
@@ -48,11 +49,21 @@ const CrossDesignerPage = (): JSX.Element => {
   return (
     <>
       <TopNav title={'Cross Designer'} buttons={[newTreeButton]} />
-      <div className='m-8 flex flex-wrap gap-10'>
-        {crossTrees?.map((crossTree) => {
-          return <SavedTreeCard key={crossTree.id} tree={crossTree} />;
-        })}
-      </div>
+      {crossTrees !== null && crossTrees.length === 0 ? (
+        <div className='m-14 flex flex-col items-center justify-center'>
+          <h2 className='text-2xl'>Welcome to the Cross Designer!</h2>
+          <h2 className='my-4 flex flex-row text-xl'>
+            Click the &quot;New Tree&quot; button to start.
+          </h2>
+          <WormIcon className='my-8 text-9xl text-base-300' />
+        </div>
+      ) : (
+        <div className='m-8 flex flex-wrap gap-10'>
+          {crossTrees?.map((crossTree) => {
+            return <SavedTreeCard key={crossTree.id} tree={crossTree} />;
+          })}
+        </div>
+      )}
     </>
   );
 };
