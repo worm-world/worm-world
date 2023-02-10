@@ -1,12 +1,12 @@
 import { Sex } from 'models/enums';
 import { Strain } from 'models/frontend/Strain/Strain';
-import { MenuItem } from 'components/CrossNodeMenu/CrossNodeMenu';
 import {
   Exclude,
   instanceToPlain,
   plainToInstance,
   Type,
 } from 'class-transformer';
+import { MenuItem } from 'components/Menu/Menu';
 
 export interface iCrossNodeModel {
   sex: Sex;

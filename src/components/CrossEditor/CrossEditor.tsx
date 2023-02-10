@@ -22,7 +22,7 @@ import { insertTree, updateTree } from 'api/crossTree';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { Sex } from 'models/enums';
-import { MenuItem } from 'components/CrossNodeMenu/CrossNodeMenu';
+import { MenuItem } from 'components/Menu/Menu';
 import { BsUiChecks as ScheduleIcon } from 'react-icons/bs';
 import { TbArrowsCross as CrossIcon } from 'react-icons/tb';
 import { ImLoop2 as SelfCrossIcon } from 'react-icons/im';
@@ -415,10 +415,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
             checked={rightDrawerOpen}
           />
           <div className='drawer-content flex h-screen flex-col'>
-            <EditorTop
-              name={props.crossTree.name ?? ''}
-              buttons={buttons}
-            ></EditorTop>
+            <EditorTop tree={props.crossTree} buttons={buttons}></EditorTop>
             <div className='grow'>
               <div className='h-full w-full'>
                 <CrossFlow

@@ -1,13 +1,23 @@
 import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import EditorTop from 'components/EditorTop/EditorTop';
+import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { vi } from 'vitest';
 
 describe('Editor Top', () => {
   test('Component renders', async () => {
     render(
       <EditorTop
-        name='top title'
+        tree={
+          new CrossTree({
+            name: 'My Tree',
+            description: '',
+            settings: { longName: false, contents: false },
+            nodes: [],
+            edges: [],
+            lastSaved: new Date(),
+          })
+        }
         buttons={[<button key='only'>Button title</button>]}
       />
     );
@@ -15,12 +25,21 @@ describe('Editor Top', () => {
     expect(screen.getByRole('button')).toBeDefined();
   });
 
-  test('Component renders', async () => {
+  test('Button callback called on click', async () => {
     user.setup();
     const spyFn = vi.fn();
     render(
       <EditorTop
-        name='top title'
+        tree={
+          new CrossTree({
+            name: 'My Tree',
+            description: '',
+            settings: { longName: false, contents: false },
+            nodes: [],
+            edges: [],
+            lastSaved: new Date(),
+          })
+        }
         buttons={[
           <button key='only' onClick={spyFn}>
             Button title

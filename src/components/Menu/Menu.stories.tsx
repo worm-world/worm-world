@@ -1,21 +1,21 @@
 import { StoryFn, Meta } from '@storybook/react';
 import { BiBaseball, BiBody, BiChair } from 'react-icons/bi';
-import {
-  CrossNodeMenu,
-  iCrossNodeMenu,
-} from 'components/CrossNodeMenu/CrossNodeMenu';
+import { Menu, iMenu } from 'components/Menu/Menu';
+import { BsLightningCharge as MenuIcon } from 'react-icons/bs';
 
 export default {
-  title: 'Components/CrossNodeMenu',
-  component: CrossNodeMenu,
-} as Meta<typeof CrossNodeMenu>;
+  title: 'Components/Menu',
+  component: Menu,
+} as Meta<typeof Menu>;
 
-const Template: StoryFn<typeof CrossNodeMenu> = (args: iCrossNodeMenu) => {
-  return <CrossNodeMenu {...args}></CrossNodeMenu>;
+const Template: StoryFn<typeof Menu> = (args: iMenu) => {
+  return <Menu {...args}></Menu>;
 };
 
 export const Primary = Template.bind({});
 Primary.args = {
+  title: 'Menu',
+  icon: <MenuIcon />,
   items: [
     {
       icon: <BiBaseball />,

@@ -5,7 +5,8 @@ import { IoMale, IoFemale, IoMaleFemale } from 'react-icons/io5';
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
-import { CrossNodeMenu } from 'components/CrossNodeMenu/CrossNodeMenu';
+import { Menu } from 'components/Menu/Menu';
+import { BsLightningCharge as MenuIcon } from 'react-icons/bs';
 
 const getSexIcon = (sex: Sex, toggleSex?: () => void): JSX.Element => {
   switch (sex) {
@@ -44,7 +45,7 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
             </div>
             <div className='mt-1 text-accent'>{probability}</div>
             {props.model.getMenuItems !== undefined && (
-              <CrossNodeMenu items={menuItems} />
+              <Menu title='Actions' icon={<MenuIcon />} items={menuItems} />
             )}
           </div>
           <div className='my-2 overflow-x-auto px-3 pb-2'>

@@ -1,9 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { CrossNodeMenu } from 'components/CrossNodeMenu/CrossNodeMenu';
+import { Menu } from 'components/Menu/Menu';
 import { vi } from 'vitest';
+import { BsLightningCharge as MenuIcon } from 'react-icons/bs';
 
-describe('CrossNodeMenu', () => {
+describe('Menu', () => {
   test('renders correctly', () => {
     const basicItems = [
       {
@@ -15,8 +16,8 @@ describe('CrossNodeMenu', () => {
         menuCallback: () => {},
       },
     ];
-    render(<CrossNodeMenu items={basicItems} />);
-    const menu = screen.getByTestId('crossNodeMenu');
+    render(<Menu title='menu' icon={<MenuIcon />} items={basicItems} />);
+    const menu = screen.getByTestId('menu');
     expect(menu).toBeDefined();
 
     const options = screen.getAllByRole('listitem');
@@ -25,9 +26,9 @@ describe('CrossNodeMenu', () => {
 
   test("menu with no items doesn't show dropdown when clicked", async () => {
     const user = userEvent.setup();
-    render(<CrossNodeMenu items={[]} />);
+    render(<Menu title='menu' icon={<MenuIcon />} items={[]} />);
 
-    const menu = screen.getByTestId('crossNodeMenu');
+    const menu = screen.getByTestId('menu');
     expect(menu).toBeDefined();
 
     let options = screen.queryAllByRole('listitem');
@@ -58,9 +59,9 @@ describe('CrossNodeMenu', () => {
       },
     ];
 
-    render(<CrossNodeMenu items={items} />);
+    render(<Menu title='menu' icon={<MenuIcon />} items={items} />);
 
-    const menu = screen.getByTestId('crossNodeMenu');
+    const menu = screen.getByTestId('menu');
     expect(menu).toBeDefined();
 
     const options = screen.getAllByText(/option/);
