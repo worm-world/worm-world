@@ -147,9 +147,9 @@ const TableRows = <T,>({ data, columns }: TableRowsProps<T>): JSX.Element => {
   const rows = data.map((row, index) => {
     return (
       <tr key={`row-${index}`} className='rounded-none'>
-        <th className='m-1 w-4 border-none  pr-3 font-bold text-base-300'>
+        <td className='m-1 w-4 border-none  pr-3 font-bold text-base-300'>
           {index}
-        </th>
+        </td>
         {columns.map((column, index2) => {
           return (
             <td

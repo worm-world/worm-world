@@ -36,7 +36,7 @@ const field: Field<db_Allele> = {
 describe('ColumnFilter', () => {
   it('renders', () => {
     render(<ColumnFilterWrapper field={field} />);
-    expect(screen.getByText('Allele Name')).toBeInTheDocument();
+    expect(screen.getByText('Allele Name Filters')).toBeInTheDocument();
   });
 
   it('renders a text input', () => {
