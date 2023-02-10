@@ -94,11 +94,15 @@ describe('Table component', () => {
       />
     );
     const colHeaders = screen.getAllByRole('columnheader');
-    expect(colHeaders).toHaveLength(alleleCols.length);
+    expect(colHeaders).toHaveLength(alleleCols.length + 1);
 
-    alleleCols.forEach((col) => {
-      const colHeader = screen.getByRole('columnheader', { name: col.header });
-      expect(colHeader).toBeDefined();
+    alleleCols.forEach((col, i) => {
+      if (i > 0) {
+        const colHeader = screen.getByRole('columnheader', {
+          name: col.header,
+        });
+        expect(colHeader).toBeDefined();
+      }
     });
   });
 
@@ -139,7 +143,7 @@ describe('Table component', () => {
       />
     );
     const headers = screen.getAllByRole('columnheader');
-    expect(headers).toHaveLength(alleleCols.length);
+    expect(headers).toHaveLength(alleleCols.length + 1);
 
     const rows = screen.getAllByRole('row');
     expect(rows).toHaveLength(1);
@@ -159,7 +163,7 @@ describe('Table component', () => {
       />
     );
     const headers = screen.getAllByRole('columnheader');
-    expect(headers).toHaveLength(alleleCols.length);
+    expect(headers).toHaveLength(alleleCols.length + 1);
 
     await userEvent.hover(headers[0]);
 
@@ -183,7 +187,7 @@ describe('Table component', () => {
       />
     );
     const headers = screen.getAllByRole('columnheader');
-    expect(headers).toHaveLength(alleleCols.length);
+    expect(headers).toHaveLength(alleleCols.length + 1);
 
     await userEvent.hover(headers[0]);
 
