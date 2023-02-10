@@ -61,7 +61,7 @@ const TableHeaderCell = <T,>(props: TableHeaderCellProps<T>): JSX.Element => {
   return (
     <th
       key={`headCell-${props.index}`}
-      className='py-1font-normal border-2 border-base-content bg-primary px-2 text-primary-content shadow-md'
+      className='border-2 border-base-300 bg-base-200'
       onMouseOver={() => setHovered(true)}
       onMouseOut={() => setHovered(false)}
     >
@@ -80,7 +80,7 @@ const TableHeaderCell = <T,>(props: TableHeaderCellProps<T>): JSX.Element => {
             }
           />
         </button>
-        <h2 className='px-1 text-2xl'>{props.column.header}</h2>
+        <h2 className='px-1'>{props.column.header}</h2>
         <button
           className='m-0 cursor-pointer p-0'
           title='filter-icon'
@@ -123,7 +123,10 @@ const TableHeader = <T,>(props: TableHeaderProps<T>): JSX.Element => {
   });
   return (
     <thead>
-      <tr>{headers}</tr>
+      <tr className='rounded-none'>
+        <th className='m-0 rounded-none border-r-2 border-base-300 bg-base-100'></th>
+        {headers}
+      </tr>
     </thead>
   );
 };
@@ -143,14 +146,18 @@ const formatData = (d: any): ReactNode => {
 const TableRows = <T,>({ data, columns }: TableRowsProps<T>): JSX.Element => {
   const rows = data.map((row, index) => {
     return (
-      <tr key={`row-${index}`}>
+      <tr key={`row-${index}`} className='rounded-none'>
+        <th className='m-1 w-4 border-none  pr-3 font-bold text-base-300'>
+          {index}
+        </th>
         {columns.map((column, index2) => {
           return (
             <td
               key={`cell-${index2}`}
-              className={`border-2 border-base-content px-2 py-1 ${
-                row[column.key] == null ? 'bg-base-300' : ''
-              }`}
+              className={
+                'border-2 border-base-300'
+                //  + (row[column.key] == null ? ' bg-base-200' : '')
+              }
             >
               {formatData(row[column.key])}
             </td>
@@ -232,8 +239,8 @@ export const Table = <T, K>(props: TableProps<T, K>): JSX.Element => {
   };
 
   return (
-    <>
-      <table className='w-full'>
+    <div className='flex flex-col items-center overflow-x-auto'>
+      <table className='w-min-content table-compact m-auto table pl-20'>
         <TableHeader
           runMyFilters={runMyFilters}
           columns={props.columns}
@@ -269,6 +276,6 @@ export const Table = <T, K>(props: TableProps<T, K>): JSX.Element => {
           />
         )}
       </label>
-    </>
+    </div>
   );
 };

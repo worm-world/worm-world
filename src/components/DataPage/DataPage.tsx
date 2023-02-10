@@ -68,7 +68,7 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
             ></DataImportForm>
           </div>
         </div>
-        <div className='px-4'>
+        <div className='px-4 pb-12'>
           <Table
             runFilters={runFilters}
             nameMapping={props.nameMapping}
