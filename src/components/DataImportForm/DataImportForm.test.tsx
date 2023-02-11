@@ -10,6 +10,7 @@ describe('DataImportForm ', () => {
   test('successfully renders', () => {
     render(
       <DataImportForm
+        title='Empty Form'
         dataName={'Empty Form'}
         fields={[]}
         onSubmitCallback={vi.fn}
@@ -26,6 +27,7 @@ describe('DataImportForm ', () => {
 
     render(
       <DataImportForm
+        title='Empty Form'
         dataName={'Empty Form'}
         fields={[]}
         onSubmitCallback={onSubmit}
@@ -65,6 +67,7 @@ describe('DataImportForm ', () => {
 
     render(
       <DataImportForm
+        title='Allele Form'
         dataName={'Allele Form'}
         fields={fields}
         onSubmitCallback={vi.fn()}

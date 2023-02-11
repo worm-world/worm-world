@@ -16,6 +16,8 @@ describe('Cross node form', () => {
       crossNodeModel = new CrossNodeModel({
         sex,
         strain,
+        isChild: false,
+        isParent: false,
       });
     };
 

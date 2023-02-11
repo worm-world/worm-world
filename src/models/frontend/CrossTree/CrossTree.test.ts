@@ -1,5 +1,5 @@
 import { FlowType } from 'components/CrossFlow/CrossFlow';
-import { MenuItem } from 'components/CrossNodeMenu/CrossNodeMenu';
+import { MenuItem } from 'components/Menu/Menu';
 import { Sex } from 'models/enums';
 import { iCrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
@@ -68,7 +68,7 @@ describe('cross tree', () => {
     strain?: Strain;
     getMenuItems?: (node: iCrossNodeModel) => MenuItem[];
   }): iCrossNodeModel => {
-    return { sex, strain, getMenuItems };
+    return { sex, strain, getMenuItems, isChild: false, isParent: false };
   };
 
   const generateStrain = ({

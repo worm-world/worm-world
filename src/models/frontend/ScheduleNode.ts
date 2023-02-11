@@ -1,9 +1,9 @@
-import CrossNode from 'models/frontend/CrossNode/CrossNode';
+import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 
 export default interface ScheduleNode {
   id: number;
   scheduleTreeId: number;
-  crossNode: CrossNode;
+  crossNode: CrossNodeModel;
   deadline: Date;
   completed: Boolean;
   notes: string;
