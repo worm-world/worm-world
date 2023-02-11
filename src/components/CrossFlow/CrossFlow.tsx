@@ -10,6 +10,7 @@ import ReactFlow, {
   EdgeChange,
   NodeChange,
   Connection,
+  ReactFlowInstance,
 } from 'reactflow';
 import { toPng, toSvg } from 'html-to-image';
 import { FiShare } from 'react-icons/fi';
@@ -92,9 +93,11 @@ const saveImg = (saveMethod: SaveMethod): void => {
 };
 
 interface iCrossFlowProps {
+  innerRef?: any;
   className?: string;
   nodes: Node[];
   edges: Edge[];
+  onInit?: (reactFlowInstance: ReactFlowInstance) => void;
   onNodesChange: (changes: NodeChange[]) => void;
   onEdgesChange: (changes: EdgeChange[]) => void;
   onConnect: (connection: Connection) => void;
@@ -149,11 +152,13 @@ const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
 
   return (
     <ReactFlow
+      ref={props.innerRef}
       className={props.className}
       zoomOnScroll={true}
       nodeTypes={nodeTypes}
       fitView
       defaultViewport={{ x: 0, y: 0, zoom: 5 }}
+      onInit={props.onInit}
       nodes={props.nodes}
       edges={props.edges}
       onNodesChange={props.onNodesChange}

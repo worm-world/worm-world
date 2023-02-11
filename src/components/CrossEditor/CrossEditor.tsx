@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { getFilteredAlleles } from 'api/allele';
 import CrossFlow, { FlowType } from 'components/CrossFlow/CrossFlow';
 import CrossNodeForm from 'components/CrossNodeForm/CrossNodeForm';
@@ -16,10 +16,13 @@ import {
   NodeChange,
   XYPosition,
   useEdgesState,
+  ReactFlowInstance,
 } from 'reactflow';
 import { insertTree, updateTree } from 'api/crossTree';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { Sex } from 'models/enums';
+import { FiPlusCircle as AddIcon } from 'react-icons/fi';
+import { FaRegStickyNote as NoteIcon } from 'react-icons/fa';
 import { MenuItem } from 'components/Menu/Menu';
 import { BsUiChecks as ScheduleIcon } from 'react-icons/bs';
 import { TbArrowsCross as CrossIcon } from 'react-icons/tb';
@@ -29,9 +32,19 @@ import { insertDbTasks } from 'api/task';
 import { useNavigate } from 'react-router-dom';
 import NoteForm from 'components/NoteForm/NoteForm';
 import { NoteNodeProps } from 'components/NoteNode/NoteNodeProps';
+import {
+  ContextMenu,
+  useContextMenuState,
+} from 'components/ContextMenu/ContextMenu';
 
 export interface CrossEditorProps {
   crossTree: CrossTree;
+  /*
+   * This is used to determine if the context menu should be shown.
+   * In attempting to use a right click event in testing, the context menu never shows up.
+   * Not sure why, but this is a workaround.
+   */
+  testing?: boolean;
 }
 
 type DrawerState = 'addStrain' | 'cross' | 'addNote' | 'editNote';
@@ -46,6 +59,17 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   const [nodeMap, setNodeMap] = useState<Map<string, Node>>(
     new Map(props.crossTree.nodes.map((node) => [node.id, node]))
   );
+  const [reactFlowInstance, setReactFlowInstance] =
+    useState<ReactFlowInstance>();
+
+  /**
+   * This function sets up right click handler overrides that check if the right click is on an HTML
+   * element that has a class that matches any of the passed in class names.
+   * If it does, then that click fires activates the context menu and updates the x & y click position.
+   */
+  const { rightClickXPos, rightClickYPos, showRightClickMenu } =
+    useContextMenuState(['react-flow__pane'], props.testing);
+  const flowRef = useRef<HTMLElement>(null);
 
   /**
    * sets nodeMap state to include passed node
@@ -60,11 +84,8 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   const onNodesChange = (changes: NodeChange[]): void => {
     const newNodeMap = new Map();
     const nodes = [...nodeMap.values()];
-    // nodes.forEach((node) => console.log(node.position));
     const movedNodes = applyNodeChanges(changes, nodes);
     movedNodes.forEach((node) => newNodeMap.set(node.id, node));
-
-    // movedNodes.forEach((node) => console.log('moved:', node.position));
     setNodeMap(newNodeMap);
   };
 
@@ -108,7 +129,6 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         }
         return node;
       });
-
       refreshedNodes.forEach((node) => nodeMap.set(node.id, node));
       return new Map(nodeMap);
     });
@@ -212,12 +232,6 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         );
         return nodeMap;
       }
-      const graphNodes = [...nodeMap.values()];
-      const [childNodes] = CrossTree.getDecendentNodesAndEdges(
-        graphNodes,
-        edges,
-        node
-      );
 
       const data: CrossNodeModel = node.data;
       if (data.sex === undefined || data.sex === null) return nodeMap;
@@ -232,16 +246,29 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         data.probability,
         node.id
       );
-
       // update the map with the new data for the node
       nodeMap.set(node.id, newNode);
       return new Map(nodeMap);
     });
   };
 
+  const getNodePositionFromLastClick = (): XYPosition => {
+    const bounds = flowRef?.current?.getBoundingClientRect() ?? {
+      left: 0,
+      top: 0,
+    };
+    return (
+      reactFlowInstance?.project({
+        x: rightClickXPos - bounds.left,
+        y: rightClickYPos - bounds.top,
+      }) ?? { x: 0, y: 0 }
+    );
+  };
+
   /** Adds note to editor */
   const addNote = (): void => {
-    const newNote = createNote(noteFormContent, { x: 0, y: 0 });
+    const position = getNodePositionFromLastClick();
+    const newNote = createNote(noteFormContent, position);
     addToOrUpdateNodeMap(newNote);
     setRightDrawerOpen(false);
   };
@@ -264,7 +291,8 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
 
   /** Adds a "floating" strain node to the editor */
   const addStrain = (sex: Sex, strain: Strain): void => {
-    const newStrain = createStrainNode(sex, strain, { x: 0, y: 0 }, false);
+    const position = getNodePositionFromLastClick();
+    const newStrain = createStrainNode(sex, strain, position, false);
     addToOrUpdateNodeMap(newStrain);
     setRightDrawerOpen(false);
   };
@@ -316,7 +344,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       const childEdges = childNodes.map((node) =>
         createEdge(selfIcon.id, node.id)
       );
-      setEdges([...edges, edgeToIcon, ...childEdges]);
+      setEdges((edges) => [...edges, edgeToIcon, ...childEdges]);
       return nodeMap;
     });
   };
@@ -381,7 +409,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       [currNode, xIcon, formNode, ...childrenNodes].forEach((node) =>
         nodeMap.set(node.id, node)
       );
-      setEdges([...edges, e1, e2, ...childrenEdges]);
+      setEdges((edges) => [...edges, e1, e2, ...childrenEdges]);
       setRightDrawerOpen(false);
 
       return new Map(nodeMap);
@@ -490,27 +518,6 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     >
       Save
     </button>,
-    <button
-      key='addNewNode'
-      className='btn'
-      onClick={() => {
-        setRightDrawerOpen(true);
-        setDrawerState('addStrain');
-      }}
-    >
-      Add Cross Node
-    </button>,
-    <button
-      className='btn'
-      key='addNotes'
-      onClick={() => {
-        setDrawerState('addNote');
-        setNoteFormContent('');
-        setRightDrawerOpen(true);
-      }}
-    >
-      Add Note
-    </button>,
   ];
 
   let enforcedSex: Sex | undefined;
@@ -531,10 +538,43 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
             checked={rightDrawerOpen}
           />
           <div className='drawer-content flex h-screen flex-col'>
+            {showRightClickMenu && (
+              <ContextMenu xPos={rightClickXPos} yPos={rightClickYPos}>
+                <li
+                  onClick={() => {
+                    setRightDrawerOpen(true);
+                    setDrawerState('addStrain');
+                  }}
+                >
+                  <button className='flex flex-row' name='add-cross-node'>
+                    <AddIcon className='text-xl text-base-content' />
+                    <p>Add Cross Node</p>
+                  </button>
+                </li>
+                <li
+                  onClick={() => {
+                    setDrawerState('addNote');
+                    setNoteFormContent('');
+                    setRightDrawerOpen(true);
+                  }}
+                >
+                  <button className='flex flex-row' name='add-note'>
+                    <div>
+                      <NoteIcon className='fill-base-content text-xl' />
+                    </div>
+                    <p>Add Note</p>
+                  </button>
+                </li>
+              </ContextMenu>
+            )}
             <EditorTop tree={props.crossTree} buttons={buttons}></EditorTop>
             <div className='grow'>
               <div className='h-full w-full'>
                 <CrossFlow
+                  innerRef={flowRef}
+                  onInit={(flow) => {
+                    setReactFlowInstance(flow);
+                  }}
                   nodes={[...nodeMap.values()]}
                   edges={edges}
                   onNodesChange={onNodesChange}

@@ -13,15 +13,20 @@ const getSexIcon = (
   isParent: boolean,
   toggleSex?: () => void
 ): JSX.Element => {
-  const toggleStyling = isParent ? 'opacity-50' : '';
-  switch (sex) {
-    case Sex.Male:
-      return <IoMale className={toggleStyling} onClick={toggleSex} />;
-    case Sex.Hermaphrodite:
-      return <IoMaleFemale className={toggleStyling} onClick={toggleSex} />;
-    case Sex.Female:
-      return <IoFemale className={toggleStyling} onClick={toggleSex} />;
-  }
+  const toggleStyling = 'text-base ' + (isParent ? 'opacity-50' : '');
+  return (
+    <div
+      className={
+        'btn-ghost btn-xs btn m-1 ring-0 hover:bg-base-200 hover:ring-0' +
+        (isParent ? ' btn-transparent hover:bg-transparent' : '')
+      }
+      onClick={toggleSex}
+    >
+      {sex === Sex.Male && <IoMale className={toggleStyling} />}
+      {sex === Sex.Hermaphrodite && <IoMaleFemale className={toggleStyling} />}
+      {sex === Sex.Female && <IoFemale className={toggleStyling} />}
+    </div>
+  );
 };
 
 export interface iCrossNodeProps {
@@ -42,16 +47,15 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
       {props.model !== undefined && (
         <div
           data-testid='crossNode'
-          className='h-28 w-64 rounded bg-base-100 shadow hover:cursor-grab'
+          className='hover:cursor-point h-28 w-64 rounded bg-base-100 shadow'
         >
-          <div className='flex h-6 justify-between'>
-            <div className=' btn-ghost btn-xs btn m-1 text-xl'>
-              {getSexIcon(
-                props.model.sex,
-                props.model.isParent,
-                props.model.toggleSex
-              )}
-            </div>
+          <div className='flex h-7 justify-between'>
+            {getSexIcon(
+              props.model.sex,
+              props.model.isParent,
+              props.model.toggleSex
+            )}
+
             <div className='mt-1 text-accent'>{probability}</div>
             {props.model.getMenuItems !== undefined && (
               <Menu title='Actions' icon={<MenuIcon />} items={menuItems} />

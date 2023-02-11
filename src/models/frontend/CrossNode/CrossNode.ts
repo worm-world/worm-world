@@ -36,6 +36,7 @@ export class CrossNodeModel implements iCrossNodeModel {
       this.getMenuItems = crossNodeModel.getMenuItems;
       this.toggleSex = crossNodeModel.toggleSex;
       this.isParent = this.toggleSex === undefined;
+      this.probability = crossNodeModel.probability;
     } else {
       this.sex = Sex.Male;
       this.strain = new Strain({ allelePairs: [] });

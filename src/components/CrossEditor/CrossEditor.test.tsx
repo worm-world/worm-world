@@ -5,6 +5,15 @@ import * as mockCrossTrees from 'models/frontend/CrossTree/CrossTree.mock';
 import CrossEditor from 'components/CrossEditor/CrossEditor';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { BrowserRouter } from 'react-router-dom';
+import { ReactFlowProvider } from 'reactflow';
+
+const Wrapper = ({ children }: { children: JSX.Element }): JSX.Element => {
+  return (
+    <BrowserRouter>
+      <ReactFlowProvider>{children}</ReactFlowProvider>
+    </BrowserRouter>
+  );
+};
 
 describe('CrossEditor', () => {
   test('dummy test', () => {});
@@ -17,8 +26,8 @@ describe('CrossEditor', () => {
   });
 
   const renderComponent = (tree: CrossTree): void => {
-    render(<CrossEditor crossTree={tree} />, {
-      wrapper: BrowserRouter, // Need this wrapper since the component uses the react router
+    render(<CrossEditor crossTree={tree} testing={true} />, {
+      wrapper: Wrapper, // Need this wrapper since the component uses the react router
     });
   };
 
