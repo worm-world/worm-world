@@ -17,7 +17,10 @@ export const Menu = (props: iMenu): JSX.Element => {
       className='dropdown z-10'
       data-testid={'menu'}
     >
-      <label tabIndex={0} className='btn-ghost btn-xs btn m-1 text-xl'>
+      <label
+        tabIndex={0}
+        className='btn-ghost btn-xs btn m-1 text-base ring-0 hover:bg-base-200 hover:ring-0'
+      >
         {props.icon}
       </label>
       {props.items.length > 0 && (

@@ -4,6 +4,7 @@ import CrossEditor, {
 } from 'components/CrossEditor/CrossEditor';
 import * as mockCrossTree from 'models/frontend/CrossTree/CrossTree.mock';
 import { BrowserRouter } from 'react-router-dom';
+import { ReactFlowProvider } from 'reactflow';
 
 export default {
   title: 'Components/CrossEditor',
@@ -13,7 +14,9 @@ export default {
 const Template: StoryFn<typeof CrossEditor> = (args: CrossEditorProps) => {
   return (
     <BrowserRouter>
-      <CrossEditor {...args}></CrossEditor>;
+      <ReactFlowProvider>
+        <CrossEditor {...args}></CrossEditor>;
+      </ReactFlowProvider>
     </BrowserRouter>
   );
 };
