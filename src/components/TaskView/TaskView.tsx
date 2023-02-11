@@ -15,11 +15,17 @@ interface iTaskProps {
 }
 
 const TaskItem = (props: iTaskProps): JSX.Element => {
+  const shouldSwap =
+    props.task.action === 'Cross' &&
+    props.task.strain1.sex === 2 &&
+    props.task.strain2 !== undefined;
+  const leftStrain = shouldSwap ? props.task.strain2 : props.task.strain1;
+  const rightStrain = shouldSwap ? props.task.strain1 : props.task.strain2;
   return (
     <>
       <div className='flex h-40 items-center justify-items-start border-2 border-base-300 bg-base-200 shadow-md'>
-        <div className='w-min-content h-full bg-base-100 pr-7 pl-7'>
-          <div className='flex h-40 flex-col justify-around'>
+        <div className='h-full w-60 bg-base-100 pr-7 pt-4 pl-4'>
+          <div className='flex h-40  flex-col justify-around'>
             <div className='flex flex-row'>
               <input
                 type='checkbox'
@@ -44,7 +50,7 @@ const TaskItem = (props: iTaskProps): JSX.Element => {
         </div>
         <div className='mr-4 flex grow flex-row items-center justify-between py-8 pl-6 pr-3'>
           <div className='flex flex-row justify-center'>
-            <CrossNode model={props.task.strain1} />
+            <CrossNode model={leftStrain} />
             <div className='h-full pb-4'>
               <div className='m-8 mx-6 mb-2 h-16 w-16 rounded-full border-2 border-neutral bg-accent text-accent-content'>
                 <div className='flex h-full items-center justify-center'>
@@ -73,10 +79,9 @@ const TaskItem = (props: iTaskProps): JSX.Element => {
                 </div>
               </div>
             </div>
-            {props.task.action === 'Cross' &&
-              props.task.strain2 !== undefined && (
-                <CrossNode model={props.task.strain2} />
-              )}
+            {props.task.action === 'Cross' && rightStrain !== undefined && (
+              <CrossNode model={rightStrain} />
+            )}
           </div>
           <textarea
             // value={props.task.notes ?? ""}
