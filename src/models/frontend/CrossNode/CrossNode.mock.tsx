@@ -56,13 +56,16 @@ export const getMenuItems = (node: iCrossNodeModel): MenuItem[] => {
 export const empty = new CrossNodeModel({
   sex: Sex.Hermaphrodite,
   strain: new Strain({ name: 'empty', allelePairs: [] }),
+  isParent: false,
+  isChild: false,
   getMenuItems,
 });
 
 export const emptyMale = new CrossNodeModel({
   sex: Sex.Male,
   strain: new Strain({ name: 'empty', notes: '', allelePairs: [] }),
-
+  isParent: false,
+  isChild: false,
   getMenuItems,
 });
 
@@ -82,6 +85,8 @@ export const wild = new CrossNodeModel({
       }), // eca
     ],
   }),
+  isParent: false,
+  isChild: false,
   getMenuItems,
 });
 
@@ -123,7 +128,8 @@ const mutatedStrain: Strain = new Strain({
 export const mutated = new CrossNodeModel({
   sex: Sex.Male,
   strain: mutatedStrain,
-
+  isParent: false,
+  isChild: false,
   getMenuItems,
 });
 
@@ -140,6 +146,8 @@ export const smallMutated = new CrossNodeModel({
     ],
     notes: '',
   }),
+  isParent: false,
+  isChild: false,
   getMenuItems,
 });
 
@@ -158,9 +166,11 @@ export const badMutationLists = new CrossNodeModel({
         bot: mockAlleles.chromEcaVariation1Allele1,
       }),
     ],
+
     notes: '',
   }),
-
+  isParent: false,
+  isChild: false,
   getMenuItems,
 });
 
@@ -182,7 +192,8 @@ export const badAllele = new CrossNodeModel({
     ],
     notes: '',
   }),
-
+  isParent: false,
+  isChild: false,
   getMenuItems,
 });
 
@@ -198,7 +209,8 @@ export const monoid = new CrossNodeModel({
     ],
     notes: '',
   }),
-
+  isParent: false,
+  isChild: false,
   getMenuItems,
 });
 
@@ -214,7 +226,8 @@ export const diploid = new CrossNodeModel({
     ],
     notes: '',
   }),
-
+  isParent: false,
+  isChild: false,
   getMenuItems,
 });
 
@@ -230,7 +243,8 @@ export const ed3HetMale = new CrossNodeModel({
     ],
     notes: '',
   }),
-
+  isParent: false,
+  isChild: false,
   getMenuItems,
 });
 
@@ -246,6 +260,8 @@ export const ed3HetHerm = new CrossNodeModel({
     ],
     notes: '',
   }),
+  isParent: false,
+  isChild: false,
 });
 
 export const ed3HomoHerm = new CrossNodeModel({
@@ -260,7 +276,8 @@ export const ed3HomoHerm = new CrossNodeModel({
     ],
     notes: '',
   }),
-
+  isParent: false,
+  isChild: false,
   getMenuItems,
 });
 
@@ -275,7 +292,8 @@ export const e204WildMale = new CrossNodeModel({
     ],
     notes: '',
   }),
-
+  isParent: false,
+  isChild: false,
   getMenuItems,
 });
 
@@ -291,7 +309,8 @@ export const e204HomoHerm = new CrossNodeModel({
     ],
     notes: '',
   }),
-
+  isParent: false,
+  isChild: false,
   getMenuItems,
 });
 
@@ -307,7 +326,8 @@ export const e204HetMale = new CrossNodeModel({
     ],
     notes: '',
   }),
-
+  isParent: false,
+  isChild: false,
   getMenuItems,
 });
 
@@ -323,6 +343,8 @@ export const ox802HomoHerm = new CrossNodeModel({
     ],
     notes: '',
   }),
+  isParent: false,
+  isChild: false,
   getMenuItems,
 });
 
@@ -342,7 +364,8 @@ export const e204HetOx802Het = new CrossNodeModel({
     ],
     notes: '',
   }),
-
+  isParent: false,
+  isChild: false,
   getMenuItems,
 });
 
@@ -362,7 +385,8 @@ export const e204HomoOx802HetHerm = new CrossNodeModel({
     ],
     notes: '',
   }),
-
+  isParent: false,
+  isChild: false,
   getMenuItems,
 });
 
@@ -382,6 +406,7 @@ export const e204HomoOx802HomoHerm = new CrossNodeModel({
     ],
     notes: '',
   }),
-
+  isParent: false,
+  isChild: false,
   getMenuItems,
 });
