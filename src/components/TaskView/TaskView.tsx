@@ -50,7 +50,7 @@ const TaskItem = (props: iTaskProps): JSX.Element => {
         </div>
         <div className='mr-4 flex grow flex-row items-center justify-between py-8 pl-6 pr-3'>
           <div className='flex flex-row justify-center'>
-            <CrossNode model={leftStrain} />
+            {leftStrain !== undefined && <CrossNode model={leftStrain} />}
             <div className='h-full pb-4'>
               <div className='m-8 mx-6 mb-2 h-16 w-16 rounded-full border-2 border-neutral bg-accent text-accent-content'>
                 <div className='flex h-full items-center justify-center'>
