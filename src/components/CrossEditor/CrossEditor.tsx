@@ -475,17 +475,17 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     });
   };
 
-  /** Clones the passed nodes data and marks as a parent */
+  /** Clones the passed node's data and optionally marks as a parent/child */
   const copyNodeData = (
     node: Node<CrossNodeModel>,
     { isChild = node.data.isChild, isParent = node.data.isParent }
   ): CrossNodeModel => {
-    // update parent to no longer enable sex toggling
     const updatedParentData = new CrossNodeModel({
       sex: node.data.sex,
       strain: node.data.strain,
       isChild,
       isParent,
+      probability: node.data.probability,
       getMenuItems: () => getCrossNodeMenuItems(node.data, node.id, isParent),
       toggleHetPair: isParent || isChild ? undefined : node.data.toggleHetPair,
       toggleSex: isParent ? undefined : node.data.toggleSex, // disable toggle action
