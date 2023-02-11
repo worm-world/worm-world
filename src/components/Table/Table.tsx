@@ -124,7 +124,7 @@ const TableHeader = <T,>(props: TableHeaderProps<T>): JSX.Element => {
   return (
     <thead>
       <tr className='rounded-none'>
-        <th className='m-0 rounded-none border-r-2 border-base-300 bg-base-100'></th>
+        <th className='m-0 rounded-none opacity-0'></th>
         {headers}
       </tr>
     </thead>
