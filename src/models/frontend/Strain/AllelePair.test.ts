@@ -314,6 +314,20 @@ describe('allele pair', () => {
     expect(pair2.bot.name).toEqual(flipped2.top.name);
   });
 
+  test('.flip() mutates current pair', () => {
+    const pair = new AllelePair({ top: e204, bot: WILD_ALLELE });
+    const oldTop = pair.top;
+    const oldBot = pair.bot;
+
+    pair.flip();
+    expect(pair.top).toBe(oldBot);
+    expect(pair.bot).toBe(oldTop);
+
+    pair.flip();
+    expect(pair.top).toBe(oldTop);
+    expect(pair.bot).toBe(oldBot);
+  });
+
   test('.clone() on homozygous pair', () => {
     const pair = new AllelePair({ top: e204, bot: e204 });
     const clone = pair.clone();

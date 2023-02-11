@@ -32,6 +32,7 @@ import { insertDbTasks } from 'api/task';
 import { useNavigate } from 'react-router-dom';
 import NoteForm from 'components/NoteForm/NoteForm';
 import { NoteNodeProps } from 'components/NoteNode/NoteNodeProps';
+import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import {
   ContextMenu,
   useContextMenuState,
@@ -110,11 +111,14 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
             sex: data.sex,
             strain: data.strain,
             probability: data.probability,
+            isParent: data.isParent,
+            isChild: data.isChild,
             getMenuItems: (model: CrossNodeModel) =>
               getCrossNodeMenuItems(model, node.id, data.isParent),
             toggleSex: data.isParent
               ? undefined
               : () => toggleCrossNodeSex(node.id),
+            toggleHetPair: (pair) => toggleHetPair(pair, node.id),
           });
         } else if (node.type === FlowType.Note) {
           node.data = new NoteNodeProps({
@@ -136,14 +140,23 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
 
   // #region Flow Component Creation
   /** Creates a node representing a strain */
-  const createStrainNode = (
-    sex: Sex,
-    strain: Strain,
-    position: XYPosition,
-    isParent: boolean,
-    probability?: number,
-    id?: string
-  ): Node<CrossNodeModel> => {
+  const createStrainNode = ({
+    sex,
+    strain,
+    position,
+    isParent,
+    isChild,
+    probability,
+    id,
+  }: {
+    sex: Sex;
+    strain: Strain;
+    position: XYPosition;
+    isParent: boolean;
+    isChild: boolean;
+    probability?: number;
+    id?: string;
+  }): Node<CrossNodeModel> => {
     const nodeId = id ?? props.crossTree.createId();
     const strainNode: Node = {
       id: nodeId,
@@ -153,9 +166,12 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         sex,
         strain,
         probability,
+        isParent,
+        isChild,
         getMenuItems: (node: CrossNodeModel) =>
           getCrossNodeMenuItems(node, nodeId, isParent),
         toggleSex: isParent ? undefined : () => toggleCrossNodeSex(nodeId),
+        toggleHetPair: (pair) => toggleHetPair(pair, nodeId),
       }),
       className: 'nowheel',
     };
@@ -238,20 +254,49 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
 
       // need to create a new node with the updated data so the state knows something has changed
       const newSex = data.sex === Sex.Male ? Sex.Hermaphrodite : Sex.Male;
-      const newNode = createStrainNode(
-        newSex,
-        data.strain,
-        node.position,
-        false,
-        data.probability,
-        node.id
-      );
+      const newNode = createStrainNode({
+        sex: newSex,
+        strain: data.strain,
+        position: node.position,
+        isParent: false,
+        isChild: data.isChild,
+        probability: data.probability,
+        id: node.id,
+      });
+
       // update the map with the new data for the node
       nodeMap.set(node.id, newNode);
       return new Map(nodeMap);
     });
   };
 
+  const toggleHetPair = (pair: AllelePair, nodeId: string): void => {
+    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
+      const node = nodeMap.get(nodeId);
+      if (node === undefined || node.type !== FlowType.Strain) {
+        console.error(
+          'yikes - tried to toggle het pair on a node that is undefined/not a strain'
+        );
+        return nodeMap;
+      }
+
+      const data: CrossNodeModel = node.data;
+
+      pair.flip();
+      // replace node with new node of toggled pair
+      const newNode = createStrainNode({
+        sex: data.sex,
+        strain: data.strain,
+        position: node.position,
+        isParent: false, // if toggled before, should be able to toggle again
+        isChild: false,
+        probability: data.probability,
+        id: node.id,
+      });
+      nodeMap.set(newNode.id, newNode);
+      return new Map(nodeMap);
+    });
+  };
   const getNodePositionFromLastClick = (): XYPosition => {
     const bounds = flowRef?.current?.getBoundingClientRect() ?? {
       left: 0,
@@ -292,7 +337,13 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   /** Adds a "floating" strain node to the editor */
   const addStrain = (sex: Sex, strain: Strain): void => {
     const position = getNodePositionFromLastClick();
-    const newStrain = createStrainNode(sex, strain, position, false);
+    const newStrain = createStrainNode({
+      sex,
+      strain,
+      position,
+      isParent: false,
+      isChild: false,
+    });
     addToOrUpdateNodeMap(newStrain);
     setRightDrawerOpen(false);
   };
@@ -325,16 +376,17 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       );
 
       const childNodes = children.map((child, i) => {
-        return createStrainNode(
-          Sex.Hermaphrodite,
-          child.strain,
-          childPositions[i],
-          false,
-          child.prob
-        );
+        return createStrainNode({
+          sex: Sex.Hermaphrodite,
+          strain: child.strain,
+          position: childPositions[i],
+          isParent: false,
+          isChild: true,
+          probability: child.prob,
+        });
       });
 
-      refNode.data = copyNodeAsParent(refNode);
+      refNode.data = copyNodeData(refNode, { isParent: true });
 
       // update state
       [...childNodes, selfIcon, refNode].forEach((node) => {
@@ -366,7 +418,13 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       const strainPos = CrossTree.getCrossStrainPos(currNode);
 
       const xIcon = createXIcon(xIconPos);
-      const formNode = createStrainNode(sex, strain, strainPos, true);
+      const formNode = createStrainNode({
+        sex,
+        strain,
+        position: strainPos,
+        isParent: true,
+        isChild: false,
+      });
 
       const otherStrain: CrossNodeModel = currNode.data;
       const newStrain: CrossNodeModel = formNode.data;
@@ -391,16 +449,17 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       );
 
       const childrenNodes = children.map((child, i) => {
-        return createStrainNode(
-          Sex.Hermaphrodite,
-          child.strain,
-          childPositions[i],
-          false,
-          child.prob
-        );
+        return createStrainNode({
+          sex: Sex.Hermaphrodite,
+          strain: child.strain,
+          position: childPositions[i],
+          isParent: false,
+          isChild: true,
+          probability: child.prob,
+        });
       });
 
-      currNode.data = copyNodeAsParent(currNode);
+      currNode.data = copyNodeData(currNode, { isParent: true });
 
       const childrenEdges = childrenNodes.map((node) =>
         createEdge(xIcon.id, node.id)
@@ -417,13 +476,19 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   };
 
   /** Clones the passed nodes data and marks as a parent */
-  const copyNodeAsParent = (node: Node<CrossNodeModel>): CrossNodeModel => {
+  const copyNodeData = (
+    node: Node<CrossNodeModel>,
+    { isChild = node.data.isChild, isParent = node.data.isParent }
+  ): CrossNodeModel => {
     // update parent to no longer enable sex toggling
     const updatedParentData = new CrossNodeModel({
       sex: node.data.sex,
       strain: node.data.strain,
-      getMenuItems: () => getCrossNodeMenuItems(node.data, node.id, true),
-      toggleSex: undefined, // disable toggle action
+      isChild,
+      isParent,
+      getMenuItems: () => getCrossNodeMenuItems(node.data, node.id, isParent),
+      toggleHetPair: isParent || isChild ? undefined : node.data.toggleHetPair,
+      toggleSex: isParent ? undefined : node.data.toggleSex, // disable toggle action
     });
     return updatedParentData;
   };
@@ -455,28 +520,33 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       icon: <ScheduleIcon />,
       text: 'Schedule',
       menuCallback: () => {
-        const node = nodeMap.get(nodeId);
-        if (node === undefined || node.type !== FlowType.Strain) {
-          console.error(
-            'boooo - the node you are trying to schedule is undefined/not a strain'
-          );
-          return;
-        }
+        // get up to date nodes
+        setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
+          // get up to date edges
+          setEdges((edges) => {
+            const node = nodeMap.get(nodeId);
+            if (node === undefined || node.type !== FlowType.Strain) {
+              console.error(
+                'boooo - the node you are trying to schedule is undefined/not a strain'
+              );
+              return edges;
+            }
 
-        const clonedTree = props.crossTree.clone();
-        clonedTree.nodes = [...nodeMap.values()];
-        clonedTree.edges = edges;
-
-        const tasks = clonedTree.generateTasks(node);
-
-        insertTree(clonedTree.generateRecord(false))
-          .then(
-            async () =>
-              await insertDbTasks(tasks)
-                .then(() => navigate('/scheduler/todo'))
-                .catch((error) => console.error(error))
-          )
-          .catch((error) => console.error(error));
+            saveTree(props.crossTree, [...nodeMap.values()], edges);
+            const clonedTree = props.crossTree.clone();
+            const tasks = clonedTree.generateTasks(node);
+            insertTree(clonedTree.generateRecord(false))
+              .then(
+                async () =>
+                  await insertDbTasks(tasks)
+                    .then(() => navigate('/scheduler/todo'))
+                    .catch((error) => console.error(error))
+              )
+              .catch((error) => console.error(error));
+            return edges;
+          });
+          return nodeMap;
+        });
       },
     };
 

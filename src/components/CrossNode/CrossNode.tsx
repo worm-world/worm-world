@@ -2,6 +2,7 @@ import React from 'react';
 import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import { Sex } from 'models/enums';
 import { IoMale, IoFemale, IoMaleFemale } from 'react-icons/io5';
+import { RiArrowUpDownLine as SwapIcon } from 'react-icons/ri';
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
@@ -42,6 +43,7 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
     props.model.probability !== undefined
       ? `${(props.model.probability * 100).toFixed(2)}%`
       : '';
+  const canToggleHets = !props.model.isParent && !props.model.isChild;
   return (
     <>
       {props.model !== undefined && (
@@ -66,7 +68,11 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
               className='flex min-w-min justify-center text-sm'
               data-testid='crossNodeBody'
             >
-              {getChromosomeBoxes(props.model.strain)}
+              {getChromosomeBoxes(
+                props.model.strain,
+                canToggleHets,
+                props.model.toggleHetPair
+              )}
             </div>
           </div>
         </div>
@@ -76,13 +82,22 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
 };
 
 // Returns array of chromosome boxes
-const getChromosomeBoxes = (strain: Strain): JSX.Element[] => {
+const getChromosomeBoxes = (
+  strain: Strain,
+  canToggleHets: boolean,
+  toggleHetPair?: (pair: AllelePair) => void
+): JSX.Element[] => {
   return Array.from(strain.chromPairMap.keys())
     .sort(cmpChromosomes)
-    .map((chromosome, idx, arr) => {
+    .map((chromName, idx, arr) => {
       return (
         <div key={idx} className='flex'>
-          {getChromosomeBox(chromosome, strain.chromPairMap.get(chromosome))}
+          {getChromosomeBox(
+            canToggleHets,
+            chromName,
+            strain.chromPairMap.get(chromName),
+            toggleHetPair
+          )}
           <div className='flex flex-col justify-center pt-3 font-light text-base-content'>
             {idx < arr.length - 1 ? <span>;</span> : <span></span>}
           </div>
@@ -109,13 +124,17 @@ export const cmpChromosomes = (
 
 // All the 'fractions' under a single chromosome
 const getChromosomeBox = (
-  chromName: Chromosome | undefined,
-  chromosome?: AllelePair[]
+  canToggleHets: boolean,
+  chromName?: Chromosome,
+  chromosome?: AllelePair[],
+  toggleHetPair?: (pair: AllelePair) => void
 ): JSX.Element => {
   const mutationBoxes: JSX.Element[] = [];
   let nextKey = 0;
   chromosome?.forEach((allelePair) =>
-    mutationBoxes.push(getMutationBox(allelePair, nextKey++))
+    mutationBoxes.push(
+      getMutationBox(allelePair, nextKey++, canToggleHets, toggleHetPair)
+    )
   );
 
   const displayChrom = chromName ?? '?'; // undefined chromosomes are represented by: ?
@@ -127,17 +146,36 @@ const getChromosomeBox = (
   );
 };
 
-const getMutationBox = (allelePair: AllelePair, key: number): JSX.Element => {
+const getMutationBox = (
+  allelePair: AllelePair,
+  key: number,
+  canToggleHets: boolean,
+  toggleHetPair?: (pair: AllelePair) => void
+): JSX.Element => {
   if (allelePair.isECA) {
     return <div key={key}>{allelePair.top.name}</div>;
   } else {
+    const toggleEnabled =
+      allelePair.top.name !== allelePair.bot.name &&
+      canToggleHets &&
+      toggleHetPair !== undefined;
+
+    const hiddenStyling = toggleEnabled ? `visible group-hover:invisible` : '';
     return (
-      <div key={key} className='flex flex-col'>
+      <div key={key} className={`group relative flex flex-col`}>
+        {toggleEnabled && (
+          <div
+            className={`invisible absolute top-1/2 left-1/2  -translate-x-1/2 -translate-y-1/2 text-primary group-hover:visible `}
+            onClick={() => toggleHetPair(allelePair)}
+          >
+            <SwapIcon />
+          </div>
+        )}
         <div className='text-align w-full px-2 text-center'>
           {allelePair.top.name}
         </div>
         <div>
-          <hr className='border-base-content' />
+          <hr className={`my-1 border-base-content ${hiddenStyling}`} />
         </div>
         <div className='text-align w-full px-2 text-center'>
           {allelePair.bot.name}

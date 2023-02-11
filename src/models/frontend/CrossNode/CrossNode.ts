@@ -6,14 +6,18 @@ import {
   plainToInstance,
   Type,
 } from 'class-transformer';
+import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { MenuItem } from 'components/Menu/Menu';
 
 export interface iCrossNodeModel {
   sex: Sex;
   strain: Strain;
+  isParent: boolean;
+  isChild: boolean;
   probability?: number;
   getMenuItems?: (node: CrossNodeModel) => MenuItem[];
   toggleSex?: () => void;
+  toggleHetPair?: (pair: AllelePair) => void;
 }
 export class CrossNodeModel implements iCrossNodeModel {
   sex: Sex;
@@ -21,6 +25,7 @@ export class CrossNodeModel implements iCrossNodeModel {
   strain: Strain;
 
   isParent: boolean;
+  isChild: boolean;
   probability?: number;
 
   @Exclude()
@@ -29,18 +34,24 @@ export class CrossNodeModel implements iCrossNodeModel {
   @Exclude()
   toggleSex?: () => void;
 
+  @Exclude()
+  toggleHetPair?: (pair: AllelePair) => void;
+
   constructor(crossNodeModel: iCrossNodeModel) {
     if (crossNodeModel !== null && crossNodeModel !== undefined) {
       this.sex = crossNodeModel.sex;
       this.strain = crossNodeModel.strain;
       this.getMenuItems = crossNodeModel.getMenuItems;
       this.toggleSex = crossNodeModel.toggleSex;
-      this.isParent = this.toggleSex === undefined;
+      this.toggleHetPair = crossNodeModel.toggleHetPair;
+      this.isParent = crossNodeModel.isParent;
+      this.isChild = crossNodeModel.isChild;
       this.probability = crossNodeModel.probability;
     } else {
       this.sex = Sex.Male;
       this.strain = new Strain({ allelePairs: [] });
       this.isParent = false;
+      this.isChild = false;
     }
   }
 

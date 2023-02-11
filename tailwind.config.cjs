@@ -8,4 +8,9 @@ module.exports = {
   daisyui: {
     themes: true,
   },
+  variants: {
+    extend: {
+        display: ["group-hover"],
+    },
+},
 }
