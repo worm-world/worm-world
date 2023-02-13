@@ -8,8 +8,8 @@ pub struct TaskCondition {
     pub cond_name: String,
 }
 
-
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, TS)]
+#[ts(export, export_to = "../src/models/db/filter/TaskConditionFieldName.ts")]
 pub enum TaskConditionFieldName {
     Id,
     Name,
