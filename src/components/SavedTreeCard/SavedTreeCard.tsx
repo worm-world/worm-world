@@ -1,13 +1,14 @@
 import { BiDotsHorizontalRounded as MoreHorizIcon } from 'react-icons/bi';
-import { Link, NavigateFunction, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { Menu, MenuItem } from 'components/Menu/Menu';
-import { useState } from 'react';
-import { deleteTree, insertTree } from 'api/crossTree';
+import { useEffect, useState } from 'react';
+import { deleteTree, insertTree, updateTree } from 'api/crossTree';
 import { open } from '@tauri-apps/api/dialog';
 import { writeTextFile } from '@tauri-apps/api/fs';
 import { sep } from '@tauri-apps/api/path';
 import { toast } from 'react-toastify';
+import EditableDiv from 'components/EditableDiv/EditableDiv';
 
 export interface SavedTreeCardProps {
   tree: CrossTree;
@@ -17,18 +18,66 @@ export interface SavedTreeCardProps {
 const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
   const navigate = useNavigate();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [nameEditable, setNameEditable] = useState(false);
+  const [name, setName] = useState('');
+
+  useEffect(() => {
+    setName(props.tree.name);
+  }, [props.tree.name]);
+
+  const getMenuItems = (): MenuItem[] => {
+    return [
+      {
+        text: 'Open',
+        menuCallback: () => {
+          navigate('/tree-view', {
+            state: { treeId: props.tree.id.toString() },
+          });
+        },
+      },
+      {
+        text: 'Rename',
+        menuCallback: () => {
+          setNameEditable(true);
+        },
+      },
+      {
+        text: 'Export',
+        menuCallback: () => {
+          exportTree(props.tree).catch((err) => console.error(err));
+        },
+      },
+      {
+        text: 'Copy',
+        menuCallback: () => {
+          copyTree(props.tree)
+            .then(props.refreshTrees)
+            .catch((err) => console.error(err));
+        },
+      },
+      {
+        text: 'Delete',
+        menuCallback: () => {
+          setDeleteModalOpen(true);
+        },
+      },
+    ];
+  };
+
+  const updateTreeName = (): void => {
+    props.tree.name = name;
+    props.tree.lastSaved = new Date();
+    updateTree(props.tree.generateRecord(true))
+      .then(props.refreshTrees)
+      .catch((error) => console.log(error));
+  };
 
   return (
     <>
       <div>
         <div className='relative left-40 h-0'>
           <Menu
-            items={getMenuItems(
-              props.tree,
-              navigate,
-              props.refreshTrees,
-              setDeleteModalOpen
-            )}
+            items={getMenuItems()}
             title='Actions'
             icon={<MoreHorizIcon />}
           />
@@ -41,7 +90,14 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
           <div className='flex h-1/2 justify-end rounded-t-lg bg-primary' />
           <div className='h-1/2 bg-base-200 p-4 pt-2'>
             <div className='card-title w-full truncate'>
-              {props.tree.name !== '' ? props.tree.name : '(Untitled)'}
+              <EditableDiv
+                value={name}
+                setValue={setName}
+                editable={nameEditable}
+                setEditable={setNameEditable}
+                onFinishEditing={updateTreeName}
+                placeholder='(Untitled)'
+              />
             </div>
             <div className='h-8 min-h-[1.25rem]'>{props.tree.description}</div>
             <div className='flex h-8 w-full justify-between'>
@@ -89,44 +145,6 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
   );
 };
 
-const getMenuItems = (
-  tree: CrossTree,
-  navigate: NavigateFunction,
-  refreshTrees: () => void,
-  setDeleteModalOpen: (open: boolean) => void
-): MenuItem[] => {
-  return [
-    {
-      text: 'Open',
-      menuCallback: () => {
-        navigate('/tree-view', { state: { treeId: tree.id.toString() } });
-      },
-    },
-    {
-      text: 'Export',
-      menuCallback: () => {
-        exportTree(tree)
-          .then(() => toast.success('Successfully exported tree'))
-          .catch((err) => console.error(err));
-      },
-    },
-    {
-      text: 'Copy',
-      menuCallback: () => {
-        copyTree(tree)
-          .then(refreshTrees)
-          .catch((err) => console.error(err));
-      },
-    },
-    {
-      text: 'Delete',
-      menuCallback: () => {
-        setDeleteModalOpen(true);
-      },
-    },
-  ];
-};
-
 const copyTree = async (tree: CrossTree): Promise<void> => {
   const newTree = tree.clone();
   newTree.name = `Copy of ${tree.name}`;
@@ -142,6 +160,7 @@ const exportTree = async (tree: CrossTree): Promise<void> => {
     if (dir === null) return;
     const filename = tree.name !== '' ? tree.name : 'untitled';
     await writeTextFile(`${dir}${sep}${filename}.ww.json`, tree.toJSON());
+    toast.success('Successfully exported tree');
   } catch (err) {
     toast.error(`Error exporting tree: ${err}`);
   }

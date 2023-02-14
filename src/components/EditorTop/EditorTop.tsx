@@ -32,10 +32,7 @@ const EditorTop = (props: EditorTopProps): JSX.Element => {
             setValue={setName}
             editable={nameEditable}
             setEditable={setNameEditable}
-            onFinishEditing={() => {
-              setNameEditable(false);
-              updateTreeName();
-            }}
+            onFinishEditing={updateTreeName}
             onClick={() => setNameEditable(true)}
             placeholder='(Untitled)'
           />
