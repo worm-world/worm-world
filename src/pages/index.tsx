@@ -45,7 +45,6 @@ const CrossDesignerPage = (): JSX.Element => {
       onClick={() => {
         importTree()
           .then(refreshTrees)
-          .then(() => toast.success('Successfully imported tree'))
           .catch((err) => console.error(err));
       }}
     >
@@ -98,6 +97,7 @@ const importTree = async (): Promise<void> => {
     const file = await readTextFile(filepath);
     const clonedTree = CrossTree.fromJSON(file).clone();
     await insertTree(clonedTree.generateRecord(true));
+    toast.success('Successfully imported tree');
   } catch (err) {
     toast.error(`Error importing tree: ${err}`);
   }
@@ -117,6 +117,7 @@ const addTree = async (): Promise<void> => {
       edges: [],
     });
     await insertTree(newTree.generateRecord(true));
+    toast.success('Successfully added tree');
   } catch (err) {
     toast.error(`Error adding tree: ${err}`);
   }

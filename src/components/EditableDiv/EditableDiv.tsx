@@ -17,10 +17,12 @@ interface EditableDivProps {
 const EditableDiv = (props: EditableDivProps): JSX.Element => {
   const handleKeyDown: KeyboardEventHandler = (event) => {
     if (event.key === 'Enter') {
+      props.setEditable(false);
       props.onFinishEditing();
     }
   };
   const handleBlur: FocusEventHandler<HTMLInputElement> = () => {
+    props.setEditable(false);
     props.onFinishEditing();
   };
   return (
@@ -28,6 +30,7 @@ const EditableDiv = (props: EditableDivProps): JSX.Element => {
       {props.editable ? (
         <input
           className='input-ghost w-full border-2 border-base-300 bg-transparent'
+          onClick={(e) => e.preventDefault()}
           type='text'
           value={props.value}
           onChange={(e) => props.setValue(e.target.value)}
@@ -37,7 +40,11 @@ const EditableDiv = (props: EditableDivProps): JSX.Element => {
         ></input>
       ) : (
         <div
-          className='w-full truncate border-2 border-transparent hover:cursor-text hover:border-base-300'
+          className={`w-full truncate border-2 border-transparent ${
+            props.onClick !== undefined
+              ? 'hover:cursor-text hover:border-base-300'
+              : ''
+          }`}
           onClick={props.onClick}
         >
           {props.value !== '' ? props.value : props.placeholder}
