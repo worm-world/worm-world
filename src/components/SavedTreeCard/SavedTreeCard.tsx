@@ -4,6 +4,10 @@ import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { Menu, MenuItem } from 'components/Menu/Menu';
 import { useState } from 'react';
 import { deleteTree, insertTree } from 'api/crossTree';
+import { open } from '@tauri-apps/api/dialog';
+import { writeTextFile } from '@tauri-apps/api/fs';
+import { sep } from '@tauri-apps/api/path';
+import { toast } from 'react-toastify';
 
 export interface SavedTreeCardProps {
   tree: CrossTree;
@@ -99,11 +103,19 @@ const getMenuItems = (
       },
     },
     {
+      text: 'Export',
+      menuCallback: () => {
+        exportTree(tree)
+          .then(() => toast.success('Successfully exported tree'))
+          .catch((err) => console.error(err));
+      },
+    },
+    {
       text: 'Copy',
       menuCallback: () => {
         copyTree(tree)
           .then(refreshTrees)
-          .catch((error) => console.error(error));
+          .catch((err) => console.error(err));
       },
     },
     {
@@ -120,6 +132,19 @@ const copyTree = async (tree: CrossTree): Promise<void> => {
   newTree.name = `Copy of ${tree.name}`;
   newTree.lastSaved = new Date();
   await insertTree(newTree.generateRecord(true));
+};
+
+const exportTree = async (tree: CrossTree): Promise<void> => {
+  try {
+    const dir: string | null = (await open({
+      directory: true,
+    })) as string | null;
+    if (dir === null) return;
+    const filename = tree.name !== '' ? tree.name : 'untitled';
+    await writeTextFile(`${dir}${sep}${filename}.ww.json`, tree.toJSON());
+  } catch (err) {
+    toast.error(`Error exporting tree: ${err}`);
+  }
 };
 
 export default SavedTreeCard;

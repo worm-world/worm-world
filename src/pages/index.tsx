@@ -5,6 +5,9 @@ import { db_Tree } from 'models/db/db_Tree';
 import SavedTreeCard from 'components/SavedTreeCard/SavedTreeCard';
 import { TopNav } from 'components/TopNav/TopNav';
 import { GiEarthWorm as WormIcon } from 'react-icons/gi';
+import { open } from '@tauri-apps/api/dialog';
+import { readTextFile } from '@tauri-apps/api/fs';
+import { toast } from 'react-toastify';
 
 const CrossDesignerPage = (): JSX.Element => {
   const [crossTrees, setCrossTrees] = useState<CrossTree[] | null>(null);
@@ -26,19 +29,8 @@ const CrossDesignerPage = (): JSX.Element => {
       key='newTree'
       className='btn'
       onClick={() => {
-        const newTree: CrossTree = new CrossTree({
-          name: '',
-          description: '',
-          lastSaved: new Date(),
-          settings: {
-            longName: false,
-            contents: false,
-          },
-          nodes: [],
-          edges: [],
-        });
-        insertTree(newTree.generateRecord(true))
-          .then(() => refreshTrees())
+        addTree()
+          .then(refreshTrees)
           .catch((err) => console.error(err));
       }}
     >
@@ -46,9 +38,27 @@ const CrossDesignerPage = (): JSX.Element => {
     </button>
   );
 
+  const importTreeButton = (
+    <button
+      key='importTree'
+      className='btn'
+      onClick={() => {
+        importTree()
+          .then(refreshTrees)
+          .then(() => toast.success('Successfully imported tree'))
+          .catch((err) => console.error(err));
+      }}
+    >
+      Import
+    </button>
+  );
+
   return (
     <>
-      <TopNav title={'Cross Designer'} buttons={[newTreeButton]} />
+      <TopNav
+        title={'Cross Designer'}
+        buttons={[newTreeButton, importTreeButton]}
+      />
       {crossTrees !== null && crossTrees.length === 0 ? (
         <div className='m-14 flex flex-col items-center justify-center'>
           <h2 className='text-2xl'>Welcome to the Cross Designer!</h2>
@@ -73,4 +83,43 @@ const CrossDesignerPage = (): JSX.Element => {
     </>
   );
 };
+
+const importTree = async (): Promise<void> => {
+  try {
+    const filepath: string | null = (await open({
+      filters: [
+        {
+          name: 'WormWorld',
+          extensions: ['json'],
+        },
+      ],
+    })) as string | null;
+    if (filepath === null) return;
+    const file = await readTextFile(filepath);
+    const clonedTree = CrossTree.fromJSON(file).clone();
+    await insertTree(clonedTree.generateRecord(true));
+  } catch (err) {
+    toast.error(`Error importing tree: ${err}`);
+  }
+};
+
+const addTree = async (): Promise<void> => {
+  try {
+    const newTree: CrossTree = new CrossTree({
+      name: '',
+      description: '',
+      lastSaved: new Date(),
+      settings: {
+        longName: false,
+        contents: false,
+      },
+      nodes: [],
+      edges: [],
+    });
+    await insertTree(newTree.generateRecord(true));
+  } catch (err) {
+    toast.error(`Error adding tree: ${err}`);
+  }
+};
+
 export default CrossDesignerPage;

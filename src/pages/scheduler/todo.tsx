@@ -1,4 +1,4 @@
-import { getFilteredTasks, getTasks, updateDbTask } from 'api/task';
+import { getTasks, updateDbTask } from 'api/task';
 import { TaskView } from 'components/TaskView/TaskView';
 import { Task } from 'models/frontend/Task/Task';
 import { useEffect, useState } from 'react';
