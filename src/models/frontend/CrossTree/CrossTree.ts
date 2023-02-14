@@ -98,10 +98,10 @@ export default class CrossTree {
    * @param refNode Strain node that is the direct parent of the self icon
    * @returns XY coordinates of where to place the self icon in the editor
    */
-  public static getSelfIconPos(refNode: Node): XYPosition {
+  public static getSelfIconPos(): XYPosition {
     return {
-      x: refNode.position.x + 96,
-      y: refNode.position.y + 125,
+      x: 96,
+      y: 125,
     };
   }
 
@@ -115,11 +115,9 @@ export default class CrossTree {
     const strainHeight = refNode.height ?? 100;
     const xSide = 64;
     const x = // place on left/right side of refNode
-      refNode.data.sex === Sex.Male
-        ? refNode.position.x + strainWidth + padding
-        : refNode.position.x - xSide - padding;
+      refNode.data.sex === Sex.Male ? strainWidth + padding : -xSide - padding;
 
-    const y = refNode.position.y + strainHeight / 2 - xSide / 2;
+    const y = strainHeight / 2 - xSide / 2;
     return { x, y };
   }
 
@@ -127,12 +125,9 @@ export default class CrossTree {
    * @param refNode "floating" strain node in editor that is being crossed with strain created from form
    * @returns XY coordinates of where to place the other strain created from the form
    */
-  public static getCrossStrainPos(refNode: Node): XYPosition {
-    const posX = // place on left/right side of refNode
-      refNode.data.sex === Sex.Male
-        ? refNode.position.x + 400
-        : refNode.position.x - 400;
-    return { x: posX, y: refNode.position.y };
+  public static getCrossStrainPos(refNodeSex: Sex): XYPosition {
+    const posX = refNodeSex === Sex.Male ? 400 : -400; // place on left/right side of refNode
+    return { x: posX, y: 0 };
   }
 
   /**
@@ -154,11 +149,11 @@ export default class CrossTree {
     const parWidth = parentIcon.width ?? 64;
     const parHeight = parentIcon.height ?? 64;
     const width = refStrain.width ?? 256;
-    const startingX = parentIcon.position.x + parWidth / 2;
+    const startingX = parWidth / 2;
     const nodePadding = 10;
     const xDistance = width + nodePadding;
 
-    let currYPos = parentIcon.position.y + 187;
+    let currYPos = 187;
     if (parentIcon.type === FlowType.SelfIcon) currYPos -= parHeight + 37;
 
     // Determines grid layout of children
