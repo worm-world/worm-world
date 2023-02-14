@@ -28,7 +28,7 @@ export function TopNav(props: iTopNavInputProps): JSX.Element {
           ))}
         </div>
       </div>
-      <div className='ml-auto mr-10'>{props.buttons}</div>
+      <div className='ml-auto mr-10 flex gap-2'>{props.buttons}</div>
     </div>
   );
 }
