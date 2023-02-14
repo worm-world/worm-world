@@ -146,6 +146,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     position,
     isParent,
     isChild,
+    parentNode,
     probability,
     id,
   }: {
@@ -154,6 +155,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     position: XYPosition;
     isParent: boolean;
     isChild: boolean;
+    parentNode?: string;
     probability?: number;
     id?: string;
   }): Node<CrossNodeModel> => {
@@ -162,6 +164,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       id: nodeId,
       type: FlowType.Strain,
       position,
+      parentNode,
       data: new CrossNodeModel({
         sex,
         strain,
@@ -179,22 +182,26 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   };
 
   /** Creates a node representing the x icon */
-  const createXIcon = (position: XYPosition): Node => {
+  const createXIcon = (parentNode: Node<CrossNodeModel>): Node => {
+    const position = CrossTree.getXIconPos(parentNode);
     const newXIcon: Node = {
       id: props.crossTree.createId(),
       type: FlowType.XIcon,
       position,
+      parentNode: parentNode.id,
       data: {},
     };
     return newXIcon;
   };
 
   /** Creates a node representing the self icon */
-  const createSelfIcon = (position: XYPosition): Node => {
+  const createSelfIcon = (parentNode: string): Node => {
+    const position = CrossTree.getSelfIconPos();
     const newSelfIcon: Node = {
       id: props.crossTree.createId(),
       type: FlowType.SelfIcon,
       position,
+      parentNode,
       data: {},
     };
     return newSelfIcon;
@@ -260,6 +267,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         position: node.position,
         isParent: false,
         isChild: data.isChild,
+        parentNode: node.parentNode,
         probability: data.probability,
         id: node.id,
       });
@@ -290,6 +298,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         position: node.position,
         isParent: false, // if toggled before, should be able to toggle again
         isChild: false,
+        parentNode: node.parentNode,
         probability: data.probability,
         id: node.id,
       });
@@ -297,6 +306,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       return new Map(nodeMap);
     });
   };
+
   const getNodePositionFromLastClick = (): XYPosition => {
     const bounds = flowRef?.current?.getBoundingClientRect() ?? {
       left: 0,
@@ -359,8 +369,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         return nodeMap;
       }
 
-      const selfIconPos = CrossTree.getSelfIconPos(refNode);
-      const selfIcon = createSelfIcon(selfIconPos);
+      const selfIcon = createSelfIcon(refNode.id);
       const edgeToIcon = createEdge(refNode.id, selfIcon.id, {
         sourceHandle: 'bottom',
       });
@@ -382,6 +391,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
           position: childPositions[i],
           isParent: false,
           isChild: true,
+          parentNode: selfIcon.id,
           probability: child.prob,
         });
       });
@@ -389,7 +399,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       refNode.data = copyNodeData(refNode, { isParent: true });
 
       // update state
-      [...childNodes, selfIcon, refNode].forEach((node) => {
+      [selfIcon, refNode, ...childNodes].forEach((node) => {
         nodeMap.set(node.id, node);
       });
 
@@ -414,32 +424,31 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         return nodeMap;
       }
 
-      const xIconPos = CrossTree.getXIconPos(currNode);
-      const strainPos = CrossTree.getCrossStrainPos(currNode);
+      const xIcon = createXIcon(currNode);
 
-      const xIcon = createXIcon(xIconPos);
+      const currStrain: CrossNodeModel = currNode.data;
       const formNode = createStrainNode({
         sex,
         strain,
-        position: strainPos,
+        position: CrossTree.getCrossStrainPos(currStrain.sex),
+        parentNode: currNode.id,
         isParent: true,
         isChild: false,
       });
 
-      const otherStrain: CrossNodeModel = currNode.data;
       const newStrain: CrossNodeModel = formNode.data;
       newStrain.toggleSex = undefined; // disable toggling functionality
 
       const e1 = createEdge(currNode.id, xIcon.id, {
-        targetHandle: otherStrain.sex === Sex.Male ? 'left' : 'right',
-        sourceHandle: otherStrain.sex !== Sex.Male ? 'left' : 'right',
+        targetHandle: currStrain.sex === Sex.Male ? 'left' : 'right',
+        sourceHandle: currStrain.sex !== Sex.Male ? 'left' : 'right',
       });
       const e2 = createEdge(formNode.id, xIcon.id, {
         targetHandle: newStrain.sex === Sex.Male ? 'left' : 'right',
         sourceHandle: newStrain.sex !== Sex.Male ? 'left' : 'right',
       });
 
-      const children = newStrain.strain.crossWith(otherStrain.strain);
+      const children = newStrain.strain.crossWith(currStrain.strain);
       children.sort((c1, c2) => c1.prob - c2.prob);
 
       const childPositions = CrossTree.calculateChildPositions(
@@ -456,6 +465,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
           isParent: false,
           isChild: true,
           probability: child.prob,
+          parentNode: xIcon.id,
         });
       });
 
@@ -465,7 +475,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         createEdge(xIcon.id, node.id)
       );
 
-      [currNode, xIcon, formNode, ...childrenNodes].forEach((node) =>
+      [currNode, formNode, xIcon, ...childrenNodes].forEach((node) =>
         nodeMap.set(node.id, node)
       );
       setEdges((edges) => [...edges, e1, e2, ...childrenEdges]);
