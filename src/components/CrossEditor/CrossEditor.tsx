@@ -37,6 +37,7 @@ import {
   ContextMenu,
   useContextMenuState,
 } from 'components/ContextMenu/ContextMenu';
+import { CrossFilterModal } from 'components/CrossFilterModal/CrossFilterModal';
 
 export interface CrossEditorProps {
   crossTree: CrossTree;
@@ -60,6 +61,11 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   const [nodeMap, setNodeMap] = useState<Map<string, Node>>(
     new Map(props.crossTree.nodes.map((node) => [node.id, node]))
   );
+
+  const [invisibleNodes, setInvisibleNodes] = useState<Set<string>>(
+    new Set(props.crossTree.invisibleNodes)
+  );
+  const [currChildNodes, setCurrChildNodes] = useState<Node[]>([]);
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance>();
 
@@ -130,7 +136,16 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
               setRightDrawerOpen(true);
             },
           });
+        } else if (
+          node.type === FlowType.XIcon ||
+          node.type === FlowType.SelfIcon
+        ) {
+          const iconChildren = [...nodeMap.values()].filter(
+            (child) => child.parentNode === node.id
+          );
+          loadIconWithCallback(node, iconChildren);
         }
+
         return node;
       });
       refreshedNodes.forEach((node) => nodeMap.set(node.id, node));
@@ -205,6 +220,16 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       data: {},
     };
     return newSelfIcon;
+  };
+
+  const loadIconWithCallback = (
+    iconNode: Node,
+    children: Array<Node<CrossNodeModel>>
+  ): void => {
+    const data = {
+      setCurrChildNodes: () => setCurrChildNodes([...children]),
+    };
+    iconNode.data = data;
   };
 
   /** Creates an edge connecting a source node to a target node */
@@ -307,6 +332,25 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     });
   };
 
+  const toggleNodeVisibility = (nodeId: string): void => {
+    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
+      const children = [...nodeMap.values()].filter(
+        (node: Node) => node.parentNode === nodeId
+      );
+      if (children.length > 0) {
+        toast.error("Whoops! Can't mark a parent node as invisible");
+        return nodeMap;
+      }
+      setInvisibleNodes((invisibleNodes: Set<string>): Set<string> => {
+        invisibleNodes.has(nodeId)
+          ? invisibleNodes.delete(nodeId)
+          : invisibleNodes.add(nodeId);
+        return new Set(invisibleNodes);
+      });
+      return nodeMap;
+    });
+  };
+
   const getNodePositionFromLastClick = (): XYPosition => {
     const bounds = flowRef?.current?.getBoundingClientRect() ?? {
       left: 0,
@@ -395,6 +439,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
           probability: child.prob,
         });
       });
+      loadIconWithCallback(selfIcon, childNodes);
 
       refNode.data = copyNodeData(refNode, { isParent: true });
 
@@ -402,7 +447,6 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       [selfIcon, refNode, ...childNodes].forEach((node) => {
         nodeMap.set(node.id, node);
       });
-
       const childEdges = childNodes.map((node) =>
         createEdge(selfIcon.id, node.id)
       );
@@ -468,6 +512,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
           parentNode: xIcon.id,
         });
       });
+      loadIconWithCallback(xIcon, childrenNodes);
 
       currNode.data = copyNodeData(currNode, { isParent: true });
 
@@ -533,26 +578,31 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         // get up to date nodes
         setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
           // get up to date edges
-          setEdges((edges) => {
-            const node = nodeMap.get(nodeId);
-            if (node === undefined || node.type !== FlowType.Strain) {
-              console.error(
-                'boooo - the node you are trying to schedule is undefined/not a strain'
-              );
-              return edges;
-            }
+          setEdges((edges: Edge[]): Edge[] => {
+            setInvisibleNodes((invisibleNodes: Set<string>): Set<string> => {
+              const node = nodeMap.get(nodeId);
+              if (node === undefined || node.type !== FlowType.Strain) {
+                console.error(
+                  'boooo - the node you are trying to schedule is undefined/not a strain'
+                );
+                return invisibleNodes;
+              }
 
-            saveTree(props.crossTree, [...nodeMap.values()], edges);
-            const clonedTree = props.crossTree.clone();
-            const tasks = clonedTree.generateTasks(node);
-            insertTree(clonedTree.generateRecord(false))
-              .then(
-                async () =>
-                  await insertDbTasks(tasks)
-                    .then(() => navigate('/scheduler/todo'))
-                    .catch((error) => console.error(error))
-              )
-              .catch((error) => console.error(error));
+              saveTree(
+                props.crossTree,
+                [...nodeMap.values()],
+                edges,
+                invisibleNodes
+              );
+              const clonedTree = props.crossTree.clone();
+              const tasks = clonedTree.generateTasks(node);
+              insertTree(clonedTree.generateRecord(false))
+                .then(async () => await insertDbTasks(tasks))
+                .then(() => navigate('/scheduler/todo'))
+                .catch((error) => console.error(error));
+
+              return invisibleNodes;
+            });
             return edges;
           });
           return nodeMap;
@@ -594,7 +644,9 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     <button
       key='save'
       className='btn-primary btn'
-      onClick={() => saveTree(props.crossTree, [...nodeMap.values()], edges)}
+      onClick={() =>
+        saveTree(props.crossTree, [...nodeMap.values()], edges, invisibleNodes)
+      }
     >
       Save
     </button>,
@@ -608,6 +660,11 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
 
   return (
     <>
+      <CrossFilterModal
+        childNodes={currChildNodes}
+        invisibleSet={invisibleNodes}
+        toggleVisible={toggleNodeVisibility}
+      />
       <div>
         <div className='drawer drawer-end'>
           <input
@@ -655,7 +712,9 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
                   onInit={(flow) => {
                     setReactFlowInstance(flow);
                   }}
-                  nodes={[...nodeMap.values()]}
+                  nodes={[...nodeMap.values()].filter(
+                    (node) => !invisibleNodes.has(node.id)
+                  )}
                   edges={edges}
                   onNodesChange={onNodesChange}
                   onEdgesChange={onEdgesChange}
@@ -709,9 +768,15 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   // #endregion templating
 };
 
-const saveTree = (tree: CrossTree, nodes: Node[], edges: Edge[]): void => {
+const saveTree = (
+  tree: CrossTree,
+  nodes: Node[],
+  edges: Edge[],
+  invisibleNodes: Set<string>
+): void => {
   tree.nodes = nodes;
   tree.edges = edges;
+  tree.invisibleNodes = invisibleNodes;
   tree.lastSaved = new Date();
   updateTree(tree.generateRecord(true))
     .then(() => toast.success('Successfully saved design'))

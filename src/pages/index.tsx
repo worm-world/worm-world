@@ -115,6 +115,7 @@ const addTree = async (): Promise<void> => {
       },
       nodes: [],
       edges: [],
+      invisibleNodes: new Set<string>(),
     });
     await insertTree(newTree.generateRecord(true));
     toast.success('Successfully added tree');

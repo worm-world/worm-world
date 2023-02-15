@@ -19,6 +19,7 @@ export interface iCrossTree {
   };
   nodes: Node[];
   edges: Edge[];
+  invisibleNodes: Set<string>;
   lastSaved: Date;
 }
 
@@ -33,6 +34,7 @@ export default class CrossTree {
   @Type(() => Date)
   public lastSaved: Date;
 
+  public invisibleNodes: Set<string>;
   public nodes: Node[];
   public edges: Edge[];
   public settings: {
@@ -51,6 +53,7 @@ export default class CrossTree {
         },
         nodes: [],
         edges: [],
+        invisibleNodes: new Set(),
         lastSaved: new Date(),
       };
     }
@@ -61,6 +64,7 @@ export default class CrossTree {
     this.settings = params.settings;
     this.edges = [...params.edges];
     this.nodes = [...params.nodes];
+    this.invisibleNodes = new Set(params.invisibleNodes);
   }
   /** #endregion class vars / initialization */
 
@@ -175,52 +179,6 @@ export default class CrossTree {
     return positions;
   }
 
-  /**
-   * Given a graph and a parent node, recursively fetches all of that node's children nodes/edges
-   * @param graphNodes List of all nodes
-   * @param graphEdges List of all edges
-   * @param parent Node to get all the children from
-   * @param usedNodes Mark nodes already seen (to prevent cycles). Autoinitilized, so can be left blank when the function
-   * @param usedEdges Mark edges already seen (to prevent cycles). Autoinitilized, so can be left blank when the function
-   */
-  public static getDecendentNodesAndEdges(
-    graphNodes: Node[],
-    graphEdges: Edge[],
-    parent: Node,
-    usedNodes: Set<string> = new Set<string>(),
-    usedEdges: Set<string> = new Set<string>()
-  ): [Node[], Edge[]] {
-    usedNodes.add(parent.id);
-
-    // Get next generation of decendents
-    let childEdges = graphEdges.filter((edge) =>
-      this.isChildEdge(edge.source, parent.id, usedEdges)
-    );
-    let childNodes = childEdges.flatMap(
-      (edge) =>
-        graphNodes.find((node) => this.isChildNode(node, edge, usedNodes)) ?? []
-    );
-
-    // Mark nodes/edges as seen
-    childNodes.forEach((node) => usedNodes.add(node.id));
-    childEdges.forEach((edge) => usedEdges.add(edge.id));
-
-    // recursively get future generations
-    [...childNodes].forEach((child) => {
-      const [recNodes, recEdges] = this.getDecendentNodesAndEdges(
-        graphNodes,
-        graphEdges,
-        child,
-        usedNodes,
-        usedEdges
-      );
-      childNodes = childNodes.concat(recNodes);
-      childEdges = childEdges.concat(recEdges);
-    });
-
-    return [childNodes, childEdges];
-  }
-
   static fromJSON(json: string): CrossTree {
     return [plainToInstance(CrossTree, JSON.parse(json))].flat()[0];
   }
@@ -246,6 +204,7 @@ export default class CrossTree {
         contents: false,
       },
       nodes: [...this.nodes],
+      invisibleNodes: new Set(this.invisibleNodes),
       edges: [...this.edges],
       lastSaved: new Date(),
     };

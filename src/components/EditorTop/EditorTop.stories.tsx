@@ -20,6 +20,7 @@ primary.args = {
     nodes: [],
     edges: [],
     lastSaved: new Date(),
+    invisibleNodes: new Set<string>(),
   }),
   buttons: [
     <button key='only' className='btn mr-8' onClick={() => alert('clicked')}>
@@ -37,6 +38,7 @@ longTitle.args = {
     nodes: [],
     edges: [],
     lastSaved: new Date(),
+    invisibleNodes: new Set<string>(),
   }),
   buttons: [
     <button key='only' className='btn mr-8' onClick={() => alert('clicked')}>
@@ -54,6 +56,7 @@ withoutButton.args = {
     nodes: [],
     edges: [],
     lastSaved: new Date(),
+    invisibleNodes: new Set<string>(),
   }),
   buttons: [
     <button key='only' className='btn mr-8' onClick={() => alert('clicked')}>
