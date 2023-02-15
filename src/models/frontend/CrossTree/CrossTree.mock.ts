@@ -2,6 +2,7 @@ import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import * as mockCrossNode from 'models/frontend/CrossNode/CrossNode.mock';
 import { Edge, Node } from 'reactflow';
 import { FlowType } from 'components/CrossFlow/CrossFlow';
+import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 
 export const emptyCrossTree = new CrossTree({
   description: 'New',
@@ -12,12 +13,13 @@ export const emptyCrossTree = new CrossTree({
   },
   nodes: [],
   edges: [],
+  invisibleNodes: new Set(),
   lastSaved: new Date(),
 });
 
 // Simple cross tree ///////////////////////////////////
 
-export const ed3HeteroMale: Node = {
+export const ed3HeteroMale: Node<CrossNodeModel> = {
   id: '0',
   type: FlowType.Strain,
   data: mockCrossNode.ed3HetMale,
@@ -27,7 +29,7 @@ export const ed3HeteroMale: Node = {
   },
 };
 
-export const ed3HeteroHerm: Node = {
+export const ed3HeteroHerm: Node<CrossNodeModel> = {
   id: '1',
   type: FlowType.Strain,
   data: mockCrossNode.ed3HetHerm,
@@ -37,7 +39,7 @@ export const ed3HeteroHerm: Node = {
   },
 };
 
-export const ed3HomoHerm: Node = {
+export const ed3HomoHerm: Node<CrossNodeModel> = {
   id: '2',
   type: FlowType.Strain,
   data: mockCrossNode.ed3HomoHerm,
@@ -86,10 +88,11 @@ export const simpleCrossTree = new CrossTree({
   nodes: [ed3HeteroHerm, ed3HeteroMale, ed3HomoHerm, xNode],
   edges: [edgeMale, edgeFemale, edgeChild],
   lastSaved: new Date(),
+  invisibleNodes: new Set(),
 });
 
 // Medium cross tree ////////////////////////////////////////////////
-export const node0: Node = {
+export const node0: Node<CrossNodeModel> = {
   id: '0',
   type: FlowType.Strain,
   data: mockCrossNode.e204WildMale,
@@ -98,7 +101,7 @@ export const node0: Node = {
     y: -1000,
   },
 };
-export const node1: Node = {
+export const node1: Node<CrossNodeModel> = {
   id: '1',
   type: FlowType.Strain,
   data: mockCrossNode.e204HomoHerm,
@@ -107,7 +110,7 @@ export const node1: Node = {
     y: -1000,
   },
 };
-export const node2: Node = {
+export const node2: Node<CrossNodeModel> = {
   id: '2',
   type: FlowType.Strain,
   data: mockCrossNode.e204HetMale,
@@ -116,7 +119,7 @@ export const node2: Node = {
     y: -800,
   },
 };
-export const node3: Node = {
+export const node3: Node<CrossNodeModel> = {
   id: '3',
   type: FlowType.Strain,
   data: mockCrossNode.ox802HomoHerm,
@@ -125,7 +128,7 @@ export const node3: Node = {
     y: -800,
   },
 };
-export const node4: Node = {
+export const node4: Node<CrossNodeModel> = {
   id: '4',
   type: FlowType.Strain,
   data: mockCrossNode.e204HetOx802Het,
@@ -134,7 +137,7 @@ export const node4: Node = {
     y: -600,
   },
 };
-export const node5: Node = {
+export const node5: Node<CrossNodeModel> = {
   id: '5',
   type: FlowType.Strain,
   data: mockCrossNode.e204HomoOx802HetHerm,
@@ -143,7 +146,7 @@ export const node5: Node = {
     y: -400,
   },
 };
-export const node6: Node = {
+export const node6: Node<CrossNodeModel> = {
   id: '6',
   type: FlowType.Strain,
   data: mockCrossNode.e204HomoOx802HomoHerm,
@@ -247,5 +250,6 @@ export const mediumCrossTree = new CrossTree({
     selfNode1,
   ],
   edges,
+  invisibleNodes: new Set(),
   lastSaved: new Date('2023-01-18'),
 });

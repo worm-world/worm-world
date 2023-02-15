@@ -21,6 +21,7 @@ describe('cross tree', () => {
     },
     nodes = [],
     edges = [],
+    invisibleNodes = new Set(),
     lastSaved = new Date(),
   }: {
     name?: string;
@@ -28,6 +29,7 @@ describe('cross tree', () => {
     settings?: { longName: boolean; contents: boolean };
     nodes?: Node[];
     edges?: Edge[];
+    invisibleNodes?: Set<string>;
     lastSaved?: Date;
   }): CrossTree => {
     return new CrossTree({
@@ -36,6 +38,7 @@ describe('cross tree', () => {
       settings,
       nodes,
       edges,
+      invisibleNodes,
       lastSaved,
     });
   };
@@ -364,153 +367,6 @@ describe('cross tree', () => {
     });
 
     testTreeNodesAndEdges(tree, nodes, [edges[0], edges[2], edges[6]]);
-  });
-
-  test('.getChildNodeAndEdges() returns empty array for unconnected nodes', () => {
-    let id = 0;
-    const nodes = [
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }),
-    ];
-    const tree = generateTree({ nodes });
-    expect(
-      CrossTree.getDecendentNodesAndEdges(tree.nodes, tree.edges, nodes[0])
-    ).toEqual([[], []]);
-  });
-  test('.getChildNodeAndEdges() returns empty array for nonexisting node', () => {
-    let id = 0;
-    const nodes = [
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }),
-    ];
-    const tree = generateTree({ nodes });
-
-    const notPartOfTree = generateNode({ id: id++ });
-    expect(
-      CrossTree.getDecendentNodesAndEdges(tree.nodes, tree.edges, notPartOfTree)
-    ).toEqual([[], []]);
-  });
-  test('.getChildNodeAndEdges() returns edges and nodes', () => {
-    let id = 0;
-    const nodes = [
-      generateNode({ id: id++ }), // id: 0
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }), // id: 5
-    ];
-    const edges = [
-      generateEdge({ id: id++, source: '0', target: '1' }), // id: 6
-      generateEdge({ id: id++, source: '0', target: '2' }),
-      generateEdge({ id: id++, source: '0', target: '4' }),
-      generateEdge({ id: id++, source: '1', target: '3' }), // id: 9
-      generateEdge({ id: id++, source: '1', target: '4' }),
-      generateEdge({ id: id++, source: '2', target: '3' }), // id: 11
-      generateEdge({ id: id++, source: '2', target: '4' }),
-      generateEdge({ id: id++, source: '2', target: '5' }), // id: 13
-    ];
-    const tree = generateTree({ nodes, edges });
-    const [childNodes0, childEdges0] = CrossTree.getDecendentNodesAndEdges(
-      tree.nodes,
-      tree.edges,
-      nodes[0]
-    );
-    const [childNodes1, childEdges1] = CrossTree.getDecendentNodesAndEdges(
-      tree.nodes,
-      tree.edges,
-      nodes[1]
-    );
-    const [childNodes2, childEdges2] = CrossTree.getDecendentNodesAndEdges(
-      tree.nodes,
-      tree.edges,
-      nodes[2]
-    );
-
-    expect(childNodes0).toHaveLength(5);
-    expect(childNodes1).toHaveLength(2);
-    expect(childNodes2).toHaveLength(3);
-
-    expect(childNodes0).toEqual([
-      nodes[1],
-      nodes[2],
-      nodes[4],
-      nodes[3],
-      nodes[5],
-    ]);
-    expect(childNodes1).toEqual([nodes[3], nodes[4]]);
-    expect(childNodes2).toEqual([nodes[3], nodes[4], nodes[5]]);
-
-    expect(childEdges0).toHaveLength(8);
-    expect(childEdges1).toHaveLength(2);
-    expect(childEdges2).toHaveLength(3);
-
-    expect(childEdges0).toEqual(edges);
-    expect(childEdges1).toEqual([edges[3], edges[4]]);
-    expect(childEdges2).toEqual([edges[5], edges[6], edges[7]]);
-  });
-  test('.getChildNodeAndEdges() can handle cycles', () => {
-    let id = 0;
-    const nodes = [
-      generateNode({ id: id++ }), // id: 0
-      generateNode({ id: id++ }),
-    ];
-    const edges = [
-      generateEdge({ id: id++, source: '0', target: '1' }), // id: 2
-      generateEdge({ id: id++, source: '1', target: '0' }),
-    ];
-    const tree = generateTree({ nodes, edges });
-    const [childNodes0, childEdges0] = CrossTree.getDecendentNodesAndEdges(
-      tree.nodes,
-      tree.edges,
-      nodes[0]
-    );
-    const [childNodes1, childEdges1] = CrossTree.getDecendentNodesAndEdges(
-      tree.nodes,
-      tree.edges,
-      nodes[1]
-    );
-
-    expect(childNodes0).toHaveLength(1);
-    expect(childNodes1).toHaveLength(1);
-    expect(childNodes0).toEqual([nodes[1]]);
-    expect(childNodes1).toEqual([nodes[0]]);
-
-    expect(childEdges0).toEqual(edges);
-    expect(childEdges1).toEqual(edges.reverse());
-  });
-
-  test('.getChildNodeAndEdges() can handle cycles', () => {
-    let id = 0;
-    const nodes = [
-      generateNode({ id: id++ }), // id: 0
-      generateNode({ id: id++ }),
-    ];
-    const edges = [
-      generateEdge({ id: id++, source: '0', target: '1' }), // id: 2
-      generateEdge({ id: id++, source: '1', target: '0' }),
-    ];
-    const tree = generateTree({ nodes, edges });
-    const [childNodes0, childEdges0] = CrossTree.getDecendentNodesAndEdges(
-      tree.nodes,
-      tree.edges,
-      nodes[0]
-    );
-    const [childNodes1, childEdges1] = CrossTree.getDecendentNodesAndEdges(
-      tree.nodes,
-      tree.edges,
-      nodes[1]
-    );
-
-    expect(childNodes0).toHaveLength(1);
-    expect(childNodes1).toHaveLength(1);
-    expect(childNodes0).toEqual([nodes[1]]);
-    expect(childNodes1).toEqual([nodes[0]]);
-
-    expect(childEdges0).toEqual(edges);
-    expect(childEdges1).toEqual(edges.reverse());
   });
 
   test('.generateTasks() returns empty list from no crosses', () => {

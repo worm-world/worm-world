@@ -40,7 +40,7 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
       ? props.model.getMenuItems(props.model)
       : [];
   const probability =
-    props.model.probability !== undefined
+    props.model.probability !== undefined && props.model.probability !== null
       ? `${(props.model.probability * 100).toFixed(2)}%`
       : '';
   const canToggleHets = !props.model.isParent && !props.model.isChild;
@@ -87,6 +87,7 @@ const getChromosomeBoxes = (
   canToggleHets: boolean,
   toggleHetPair?: (pair: AllelePair) => void
 ): JSX.Element[] => {
+  if (strain === undefined) return [];
   return Array.from(strain.chromPairMap.keys())
     .sort(cmpChromosomes)
     .map((chromName, idx, arr) => {
