@@ -2,7 +2,7 @@
     all(not(debug_assertions), target_os = "windows"),
     windows_subsystem = "windows"
 )]
-use std::{str::FromStr, time::Duration};
+use std::{str::FromStr, time::Duration, path::Path};
 
 use anyhow::Result;
 use directories::ProjectDirs;
@@ -16,23 +16,23 @@ mod models;
 
 use models::{
     allele::{Allele, AlleleFieldName},
-    allele_expr::{AlleleExpression, AlleleExpressionFieldName},
-    condition::{Condition, ConditionFieldName},
-    expr_relation::{ExpressionRelation, ExpressionRelationFieldName},
+    allele_expr::{AlleleExpression, AlleleExpressionFieldName, AlleleExpressionDb},
+    condition::{Condition, ConditionFieldName, ConditionDb},
+    expr_relation::{ExpressionRelation, ExpressionRelationFieldName, ExpressionRelationDb},
     filter::FilterGroup,
-    gene::{Gene, GeneFieldName},
-    phenotype::{Phenotype, PhenotypeFieldName},
+    gene::{Gene, GeneFieldName, GeneDb},
+    phenotype::{Phenotype, PhenotypeFieldName, PhenotypeDb},
     task::{Task, TaskFieldName},
     task_conds::{TaskCondition, TaskConditionFieldName},
     task_deps::{TaskDependency, TaskDependencyFieldName},
     tree::{Tree, TreeFieldName},
-    variation_info::{VariationFieldName, VariationInfo},
+    variation_info::{VariationFieldName, VariationInfo, VariationInfoDb},
 };
 use thiserror::Error;
 use tokio::sync::RwLock;
 
 mod interface;
-use interface::{DbError, InnerDbState};
+use interface::{DbError, InnerDbState, bulk::Bulk};
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 
@@ -48,26 +48,33 @@ async fn main() {
             get_genes,
             get_filtered_genes,
             insert_gene,
+            insert_genes_from_file,
             get_conditions,
             get_filtered_conditions,
             get_altering_conditions,
             insert_condition,
+            insert_conditions_from_file,
             get_phenotypes,
             get_filtered_phenotypes,
             get_altering_phenotypes,
             insert_phenotype,
+            insert_phenotypes_from_file,
             get_variation_info,
             get_filtered_variation_info,
             insert_variation_info,
+            insert_variation_infos_from_file,
             get_allele_exprs,
             get_filtered_allele_exprs,
             insert_allele_expr,
+            insert_allele_exprs_from_file,
             get_alleles,
             get_filtered_alleles,
             insert_allele,
+            insert_alleles_from_file,
             get_expr_relations,
             get_filtered_expr_relations,
             insert_expr_relation,
+            insert_expr_relations_from_file,
             get_tasks,
             get_filtered_tasks,
             insert_task,
@@ -149,6 +156,18 @@ async fn insert_gene(state: tauri::State<'_, DbState>, gene: Gene) -> Result<(),
 }
 
 #[tauri::command]
+async fn insert_genes_from_file(
+    state: tauri::State<'_, DbState>,
+    path: String
+) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    match Bulk::<GeneDb>::new(Path::new(&path)) {
+        Ok(bulk) => state_guard.insert_genes(bulk).await,
+        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned()))
+    }
+}
+
+#[tauri::command]
 async fn get_conditions(state: tauri::State<'_, DbState>) -> Result<Vec<Condition>, DbError> {
     let state_guard = state.0.read().await;
     state_guard.get_conditions().await
@@ -182,6 +201,18 @@ async fn insert_condition(
 ) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
     state_guard.insert_condition(&condition).await
+}
+
+#[tauri::command]
+async fn insert_conditions_from_file(
+    state: tauri::State<'_, DbState>,
+    path: String
+) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    match Bulk::<ConditionDb>::new(Path::new(&path)) {
+        Ok(bulk) => state_guard.insert_conditions(bulk).await,
+        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned()))
+    }
 }
 
 #[tauri::command]
@@ -221,6 +252,18 @@ async fn insert_phenotype(
 }
 
 #[tauri::command]
+async fn insert_phenotypes_from_file(
+    state: tauri::State<'_, DbState>,
+    path: String
+) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    match Bulk::<PhenotypeDb>::new(Path::new(&path)) {
+        Ok(bulk) => state_guard.insert_phenotypes(bulk).await,
+        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned()))
+    }
+}
+
+#[tauri::command]
 async fn get_variation_info(
     state: tauri::State<'_, DbState>,
 ) -> Result<Vec<VariationInfo>, DbError> {
@@ -244,6 +287,18 @@ async fn insert_variation_info(
 ) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
     state_guard.insert_variation_info(&variation_info).await
+}
+
+#[tauri::command]
+async fn insert_variation_infos_from_file(
+    state: tauri::State<'_, DbState>,
+    path: String
+) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    match Bulk::<VariationInfoDb>::new(Path::new(&path)) {
+        Ok(bulk) => state_guard.insert_variation_infos(bulk).await,
+        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned()))
+    }
 }
 
 #[tauri::command]
@@ -273,6 +328,18 @@ async fn insert_allele_expr(
 }
 
 #[tauri::command]
+async fn insert_allele_exprs_from_file(
+    state: tauri::State<'_, DbState>,
+    path: String
+) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    match Bulk::<AlleleExpressionDb>::new(Path::new(&path)) {
+        Ok(bulk) => state_guard.insert_allele_exprs(bulk).await,
+        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned()))
+    }
+}
+
+#[tauri::command]
 async fn get_alleles(state: tauri::State<'_, DbState>) -> Result<Vec<Allele>, DbError> {
     let state_guard = state.0.read().await;
     state_guard.get_alleles().await
@@ -291,6 +358,18 @@ async fn get_filtered_alleles(
 async fn insert_allele(state: tauri::State<'_, DbState>, allele: Allele) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
     state_guard.insert_allele(&allele).await
+}
+
+#[tauri::command]
+async fn insert_alleles_from_file(
+    state: tauri::State<'_, DbState>,
+    path: String
+) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    match Bulk::<Allele>::new(Path::new(&path)) {
+        Ok(bulk) => state_guard.insert_alleles(bulk).await,
+        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned()))
+    }
 }
 
 #[tauri::command]
@@ -317,6 +396,18 @@ async fn insert_expr_relation(
 ) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
     state_guard.insert_expr_relation(&expr_relation).await
+}
+
+#[tauri::command]
+async fn insert_expr_relations_from_file(
+    state: tauri::State<'_, DbState>,
+    path: String
+) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    match Bulk::<ExpressionRelationDb>::new(Path::new(&path)) {
+        Ok(bulk) => state_guard.insert_expr_relations(bulk).await,
+        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned()))
+    }
 }
 
 #[tauri::command]

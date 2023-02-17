@@ -9,6 +9,9 @@ pub mod task;
 pub mod tree;
 pub mod task_conds;
 pub mod task_deps;
+pub mod bulk;
+
+pub const SQLITE_BIND_LIMIT: usize = 32766;
 
 use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Sqlite};
@@ -27,6 +30,8 @@ pub enum DbError {
     Update(String),
     #[error("Failed to execute delete: {0}")]
     Delete(String),
+    #[error("Failed to execute bulk insert: {0}")]
+    BulkInsert(String),
 }
 
 pub struct InnerDbState {

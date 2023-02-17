@@ -1,4 +1,4 @@
-use super::{DbError, InnerDbState};
+use super::{DbError, InnerDbState, bulk::Bulk, SQLITE_BIND_LIMIT};
 use crate::models::{
     expr_relation::{ExpressionRelation, ExpressionRelationDb, ExpressionRelationFieldName},
     filter::{FilterGroup, FilterQueryBuilder},
@@ -103,13 +103,56 @@ impl InnerDbState {
             }
         }
     }
+
+    pub async fn insert_expr_relations(&self, bulk: Bulk<ExpressionRelationDb>) -> Result<(), DbError> {
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "INSERT INTO expr_relations (
+                allele_name,
+                expressing_phenotype_name,
+                expressing_phenotype_wild,
+                altering_phenotype_name,
+                altering_phenotype_wild,
+                altering_condition,
+                is_suppressing
+            ) "
+        );
+        if !bulk.errors.is_empty() {
+            return Err(DbError::BulkInsert(format!("Found errors on {} lines", bulk.errors.len())));
+        }
+        let bind_limit = SQLITE_BIND_LIMIT / 7;
+        if bulk.data.len() > bind_limit {
+            return Err(DbError::BulkInsert(format!("Row count exceeds max: {}", bind_limit)))
+        }
+        qb.push_values(bulk.data, |mut b, item| {
+            b.push_bind(item.allele_name)
+            .push_bind(item.expressing_phenotype_name)
+            .push_bind(item.expressing_phenotype_wild)
+            .push_bind(item.altering_phenotype_name)
+            .push_bind(item.altering_phenotype_wild)
+            .push_bind(item.altering_condition)
+            .push_bind(item.is_suppressing);
+        });
+        
+        match qb.build().execute(&self.conn_pool)
+        .await
+        {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                eprint!("Bulk Insert error: {e}");
+                Err(DbError::BulkInsert(e.to_string()))
+            }
+        }
+    }
 }
 
 #[cfg(test)]
 mod test {
 
+    use std::io::BufReader;
+
     use crate::dummy::testdata;
-    use crate::models::expr_relation::ExpressionRelationFieldName;
+    use crate::interface::bulk::Bulk;
+    use crate::models::expr_relation::{ExpressionRelationFieldName, ExpressionRelationDb};
     use crate::models::filter::{FilterGroup, Filter, Order};
     use crate::models::{
         allele::Allele, allele_expr::AlleleExpression, expr_relation::ExpressionRelation,
@@ -239,6 +282,95 @@ mod test {
         Ok(())
     }
     /* #endregion get_filtered_expr_relations tests */
+
+    /* #region insert_filtered_expr_relations tests */
+    #[sqlx::test]
+    async fn test_insert_expr_relations(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        // oxIs644 Variation
+        state
+            .insert_variation_info(&VariationInfo {
+                allele_name: "oxIs644".to_string(), // not a foreign key
+                chromosome: None,
+                phys_loc: None,
+                gen_loc: None,
+                recomb_suppressor: None,
+            })
+            .await?;
+        // oxIs644 Allele
+        state
+            .insert_allele(&Allele {
+                name: "oxIs644".to_string(),
+                contents: Some("[Peft-3::FRT-UTR-FRT::mYFP::unc-54UTR; lin-15(+)]".to_string()),
+                systematic_gene_name: None,
+                variation_name: Some("oxIs644".to_string()),
+            })
+            .await?;
+
+        // YFP(pharynx) not wild - Phenotype
+        state
+            .insert_phenotype(&Phenotype {
+                name: "YFP(pharynx)".to_string(),
+                wild: false,
+                short_name: "YFP(pharynx)".to_string(),
+                description: None,
+                male_mating: Some(3),
+                lethal: Some(false),
+                female_sterile: Some(false),
+                arrested: Some(false),
+                maturation_days: Some(3.0),
+            })
+            .await?;
+        // Flp wild - Phenotype
+        state
+            .insert_phenotype(&Phenotype {
+                name: "Flp".to_string(),
+                wild: true,
+                short_name: "Flp(+)".to_string(),
+                description: None,
+                male_mating: Some(3),
+                lethal: Some(false),
+                female_sterile: Some(false),
+                arrested: Some(false),
+                maturation_days: Some(3.0),
+            })
+            .await?;
+
+        // oxIs644 -> YFP(pharynx) expr
+        state
+            .insert_allele_expr(&AlleleExpression {
+                allele_name: "oxIs644".to_string(),
+                expressing_phenotype_name: "YFP(pharynx)".to_string(),
+                expressing_phenotype_wild: false,
+                dominance: Some(2),
+            })
+            .await?;
+
+        let rel = ExpressionRelation {
+            allele_name: "oxIs644".to_string(),
+            expressing_phenotype_name: "YFP(pharynx)".to_string(),
+            expressing_phenotype_wild: false,
+            altering_phenotype_name: Some("Flp".to_string()),
+            altering_phenotype_wild: Some(true),
+            altering_condition: None,
+            is_suppressing: false,
+        };
+
+        let csv_str = "allele_name,expressing_phenotype_name,expressing_phenotype_wild,altering_phenotype_name,altering_phenotype_wild,altering_condition,is_suppressing
+oxIs644,YFP(pharynx),0,Flp,1,,0"
+            .as_bytes();
+        let buf = BufReader::new(csv_str);
+        let mut reader = csv::ReaderBuilder::new().has_headers(true).from_reader(buf);
+        let bulk: Bulk<ExpressionRelationDb> = Bulk::from_reader(&mut reader);
+
+        state.insert_expr_relations(bulk).await?;
+        
+        let rels = state.get_expr_relations().await?;
+        assert_eq!(vec![rel], rels);
+        Ok(())
+    }
+
+    /* #endregion */
 
     /* #region insert_filtered_expr_relation tests */
     #[sqlx::test]

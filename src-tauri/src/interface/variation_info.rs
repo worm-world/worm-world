@@ -1,4 +1,5 @@
-use super::{DbError, InnerDbState};
+use super::bulk::Bulk;
+use super::{DbError, InnerDbState, SQLITE_BIND_LIMIT};
 use crate::models::filter::FilterQueryBuilder;
 use crate::models::variation_info::VariationInfoDb;
 use crate::models::{
@@ -73,15 +74,53 @@ impl InnerDbState {
             }
         }
     }
+
+    pub async fn insert_variation_infos(&self, bulk: Bulk<VariationInfoDb>) -> Result<(), DbError> {
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "INSERT INTO variation_info (allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end) "
+        );
+        if !bulk.errors.is_empty() {
+            return Err(DbError::BulkInsert(format!(
+                "Found errors on {} lines",
+                bulk.errors.len()
+            )));
+        }
+        let bind_limit = SQLITE_BIND_LIMIT / 6;
+        if bulk.data.len() > bind_limit {
+            return Err(DbError::BulkInsert(format!(
+                "Row count exceeds max: {}",
+                bind_limit
+            )));
+        }
+        qb.push_values(bulk.data, |mut b, item| {
+            b.push_bind(item.allele_name)
+                .push_bind(item.chromosome)
+                .push_bind(item.phys_loc)
+                .push_bind(item.gen_loc)
+                .push_bind(item.recomb_suppressor_start)
+                .push_bind(item.recomb_suppressor_end);
+        });
+
+        match qb.build().execute(&self.conn_pool).await {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                eprint!("Bulk Insert error: {e}");
+                Err(DbError::BulkInsert(e.to_string()))
+            }
+        }
+    }
 }
 
 #[cfg(test)]
 mod test {
 
+    use std::io::BufReader;
+
     use crate::dummy::testdata;
+    use crate::interface::bulk::Bulk;
     use crate::models::chromosome::Chromosome;
-    use crate::models::filter::{FilterGroup, Filter, Order};
-    use crate::models::variation_info::{VariationFieldName, VariationInfo};
+    use crate::models::filter::{Filter, FilterGroup, Order};
+    use crate::models::variation_info::{VariationFieldName, VariationInfo, VariationInfoDb};
     use crate::InnerDbState;
     use anyhow::Result;
     use pretty_assertions::assert_eq;
@@ -195,4 +234,53 @@ mod test {
         Ok(())
     }
     /* #endregion */
+
+    /* #region insert_variation_infos tests */
+    #[sqlx::test]
+    async fn test_insert_variation_infos(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let vis: Vec<VariationInfo> = state.get_variation_info().await?;
+        assert_eq!(vis.len(), 0);
+
+        let expected = vec![
+            VariationInfo {
+                allele_name: "fake".to_string(),
+                chromosome: None,
+                phys_loc: None,
+                gen_loc: None,
+                recomb_suppressor: None,
+            },
+            VariationInfo {
+                allele_name: "oxIs12".to_string(),
+                chromosome: Some(Chromosome::X),
+                phys_loc: None,
+                gen_loc: None,
+                recomb_suppressor: None,
+            },
+            VariationInfo {
+                allele_name: "oxIs13".to_string(),
+                chromosome: Some(Chromosome::X),
+                phys_loc: None,
+                gen_loc: None,
+                recomb_suppressor: None,
+            },
+        ];
+
+        let csv_str =
+            "alleleName,chromosome,physLoc,geneticLoc,recombSuppressorStart,recombSuppressorEnd
+fake,,,,,
+oxIs12,X,,,,
+oxIs13,X,,,,"
+                .as_bytes();
+        let buf = BufReader::new(csv_str);
+        let mut reader = csv::ReaderBuilder::new().has_headers(true).from_reader(buf);
+        let bulk: Bulk<VariationInfoDb> = Bulk::from_reader(&mut reader);
+
+        state.insert_variation_infos(bulk).await?;
+        let vis: Vec<VariationInfo> = state.get_variation_info().await?;
+
+        assert_eq!(expected, vis);
+        Ok(())
+    }
 }

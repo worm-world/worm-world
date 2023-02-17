@@ -1,4 +1,4 @@
-use super::{DbError, InnerDbState};
+use super::{bulk::Bulk, DbError, InnerDbState, SQLITE_BIND_LIMIT};
 use crate::models::{
     condition::{Condition, ConditionDb, ConditionFieldName},
     expr_relation::ExpressionRelationFieldName,
@@ -132,15 +132,55 @@ impl InnerDbState {
             }
         }
     }
+
+    pub async fn insert_conditions(&self, bulk: Bulk<ConditionDb>) -> Result<(), DbError> {
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "INSERT INTO conditions (name, description, male_mating, lethal, female_sterile, arrested, maturation_days) "
+        );
+        if !bulk.errors.is_empty() {
+            return Err(DbError::BulkInsert(format!(
+                "Found errors on {} lines",
+                bulk.errors.len()
+            )));
+        }
+        // 7 is the number of fields here
+        let bind_limit = SQLITE_BIND_LIMIT / 7;
+        if bulk.data.len() > bind_limit {
+            return Err(DbError::BulkInsert(format!(
+                "Row count exceeds max: {}",
+                bind_limit
+            )));
+        }
+        qb.push_values(bulk.data, |mut b, item| {
+            b.push_bind(item.name)
+                .push_bind(item.description)
+                .push_bind(item.male_mating)
+                .push_bind(item.lethal)
+                .push_bind(item.female_sterile)
+                .push_bind(item.arrested)
+                .push_bind(item.maturation_days);
+        });
+
+        match qb.build().execute(&self.conn_pool).await {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                eprint!("Bulk Insert error: {e}");
+                Err(DbError::BulkInsert(e.to_string()))
+            }
+        }
+    }
 }
 
 #[cfg(test)]
 mod test {
 
+    use std::io::BufReader;
+
     use crate::dummy::testdata;
-    use crate::models::condition::{Condition, ConditionFieldName};
+    use crate::interface::bulk::Bulk;
+    use crate::models::condition::{Condition, ConditionDb, ConditionFieldName};
     use crate::models::expr_relation::ExpressionRelationFieldName;
-    use crate::models::filter::{FilterGroup, Filter, Order};
+    use crate::models::filter::{Filter, FilterGroup, Order};
     use crate::InnerDbState;
     use anyhow::Result;
     use pretty_assertions::assert_eq;
@@ -193,7 +233,6 @@ mod test {
         assert_eq!(exprs, fc);
         Ok(())
     }
-
 
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_filtered_conditions_not_3_maturation_days(pool: Pool<Sqlite>) -> Result<()> {
@@ -251,10 +290,7 @@ mod test {
                     ExpressionRelationFieldName::ExpressingPhenotypeWild,
                     Filter::False,
                 )],
-                vec![(
-                    ExpressionRelationFieldName::IsSuppressing,
-                    Filter::False,
-                )],
+                vec![(ExpressionRelationFieldName::IsSuppressing, Filter::False)],
             ],
             order_by: vec![],
         };
@@ -293,6 +329,49 @@ mod test {
 
         let conds = state.get_conditions().await?;
         assert_eq!(vec![expected], conds);
+        Ok(())
+    }
+    /* #endregion */
+
+    /* #region insert_conditions tests */
+    #[sqlx::test]
+    async fn test_insert_conditions(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let csv_str = "name,description,male_mating,lethal,female_sterile,arrested,maturation_days
+15C,,3,0,0,0,4
+25C,,3,0,0,0,3
+Histamine,,3,0,0,0,3
+Tetracycline,,3,0,0,0,3"
+            .as_bytes();
+        let buf = BufReader::new(csv_str);
+        let mut reader = csv::ReaderBuilder::new().has_headers(true).from_reader(buf);
+        let bulk: Bulk<ConditionDb> = Bulk::from_reader(&mut reader);
+
+        state.insert_conditions(bulk).await?;
+
+        assert_eq!(state.get_conditions().await?, testdata::get_conditions());
+        Ok(())
+    }
+    #[sqlx::test]
+    async fn test_insert_conditions_tabs(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let csv_str =
+            "name\tdescription\tmale_mating\tlethal\tfemale_sterile\tarrested\tmaturation_days
+15C\t\t3\t0\t0\t0\t4
+25C\t\t3\t0\t0\t0\t3
+Histamine\t\t3\t0\t0\t0\t3
+Tetracycline\t\t3\t0\t0\t0\t3"
+                .as_bytes();
+        let buf = BufReader::new(csv_str);
+        let mut reader = csv::ReaderBuilder::new()
+            .has_headers(true)
+            .delimiter(b'\t')
+            .from_reader(buf);
+        let bulk: Bulk<ConditionDb> = Bulk::from_reader(&mut reader);
+
+        state.insert_conditions(bulk).await?;
+
+        assert_eq!(state.get_conditions().await?, testdata::get_conditions());
         Ok(())
     }
     /* #endregion */

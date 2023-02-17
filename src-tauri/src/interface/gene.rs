@@ -1,4 +1,4 @@
-use super::{DbError, InnerDbState};
+use super::{bulk::Bulk, DbError, InnerDbState, SQLITE_BIND_LIMIT};
 use crate::models::{
     filter::{FilterGroup, FilterQueryBuilder},
     gene::{Gene, GeneDb, GeneFieldName},
@@ -76,18 +76,57 @@ impl InnerDbState {
             }
         }
     }
+
+    pub async fn insert_genes(&self, bulk: Bulk<GeneDb>) -> Result<(), DbError> {
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "INSERT INTO genes (systematic_name, descriptive_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end) "
+        );
+        if !bulk.errors.is_empty() {
+            return Err(DbError::BulkInsert(format!(
+                "Found errors on {} lines",
+                bulk.errors.len()
+            )));
+        }
+        let bind_limit = SQLITE_BIND_LIMIT / 7;
+        if bulk.data.len() > bind_limit {
+            return Err(DbError::BulkInsert(format!(
+                "Row count exceeds max: {}",
+                bind_limit
+            )));
+        }
+        qb.push_values(bulk.data, |mut b, item| {
+            b.push_bind(item.systematic_name)
+                .push_bind(item.descriptive_name)
+                .push_bind(item.chromosome)
+                .push_bind(item.phys_loc)
+                .push_bind(item.gen_loc)
+                .push_bind(item.recomb_suppressor_start)
+                .push_bind(item.recomb_suppressor_end);
+        });
+
+        match qb.build().execute(&self.conn_pool).await {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                eprint!("Bulk Insert error: {e}");
+                Err(DbError::BulkInsert(e.to_string()))
+            }
+        }
+    }
 }
 
 #[cfg(test)]
 mod test {
 
+    use std::io::BufReader;
+
+    use crate::interface::bulk::Bulk;
     use crate::models::chromosome::Chromosome;
     use crate::models::filter::Order;
-    use crate::models::gene::{Gene, GeneFieldName};
+    use crate::models::gene::{Gene, GeneDb, GeneFieldName};
     use crate::InnerDbState;
     use crate::{
         dummy::testdata,
-        models::filter::{FilterGroup, Filter},
+        models::filter::{Filter, FilterGroup},
     };
     use anyhow::Result;
     use pretty_assertions::assert_eq;
@@ -113,14 +152,8 @@ mod test {
         let exprs = state
             .get_filtered_genes(&FilterGroup::<GeneFieldName> {
                 filters: vec![vec![
-                    (
-                        GeneFieldName::Chromosome,
-                        Filter::Equal("X".to_string()),
-                    ),
-                    (
-                        GeneFieldName::Chromosome,
-                        Filter::Equal("IV".to_string()),
-                    ),
+                    (GeneFieldName::Chromosome, Filter::Equal("X".to_string())),
+                    (GeneFieldName::Chromosome, Filter::Equal("IV".to_string())),
                 ]],
                 order_by: vec![(GeneFieldName::DescName, Order::Asc)],
             })
@@ -136,14 +169,8 @@ mod test {
         let exprs = state
             .get_filtered_genes(&FilterGroup::<GeneFieldName> {
                 filters: vec![vec![
-                    (
-                        GeneFieldName::Chromosome,
-                        Filter::Equal("X".to_string()),
-                    ),
-                    (
-                        GeneFieldName::Chromosome,
-                        Filter::Equal("IV".to_string()),
-                    ),
+                    (GeneFieldName::Chromosome, Filter::Equal("X".to_string())),
+                    (GeneFieldName::Chromosome, Filter::Equal("IV".to_string())),
                 ]],
                 order_by: vec![(GeneFieldName::SysName, Order::Asc)],
             })
@@ -159,14 +186,8 @@ mod test {
         let exprs = state
             .get_filtered_genes(&FilterGroup::<GeneFieldName> {
                 filters: vec![
-                    vec![(
-                        GeneFieldName::Chromosome,
-                        Filter::Equal("X".to_string()),
-                    )],
-                    vec![(
-                        GeneFieldName::PhysLoc,
-                        Filter::Equal("7682896".to_string()),
-                    )],
+                    vec![(GeneFieldName::Chromosome, Filter::Equal("X".to_string()))],
+                    vec![(GeneFieldName::PhysLoc, Filter::Equal("7682896".to_string()))],
                 ],
                 order_by: vec![],
             })
@@ -182,20 +203,14 @@ mod test {
             .get_filtered_genes(&FilterGroup::<GeneFieldName> {
                 filters: vec![
                     vec![
-                        (
-                            GeneFieldName::Chromosome,
-                            Filter::Equal("X".to_string()),
-                        ),
+                        (GeneFieldName::Chromosome, Filter::Equal("X".to_string())),
                         (
                             GeneFieldName::GeneticLoc,
                             Filter::GreaterThan("5".to_string(), true),
                         ),
                     ],
                     vec![
-                        (
-                            GeneFieldName::PhysLoc,
-                            Filter::Equal("7682896".to_string()),
-                        ),
+                        (GeneFieldName::PhysLoc, Filter::Equal("7682896".to_string())),
                         (
                             GeneFieldName::GeneticLoc,
                             Filter::GreaterThan("5".to_string(), true),
@@ -290,4 +305,85 @@ mod test {
         Ok(())
     }
     /* #endregion */
+
+    /* #region insert_genes test */
+    #[sqlx::test]
+    async fn test_insert_genes(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let csv_str =
+            "sysName,descName,chromosome,physLoc,geneticLoc,recombSuppressorStart,recombSuppressorEnd
+M142.1,unc-119,III,10902641,5.59,,
+FAKE23.4,unc-new,,10902633,6.78,,"
+                .as_bytes();
+        let buf = BufReader::new(csv_str);
+        let mut reader = csv::ReaderBuilder::new().has_headers(true).from_reader(buf);
+        let bulk: Bulk<GeneDb> = Bulk::from_reader(&mut reader);
+
+        state.insert_genes(bulk).await?;
+
+        let genes: Vec<Gene> = state.get_genes().await?;
+        assert_eq!(
+            genes,
+            vec![
+                Gene {
+                    systematic_name: "M142.1".to_string(),
+                    descriptive_name: Some("unc-119".to_string()),
+                    chromosome: Some(Chromosome::Iii),
+                    phys_loc: Some(10902641),
+                    gen_loc: Some(5.59),
+                    recomb_suppressor: None,
+                },
+                Gene {
+                    systematic_name: "FAKE23.4".to_string(),
+                    descriptive_name: Some("unc-new".to_string()),
+                    chromosome: None,
+                    phys_loc: Some(10902633),
+                    gen_loc: Some(6.78),
+                    recomb_suppressor: None,
+                }
+            ]
+        );
+        Ok(())
+    }
+
+    #[sqlx::test]
+    async fn test_insert_genes_tabs(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let csv_str =
+            "sysName\tdescName\tchromosome\tphysLoc\tgeneticLoc\trecombSuppressorStart\trecombSuppressorEnd
+M142.1\tunc-119\tIII\t10902641\t5.59\t\t
+FAKE23.4\tunc-new\t\t10902633\t6.78\t\t"
+                .as_bytes();
+        let buf = BufReader::new(csv_str);
+        let mut reader = csv::ReaderBuilder::new().has_headers(true).delimiter(b'\t').from_reader(buf);
+        let bulk: Bulk<GeneDb> = Bulk::from_reader(&mut reader);
+
+        state.insert_genes(bulk).await?;
+
+        let genes: Vec<Gene> = state.get_genes().await?;
+        assert_eq!(
+            genes,
+            vec![
+                Gene {
+                    systematic_name: "M142.1".to_string(),
+                    descriptive_name: Some("unc-119".to_string()),
+                    chromosome: Some(Chromosome::Iii),
+                    phys_loc: Some(10902641),
+                    gen_loc: Some(5.59),
+                    recomb_suppressor: None,
+                },
+                Gene {
+                    systematic_name: "FAKE23.4".to_string(),
+                    descriptive_name: Some("unc-new".to_string()),
+                    chromosome: None,
+                    phys_loc: Some(10902633),
+                    gen_loc: Some(6.78),
+                    recomb_suppressor: None,
+                }
+            ]
+        );
+        Ok(())
+    }
 }
