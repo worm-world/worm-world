@@ -1,4 +1,4 @@
-use super::{DbError, InnerDbState};
+use super::{DbError, InnerDbState, bulk::Bulk, SQLITE_BIND_LIMIT};
 use crate::models::{
     expr_relation::ExpressionRelationFieldName,
     filter::{FilterGroup, FilterQueryBuilder},
@@ -141,15 +141,52 @@ impl InnerDbState {
             }
         }
     }
+
+    pub async fn insert_phenotypes(&self, bulk: Bulk<PhenotypeDb>) -> Result<(), DbError> {
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "INSERT INTO phenotypes (name, wild, short_name, description, male_mating, lethal, female_sterile, arrested, maturation_days) "
+        );
+        if !bulk.errors.is_empty() {
+            return Err(DbError::BulkInsert(format!("Found errors on {} lines", bulk.errors.len())));
+        }
+        let bind_limit = SQLITE_BIND_LIMIT / 9;
+        if bulk.data.len() > bind_limit {
+            return Err(DbError::BulkInsert(format!("Row count exceeds max: {}", bind_limit)))
+        }
+        qb.push_values(bulk.data, |mut b, item| {
+            b.push_bind(item.name)
+            .push_bind(item.wild)
+            .push_bind(item.short_name)
+            .push_bind(item.description)
+            .push_bind(item.male_mating)
+            .push_bind(item.lethal)
+            .push_bind(item.female_sterile)
+            .push_bind(item.arrested)
+            .push_bind(item.maturation_days);
+        });
+        
+        match qb.build().execute(&self.conn_pool)
+        .await
+        {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                eprint!("Bulk Insert error: {e}");
+                Err(DbError::BulkInsert(e.to_string()))
+            }
+        }
+    }
 }
 
 #[cfg(test)]
 mod test {
 
+    use std::io::BufReader;
+
     use crate::dummy::testdata;
+    use crate::interface::bulk::Bulk;
     use crate::models::expr_relation::ExpressionRelationFieldName;
     use crate::models::filter::{FilterGroup, Filter, Order};
-    use crate::models::phenotype::{Phenotype, PhenotypeFieldName};
+    use crate::models::phenotype::{Phenotype, PhenotypeFieldName, PhenotypeDb};
     use crate::InnerDbState;
     use anyhow::Result;
     use pretty_assertions::assert_eq;
@@ -292,6 +329,60 @@ mod test {
 
         let phens = state.get_phenotypes().await?;
         assert_eq!(vec![expected], phens);
+        Ok(())
+    }
+    /* #endregion */
+
+    /* #region insert_conditions tests */
+    #[sqlx::test]
+    async fn test_insert_phenotypes(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let csv_str = "name,wild,short_name,description,male_mating,lethal,female_sterile,arrested,maturation_days
+unc-18,1,unc,,,,,,
+unc-31,0,unc,,,,,,
+unc-5,0,unc,,0,0,0,0,4"
+            .as_bytes();
+        let buf = BufReader::new(csv_str);
+        let mut reader = csv::ReaderBuilder::new().has_headers(true).from_reader(buf);
+        let bulk: Bulk<PhenotypeDb> = Bulk::from_reader(&mut reader);
+
+        state.insert_phenotypes(bulk).await?;
+        let expected = vec![
+            Phenotype {
+                name: "unc-18".to_string(),
+                wild: true,
+                short_name: "unc".to_string(),
+                description: None,
+                male_mating: None,
+                lethal: None,
+                female_sterile: None,
+                arrested: None,
+                maturation_days: None,
+            },
+            Phenotype {
+                name: "unc-31".to_string(),
+                wild: false,
+                short_name: "unc".to_string(),
+                description: None,
+                male_mating: None,
+                lethal: None,
+                female_sterile: None,
+                arrested: None,
+                maturation_days: None,
+            },
+            Phenotype {
+                name: "unc-5".to_string(),
+                wild: false,
+                short_name: "unc".to_string(),
+                description: None,
+                male_mating: Some(0),
+                lethal: Some(false),
+                female_sterile: Some(false),
+                arrested: Some(false),
+                maturation_days: Some(4.0),
+            },
+        ];
+        assert_eq!(state.get_phenotypes().await?, expected);
         Ok(())
     }
     /* #endregion */
