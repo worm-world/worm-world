@@ -71,3 +71,7 @@ export const insertDbPhenotype = async (
 ): Promise<void> => {
   await invoke('insert_phenotype', { phenotype: record });
 };
+
+export const insertPhenotypesFromFile = async (path: string): Promise<void> => {
+  await invoke('insert_phenotypes_from_file', { path });
+};

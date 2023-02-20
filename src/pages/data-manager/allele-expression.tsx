@@ -1,5 +1,6 @@
 import {
   getFilteredAlleleExpressions,
+  insertAlleleExpressionsFromFile,
   insertDbAlleleExpression,
 } from 'api/alleleExpressions';
 import { db_AlleleExpression } from 'models/db/db_AlleleExpression';
@@ -58,6 +59,7 @@ export default function AlleleExpressionDataPage(): JSX.Element {
       nameMapping={nameMapping}
       getFilteredData={getFilteredAlleleExpressions}
       insertDatum={insertDbAlleleExpression}
+      insertDataFromFile={insertAlleleExpressionsFromFile}
     />
   );
 }

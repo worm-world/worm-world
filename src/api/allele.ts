@@ -36,3 +36,7 @@ export const insertAllele = async (allele: Allele): Promise<void> => {
 export const insertDbAllele = async (record: db_Allele): Promise<void> => {
   await invoke('insert_allele', { allele: record });
 };
+
+export const insertAllelesFromFile = async (path: string): Promise<void> => {
+  await invoke('insert_alleles_from_file', { path });
+};
