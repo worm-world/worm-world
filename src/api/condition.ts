@@ -71,3 +71,7 @@ export const insertDbCondition = async (
 ): Promise<void> => {
   await invoke('insert_condition', { condition: record });
 };
+
+export const insertConditionsFromFile = async (path: string): Promise<void> => {
+  await invoke('insert_conditions_from_file', { path });
+};

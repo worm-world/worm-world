@@ -1,6 +1,10 @@
 import { db_Phenotype } from 'models/db/db_Phenotype';
 import { ColumnDefinitionType } from 'components/Table/Table';
-import { getFilteredPhenotypes, insertDbPhenotype } from 'api/phenotype';
+import {
+  getFilteredPhenotypes,
+  insertDbPhenotype,
+  insertPhenotypesFromFile,
+} from 'api/phenotype';
 import { PhenotypeFieldName } from 'models/db/filter/db_PhenotypeFieldName';
 import DataPage from 'components/DataPage/DataPage';
 import { Field } from 'components/ColumnFilter/ColumnFilter';
@@ -87,6 +91,7 @@ export default function PhenotypeDataPage(): JSX.Element {
       nameMapping={nameMapping}
       getFilteredData={getFilteredPhenotypes}
       insertDatum={insertDbPhenotype}
+      insertDataFromFile={insertPhenotypesFromFile}
     />
   );
 }

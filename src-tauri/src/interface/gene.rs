@@ -357,7 +357,10 @@ M142.1\tunc-119\tIII\t10902641\t5.59\t\t
 FAKE23.4\tunc-new\t\t10902633\t6.78\t\t"
                 .as_bytes();
         let buf = BufReader::new(csv_str);
-        let mut reader = csv::ReaderBuilder::new().has_headers(true).delimiter(b'\t').from_reader(buf);
+        let mut reader = csv::ReaderBuilder::new()
+            .has_headers(true)
+            .delimiter(b'\t')
+            .from_reader(buf);
         let bulk: Bulk<GeneDb> = Bulk::from_reader(&mut reader);
 
         state.insert_genes(bulk).await?;

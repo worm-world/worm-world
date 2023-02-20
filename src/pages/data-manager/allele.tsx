@@ -1,4 +1,8 @@
-import { getFilteredAlleles, insertDbAllele } from 'api/allele';
+import {
+  getFilteredAlleles,
+  insertAllelesFromFile,
+  insertDbAllele,
+} from 'api/allele';
 import { db_Allele } from 'models/db/db_Allele';
 import { ColumnDefinitionType } from 'components/Table/Table';
 import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
@@ -51,6 +55,7 @@ export default function AlleleDataPage(): JSX.Element {
       nameMapping={nameMapping}
       getFilteredData={getFilteredAlleles}
       insertDatum={insertDbAllele}
+      insertDataFromFile={insertAllelesFromFile}
     />
   );
 }

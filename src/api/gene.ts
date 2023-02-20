@@ -38,3 +38,7 @@ export const insertGene = async (gene: Gene): Promise<void> => {
 export const insertDbGene = async (record: db_Gene): Promise<void> => {
   await invoke('insert_gene', { gene: record });
 };
+
+export const insertGenesFromFile = async (path: string) => {
+  await invoke('insert_genes_from_file', { path });
+};

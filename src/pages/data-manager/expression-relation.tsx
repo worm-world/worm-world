@@ -1,6 +1,7 @@
 import {
   getFilteredExpressionRelations,
   insertDbExpressionRelation,
+  insertExpressionRelationsFromFile,
 } from 'api/expressionRelation';
 import { db_ExpressionRelation } from 'models/db/db_ExpressionRelation';
 import { ColumnDefinitionType } from 'components/Table/Table';
@@ -78,6 +79,7 @@ export default function ExpressionRelationDataPage(): JSX.Element {
       nameMapping={nameMapping}
       getFilteredData={getFilteredExpressionRelations}
       insertDatum={insertDbExpressionRelation}
+      insertDataFromFile={insertExpressionRelationsFromFile}
     />
   );
 }

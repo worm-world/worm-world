@@ -24,3 +24,9 @@ export const insertDbExpressionRelation = async (
     exprRelation: record,
   });
 };
+
+export const insertExpressionRelationsFromFile = async (
+  path: string
+): Promise<void> => {
+  await invoke('insert_expr_relations_from_file', { path });
+};

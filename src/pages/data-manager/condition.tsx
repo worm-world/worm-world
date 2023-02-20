@@ -1,6 +1,10 @@
 import { db_Condition } from 'models/db/db_Condition';
 import { ColumnDefinitionType } from 'components/Table/Table';
-import { getFilteredConditions, insertDbCondition } from 'api/condition';
+import {
+  getFilteredConditions,
+  insertConditionsFromFile,
+  insertDbCondition,
+} from 'api/condition';
 import { Field } from 'components/ColumnFilter/ColumnFilter';
 import { ConditionFieldName } from 'models/db/filter/db_ConditionFieldName';
 import DataPage from 'components/DataPage/DataPage';
@@ -73,6 +77,7 @@ export default function ConditionDataPage(): JSX.Element {
       nameMapping={nameMapping}
       getFilteredData={getFilteredConditions}
       insertDatum={insertDbCondition}
+      insertDataFromFile={insertConditionsFromFile}
     />
   );
 }

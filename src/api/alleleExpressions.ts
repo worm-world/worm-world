@@ -49,3 +49,9 @@ export const insertDbAlleleExpression = async (
 ): Promise<void> => {
   await invoke('insert_allele_expr', { alleleExpr: record });
 };
+
+export const insertAlleleExpressionsFromFile = async (
+  path: string
+): Promise<void> => {
+  await invoke('insert_allele_exprs_from_file', { path });
+};

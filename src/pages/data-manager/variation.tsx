@@ -1,4 +1,8 @@
-import { getFilteredVariations, insertDbVariation } from 'api/variationInfo';
+import {
+  getFilteredVariations,
+  insertDbVariation,
+  insertVariationsFromFile,
+} from 'api/variationInfo';
 import { db_VariationInfo } from 'models/db/db_VariationInfo';
 import { ColumnDefinitionType } from 'components/Table/Table';
 import { chromosomes } from 'models/frontend/Chromosome';
@@ -55,6 +59,7 @@ export default function VariationDataPage(): JSX.Element {
       nameMapping={nameMapping}
       getFilteredData={getFilteredVariations}
       insertDatum={insertDbVariation}
+      insertDataFromFile={insertVariationsFromFile}
     />
   );
 }
