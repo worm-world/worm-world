@@ -11,11 +11,13 @@ import ReactFlow, {
   NodeChange,
   Connection,
   ReactFlowInstance,
+  useReactFlow,
 } from 'reactflow';
 import { toPng, toSvg } from 'html-to-image';
 import { FiShare } from 'react-icons/fi';
 import 'reactflow/dist/style.css';
-import { fs } from '@tauri-apps/api';
+import { open } from '@tauri-apps/api/dialog';
+import { fs, path } from '@tauri-apps/api';
 import {
   StrainFlowWrapper,
   SelfIconFlowWrapper,
@@ -23,6 +25,7 @@ import {
   NoteFlowWrapper,
 } from 'components/FlowWrapper/FlowWrapper';
 import { Options } from 'html-to-image/lib/types';
+import { toast } from 'react-toastify';
 
 type SaveMethod = 'png' | 'svg';
 const saveMethodFuncs: Record<
@@ -35,27 +38,31 @@ const saveMethodFuncs: Record<
 
 const downloadImage = async (
   dataUrl: string,
-  saveMethod: SaveMethod
+  saveMethod: SaveMethod,
+  dir: string | null
 ): Promise<void> => {
   const a = document.createElement('a');
-  const filename = `cross-tree-${new Date().toISOString()}.${saveMethod}`;
+  let filename = `cross-tree-${new Date().toISOString()}.${saveMethod}`;
   // workaround  because of this: https://github.com/tauri-apps/tauri/issues/4633
   if (window.__TAURI_IPC__ !== undefined) {
+    if (dir !== null && dir !== undefined) {
+      filename = await path.join(dir, filename);
+    }
     const dataBlob = await (await fetch(dataUrl)).blob();
     switch (saveMethod) {
       case 'png':
         fs.writeBinaryFile(filename, await dataBlob.arrayBuffer(), {
-          dir: fs.BaseDirectory.Download,
+          dir: dir === null ? fs.BaseDirectory.Download : undefined,
         })
-          .then(() => alert('Exported PNG to Downloads'))
-          .catch((e) => alert(e));
+          .then(() => toast.success('Exported PNG to ' + filename))
+          .catch((e) => toast.error(e));
         break;
       case 'svg':
         fs.writeTextFile(filename, await dataBlob.text(), {
-          dir: fs.BaseDirectory.Download,
+          dir: dir === null ? fs.BaseDirectory.Download : undefined,
         })
-          .then(() => alert('Exported SVG to Downloads'))
-          .catch((e) => alert(e));
+          .then(() => toast.success('Exported SVG to ' + filename))
+          .catch((e) => toast.error(e));
         break;
     }
   } else {
@@ -72,23 +79,37 @@ const saveImg = (saveMethod: SaveMethod): void => {
     alert('Could not find react-flow element');
     return;
   }
-  saveFunc(reactFlowElem as HTMLElement, {
-    filter: (node: Element | undefined) => {
-      // we don't want to add the minimap and the controls to the image
-      if (node === undefined || node.classList === undefined) {
-        return false;
-      } else if (
-        node.classList.contains('react-flow__minimap') ||
-        node.classList.contains('react-flow__controls') ||
-        node.classList.contains('react-flow_Background') ||
-        node.classList.contains('react-flow__attribution')
-      ) {
-        return false;
-      }
-      return true;
-    },
-  })
-    .then(async (dataUrl) => await downloadImage(dataUrl, saveMethod))
+  Promise.all([
+    open({
+      directory: true,
+    }),
+    saveFunc(reactFlowElem as HTMLElement, {
+      width: 1920,
+      height: 1080,
+      quality: 1,
+      skipAutoScale: false,
+      pixelRatio: 1,
+      filter: (node: Element | undefined) => {
+        // we don't want to add the minimap and the controls to the image
+        if (node === undefined) {
+          return false;
+        } else if (
+          node.classList !== undefined &&
+          (node.classList.contains('react-flow__minimap') ||
+            node.classList.contains('react-flow__controls') ||
+            node.classList.contains('react-flow__background') ||
+            node.classList.contains('react-flow__attribution'))
+        ) {
+          return false;
+        }
+        return true;
+      },
+    }),
+  ])
+    .then(
+      async ([dir, dataUrl]) =>
+        await downloadImage(dataUrl, saveMethod, dir as string | null)
+    )
     .catch((e) => alert(e));
 };
 
@@ -116,12 +137,22 @@ const CustomControls = (props: ControlProps): JSX.Element => {
             className='dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow'
           >
             <li>
-              <a target='_blank' onClick={() => saveImg('png')}>
+              <a
+                target='_blank'
+                onClick={() => {
+                  saveImg('png');
+                }}
+              >
                 Export to PNG
               </a>
             </li>
             <li>
-              <a target='_blank' onClick={() => saveImg('svg')}>
+              <a
+                target='_blank'
+                onClick={() => {
+                  saveImg('svg');
+                }}
+              >
                 Export to SVG
               </a>
             </li>
