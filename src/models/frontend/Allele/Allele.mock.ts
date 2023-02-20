@@ -52,9 +52,9 @@ export const chromXGene1Allele1 = new Allele({
   gene: geneMock.chromXGene1,
 });
 
-export const chromEcaVariation1Allele1 = new Allele({
-  name: 'chromEcaVariation1Allele1',
-  variation: variationMock.chromEcaVariation1,
+export const chromExVariation1Allele1 = new Allele({
+  name: 'chromExVariation1Allele1',
+  variation: variationMock.chromExVariation1,
 });
 
 export const chromUnknownVariation1Allele1 = new Allele({
@@ -166,7 +166,7 @@ export const oxEx219999 = new Allele({
   contents: '[Primb-1::HisCl1::SL2::GFP]',
 });
 export const oxEx12345 = new Allele({
-  name: 'oxEx219999',
+  name: 'oxEx12345',
   gene: undefined,
   variation: variationMock.oxEx12345,
   alleleExpressions: undefined,

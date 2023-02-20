@@ -69,7 +69,7 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
     props.tree.lastSaved = new Date();
     updateTree(props.tree.generateRecord(true))
       .then(props.refreshTrees)
-      .catch((error) => console.log(error));
+      .catch((error) => console.error(error));
   };
 
   return (

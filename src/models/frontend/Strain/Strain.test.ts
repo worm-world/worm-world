@@ -12,6 +12,8 @@ import {
   oxSi1168,
   oxTi302,
   oxTi75,
+  oxEx2254,
+  oxEx219999,
 } from 'models/frontend/Allele/Allele.mock';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { Strain, StrainOption } from 'models/frontend/Strain/Strain';
@@ -25,6 +27,7 @@ import {
   PartialAdvancedSelfCross,
   ItermediateSelfCross,
   IntermediateCross,
+  EcaCross,
 } from 'models/frontend/Strain/Strain.mock';
 import { expect, test, describe } from 'vitest';
 
@@ -283,7 +286,7 @@ describe('cross algorithm', () => {
     testStrainResults(crossStrains, DifChromSimpleSelfCross);
   });
 
-  test('advanced self cross on multiple chromosomes', () => {
+  test('advanced self-cross on multiple chromosomes', () => {
     const allelePairs: AllelePair[] = [
       // chrom II
       new AllelePair({ top: cn64, bot: WILD_ALLELE }),
@@ -330,6 +333,34 @@ describe('cross algorithm', () => {
 
     testStrainResults(crossStrains, IntermediateCross);
   });
+
+  test('ECA cross', () => {
+    const allelePairs1: AllelePair[] = [
+      new AllelePair({
+        top: oxEx2254,
+        bot: new WildAllele(oxEx2254),
+        isECA: true,
+      }),
+      new AllelePair({
+        top: oxEx219999,
+        bot: new WildAllele(oxEx219999),
+        isECA: true,
+      }),
+    ];
+    const allelePairs2: AllelePair[] = [
+      new AllelePair({
+        top: oxEx2254,
+        bot: new WildAllele(oxEx2254),
+        isECA: true,
+      }),
+    ];
+    const strain1 = new Strain({ allelePairs: allelePairs1 });
+    const strain2 = new Strain({ allelePairs: allelePairs2 });
+    const crossStrains = strain1.crossWith(strain2);
+
+    testStrainResults(crossStrains, EcaCross);
+  });
+
   it('should be able to serialize and deserialize', () => {
     const allelePairs1: AllelePair[] = [
       // chrom II

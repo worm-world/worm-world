@@ -154,7 +154,12 @@ const getMutationBox = (
   toggleHetPair?: (pair: AllelePair) => void
 ): JSX.Element => {
   if (allelePair.isECA) {
-    return <div key={key}>{allelePair.top.name}</div>;
+    if (allelePair.isWild()) return <></>;
+    return (
+      <div key={key} className='text-align w-full px-2 text-center'>
+        {allelePair.getAllele().name}
+      </div>
+    );
   } else {
     const toggleEnabled =
       allelePair.top.name !== allelePair.bot.name &&

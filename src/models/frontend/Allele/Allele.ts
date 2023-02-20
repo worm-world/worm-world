@@ -146,6 +146,10 @@ export class Allele {
     return this.gene?.geneticLoc ?? this.variation?.geneticLoc;
   }
 
+  public isWild(): boolean {
+    return this.name === '+';
+  }
+
   public toJSON(): string {
     return JSON.stringify(instanceToPlain(this));
   }
@@ -153,6 +157,11 @@ export class Allele {
   static fromJSON(json: string): Allele {
     return [plainToInstance(Allele, JSON.parse(json))].flat()[0];
   }
+}
+
+export function isEcaAlleleName(name: string): boolean {
+  const ecaRegex = /^[a-z]{1,3}Ex/;
+  return ecaRegex.test(name);
 }
 
 export class WildAllele extends Allele {

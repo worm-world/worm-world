@@ -420,6 +420,7 @@ describe('allele pair', () => {
     expect(AllelePair.chromosomesMatch(chrom1, chrom2)).toBe(false);
     expect(AllelePair.chromosomesMatch(chrom2, chrom1)).toBe(false);
   });
+
   test('.chromosomesMatch() returns false for different chromosome with wild allele', () => {
     const chrom1 = [
       new AllelePair({ top: e204, bot: WILD_ALLELE }),
@@ -434,6 +435,22 @@ describe('allele pair', () => {
     expect(AllelePair.chromosomesMatch(chrom1, chrom2)).toBe(false);
     expect(AllelePair.chromosomesMatch(chrom2, chrom1)).toBe(false);
   });
+
+  test('.chromosomesMatch() ignores order, top/bottom-ness in ECA', () => {
+    const chrom1 = [
+      new AllelePair({ top: oxEx12345, bot: WILD_ALLELE, isECA: true }), // A
+      new AllelePair({ top: WILD_ALLELE, bot: oxEx12345, isECA: true }), // B
+      new AllelePair({ top: WILD_ALLELE, bot: oxEx219999, isECA: true }), // C
+    ];
+    const chrom2 = [
+      new AllelePair({ top: WILD_ALLELE, bot: oxEx219999, isECA: true }), // C
+      new AllelePair({ top: WILD_ALLELE, bot: oxEx12345, isECA: true }), // A (flipped)
+      new AllelePair({ top: WILD_ALLELE, bot: oxEx12345, isECA: true }), // B
+    ];
+    expect(AllelePair.chromosomesMatch(chrom1, chrom2)).toBe(true);
+    expect(AllelePair.chromosomesMatch(chrom2, chrom1)).toBe(true);
+  });
+
   it('should be able to serialize and deserialize', () => {
     const pair = new AllelePair({ top: e204, bot: WILD_ALLELE });
     const str = pair.toJSON();

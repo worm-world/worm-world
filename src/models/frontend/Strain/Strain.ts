@@ -17,6 +17,7 @@ export interface StrainOption {
 interface ChromatidOption {
   alleles: Allele[];
   prob: number;
+  isECA: boolean;
 }
 
 interface ChromosomeOption {
@@ -138,8 +139,14 @@ export class Strain {
     const lStrain = this.clone();
     const rStrain = other.clone();
 
+    // For purposes of crossing, assign each ECA allele a unique logical chromosome in chrom pair map
+    const lStartingIndex = 0;
+    const rStartingIndex = lStrain.chromPairMap.get('Ex')?.length ?? 0;
+    lStrain.logicallySplitEca(lStartingIndex);
+    rStrain.logicallySplitEca(rStartingIndex);
+
     lStrain.prepWithWilds(rStrain);
-    rStrain.prepWithWilds(this);
+    rStrain.prepWithWilds(lStrain);
 
     const multiChromOptions: ChromosomeOption[][] = [];
 
@@ -160,6 +167,20 @@ export class Strain {
   /* #endregion public methods */
 
   /* #region private methods */
+  /**
+   * Logically break up extrachromosomal array of n alleles
+   * into n logical chromosomes (whose alleles will independently assort)
+   */
+  private logicallySplitEca(ecaIdx: number): void {
+    const eca = this.chromPairMap.get('Ex');
+    if (eca !== undefined) {
+      this.chromPairMap.delete('Ex');
+      eca.forEach((allelePair) => {
+        this.chromPairMap.set(`Ex-${ecaIdx++}` as Chromosome, [allelePair]);
+      });
+    }
+  }
+
   /**
    * Permutes all possible strain combinations due to each chromosome
    * @param multiChromOptions Outer list represents a unique Chromosomes, inner list is the possible PairChains for that chromosome
@@ -233,7 +254,8 @@ export class Strain {
           chromosomePairs.findIndex(
             (pair) =>
               pair.hasSameBaseAllele(otherPair) ||
-              (pair.isWild() && pair.hasSameGenLoc(otherPair))
+              ((otherPair.isWild() || pair.isWild()) &&
+                pair.hasSameGenLoc(otherPair))
           ) >= 0;
 
         // Add wild pair to pairList to match other strain
@@ -257,6 +279,7 @@ export class Strain {
     const wildPair = new AllelePair({
       top: new WildAllele(otherPair.getAllele()),
       bot: new WildAllele(otherPair.getAllele()),
+      isECA: otherPair.isECA,
     });
 
     chromosomePairs.push(wildPair);
@@ -282,7 +305,11 @@ export class Strain {
     leftOptions.forEach((left) => {
       rightOptions.forEach((right) => {
         chromosomeOptions.push({
-          pairs: this.combineChromatids(left.alleles, right.alleles),
+          pairs: this.combineChromatids(
+            left.alleles,
+            right.alleles,
+            left.isECA
+          ),
           prob: left.prob * right.prob,
         });
       });
@@ -333,7 +360,7 @@ export class Strain {
       const currChromatid = chromatids[i];
 
       // Check for duplicates and combine probabilities
-      for (let j = i + 1; j < chromatids.length; j++) {
+      for (let j = i + 1; j < chromatids.length; ) {
         const nextChromatid = chromatids[j];
         const duplicateChromatids: boolean =
           this.getChromatidString(currChromatid) ===
@@ -342,6 +369,8 @@ export class Strain {
         if (duplicateChromatids) {
           currChromatid.prob += nextChromatid.prob;
           chromatids.splice(j, 1);
+        } else {
+          j++;
         }
       }
     }
@@ -356,11 +385,13 @@ export class Strain {
       const currChrom = chromosomes[i];
 
       // Check for duplicates and combine probabilities
-      for (let j = i + 1; j < chromosomes.length; j++) {
+      for (let j = i + 1; j < chromosomes.length; ) {
         const nextChrom = chromosomes[j];
         if (AllelePair.chromosomesMatch(currChrom.pairs, nextChrom.pairs)) {
           currChrom.prob += nextChrom.prob;
           chromosomes.splice(j, 1);
+        } else {
+          j++;
         }
       }
     }
@@ -375,13 +406,15 @@ export class Strain {
       const currStrain = strains[i];
 
       // Check for duplicates and combine probabilities
-      for (let j = i + 1; j < strains.length; j++) {
+      for (let j = i + 1; j < strains.length; ) {
         const nextStrain = strains[j];
         const duplicate = currStrain.strain.equals(nextStrain.strain);
 
         if (duplicate) {
           currStrain.prob += nextStrain.prob;
           strains.splice(j, 1);
+        } else {
+          j++;
         }
       }
     }
@@ -424,7 +457,11 @@ export class Strain {
         probability -= recombinationProb;
         chromatid.push(startingChromatid[j]);
       }
-      chromatids.push({ alleles: chromatid, prob: probability });
+      chromatids.push({
+        alleles: chromatid,
+        prob: probability,
+        isECA: chromosome.length > 0 && chromosome[0].isECA,
+      });
     }
 
     return chromatids;
@@ -447,10 +484,14 @@ export class Strain {
    * @param top list of alleles that will be the top chromatid
    * @param bot list of alleles that will be the bottom chromatid
    */
-  private combineChromatids(top: Allele[], bot: Allele[]): AllelePair[] {
+  private combineChromatids(
+    top: Allele[],
+    bot: Allele[],
+    isECA: boolean
+  ): AllelePair[] {
     const chromosome: AllelePair[] = [];
     for (let i = 0; i < top.length && i < bot.length; i++)
-      chromosome.push(new AllelePair({ top: top[i], bot: bot[i] }));
+      chromosome.push(new AllelePair({ top: top[i], bot: bot[i], isECA }));
     return chromosome;
   }
 
@@ -458,7 +499,9 @@ export class Strain {
    * Adds a provided Allele Pair to this strain
    */
   private addPairToStrain(pairToAdd: AllelePair): void {
-    const chromName = pairToAdd.getAllele().getChromosome();
+    const chromName = pairToAdd.isECA
+      ? 'Ex'
+      : pairToAdd.getAllele().getChromosome();
     let chromosome = this.chromPairMap.get(chromName);
     if (chromosome === undefined) {
       chromosome = [];

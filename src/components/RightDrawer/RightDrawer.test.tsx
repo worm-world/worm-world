@@ -5,14 +5,14 @@ const testPropsOpen = {
   initialDrawerWidth: 200,
   maxWidth: 300,
   isOpen: true,
-  close: () => console.log('close button pressed'),
+  close: () => {},
 };
 
 const testPropsClosed = {
   initialDrawerWidth: 200,
   maxWidth: 300,
   isOpen: false,
-  close: () => console.log('close button pressed'),
+  close: () => {},
 };
 
 const childElement = <div>RightDrawer Child Element</div>;
