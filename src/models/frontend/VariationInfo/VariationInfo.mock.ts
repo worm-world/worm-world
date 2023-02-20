@@ -5,9 +5,9 @@ export const chromUnknownVariation1 = new VariationInfo({
   chromosome: undefined,
 });
 
-export const chromEcaVariation1 = new VariationInfo({
+export const chromExVariation1 = new VariationInfo({
   name: 'chromExVariation1',
-  chromosome: 'Ex',
+  chromosome: undefined,
 });
 
 export const chrom1Variation1 = new VariationInfo({

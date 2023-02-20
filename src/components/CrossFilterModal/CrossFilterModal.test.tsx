@@ -15,8 +15,6 @@ const renderComponent = ({
   invisibleSet = new Set<string>(),
   toggleVisible = vi.fn(),
 }): void => {
-  const childMap = new Map(childNodes.map((node) => [node.id, node]));
-
   render(
     <CrossFilterModal
       childNodes={childNodes}

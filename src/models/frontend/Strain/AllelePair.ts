@@ -163,12 +163,30 @@ export class AllelePair implements iAllelePair {
     chromosome1: AllelePair[],
     chromosome2: AllelePair[]
   ): boolean {
-    if (chromosome1.length !== chromosome2.length) return false;
+    const chromosome1Copy = chromosome1.map((allelePair) => allelePair.clone());
+    const chromosome2Copy = chromosome2.map((allelePair) => allelePair.clone());
 
-    const topTid1 = AllelePair.getChromatid(chromosome1, 'top');
-    const botTid1 = AllelePair.getChromatid(chromosome1, 'bot');
-    const topTid2 = AllelePair.getChromatid(chromosome2, 'top');
-    const botTid2 = AllelePair.getChromatid(chromosome2, 'bot');
+    // Allele pair order and top/bottom-ness don't matter for ECA alleles
+    // So look at canonical form for comparison
+    [chromosome1Copy, chromosome2Copy].forEach((chromosome) => {
+      if (chromosome.length > 0 && chromosome[0].isECA) {
+        chromosome.sort((a, b) =>
+          a.getAllele().name.localeCompare(b.getAllele().name)
+        );
+        chromosome.forEach((allelePair) => {
+          if (allelePair.top.isWild()) {
+            allelePair.flip();
+          }
+        });
+      }
+    });
+
+    if (chromosome1Copy.length !== chromosome2Copy.length) return false;
+
+    const topTid1 = AllelePair.getChromatid(chromosome1Copy, 'top');
+    const botTid1 = AllelePair.getChromatid(chromosome1Copy, 'bot');
+    const topTid2 = AllelePair.getChromatid(chromosome2Copy, 'top');
+    const botTid2 = AllelePair.getChromatid(chromosome2Copy, 'bot');
 
     const topTidsMatch = AllelePair.chromatidsMatch(topTid1, topTid2);
     if (topTidsMatch) return AllelePair.chromatidsMatch(botTid1, botTid2);

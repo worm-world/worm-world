@@ -19,7 +19,7 @@ const EditorTop = (props: EditorTopProps): JSX.Element => {
   const updateTreeName = (): void => {
     props.tree.name = name;
     updateTree(props.tree.generateRecord(true)).catch((error) =>
-      console.log(error)
+      console.error(error)
     );
   };
 

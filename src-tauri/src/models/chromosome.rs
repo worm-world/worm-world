@@ -23,9 +23,8 @@ pub enum Chromosome {
     V,
     #[strum(serialize = "X")]
     X,
-    #[serde(rename = "Ex")]
     #[strum(serialize = "Ex")]
-    Eca,
+    Ex,
 }
 
 impl From<String> for Chromosome {

@@ -1,5 +1,9 @@
 import { useState } from 'react';
-import { Allele, WILD_ALLELE } from 'models/frontend/Allele/Allele';
+import {
+  Allele,
+  WILD_ALLELE,
+  isEcaAlleleName,
+} from 'models/frontend/Allele/Allele';
 import { Sex, sexToString, stringToSex } from 'models/enums';
 import { DynamicMultiSelect } from 'components/DynamicMultiSelect/DynamicMultiSelect';
 import { db_Allele } from 'models/db/db_Allele';
@@ -23,6 +27,7 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
   const [sex, setSex] = useState(props.enforcedSex ?? Sex.Male);
   const [homoAlleles, setHomoAlleles] = useState(new Set<db_Allele>());
   const [hetAlleles, setHetAlleles] = useState(new Set<db_Allele>());
+  const [exAlleles, setExAlleles] = useState(new Set<db_Allele>());
 
   const onSubmit = (): void => {
     const homoPairs = Array.from(homoAlleles).map(async (selectedAllele) => {
@@ -30,15 +35,24 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
       return new AllelePair({ top: allele, bot: allele });
     });
 
-    const hetPairs = Array.from(hetAlleles).map(async (selectedAllele) => {
-      const allele = await props.createAlleleFromRecord(selectedAllele);
-      return new AllelePair({ top: allele, bot: WILD_ALLELE });
-    });
+    // Heterozygous pairs combined with (essentially) heterozygous ECA alleles
+    const hetPairs = Array.from(hetAlleles)
+      .map(async (selectedAllele) => {
+        const allele = await props.createAlleleFromRecord(selectedAllele);
+        return new AllelePair({ top: allele, bot: WILD_ALLELE });
+      })
+      .concat(
+        Array.from(exAlleles).map(async (selectedAllele) => {
+          const allele = await props.createAlleleFromRecord(selectedAllele);
+          return new AllelePair({ top: allele, bot: WILD_ALLELE, isECA: true });
+        })
+      );
 
     Promise.all(homoPairs.concat(hetPairs))
       .then((allelePairs) => {
         setHomoAlleles(new Set()); // clear form values
         setHetAlleles(new Set());
+        setExAlleles(new Set());
         const strain = new Strain({ allelePairs });
         props.onSubmitCallback(sex, strain);
       })
@@ -76,6 +90,18 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
         shouldInclude={(allele) =>
           shouldIncludeAllele(homoAlleles, hetAlleles, allele)
         }
+      />
+
+      <DynamicMultiSelect
+        placeholder='Type allele name'
+        getFilteredRecordApi={props.getFilteredAlleles}
+        searchOn={'Name'}
+        selectInputOn={'name'}
+        displayResultsOn={['name']}
+        label='Extrachromosomal Array'
+        selectedRecords={exAlleles}
+        setSelectedRecords={setExAlleles}
+        shouldInclude={(allele) => isEcaAlleleName(allele.name)}
       />
       <button className='btn-primary btn mt-5 max-w-xs' onClick={onSubmit}>
         Create
@@ -118,10 +144,10 @@ const SexSelector = (props: {
 function shouldIncludeAllele(
   homoAlleles: Set<db_Allele>,
   hetAlleles: Set<db_Allele>,
-  allele: db_Allele
+  dbAllele: db_Allele
 ): boolean {
   const names = new Set([...homoAlleles, ...hetAlleles].map((a) => a.name));
-  return !names.has(allele.name); // Not included, okay to add
+  return !names.has(dbAllele.name) && !isEcaAlleleName(dbAllele.name);
 }
 
 export default CrossNodeForm;
