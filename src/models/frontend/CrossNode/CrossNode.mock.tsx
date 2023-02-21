@@ -413,6 +413,19 @@ export const e204HomoOx802HomoHerm = new CrossNodeModel({
   getMenuItems,
 });
 
+export const n765Homo = new CrossNodeModel({
+  sex: Sex.Hermaphrodite,
+  strain: new Strain({
+    name: 'n765Homo',
+    allelePairs: [
+      new AllelePair({ top: mockAlleles.n765, bot: mockAlleles.n765 }),
+    ],
+  }),
+  isParent: false,
+  isChild: false,
+  getMenuItems,
+});
+
 export const ecaCrossNode = new CrossNodeModel({
   sex: Sex.Hermaphrodite,
   strain: new Strain({

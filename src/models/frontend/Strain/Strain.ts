@@ -8,6 +8,9 @@ import {
   instanceToPlain,
   plainToInstance,
 } from 'class-transformer';
+import { Phenotype } from 'models/frontend/Phenotype/Phenotype';
+import { AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
+import { Condition } from 'models/frontend/Condition/Condition';
 
 export interface StrainOption {
   strain: Strain;
@@ -63,10 +66,6 @@ export class Strain {
     this.chromPairMap = new Map(this.chromPairMap);
   }
   /* #endregion initializers */
-
-  private getAllelePairs(): AllelePair[] {
-    return [...this.chromPairMap.values()].flat();
-  }
 
   /* #region public methods */
   /**
@@ -163,6 +162,37 @@ export class Strain {
     const strains = this.cartesianCross(multiChromOptions);
     this.reduceStrainOptions(strains);
     return strains;
+  }
+
+  public getAlleles(): Allele[] {
+    return this.getAllelePairs().map((pair) => pair.getAllele());
+  }
+
+  public getAllelePairs(): AllelePair[] {
+    return [...this.chromPairMap.values()].flat();
+  }
+
+  /**
+   * @returns flattened array combining all allele expressions for each allele in the strain
+   */
+  public getAlleleExpressions(): AlleleExpression[] {
+    return this.getAlleles().flatMap((allele) => allele.alleleExpressions);
+  }
+
+  public getExprPhenotypes(): Phenotype[] {
+    return this.getAlleleExpressions().map((expr) => expr.expressingPhenotype);
+  }
+
+  public getReqConditions(): Condition[] {
+    return this.getAlleleExpressions().flatMap(
+      (expr) => expr.requiredConditions
+    );
+  }
+
+  public getSupConditions(): Condition[] {
+    return this.getAlleleExpressions().flatMap(
+      (expr) => expr.suppressingConditions
+    );
   }
   /* #endregion public methods */
 

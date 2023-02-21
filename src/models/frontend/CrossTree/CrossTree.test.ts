@@ -1,3 +1,4 @@
+import { CrossEditorFilter } from 'components/CrossFilterModal/CrossFilterModal';
 import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { MenuItem } from 'components/Menu/Menu';
 import { Sex } from 'models/enums';
@@ -8,7 +9,7 @@ import { Strain } from 'models/frontend/Strain/Strain';
 import { XYPosition, Node, Edge } from 'reactflow';
 import { expect, test, describe } from 'vitest';
 import { WILD_ALLELE } from '../Allele/Allele';
-import { ed3, ox1059 } from '../Allele/Allele.mock';
+import { ed3, n765, ox1059 } from '../Allele/Allele.mock';
 
 describe('cross tree', () => {
   // #region generator functions
@@ -22,6 +23,7 @@ describe('cross tree', () => {
     nodes = [],
     edges = [],
     invisibleNodes = new Set(),
+    crossFilters = new Map(),
     lastSaved = new Date(),
   }: {
     name?: string;
@@ -30,6 +32,7 @@ describe('cross tree', () => {
     nodes?: Node[];
     edges?: Edge[];
     invisibleNodes?: Set<string>;
+    crossFilters?: Map<string, CrossEditorFilter>;
     lastSaved?: Date;
   }): CrossTree => {
     return new CrossTree({
@@ -40,6 +43,7 @@ describe('cross tree', () => {
       edges,
       invisibleNodes,
       lastSaved,
+      crossFilters,
     });
   };
 
@@ -48,11 +52,13 @@ describe('cross tree', () => {
     type = FlowType.Strain,
     position = { x: 0, y: 0 },
     data = generateCrossNodeModel({}),
+    parentNode = undefined,
   }: {
     id?: number;
     type?: FlowType;
     position?: XYPosition;
     data?: Object;
+    parentNode?: string;
   }): Node => {
     return {
       id: id.toString(),
@@ -483,7 +489,7 @@ describe('cross tree', () => {
     // expect(tasks[1].strain1).toBe(JSON.stringify(strain1));
     // expect(tasks[1].strain2).toBe(JSON.stringify(strain2));
   });
-  it('should be able to serialize and deserialize', () => {
+  test('should be able to serialize and deserialize', () => {
     let id = 0;
     const strain1 = generateCrossNodeModel({
       sex: Sex.Hermaphrodite,
@@ -495,14 +501,18 @@ describe('cross tree', () => {
       }),
     });
     const strain2 = generateCrossNodeModel({ sex: Sex.Male });
-    const strain3 = generateCrossNodeModel({});
+    const strain3 = generateCrossNodeModel({
+      strain: generateStrain({
+        allelePairs: [new AllelePair({ top: n765, bot: n765 })],
+      }),
+    });
+    const selfIcon = generateNode({ id: id++, type: FlowType.SelfIcon });
     const nodes = [
       generateNode({ id: id++, data: strain1 }),
       generateNode({ id: id++, data: strain2 }),
       generateNode({ id: id++, type: FlowType.XIcon }),
       generateNode({ id: id++ }),
-      generateNode({ id: id++, type: FlowType.SelfIcon }),
-      generateNode({ id: id++, data: strain3 }),
+      generateNode({ id: id++, data: strain3, parentNode: selfIcon.id }),
     ];
     const edges = [
       generateEdge({
@@ -523,10 +533,22 @@ describe('cross tree', () => {
       generateEdge({ id: id++, source: '4', target: '5' }),
     ];
 
-    const tree = generateTree({ nodes, edges });
-    const treeBack = CrossTree.fromJSON(tree.toJSON());
-    expect(treeBack.toJSON()).toEqual(tree.toJSON());
+    const invisibleNodes = new Set([nodes[0].id]);
+    const crossFilters = new Map<string, CrossEditorFilter>();
+    crossFilters.set(
+      nodes[4].id,
+      new CrossEditorFilter({
+        alleleNames: new Set(['n766']),
+        exprPhenotypes: new Set(),
+        supConditions: new Set(),
+        reqConditions: new Set(),
+      })
+    );
 
+    const tree = generateTree({ nodes, edges, invisibleNodes, crossFilters });
+    const treeBack = CrossTree.fromJSON(tree.toJSON());
+
+    expect(treeBack.toJSON()).toEqual(tree.toJSON());
     expect(treeBack.generateRecord(false)).toEqual(tree.generateRecord(false));
   });
   // #endregion tests

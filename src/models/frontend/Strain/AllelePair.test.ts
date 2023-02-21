@@ -293,10 +293,21 @@ describe('allele pair', () => {
     expect(homoEd3.isWild()).toBe(false);
   });
 
+  test('.isHomo() returns false on het pairs', () => {
+    const hetEd3 = new AllelePair({ top: ed3, bot: WILD_ALLELE });
+    const hetOx802 = new AllelePair({ top: WILD_ALLELE, bot: ox802 });
+    expect(hetEd3.isHomo()).toBe(false);
+    expect(hetOx802.isHomo()).toBe(false);
+  });
+  test('.isHomo() returns true on homo pairs', () => {
+    const homoEd3 = new AllelePair({ top: ed3, bot: ed3 });
+    expect(homoEd3.isHomo()).toBe(true);
+  });
+
   test('.getFlippedPair() on homozygous pair', () => {
     const pair = new AllelePair({ top: e204, bot: e204 });
     const flipped = pair.getFlippedPair();
-    expect(pair).not.toEqual(flipped); // different instantiations
+    expect(pair).not.toBe(flipped); // different instantiations
     expect(pair.top.name).toEqual(flipped.bot.name);
     expect(pair.bot.name).toEqual(flipped.top.name);
   });
@@ -331,9 +342,10 @@ describe('allele pair', () => {
   test('.clone() on homozygous pair', () => {
     const pair = new AllelePair({ top: e204, bot: e204 });
     const clone = pair.clone();
-    expect(pair).not.toEqual(clone); // different instantiations
+    expect(pair).not.toBe(clone); // different instantiations
     expect(pair.top.name).toEqual(clone.top.name);
     expect(pair.bot.name).toEqual(clone.bot.name);
+    expect(pair).toEqual(clone);
   });
   test('.clone() on heterozygous pair', () => {
     const pair1 = new AllelePair({ top: e204, bot: WILD_ALLELE });
@@ -341,12 +353,14 @@ describe('allele pair', () => {
     const clone1 = pair1.clone();
     const clone2 = pair2.clone();
 
-    expect(pair1).not.toEqual(clone1); // different instantiations
-    expect(pair2).not.toEqual(clone2); // different instantiations
+    expect(pair1).not.toBe(clone1); // different instantiations
+    expect(pair2).not.toBe(clone2); // different instantiations
     expect(pair1.top.name).toEqual(clone1.top.name);
     expect(pair1.bot.name).toEqual(clone1.bot.name);
     expect(pair2.top.name).toEqual(clone2.top.name);
     expect(pair2.bot.name).toEqual(clone2.bot.name);
+    expect(pair1).toEqual(clone1);
+    expect(pair2).toEqual(clone2);
   });
 
   test('.getChromatid() returns top chromatid', () => {

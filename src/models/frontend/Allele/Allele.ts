@@ -6,7 +6,7 @@ import { db_Allele } from 'models/db/db_Allele';
 import { AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 import { FilterGroup } from 'models/db/filter/FilterGroup';
-import { AlleleExpression } from 'models/frontend/AlleleExpression';
+import { AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
 import { Gene } from 'models/frontend/Gene/Gene';
 import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
 
@@ -50,10 +50,11 @@ export class Allele {
    * @returns Full, rich allele with object references for a gene or variation, etc.
    */
   static async build(fields: IAllele): Promise<Allele> {
-    const newAlleleState = {
+    const newAlleleState: AlleleState = {
       name: fields.name,
       gene: undefined,
       variation: undefined,
+      alleleExpressions: [],
     };
 
     await Allele.setGeneOrVariation(newAlleleState, fields).catch((err) =>
@@ -84,7 +85,7 @@ export class Allele {
   }
 
   private static async setGene(
-    partialAllele: { name: string; gene?: Gene },
+    partialAllele: AlleleState,
     geneName: string
   ): Promise<void> {
     const res = await getGene(geneName);
@@ -92,7 +93,7 @@ export class Allele {
   }
 
   private static async setVariation(
-    partialAllele: { name: string; variation?: VariationInfo },
+    partialAllele: AlleleState,
     variationName: string
   ): Promise<void> {
     const res = await getVariation(variationName);
@@ -105,8 +106,8 @@ export class Allele {
   ): Promise<void> {
     const filter = Allele.setAlleleExpressionsFilter(alleleName);
     const res = await getFilteredAlleleExpressions(filter);
-    partialAllele.alleleExpressions = res.map((record) =>
-      AlleleExpression.createFromRecord(record)
+    partialAllele.alleleExpressions = await Promise.all(
+      res.map(async (record) => await AlleleExpression.createFromRecord(record))
     );
   }
 

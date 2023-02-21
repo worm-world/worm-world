@@ -1,11 +1,32 @@
+import { expect, test, describe } from 'vitest';
+import { mutated } from 'models/frontend/CrossNode/CrossNode.mock';
+import { Task } from 'models/frontend/Task/Task';
 import { TaskCondition } from './TaskCondition';
 import { TaskDependency } from './TaskDependency';
 
+describe('Task', () => {
+  test('should be able to serialize and deserialize', () => {
+    const task = new Task({
+      id: '0',
+      due_date: null,
+      action: 'SelfCross',
+      strain1: mutated.toJSON(),
+      strain2: null,
+      notes: null,
+      completed: false,
+      tree_id: '3',
+    });
+    const str = task.toJSON();
+    const taskBack = Task.fromJSON(str);
+    expect(taskBack).toEqual(task);
+  });
+});
+
 describe('TaskDependency', () => {
-  it('should be able to serialize and deserialize', () => {
+  test('should be able to serialize and deserialize', () => {
     const taskDep = new TaskDependency({
-      parentId: 'abcdefg',
-      childId: 'djdhsjsj',
+      parentId: '0',
+      childId: '1',
     });
     const str = taskDep.toJSON();
     const taskDepBack = TaskDependency.fromJSON(str);
@@ -14,10 +35,10 @@ describe('TaskDependency', () => {
 });
 
 describe('TaskCondition', () => {
-  it('should be able to serialize and deserialize', () => {
+  test('should be able to serialize and deserialize', () => {
     const taskCond = new TaskCondition({
-      parentId: 'abcdefg',
-      name: 'name',
+      parentId: '0',
+      name: '1',
     });
     const str = taskCond.toJSON();
     const taskCondBack = TaskCondition.fromJSON(str);

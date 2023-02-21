@@ -7,7 +7,7 @@ import {
   getDbBoolean,
   getSingleRecordOrThrow,
 } from 'models/db/filter/FilterGroup';
-import { Condition } from 'models/frontend/Condition';
+import { Condition } from 'models/frontend/Condition/Condition';
 
 export const getConditions = async (): Promise<db_Condition[]> => {
   return await invoke('get_conditions');

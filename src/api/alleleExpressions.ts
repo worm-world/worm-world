@@ -6,7 +6,7 @@ import {
   getDbBoolean,
   getSingleRecordOrThrow,
 } from 'models/db/filter/FilterGroup';
-import { AlleleExpression } from 'models/frontend/AlleleExpression';
+import { AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
 
 export const getAlleleExpressions = async (): Promise<
   db_AlleleExpression[]

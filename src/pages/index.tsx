@@ -8,6 +8,7 @@ import { GiEarthWorm as WormIcon } from 'react-icons/gi';
 import { open } from '@tauri-apps/api/dialog';
 import { readTextFile } from '@tauri-apps/api/fs';
 import { toast } from 'react-toastify';
+import { CrossEditorFilter } from 'components/CrossFilterModal/CrossFilterModal';
 
 const CrossDesignerPage = (): JSX.Element => {
   const [crossTrees, setCrossTrees] = useState<CrossTree[] | null>(null);
@@ -116,6 +117,7 @@ const addTree = async (): Promise<void> => {
       nodes: [],
       edges: [],
       invisibleNodes: new Set<string>(),
+      crossFilters: new Map<string, CrossEditorFilter>(),
     });
     await insertTree(newTree.generateRecord(true));
     toast.success('Successfully added tree');

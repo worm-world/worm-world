@@ -37,7 +37,11 @@ import {
   ContextMenu,
   useContextMenuState,
 } from 'components/ContextMenu/ContextMenu';
-import { CrossFilterModal } from 'components/CrossFilterModal/CrossFilterModal';
+import {
+  CrossFilterModal,
+  CrossEditorFilter,
+  CrossEditorFilterUpdate,
+} from 'components/CrossFilterModal/CrossFilterModal';
 
 export interface CrossEditorProps {
   crossTree: CrossTree;
@@ -66,6 +70,10 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     new Set(props.crossTree.invisibleNodes)
   );
   const [currChildNodes, setCurrChildNodes] = useState<Node[]>([]);
+  const [crossFilters, setCrossFilters] = useState(
+    new Map(props.crossTree.crossFilters)
+  );
+
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance>();
 
@@ -143,7 +151,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
           const iconChildren = [...nodeMap.values()].filter(
             (child) => child.parentNode === node.id
           );
-          loadIconWithCallback(node, iconChildren);
+          loadIconWithData(node, iconChildren);
         }
 
         return node;
@@ -222,13 +230,17 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     return newSelfIcon;
   };
 
-  const loadIconWithCallback = (
+  const loadIconWithData = (
     iconNode: Node,
     children: Array<Node<CrossNodeModel>>
   ): void => {
     const data = {
       setCurrChildNodes: () => setCurrChildNodes([...children]),
+      setCurrFilter: () => {
+        setCurrNodeId(iconNode.id);
+      },
     };
+
     iconNode.data = data;
   };
 
@@ -351,6 +363,50 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     });
   };
 
+  const handleFilterUpdate = (update: CrossEditorFilterUpdate): void => {
+    setCrossFilters((filters): Map<string, CrossEditorFilter> => {
+      const filter =
+        filters.get(update.nodeId) ??
+        new CrossEditorFilter({
+          alleleNames: new Set(),
+          exprPhenotypes: new Set(),
+          reqConditions: new Set(),
+          supConditions: new Set(),
+        });
+      if (update.action === 'add') filter[update.field].add(update.name);
+      if (update.action === 'remove') filter[update.field].delete(update.name);
+      if (update.action === 'clear') filter[update.field].clear();
+      filters.set(update.nodeId, filter);
+
+      // Mark nodes as (in)visible
+      setNodeMap((nodeMap) => {
+        setInvisibleNodes((invisibleNodes: Set<string>): Set<string> => {
+          const childList: Array<Node<CrossNodeModel>> = [
+            ...nodeMap.values(),
+          ].filter((node) => node.parentNode === update.nodeId);
+          if (filter.isEmpty()) {
+            filters.delete(update.nodeId);
+            childList.forEach((node) => invisibleNodes.delete(node.id));
+          } else {
+            childList.forEach((node) => {
+              if (
+                !CrossEditorFilter.includedInFilter(node, filter) &&
+                !node.data.isParent
+              )
+                invisibleNodes.add(node.id);
+              else invisibleNodes.delete(node.id);
+            });
+          }
+
+          return new Set(invisibleNodes);
+        });
+        return nodeMap;
+      });
+
+      return new Map(filters);
+    });
+  };
+
   const getNodePositionFromLastClick = (): XYPosition => {
     const bounds = flowRef?.current?.getBoundingClientRect() ?? {
       left: 0,
@@ -439,7 +495,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
           probability: child.prob,
         });
       });
-      loadIconWithCallback(selfIcon, childNodes);
+      loadIconWithData(selfIcon, childNodes);
 
       refNode.data = copyNodeData(refNode, { isParent: true });
 
@@ -512,7 +568,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
           parentNode: xIcon.id,
         });
       });
-      loadIconWithCallback(xIcon, childrenNodes);
+      loadIconWithData(xIcon, childrenNodes);
 
       currNode.data = copyNodeData(currNode, { isParent: true });
 
@@ -664,6 +720,8 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         childNodes={currChildNodes}
         invisibleSet={invisibleNodes}
         toggleVisible={toggleNodeVisibility}
+        filters={crossFilters}
+        updateFilter={handleFilterUpdate}
       />
       <div>
         <div className='drawer drawer-end'>

@@ -17,6 +17,7 @@ describe('Editor Top', () => {
             edges: [],
             lastSaved: new Date(),
             invisibleNodes: new Set<string>(),
+            crossFilters: new Map(),
           })
         }
         buttons={[<button key='only'>Button title</button>]}
@@ -40,6 +41,7 @@ describe('Editor Top', () => {
             edges: [],
             lastSaved: new Date(),
             invisibleNodes: new Set<string>(),
+            crossFilters: new Map(),
           })
         }
         buttons={[

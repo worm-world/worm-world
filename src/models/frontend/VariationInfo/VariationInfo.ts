@@ -1,3 +1,4 @@
+import { Exclude, instanceToPlain, plainToInstance } from 'class-transformer';
 import { db_VariationInfo } from 'models/db/db_VariationInfo';
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 
@@ -30,7 +31,8 @@ export class VariationInfo {
     });
   }
 
-  generateRecord(): db_VariationInfo {
+  @Exclude()
+  public generateRecord(): db_VariationInfo {
     return {
       alleleName: this.name,
       physLoc: this.physLoc ?? null,
@@ -38,5 +40,13 @@ export class VariationInfo {
       chromosome: this.chromosome ?? null,
       recombSuppressor: this.recombination ?? null,
     };
+  }
+
+  public toJSON(): string {
+    return JSON.stringify(instanceToPlain(this));
+  }
+
+  static fromJSON(json: string): VariationInfo {
+    return [plainToInstance(VariationInfo, JSON.parse(json))].flat()[0];
   }
 }

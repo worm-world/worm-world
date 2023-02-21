@@ -14,6 +14,7 @@ export const emptyCrossTree = new CrossTree({
   nodes: [],
   edges: [],
   invisibleNodes: new Set(),
+  crossFilters: new Map(),
   lastSaved: new Date(),
 });
 
@@ -89,6 +90,7 @@ export const simpleCrossTree = new CrossTree({
   edges: [edgeMale, edgeFemale, edgeChild],
   lastSaved: new Date(),
   invisibleNodes: new Set(),
+  crossFilters: new Map(),
 });
 
 // Medium cross tree ////////////////////////////////////////////////
@@ -251,5 +253,37 @@ export const mediumCrossTree = new CrossTree({
   ],
   edges,
   invisibleNodes: new Set(),
+  crossFilters: new Map(),
   lastSaved: new Date('2023-01-18'),
 });
+
+export const selfNodeAsParent: Node = {
+  id: '0',
+  type: FlowType.SelfIcon,
+  data: null,
+  position: {
+    x: 0,
+    y: 0,
+  },
+};
+
+export const ed3AsChild: Node<CrossNodeModel> = {
+  id: '1',
+  type: FlowType.Strain,
+  data: mockCrossNode.ed3HomoHerm,
+  position: {
+    x: 0,
+    y: 0,
+  },
+  parentNode: '0',
+};
+export const n765AsChild: Node<CrossNodeModel> = {
+  id: '1',
+  type: FlowType.Strain,
+  data: mockCrossNode.n765Homo,
+  position: {
+    x: 0,
+    y: 0,
+  },
+  parentNode: '0',
+};
