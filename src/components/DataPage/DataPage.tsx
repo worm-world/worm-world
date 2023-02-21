@@ -36,7 +36,7 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
       });
   };
 
-  const importData = async () => {
+  const importData = async (): Promise<void> => {
     try {
       const filepath: string | null = (await open({
         filters: [
@@ -89,7 +89,12 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
               fields={props.fields}
               onSubmitCallback={onRecordInsertionFormSubmission}
             ></DataImportForm>
-            <button className='btn' onClick={importData}>
+            <button
+              className='btn'
+              onClick={() => {
+                importData().catch((error) => console.error(error));
+              }}
+            >
               Import
             </button>
           </div>
