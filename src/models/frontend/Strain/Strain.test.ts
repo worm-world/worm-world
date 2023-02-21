@@ -162,7 +162,7 @@ describe('strain', () => {
     const strain = new Strain({ allelePairs });
     const clone = strain.clone();
 
-    expect(strain).not.toEqual(clone); // distinct objects
+    expect(strain).not.toBe(clone); // distinct objects
     expect(strain.equals(clone)).toBe(true); // data remains the same
   });
   test('.clone() creates new instance from complex strain', () => {
@@ -183,7 +183,7 @@ describe('strain', () => {
     const strain = new Strain({ allelePairs: pairs });
     const clone = strain.clone();
 
-    expect(strain).not.toEqual(clone); // distinct objects
+    expect(strain).not.toBe(clone); // distinct objects
     expect(strain.equals(clone)).toBe(true); // data remains the same
   });
 });

@@ -7,7 +7,7 @@ import {
   getDbBoolean,
   getSingleRecordOrThrow,
 } from 'models/db/filter/FilterGroup';
-import { Phenotype } from 'models/frontend/Phenotype';
+import { Phenotype } from 'models/frontend/Phenotype/Phenotype';
 
 export const getPhenotypes = async (): Promise<db_Phenotype[]> => {
   return await invoke('get_phenotypes');

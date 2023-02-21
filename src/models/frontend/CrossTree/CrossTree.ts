@@ -6,8 +6,14 @@ import { iCrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import { StrainOption } from 'models/frontend/Strain/Strain';
 import { Node, Edge, XYPosition } from 'reactflow';
 import { ulid } from 'ulid';
-import { instanceToPlain, plainToInstance, Type } from 'class-transformer';
+import {
+  instanceToPlain,
+  plainToInstance,
+  Transform,
+  Type,
+} from 'class-transformer';
 import { FlowType } from 'components/CrossFlow/CrossFlow';
+import { CrossEditorFilter } from 'components/CrossFilterModal/CrossFilterModal';
 
 export interface iCrossTree {
   name: string;
@@ -20,6 +26,7 @@ export interface iCrossTree {
   nodes: Node[];
   edges: Edge[];
   invisibleNodes: Set<string>;
+  crossFilters: Map<string, CrossEditorFilter>;
   lastSaved: Date;
 }
 
@@ -35,6 +42,21 @@ export default class CrossTree {
   public lastSaved: Date;
 
   public invisibleNodes: Set<string>;
+  @Type(() => CrossEditorFilter)
+  @Transform(
+    (data: { obj: any }) => {
+      // The way class-transformer works, it will call this function with an Object where key is "chromPairMap" and
+      // .obj is an object dictionary with the contents of chromPairMap, but it is not a Map.
+      // This means the object will have no functions like .keys() or .values() and will not be iterable.
+      // This function will then convert the object dictionary into a Map so we can use it as normal.
+      const d = data?.obj?.crossFilters ?? {};
+      // undefined is written into the JSON as a string "undefined", so we need to convert it back to the literal undefined
+      return new Map(Object.keys(d).map((key) => [key, d[key]]) ?? null);
+    },
+    { toClassOnly: true }
+  )
+  public crossFilters: Map<string, CrossEditorFilter>;
+
   public nodes: Node[];
   public edges: Edge[];
   public settings: {
@@ -54,6 +76,7 @@ export default class CrossTree {
         nodes: [],
         edges: [],
         invisibleNodes: new Set(),
+        crossFilters: new Map(),
         lastSaved: new Date(),
       };
     }
@@ -65,6 +88,7 @@ export default class CrossTree {
     this.edges = [...params.edges];
     this.nodes = [...params.nodes];
     this.invisibleNodes = new Set(params.invisibleNodes);
+    this.crossFilters = new Map(params.crossFilters);
   }
   /** #endregion class vars / initialization */
 
@@ -205,6 +229,7 @@ export default class CrossTree {
       },
       nodes: [...this.nodes],
       invisibleNodes: new Set(this.invisibleNodes),
+      crossFilters: new Map(this.crossFilters),
       edges: [...this.edges],
       lastSaved: new Date(),
     };

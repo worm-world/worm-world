@@ -1,27 +1,14 @@
-import { db_Phenotype } from 'models/db/db_Phenotype';
+import { Exclude, instanceToPlain, plainToInstance } from 'class-transformer';
+import { db_Condition } from 'models/db/db_Condition';
+import { AffectedTraits } from 'models/frontend/Phenotype/Phenotype';
 
-export interface AffectedTraits {
-  /** How well the male can mate. 3 denotes max mating capabilities, 0 states worm is incabable of mating  */
-  maleMating?: number;
-  lethal?: boolean;
-  femaleSterile?: boolean;
-  /** Worm maturation is stunted */
-  arrested?: boolean;
-  /** Generational time for to be ready to breed */
-  maturationDays?: number;
-}
-
-interface IPhenotype extends AffectedTraits {
+interface ICondition extends AffectedTraits {
   name: string;
-  shortName: string;
-  wild: boolean;
   description?: string;
 }
 
-export class Phenotype {
+export class Condition {
   name: string = '';
-  shortName: string = '';
-  wild: boolean = true;
   description?: string;
   maleMating?: number;
   lethal?: boolean;
@@ -29,15 +16,13 @@ export class Phenotype {
   arrested?: boolean;
   maturationDays?: number;
 
-  constructor(fields: IPhenotype) {
+  constructor(fields: ICondition) {
     Object.assign(this, fields);
   }
 
-  static createFromRecord(record: db_Phenotype): Phenotype {
-    return new Phenotype({
+  static createFromRecord(record: db_Condition): Condition {
+    return new Condition({
       name: record.name,
-      shortName: record.shortName,
-      wild: record.wild,
       description: record.description ?? undefined,
       maleMating:
         record.maleMating !== null ? Number(record.maleMating) : undefined,
@@ -48,11 +33,10 @@ export class Phenotype {
     });
   }
 
-  generateRecord = (): db_Phenotype => {
+  @Exclude()
+  public generateRecord = (): db_Condition => {
     return {
       name: this.name,
-      shortName: this.shortName,
-      wild: this.wild,
       description: this.description ?? null,
       maleMating: this.maleMating !== undefined ? this.maleMating : null,
       lethal: this.lethal ?? null,
@@ -61,4 +45,12 @@ export class Phenotype {
       maturationDays: this.maturationDays ?? null,
     };
   };
+
+  public toJSON(): string {
+    return JSON.stringify(instanceToPlain(this));
+  }
+
+  static fromJSON(json: string): Condition {
+    return [plainToInstance(Condition, JSON.parse(json))].flat()[0];
+  }
 }

@@ -1,9 +1,4 @@
-import {
-  instanceToInstance,
-  instanceToPlain,
-  plainToInstance,
-  Type,
-} from 'class-transformer';
+import { instanceToPlain, plainToInstance, Type } from 'class-transformer';
 import { Allele, WildAllele, WILD_ALLELE } from 'models/frontend/Allele/Allele';
 
 export interface iAllelePair {
@@ -96,6 +91,11 @@ export class AllelePair implements iAllelePair {
     return this.getAllele().name === WILD_ALLELE.name;
   }
 
+  /** Returns true if pair is homozygous (false for heterozygous) */
+  public isHomo(): boolean {
+    return this.top.name === this.bot.name;
+  }
+
   /**
    * Given an allele pair, flips it so the top is now on the bottom and vice versa
    */
@@ -118,7 +118,7 @@ export class AllelePair implements iAllelePair {
    * Creates a new copy of this allele pair
    */
   public clone(): AllelePair {
-    return instanceToInstance(this);
+    return new AllelePair({ top: this.top, bot: this.bot, isECA: this.isECA });
   }
 
   /**
