@@ -130,7 +130,7 @@ const CustomControls = (props: ControlProps): JSX.Element => {
       <ControlButton>
         <div className='drowndown-hover dropdown m-0'>
           <label tabIndex={0} className=''>
-            <FiShare className='text-3xl text-base-content' />
+            <FiShare className='text-3xl text-base-content hover:cursor-pointer' />
           </label>
           <ul
             tabIndex={0}
