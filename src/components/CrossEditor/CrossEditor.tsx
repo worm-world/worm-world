@@ -1,4 +1,10 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  MouseEvent as ReactMouseEvent,
+} from 'react';
 import { getFilteredAlleles } from 'api/allele';
 import CrossFlow, { FlowType } from 'components/CrossFlow/CrossFlow';
 import CrossNodeForm from 'components/CrossNodeForm/CrossNodeForm';
@@ -10,13 +16,14 @@ import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import {
   Edge,
   Connection,
-  addEdge,
   Node,
   applyNodeChanges,
   NodeChange,
   XYPosition,
   useEdgesState,
   ReactFlowInstance,
+  OnConnectStartParams,
+  Position,
 } from 'reactflow';
 import { insertTree, updateTree } from 'api/crossTree';
 import { Strain } from 'models/frontend/Strain/Strain';
@@ -61,21 +68,22 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   const [drawerState, setDrawerState] = useState<DrawerState>('addStrain');
   const [edges, setEdges, onEdgesChange] = useEdgesState(props.crossTree.edges);
   const [noteFormContent, setNoteFormContent] = useState('');
-  const [currNodeId, setCurrNodeId] = useState<string>('');
+  const [currChildNodes, setCurrChildNodes] = useState<Node[]>([]);
   const [nodeMap, setNodeMap] = useState<Map<string, Node>>(
     new Map(props.crossTree.nodes.map((node) => [node.id, node]))
   );
-
   const [invisibleNodes, setInvisibleNodes] = useState<Set<string>>(
     new Set(props.crossTree.invisibleNodes)
   );
-  const [currChildNodes, setCurrChildNodes] = useState<Node[]>([]);
   const [crossFilters, setCrossFilters] = useState(
     new Map(props.crossTree.crossFilters)
   );
 
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance>();
+
+  const currNodeId = useRef<string>('');
+  const onConnectParams = useRef<OnConnectStartParams | null>(null);
 
   /**
    * This function sets up right click handler overrides that check if the right click is on an HTML
@@ -104,11 +112,91 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     setNodeMap(newNodeMap);
   };
 
+  const onConnectStart = useCallback(
+    (_: ReactMouseEvent, params: OnConnectStartParams) => {
+      onConnectParams.current = params;
+    },
+    []
+  );
+
   /**
    * Callback used by react flow to add edges to node handles when dragged
    */
-  const onConnect = useCallback((connection: Connection) => {
-    setEdges((eds) => addEdge(connection, eds));
+  const onConnect = useCallback((args: Connection) => {
+    onConnectParams.current = null; // prevent onConnectEnd from being called
+    // check for invalid connection types
+    if (
+      args.sourceHandle === 'top' ||
+      args.sourceHandle === 'bottom' ||
+      args.targetHandle === 'top' ||
+      args.targetHandle === 'bottom'
+    )
+      return;
+    const lNodeId = args.sourceHandle === 'right' ? args.source : args.target;
+    const rNodeId = args.sourceHandle === 'right' ? args.target : args.source;
+
+    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
+      const lNode = nodeMap.get(lNodeId ?? '');
+      const rNode = nodeMap.get(rNodeId ?? '');
+      if (lNode === undefined || rNode === undefined) {
+        console.error('noooo - tried to cross with an undefined node');
+        return nodeMap;
+      }
+      if (lNode.type !== FlowType.Strain || rNode.type !== FlowType.Strain) {
+        console.error('bad - tried to cross with a non-strain node');
+        return nodeMap;
+      }
+
+      const lStrain: CrossNodeModel = lNode.data;
+      const rStrain: CrossNodeModel = rNode.data;
+
+      if (lStrain.sex !== Sex.Male || rStrain.sex !== Sex.Hermaphrodite) {
+        toast.error('Can only cross strains that are different sexes');
+        return nodeMap;
+      }
+
+      if (lStrain.isParent || rStrain.isParent) {
+        toast.error("A single strain can't be involved in multiple crosses");
+        return nodeMap;
+      }
+
+      regularCross(lNode, rNode);
+      return nodeMap;
+    });
+  }, []);
+
+  /** Called after onConnect or after dragging an edge */
+  const onConnectEnd = useCallback((_: MouseEvent) => {
+    const params = onConnectParams.current;
+    if (params === null || params === undefined) return;
+    if (params.handleType === 'target') return;
+    const nodeId = params.nodeId;
+    if (nodeId === null || nodeId === undefined) {
+      console.error('noooo - nodeId is null/undefined');
+      return;
+    }
+
+    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
+      const currNode = nodeMap.get(params.nodeId ?? '');
+
+      if (currNode === undefined) return nodeMap;
+      if (currNode.type !== FlowType.Strain) return nodeMap;
+      const currStrain: CrossNodeModel = currNode.data;
+
+      if (currStrain.isParent) {
+        toast.error('Unable to cross a strain already involved in a cross');
+        return nodeMap;
+      }
+
+      if (params.handleId === Position.Bottom) {
+        selfCross(nodeId);
+      } else {
+        currNodeId.current = nodeId;
+        setDrawerState('cross');
+        setRightDrawerOpen(true);
+      }
+      return nodeMap;
+    });
   }, []);
 
   /**
@@ -118,7 +206,8 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
    */
   useEffect(() => {
     setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
-      const refreshedNodes = [...nodeMap.values()].map((node) => {
+      const nodes = [...nodeMap.values()];
+      const refreshedNodes = nodes.map((node) => {
         if (node.type === FlowType.Strain) {
           const data: CrossNodeModel = node.data;
           node.data = new CrossNodeModel({
@@ -138,7 +227,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
           node.data = new NoteNodeProps({
             content: node.data.content,
             onDoubleClick: () => {
-              setCurrNodeId(node.id);
+              currNodeId.current = node.id;
               setNoteFormContent(node.data.content);
               setDrawerState('editNote');
               setRightDrawerOpen(true);
@@ -148,7 +237,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
           node.type === FlowType.XIcon ||
           node.type === FlowType.SelfIcon
         ) {
-          const iconChildren = [...nodeMap.values()].filter(
+          const iconChildren = nodes.filter(
             (child) => child.parentNode === node.id
           );
           loadIconWithData(node, iconChildren);
@@ -237,7 +326,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     const data = {
       setCurrChildNodes: () => setCurrChildNodes([...children]),
       setCurrFilter: () => {
-        setCurrNodeId(iconNode.id);
+        currNodeId.current = iconNode.id;
       },
     };
 
@@ -269,7 +358,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       data: new NoteNodeProps({
         content,
         onDoubleClick: () => {
-          setCurrNodeId(noteNode.id);
+          currNodeId.current = noteNode.id;
           setNoteFormContent(content);
           setDrawerState('editNote');
           setRightDrawerOpen(true);
@@ -435,7 +524,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
 
   /** Edits a current note's content */
   const editNote = (): void => {
-    const noteNode = nodeMap.get(currNodeId);
+    const noteNode = nodeMap.get(currNodeId.current);
     if (noteNode === undefined || noteNode.type !== FlowType.Note) {
       console.error(
         'yikes - tried to edit note with currNode is undefined/not a note type'
@@ -514,8 +603,75 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         createEdge(selfIcon.id, node.id)
       );
       setEdges((edges) => [...edges, edgeToIcon, ...childEdges]);
-      return nodeMap;
+      return new Map(nodeMap);
     });
+  };
+
+  const regularCross = (
+    lNode: Node<CrossNodeModel>,
+    rNode: Node<CrossNodeModel>
+  ): void => {
+    // mark as parents
+    lNode.data = copyNodeData(lNode, { isParent: true });
+    rNode.data = copyNodeData(rNode, { isParent: true });
+
+    const xIcon = createXIcon(lNode);
+    const lStrain = lNode.data;
+    const rStrain: CrossNodeModel = rNode.data;
+
+    const e1 = createEdge(lNode.id, xIcon.id, {
+      targetHandle: lStrain.sex === Sex.Male ? 'left' : 'right',
+      sourceHandle: lStrain.sex !== Sex.Male ? 'left' : 'right',
+    });
+
+    const e2 = createEdge(rNode.id, xIcon.id, {
+      targetHandle: rStrain.sex === Sex.Male ? 'left' : 'right',
+      sourceHandle: rStrain.sex !== Sex.Male ? 'left' : 'right',
+    });
+
+    const children = lStrain.strain.crossWith(rStrain.strain);
+    children.sort((c1, c2) => c1.prob - c2.prob);
+
+    const childPositions = CrossTree.calculateChildPositions(
+      xIcon,
+      lNode,
+      children
+    );
+
+    const childrenNodes = children.map((child, i) => {
+      return createStrainNode({
+        sex: Sex.Hermaphrodite,
+        strain: child.strain,
+        position: childPositions[i],
+        isParent: false,
+        isChild: true,
+        probability: child.prob,
+        parentNode: xIcon.id,
+      });
+    });
+    loadIconWithData(xIcon, childrenNodes);
+
+    const childrenEdges = childrenNodes.map((node) =>
+      createEdge(xIcon.id, node.id)
+    );
+
+    // Update positioning of one of the parent strains
+    const lControlsR = rNode.parentNode === undefined;
+    if (lControlsR) {
+      rNode.parentNode = lControlsR ? lNode.id : rNode.parentNode;
+      rNode.position = CrossTree.getCrossStrainPos(lNode.data.sex);
+    } else {
+      lNode.parentNode = lControlsR ? lNode.parentNode : rNode.id;
+      lNode.position = CrossTree.getCrossStrainPos(rNode.data.sex);
+    }
+
+    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
+      [lNode, rNode, xIcon, ...childrenNodes].forEach((node) =>
+        nodeMap.set(node.id, node)
+      );
+      return new Map(nodeMap);
+    });
+    setEdges((edges) => [...edges, e1, e2, ...childrenEdges]);
     saveTree();
   };
 
@@ -524,75 +680,30 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
    */
   const regularCrossWithFormData = (sex: Sex, strain: Strain): void => {
     setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
-      const currNode = nodeMap.get(currNodeId);
-      if (currNode === undefined || currNode.type !== FlowType.Strain) {
+      const startingNode = nodeMap.get(currNodeId.current);
+      if (startingNode === undefined || startingNode.type !== FlowType.Strain) {
         console.error(
           'sad day - tried crossing currNode with a form node BUT currNode is undefined/not a strain'
         );
         return nodeMap;
       }
 
-      const xIcon = createXIcon(currNode);
-
-      const currStrain: CrossNodeModel = currNode.data;
+      const currStrain: CrossNodeModel = startingNode.data;
       const formNode = createStrainNode({
         sex,
         strain,
         position: CrossTree.getCrossStrainPos(currStrain.sex),
-        parentNode: currNode.id,
         isParent: true,
         isChild: false,
       });
 
-      const newStrain: CrossNodeModel = formNode.data;
-      newStrain.toggleSex = undefined; // disable toggling functionality
+      currStrain.sex === Sex.Male
+        ? regularCross(startingNode, formNode)
+        : regularCross(formNode, startingNode);
 
-      const e1 = createEdge(currNode.id, xIcon.id, {
-        targetHandle: currStrain.sex === Sex.Male ? 'left' : 'right',
-        sourceHandle: currStrain.sex !== Sex.Male ? 'left' : 'right',
-      });
-      const e2 = createEdge(formNode.id, xIcon.id, {
-        targetHandle: newStrain.sex === Sex.Male ? 'left' : 'right',
-        sourceHandle: newStrain.sex !== Sex.Male ? 'left' : 'right',
-      });
-
-      const children = newStrain.strain.crossWith(currStrain.strain);
-      children.sort((c1, c2) => c1.prob - c2.prob);
-
-      const childPositions = CrossTree.calculateChildPositions(
-        xIcon,
-        currNode,
-        children
-      );
-
-      const childrenNodes = children.map((child, i) => {
-        return createStrainNode({
-          sex: Sex.Hermaphrodite,
-          strain: child.strain,
-          position: childPositions[i],
-          isParent: false,
-          isChild: true,
-          probability: child.prob,
-          parentNode: xIcon.id,
-        });
-      });
-      loadIconWithData(xIcon, childrenNodes);
-
-      currNode.data = copyNodeData(currNode, { isParent: true });
-
-      const childrenEdges = childrenNodes.map((node) =>
-        createEdge(xIcon.id, node.id)
-      );
-
-      [currNode, formNode, xIcon, ...childrenNodes].forEach((node) =>
-        nodeMap.set(node.id, node)
-      );
-      setEdges((edges) => [...edges, e1, e2, ...childrenEdges]);
       setRightDrawerOpen(false);
-
-      return new Map(nodeMap);
+      return nodeMap;
     });
-    saveTree();
   };
 
   /** Clones the passed node's data and optionally marks as a parent/child */
@@ -631,7 +742,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       icon: <CrossIcon />,
       text: 'Cross',
       menuCallback: () => {
-        setCurrNodeId(nodeId);
+        currNodeId.current = nodeId;
         setDrawerState('cross');
         setRightDrawerOpen(true);
       },
@@ -730,7 +841,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   };
 
   let enforcedSex: Sex | undefined;
-  const currNode = nodeMap.get(currNodeId);
+  const currNode = nodeMap.get(currNodeId.current);
   if (drawerState === 'cross')
     enforcedSex =
       currNode?.data?.sex === Sex.Male ? Sex.Hermaphrodite : Sex.Male;
@@ -797,7 +908,9 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
                   edges={edges}
                   onNodesChange={onNodesChange}
                   onEdgesChange={onEdgesChange}
+                  onConnectStart={onConnectStart}
                   onConnect={onConnect}
+                  onConnectEnd={onConnectEnd}
                   onNodeDragStop={() => saveTree()}
                 />
               </div>

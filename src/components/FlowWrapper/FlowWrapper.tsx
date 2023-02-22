@@ -19,29 +19,35 @@ export const StrainFlowWrapper = (props: iStrainFlowWrapper): JSX.Element => {
   const lStyling = isMale ? 'invisible' : '';
 
   return (
-    <div className='h-fit w-fit'>
+    <div className='strain-node h-fit w-fit'>
       <Handle key='top' id='top' type='target' position={Position.Top} />
-      <Handle
-        key='right'
-        className={rStyling}
-        id='right'
-        type='source'
-        position={Position.Right}
-      />
-      <Handle
-        key='left'
-        className={lStyling}
-        id='left'
-        type='source'
-        position={Position.Left}
-      />
-      <Handle
-        key='bottom'
-        className={bStyling}
-        id='bottom'
-        type='source'
-        position={Position.Bottom}
-      />
+
+      <div className={rStyling}>
+        <Handle
+          key='right'
+          id='right'
+          type='source'
+          position={Position.Right}
+        />
+      </div>
+      <div className={lStyling}>
+        <Handle
+          key='left'
+          className={lStyling}
+          id='left'
+          type='source'
+          position={Position.Left}
+        />
+      </div>
+      <div className={bStyling}>
+        <Handle
+          key='bottom'
+          className={bStyling}
+          id='bottom'
+          type='source'
+          position={Position.Bottom}
+        />
+      </div>
       <CrossNode model={props.data} />
     </div>
   );

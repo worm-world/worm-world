@@ -49,7 +49,7 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
       {props.model !== undefined && (
         <div
           data-testid='crossNode'
-          className='hover:cursor-point h-28 w-64 rounded bg-base-100 shadow'
+          className='hover:cursor-point h-[7.75rem] w-64 rounded bg-base-100 shadow'
         >
           <div className='flex h-7 justify-between'>
             {getSexIcon(
@@ -57,13 +57,13 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
               props.model.isParent,
               props.model.toggleSex
             )}
-
             <div className='mt-1 text-accent'>{probability}</div>
             {props.model.getMenuItems !== undefined && (
               <Menu title='Actions' icon={<MenuIcon />} items={menuItems} />
             )}
           </div>
-          <div className='my-2 overflow-x-auto px-3 pb-2'>
+
+          <div className='mt-2 overflow-x-auto px-3 pb-1'>
             <div
               className='flex min-w-min justify-center text-sm'
               data-testid='crossNodeBody'
