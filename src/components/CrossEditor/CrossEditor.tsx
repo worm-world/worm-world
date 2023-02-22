@@ -313,6 +313,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       nodeMap.set(node.id, newNode);
       return new Map(nodeMap);
     });
+    saveTree();
   };
 
   const toggleHetPair = (pair: AllelePair, nodeId: string): void => {
@@ -342,6 +343,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       nodeMap.set(newNode.id, newNode);
       return new Map(nodeMap);
     });
+    saveTree();
   };
 
   const toggleNodeVisibility = (nodeId: string): void => {
@@ -361,6 +363,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       });
       return nodeMap;
     });
+    saveTree();
   };
 
   const handleFilterUpdate = (update: CrossEditorFilterUpdate): void => {
@@ -405,6 +408,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
 
       return new Map(filters);
     });
+    saveTree();
   };
 
   const getNodePositionFromLastClick = (): XYPosition => {
@@ -426,6 +430,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     const newNote = createNote(noteFormContent, position);
     addToOrUpdateNodeMap(newNote);
     setRightDrawerOpen(false);
+    saveTree();
   };
 
   /** Edits a current note's content */
@@ -442,6 +447,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     noteData.content = noteFormContent;
     addToOrUpdateNodeMap(noteNode);
     setRightDrawerOpen(false);
+    saveTree();
   };
 
   /** Adds a "floating" strain node to the editor */
@@ -456,6 +462,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     });
     addToOrUpdateNodeMap(newStrain);
     setRightDrawerOpen(false);
+    saveTree();
   };
 
   /** */
@@ -509,6 +516,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       setEdges((edges) => [...edges, edgeToIcon, ...childEdges]);
       return nodeMap;
     });
+    saveTree();
   };
 
   /**
@@ -584,6 +592,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
 
       return new Map(nodeMap);
     });
+    saveTree();
   };
 
   /** Clones the passed node's data and optionally marks as a parent/child */
@@ -631,38 +640,25 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       icon: <ScheduleIcon />,
       text: 'Schedule',
       menuCallback: () => {
-        // get up to date nodes
+        saveTree();
+        let node: Node | undefined;
         setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
-          // get up to date edges
-          setEdges((edges: Edge[]): Edge[] => {
-            setInvisibleNodes((invisibleNodes: Set<string>): Set<string> => {
-              const node = nodeMap.get(nodeId);
-              if (node === undefined || node.type !== FlowType.Strain) {
-                console.error(
-                  'boooo - the node you are trying to schedule is undefined/not a strain'
-                );
-                return invisibleNodes;
-              }
-
-              saveTree(
-                props.crossTree,
-                [...nodeMap.values()],
-                edges,
-                invisibleNodes
-              );
-              const clonedTree = props.crossTree.clone();
-              const tasks = clonedTree.generateTasks(node);
-              insertTree(clonedTree.generateRecord(false))
-                .then(async () => await insertDbTasks(tasks))
-                .then(() => navigate('/scheduler/todo'))
-                .catch((error) => console.error(error));
-
-              return invisibleNodes;
-            });
-            return edges;
-          });
+          node = nodeMap.get(nodeId);
           return nodeMap;
         });
+        if (node === undefined || node.type !== FlowType.Strain) {
+          console.error(
+            'boooo - the node you are trying to schedule is undefined/not a strain'
+          );
+          return;
+        }
+
+        const clonedTree = props.crossTree.clone();
+        const tasks = clonedTree.generateTasks(node);
+        insertTree(clonedTree.generateRecord(false))
+          .then(async () => await insertDbTasks(tasks))
+          .then(() => navigate('/scheduler/todo'))
+          .catch((error) => console.error(error));
       },
     };
 
@@ -670,6 +666,42 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     if (canSelfCross) return [selfOption, crossOption, scheduleOption]; // herm strain
     return [crossOption, scheduleOption]; // het strain
   };
+
+  const saveTree = (showSuccessMessage = false): void => {
+    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
+      setEdges((edges: Edge[]): Edge[] => {
+        setInvisibleNodes((invisibleNodes: Set<string>): Set<string> => {
+          setCrossFilters(
+            (
+              crossFilters: Map<string, CrossEditorFilter>
+            ): Map<string, CrossEditorFilter> => {
+              const tree = props.crossTree;
+              tree.nodes = [...nodeMap.values()];
+              tree.edges = edges;
+              tree.invisibleNodes = invisibleNodes;
+              tree.crossFilters = crossFilters;
+              tree.lastSaved = new Date();
+              updateTree(tree.generateRecord(true))
+                .then(() => {
+                  if (showSuccessMessage)
+                    toast.success('Successfully saved design');
+                })
+                .catch((error) => {
+                  toast.error('Error saving design');
+                  console.error(error);
+                });
+
+              return crossFilters;
+            }
+          );
+          return invisibleNodes;
+        });
+        return edges;
+      });
+      return nodeMap;
+    });
+  };
+
   // #endregion editor interacions
 
   // #region templating
@@ -696,17 +728,6 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         return () => {};
     }
   };
-  const buttons = [
-    <button
-      key='save'
-      className='btn-primary btn'
-      onClick={() =>
-        saveTree(props.crossTree, [...nodeMap.values()], edges, invisibleNodes)
-      }
-    >
-      Save
-    </button>,
-  ];
 
   let enforcedSex: Sex | undefined;
   const currNode = nodeMap.get(currNodeId);
@@ -762,7 +783,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
                 </li>
               </ContextMenu>
             )}
-            <EditorTop tree={props.crossTree} buttons={buttons}></EditorTop>
+            <EditorTop tree={props.crossTree}></EditorTop>
             <div className='grow'>
               <div className='h-full w-full'>
                 <CrossFlow
@@ -777,6 +798,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
                   onNodesChange={onNodesChange}
                   onEdgesChange={onEdgesChange}
                   onConnect={onConnect}
+                  onNodeDragStop={() => saveTree()}
                 />
               </div>
             </div>
@@ -824,24 +846,6 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     </>
   );
   // #endregion templating
-};
-
-const saveTree = (
-  tree: CrossTree,
-  nodes: Node[],
-  edges: Edge[],
-  invisibleNodes: Set<string>
-): void => {
-  tree.nodes = nodes;
-  tree.edges = edges;
-  tree.invisibleNodes = invisibleNodes;
-  tree.lastSaved = new Date();
-  updateTree(tree.generateRecord(true))
-    .then(() => toast.success('Successfully saved design'))
-    .catch((error) => {
-      toast.error('Error saving design');
-      console.error(error);
-    });
 };
 
 export default CrossEditor;

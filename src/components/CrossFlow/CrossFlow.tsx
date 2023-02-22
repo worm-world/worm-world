@@ -121,6 +121,7 @@ interface iCrossFlowProps {
   onNodesChange: (changes: NodeChange[]) => void;
   onEdgesChange: (changes: EdgeChange[]) => void;
   onConnect: (connection: Connection) => void;
+  onNodeDragStop: () => void;
 }
 
 const CustomControls = (props: ControlProps): JSX.Element => {
@@ -195,6 +196,7 @@ const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
       onEdgesChange={props.onEdgesChange}
       onConnect={props.onConnect}
       nodesFocusable
+      onNodeDragStop={props.onNodeDragStop}
     >
       <CustomControls
         position='top-left'
