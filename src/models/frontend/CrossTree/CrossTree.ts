@@ -129,7 +129,7 @@ export default class CrossTree {
   public static getSelfIconPos(): XYPosition {
     return {
       x: 96,
-      y: 125,
+      y: 137,
     };
   }
 
@@ -140,7 +140,7 @@ export default class CrossTree {
   public static getXIconPos(refNode: Node): XYPosition {
     const padding = 40;
     const strainWidth = refNode.width ?? 256;
-    const strainHeight = refNode.height ?? 100;
+    const strainHeight = refNode.height ?? 124;
     const xSide = 64;
     const x = // place on left/right side of refNode
       refNode.data.sex === Sex.Male ? strainWidth + padding : -xSide - padding;

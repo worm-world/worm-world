@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, MouseEvent as ReactMouseEvent } from 'react';
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -11,6 +11,8 @@ import ReactFlow, {
   NodeChange,
   Connection,
   ReactFlowInstance,
+  OnConnectStartParams,
+  ConnectionMode,
 } from 'reactflow';
 import { toPng, toSvg } from 'html-to-image';
 import { FiShare } from 'react-icons/fi';
@@ -121,6 +123,11 @@ interface iCrossFlowProps {
   onNodesChange: (changes: NodeChange[]) => void;
   onEdgesChange: (changes: EdgeChange[]) => void;
   onConnect: (connection: Connection) => void;
+  onConnectStart: (
+    event: ReactMouseEvent,
+    params: OnConnectStartParams
+  ) => void;
+  onConnectEnd: (event: MouseEvent) => void;
   onNodeDragStop: () => void;
 }
 
@@ -195,7 +202,10 @@ const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
       onNodesChange={props.onNodesChange}
       onEdgesChange={props.onEdgesChange}
       onConnect={props.onConnect}
+      onConnectStart={props.onConnectStart}
+      onConnectEnd={props.onConnectEnd}
       nodesFocusable
+      connectionMode={ConnectionMode.Loose}
       onNodeDragStop={props.onNodeDragStop}
     >
       <CustomControls
