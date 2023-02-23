@@ -10,14 +10,28 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [macos-10.15, macos-11, macos-latest, windows-latest]
+        platform: [macos-latest, windows-latest]
+        include:
+          - platform: macos-latest
+            target: universal-apple-darwin
+          - platform: windows-latest
+            target: x86_64-pc-windows-msvc
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Rust setup
+      - name: Rust setup (macos)
+        if: ${{ startsWith(matrix.platform, 'macos') }}
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin, x86_64-apple-darwin
+      
+      - name: Rust setup (windows)
+        if: ${{ startsWith(matrix.platform, 'win') }}
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
@@ -49,6 +63,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          args: -- --target ${{ matrix.target }}
           tagName: ${{ github.ref_name }} # This only works if your workflow triggers on new tags.
           releaseName: 'WormWorld v__VERSION__' # tauri-action replaces \_\_VERSION\_\_ with the app version.
           releaseBody: 'See the assets to download and install this version.'
