@@ -21,6 +21,8 @@ const TaskItem = (props: iTaskProps): JSX.Element => {
     props.task.strain2 !== undefined;
   const leftStrain = shouldSwap ? props.task.strain2 : props.task.strain1;
   const rightStrain = shouldSwap ? props.task.strain1 : props.task.strain2;
+  if (leftStrain !== undefined) leftStrain.probability = undefined;
+  if (rightStrain !== undefined) rightStrain.probability = undefined;
   return (
     <>
       <div className='flex h-40 items-center justify-items-start border-2 border-base-300 bg-base-200 shadow-md'>

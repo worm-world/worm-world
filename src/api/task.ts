@@ -13,22 +13,6 @@ export const getFilteredTasks = async (
   return await invoke('get_filtered_tasks', { filter });
 };
 
-// export const getTask = async (name: string): Promise<db_Task> => {
-//   const filter: Filter<TaskFieldName> = {
-//     filters: [[['id', { Equal: name }]]],
-//     orderBy: [],
-//   };
-//   const res = await getFilteredTasks(filter);
-//   return getSingleRecordOrThrow(
-//     res,
-//     `Unable to find any tasks with the name: ${name}`
-//   );
-// };
-
-// export const insertTask = async (task: Task): Promise<void> => {
-//   await insertDbTask(task.generateRecord());
-// };
-
 export const insertDbTasks = async (records: db_Task[]): Promise<void> => {
   await Promise.all(records.map(async (record) => await insertDbTask(record)));
 };
@@ -39,4 +23,12 @@ export const insertDbTask = async (record: db_Task): Promise<void> => {
 
 export const updateDbTask = async (record: db_Task): Promise<void> => {
   await invoke('update_task', { task: record });
+};
+
+export const deleteTasks = async (tree: string): Promise<void> => {
+  await invoke('delete_tasks', { tree });
+};
+
+export const deleteAllTasks = async (): Promise<void> => {
+  await invoke('delete_all_tasks');
 };
