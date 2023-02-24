@@ -1,4 +1,9 @@
-const TodoModal = (props: {}): JSX.Element => {
+import { Task } from 'models/frontend/Task/Task';
+
+interface iTodoModalProps {
+  task: Task;
+}
+const TodoModal = (props: iTodoModalProps): JSX.Element => {
   return (
     <>
       <input type='checkbox' id='conditions' className='modal-toggle' />
@@ -24,11 +29,6 @@ const TodoModal = (props: {}): JSX.Element => {
           >
             ✕
           </label>
-          <label htmlFor='start'>Postpone To: </label>
-          <input type='date' id='start' name='trip-start'></input>
-          <br></br>
-          Warning: Postponing this task will alter the due dates of future tasks
-          and may add additional steps
         </div>
       </div>
     </>

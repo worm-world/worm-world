@@ -295,7 +295,6 @@ export default class CrossTree {
     tasks: db_Task[]
   ): void {
     if (ancestryChain.parents.length === 0) return;
-
     const strain1String = JSON.stringify(
       instanceToPlain(ancestryChain.parents[0].strain)
     );
@@ -305,6 +304,7 @@ export default class CrossTree {
         instanceToPlain(ancestryChain.parents.at(1)?.strain)
       );
     }
+    const result = JSON.stringify(instanceToPlain(ancestryChain.strain));
 
     const action: Action =
       ancestryChain.parents.length === 1 ? 'SelfCross' : 'Cross';
@@ -315,6 +315,7 @@ export default class CrossTree {
       action,
       strain1: strain1String,
       strain2: strain2String,
+      result,
       notes: null,
       completed: false,
       tree_id: this.id,

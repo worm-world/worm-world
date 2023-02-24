@@ -48,6 +48,16 @@
     },
     "query": "\n            SELECT allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end FROM variation_info ORDER BY allele_name\n            "
   },
+  "15fca42cd2ff3e0d1af3b8f6fbf4a061da0d3b94ce4cff77894692e81e9f7c75": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 9
+      }
+    },
+    "query": "INSERT INTO tasks (id, due_date, action, strain1, strain2, result, notes, tree_id, completed)\n            VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)\n            "
+  },
   "1a74b1682e8ccaa5190ed221709a54346f48266a87cfac6b480a81491bdd5a49": {
     "describe": {
       "columns": [
@@ -111,16 +121,6 @@
       }
     },
     "query": "INSERT INTO variation_info (allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end)\n            VALUES($1, $2, $3, $4, $5, $6)\n            "
-  },
-  "3f8ca3983ae3d001b603075120647d73821a46482324ee5fa151380f991edb3f": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 8
-      }
-    },
-    "query": "INSERT INTO tasks (id, due_date, action, strain1, strain2, notes, tree_id, completed)\n            VALUES($1, $2, $3, $4, $5, $6, $7, $8)\n            "
   },
   "472bcc21e1c9bc9ebdfc084d31c5608120b0c27dd753392ea88e9e58886f4031": {
     "describe": {
@@ -292,6 +292,16 @@
     },
     "query": "INSERT INTO task_deps (parent_id, child_id)\n            VALUES($1, $2)\n            "
   },
+  "7d0897ab3c3384229f30f16c7f6f8ded65e9b9ca5131cc0f6b631c10ac554444": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 9
+      }
+    },
+    "query": "UPDATE tasks\n            SET due_date = $2,\n                action = $3,\n                strain1 = $4,\n                strain2 = $5,\n                result = $6,\n                notes = $7,\n                tree_id = $8,\n                completed = $9\n            WHERE\n                id = $1"
+  },
   "8441cefea899ffb8ae7a1e5cc3c5bd5d059248886ab8af8aa1b2a0da34266b30": {
     "describe": {
       "columns": [
@@ -458,66 +468,6 @@
     },
     "query": "INSERT INTO allele_exprs (allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance)\n            VALUES($1, $2, $3, $4)\n            "
   },
-  "acee4c0272f7060a65d6b2018cb3379ade9c7b9d8fd78c123eed8dcbc903f577": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Text"
-        },
-        {
-          "name": "due_date",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "action",
-          "ordinal": 2,
-          "type_info": "Int64"
-        },
-        {
-          "name": "strain1",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "strain2",
-          "ordinal": 4,
-          "type_info": "Text"
-        },
-        {
-          "name": "notes",
-          "ordinal": 5,
-          "type_info": "Text"
-        },
-        {
-          "name": "tree_id",
-          "ordinal": 6,
-          "type_info": "Text"
-        },
-        {
-          "name": "completed",
-          "ordinal": 7,
-          "type_info": "Int64"
-        }
-      ],
-      "nullable": [
-        false,
-        true,
-        false,
-        false,
-        true,
-        true,
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 0
-      }
-    },
-    "query": "\n            SELECT id, due_date, action, strain1, strain2, notes, tree_id, completed FROM tasks ORDER BY id\n            "
-  },
   "c1e43fa299477f63abcf76b9c75bf94de3c769eaaa917790ffbe3829a282c32f": {
     "describe": {
       "columns": [
@@ -606,6 +556,72 @@
     },
     "query": "INSERT INTO genes (systematic_name, descriptive_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end)\n            VALUES($1, $2, $3, $4, $5, $6, $7)\n            "
   },
+  "e01ab89aed1f41b5e8dd3677e9160d15b8722928a28a06a9accbede5c71cec71": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "due_date",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "action",
+          "ordinal": 2,
+          "type_info": "Int64"
+        },
+        {
+          "name": "strain1",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "strain2",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "result",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "notes",
+          "ordinal": 6,
+          "type_info": "Text"
+        },
+        {
+          "name": "tree_id",
+          "ordinal": 7,
+          "type_info": "Text"
+        },
+        {
+          "name": "completed",
+          "ordinal": 8,
+          "type_info": "Int64"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT id, due_date, action, strain1, strain2, result, notes, tree_id, completed FROM tasks ORDER BY id\n            "
+  },
   "f13067dabb927b051246a195865a73d848e506d71ce434dee87f9c4e33216197": {
     "describe": {
       "columns": [],
@@ -657,15 +673,5 @@
       }
     },
     "query": "\n            SELECT id, name, last_edited, data, editable FROM trees ORDER BY id\n            "
-  },
-  "fe185655d8eda476ecbacf20db50e4afd541eb98b277416fe29861b62e9531e1": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 8
-      }
-    },
-    "query": "UPDATE tasks\n            SET due_date = $2,\n                action = $3,\n                strain1 = $4,\n                strain2 = $5,\n                notes = $6,\n                tree_id = $7,\n                completed = $8\n            WHERE\n                id = $1"
   }
 }

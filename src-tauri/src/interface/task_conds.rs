@@ -138,6 +138,7 @@ mod test {
                 action: Action::Cross,
                 strain1: "{}".to_string(),
                 strain2: Some("{}".to_string()),
+                result: Some("{}".to_string()),
                 notes: Some("example note".to_string()),
                 tree_id: 1.to_string(),
                 completed: true,
