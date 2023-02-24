@@ -364,6 +364,7 @@ mod test {
             notes: None,
             tree_id: "1".to_string(),
             completed: true,
+            result: Some("".to_string()),
         };
         let task2 = Task {
             id: "4".to_string(),
@@ -374,6 +375,7 @@ mod test {
             notes: None,
             tree_id: "1".to_string(),
             completed: true,
+            result: Some("".to_string()),
         };
         let task3 = Task {
             id: "5".to_string(),
@@ -384,6 +386,7 @@ mod test {
             notes: None,
             tree_id: "2".to_string(),
             completed: true,
+            result: Some("".to_string()),
         };
 
         state.insert_task(&task1).await?;
@@ -434,6 +437,7 @@ mod test {
             notes: None,
             tree_id: "1".to_string(),
             completed: true,
+            result: Some("".to_string()),
         };
         let task2 = Task {
             id: "4".to_string(),
@@ -444,6 +448,7 @@ mod test {
             notes: None,
             tree_id: "1".to_string(),
             completed: true,
+            result: Some("".to_string()),
         };
         let task3 = Task {
             id: "5".to_string(),
@@ -454,6 +459,7 @@ mod test {
             notes: None,
             tree_id: "2".to_string(),
             completed: true,
+            result: Some("".to_string()),
         };
 
         state.insert_task(&task1).await?;
