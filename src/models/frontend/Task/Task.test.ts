@@ -12,6 +12,7 @@ describe('Task', () => {
       action: 'SelfCross',
       strain1: mutated.toJSON(),
       strain2: null,
+      result: null,
       notes: null,
       completed: false,
       tree_id: '3',

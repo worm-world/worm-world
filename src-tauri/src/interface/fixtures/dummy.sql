@@ -136,13 +136,13 @@ VALUES
     (2, "test2", "2012-01-02", "{}", 0),
     (3, "test3", "2012-01-03", "{}", 1);
 
-INSERT INTO tasks (id, due_date, action, strain1, strain2, notes, tree_id, completed)
+INSERT INTO tasks (id, due_date, action, strain1, strain2, result, notes, tree_id, completed)
 VALUES
-    (1, "2012-01-01", 0, "{}", "{}", "example note", 1, 1),
-    (2, "2012-01-02", 1, "{}", "{}", NULL, 1, 0),
-    (3, "2012-01-03", 0, "{}", "{}", "example note", 2, 0),
-    (4, "2012-01-03", 2, "{}", "{}", NULL, 2, 1),
-    (5, "2012-01-04", 3, "{}", "{}", "example note", 3, 1);
+    (1, "2012-01-01", 0, "{}", "{}", "{}", "example note", 1, 1),
+    (2, "2012-01-02", 1, "{}", "{}", "{}", NULL, 1, 0),
+    (3, "2012-01-03", 0, "{}", "{}", "{}", "example note", 2, 0),
+    (4, "2012-01-03", 2, "{}", "{}", "{}", NULL, 2, 1),
+    (5, "2012-01-04", 3, "{}", "{}", "{}", "example note", 3, 1);
 
 INSERT INTO task_conds (task_id, cond_name)
 VALUES

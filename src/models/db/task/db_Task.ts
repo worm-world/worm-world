@@ -7,6 +7,7 @@ export interface db_Task {
   action: Action;
   strain1: string;
   strain2: string | null;
+  result: string | null;
   notes: string | null;
   completed: boolean;
   tree_id: string;

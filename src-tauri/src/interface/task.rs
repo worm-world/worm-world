@@ -11,7 +11,7 @@ impl InnerDbState {
         match sqlx::query_as!(
             TaskDb,
             "
-            SELECT id, due_date, action, strain1, strain2, notes, tree_id, completed FROM tasks ORDER BY id
+            SELECT id, due_date, action, strain1, strain2, result, notes, tree_id, completed FROM tasks ORDER BY id
             "
         )
         .fetch_all(&self.conn_pool)
@@ -30,7 +30,7 @@ impl InnerDbState {
         filter: &FilterGroup<TaskFieldName>,
     ) -> Result<Vec<Task>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
-            "SELECT id, due_date, action, strain1, strain2, notes, tree_id, completed FROM tasks",
+            "SELECT id, due_date, action, strain1, strain2, result, notes, tree_id, completed FROM tasks",
         );
         filter.add_filtered_query(&mut qb);
 
@@ -50,14 +50,15 @@ impl InnerDbState {
     pub async fn insert_task(&self, task: &Task) -> Result<(), DbError> {
         let action_val: i32 = (task.action as u8).into();
         match sqlx::query!(
-            "INSERT INTO tasks (id, due_date, action, strain1, strain2, notes, tree_id, completed)
-            VALUES($1, $2, $3, $4, $5, $6, $7, $8)
+            "INSERT INTO tasks (id, due_date, action, strain1, strain2, result, notes, tree_id, completed)
+            VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
             ",
             task.id,
             task.due_date,
             action_val,
             task.strain1,
             task.strain2,
+            task.result,
             task.notes,
             task.tree_id,
             task.completed,
@@ -81,9 +82,10 @@ impl InnerDbState {
                 action = $3,
                 strain1 = $4,
                 strain2 = $5,
-                notes = $6,
-                tree_id = $7,
-                completed = $8
+                result = $6,
+                notes = $7,
+                tree_id = $8,
+                completed = $9
             WHERE
                 id = $1",
             task.id,
@@ -91,6 +93,7 @@ impl InnerDbState {
             action_val,
             task.strain1,
             task.strain2,
+            task.result,
             task.notes,
             task.tree_id,
             task.completed,
@@ -219,6 +222,7 @@ mod test {
             action: Action::Cross,
             strain1: "{}".to_string(),
             strain2: Some("{}".to_string()),
+            result: Some("{}".to_string()),
             notes: None,
             tree_id: "1".to_string(),
             completed: true,
@@ -256,6 +260,7 @@ mod test {
             action: Action::Cross,
             strain1: "{}".to_string(),
             strain2: Some("{}".to_string()),
+            result: Some("{}".to_string()),
             notes: None,
             tree_id: "1".to_string(),
             completed: true,
@@ -272,6 +277,7 @@ mod test {
             action: Action::Cross,
             strain1: "{blah}".to_string(),
             strain2: Some("{foo}".to_string()),
+            result: Some("{}".to_string()),
             notes: Some("foo note".to_string()),
             tree_id: "1".to_string(),
             completed: false,
@@ -307,6 +313,7 @@ mod test {
             action: Action::Cross,
             strain1: "{}".to_string(),
             strain2: Some("{}".to_string()),
+            result: Some("{}".to_string()),
             notes: None,
             tree_id: "1".to_string(),
             completed: true,

@@ -6,6 +6,7 @@ export type TaskFieldName =
   | 'Action'
   | 'Strain1'
   | 'Strain2'
+  | 'Result'
   | 'Notes'
   | 'Completed'
   | 'TreeId';

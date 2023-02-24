@@ -12,6 +12,7 @@ export interface iTask {
   strain1: CrossNodeModel;
 
   strain2?: CrossNodeModel;
+  result?: CrossNodeModel;
 
   notes?: string;
   completed: boolean;
@@ -29,6 +30,9 @@ export class Task {
 
   @Type(() => CrossNodeModel)
   strain2?: CrossNodeModel;
+
+  @Type(() => CrossNodeModel)
+  result?: CrossNodeModel;
 
   notes?: string;
   completed: boolean;
@@ -51,6 +55,8 @@ export class Task {
         task.strain2 !== null
           ? CrossNodeModel.fromJSON(task.strain2)
           : undefined;
+      this.result =
+        task.result !== null ? CrossNodeModel.fromJSON(task.result) : undefined;
       this.notes = task.notes ?? undefined;
       this.completed = task.completed;
       this.treeId = task.tree_id;
@@ -64,6 +70,7 @@ export class Task {
       action: this.action,
       strain1: this.strain1.toJSON(),
       strain2: this.strain2?.toJSON() ?? null,
+      result: this.result?.toJSON() ?? null,
       notes: this.notes ?? null,
       completed: this.completed,
       tree_id: this.treeId,
