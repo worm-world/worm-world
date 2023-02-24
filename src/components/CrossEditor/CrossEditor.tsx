@@ -44,11 +44,11 @@ import {
   ContextMenu,
   useContextMenuState,
 } from 'components/ContextMenu/ContextMenu';
+import { CrossFilterModal } from 'components/CrossFilterModal/CrossFilterModal';
 import {
-  CrossFilterModal,
   CrossEditorFilter,
   CrossEditorFilterUpdate,
-} from 'components/CrossFilterModal/CrossFilterModal';
+} from 'components/CrossFilterModal/CrossEditorFilter';
 
 export interface CrossEditorProps {
   crossTree: CrossTree;
@@ -68,7 +68,6 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   const [drawerState, setDrawerState] = useState<DrawerState>('addStrain');
   const [edges, setEdges, onEdgesChange] = useEdgesState(props.crossTree.edges);
   const [noteFormContent, setNoteFormContent] = useState('');
-  const [currChildNodes, setCurrChildNodes] = useState<Node[]>([]);
   const [nodeMap, setNodeMap] = useState<Map<string, Node>>(
     new Map(props.crossTree.nodes.map((node) => [node.id, node]))
   );
@@ -205,49 +204,53 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
    * functionality if we want to still be able to call/interact with them.
    */
   useEffect(() => {
-    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
-      const nodes = [...nodeMap.values()];
-      const refreshedNodes = nodes.map((node) => {
-        if (node.type === FlowType.Strain) {
-          const data: CrossNodeModel = node.data;
-          node.data = new CrossNodeModel({
-            sex: data.sex,
-            strain: data.strain,
-            probability: data.probability,
-            isParent: data.isParent,
-            isChild: data.isChild,
-            getMenuItems: (model: CrossNodeModel) =>
-              getCrossNodeMenuItems(model, node.id, data.isParent),
-            toggleSex: data.isParent
-              ? undefined
-              : () => toggleCrossNodeSex(node.id),
-            toggleHetPair: (pair) => toggleHetPair(pair, node.id),
-          });
-        } else if (node.type === FlowType.Note) {
-          node.data = new NoteNodeProps({
-            content: node.data.content,
-            onDoubleClick: () => {
-              currNodeId.current = node.id;
-              setNoteFormContent(node.data.content);
-              setDrawerState('editNote');
-              setRightDrawerOpen(true);
-            },
-          });
-        } else if (
-          node.type === FlowType.XIcon ||
-          node.type === FlowType.SelfIcon
-        ) {
-          const iconChildren = nodes.filter(
-            (child) => child.parentNode === node.id
-          );
-          loadIconWithData(node, iconChildren);
-        }
+    setCrossFilters(
+      (
+        filters: Map<string, CrossEditorFilter>
+      ): Map<string, CrossEditorFilter> => {
+        setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
+          const nodes = [...nodeMap.values()];
+          const refreshedNodes = nodes.map((node) => {
+            if (node.type === FlowType.Strain) {
+              const data: CrossNodeModel = node.data;
+              node.data = new CrossNodeModel({
+                sex: data.sex,
+                strain: data.strain,
+                probability: data.probability,
+                isParent: data.isParent,
+                isChild: data.isChild,
+                getMenuItems: (model: CrossNodeModel) =>
+                  getCrossNodeMenuItems(model, node.id, data.isParent),
+                toggleSex: data.isParent
+                  ? undefined
+                  : () => toggleCrossNodeSex(node.id),
+                toggleHetPair: (pair) => toggleHetPair(pair, node.id),
+              });
+            } else if (node.type === FlowType.Note) {
+              node.data = new NoteNodeProps({
+                content: node.data.content,
+                onDoubleClick: () => {
+                  currNodeId.current = node.id;
+                  setNoteFormContent(node.data.content);
+                  setDrawerState('editNote');
+                  setRightDrawerOpen(true);
+                },
+              });
+            } else if (
+              node.type === FlowType.XIcon ||
+              node.type === FlowType.SelfIcon
+            ) {
+              loadIconWithData(node);
+            }
 
-        return node;
-      });
-      refreshedNodes.forEach((node) => nodeMap.set(node.id, node));
-      return new Map(nodeMap);
-    });
+            return node;
+          });
+          refreshedNodes.forEach((node) => nodeMap.set(node.id, node));
+          return new Map(nodeMap);
+        });
+        return filters;
+      }
+    );
   }, []);
 
   // #region Flow Component Creation
@@ -319,15 +322,9 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     return newSelfIcon;
   };
 
-  const loadIconWithData = (
-    iconNode: Node,
-    children: Array<Node<CrossNodeModel>>
-  ): void => {
+  const loadIconWithData = (iconNode: Node): void => {
     const data = {
-      setCurrChildNodes: () => setCurrChildNodes([...children]),
-      setCurrFilter: () => {
-        currNodeId.current = iconNode.id;
-      },
+      id: iconNode.id,
     };
 
     iconNode.data = data;
@@ -591,7 +588,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
           probability: child.prob,
         });
       });
-      loadIconWithData(selfIcon, childNodes);
+      loadIconWithData(selfIcon);
 
       refNode.data = copyNodeData(refNode, { isParent: true });
 
@@ -603,6 +600,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         createEdge(selfIcon.id, node.id)
       );
       setEdges((edges) => [...edges, edgeToIcon, ...childEdges]);
+      saveTree();
       return new Map(nodeMap);
     });
   };
@@ -649,7 +647,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         parentNode: xIcon.id,
       });
     });
-    loadIconWithData(xIcon, childrenNodes);
+    loadIconWithData(xIcon);
 
     const childrenEdges = childrenNodes.map((node) =>
       createEdge(xIcon.id, node.id)
@@ -848,13 +846,24 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
 
   return (
     <>
-      <CrossFilterModal
-        childNodes={currChildNodes}
-        invisibleSet={invisibleNodes}
-        toggleVisible={toggleNodeVisibility}
-        filters={crossFilters}
-        updateFilter={handleFilterUpdate}
-      />
+      {[...nodeMap.values()]
+        .filter(
+          (node) =>
+            node.type === FlowType.SelfIcon || node.type === FlowType.XIcon
+        )
+        .map((iconNode, idx) => (
+          <CrossFilterModal
+            key={`filter-modal-${idx}`}
+            nodeId={iconNode.id}
+            childNodes={[...nodeMap.values()].filter(
+              (node) => node.parentNode === iconNode.id
+            )}
+            invisibleSet={new Set([...invisibleNodes])}
+            toggleVisible={toggleNodeVisibility}
+            filter={crossFilters.get(iconNode.id)}
+            updateFilter={handleFilterUpdate}
+          />
+        ))}
       <div>
         <div className='drawer drawer-end'>
           <input

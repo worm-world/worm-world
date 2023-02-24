@@ -1,9 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import {
-  CrossEditorFilter,
-  CrossFilterModal,
-} from 'components/CrossFilterModal/CrossFilterModal';
+import { CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter';
+import { CrossFilterModal } from 'components/CrossFilterModal/CrossFilterModal';
 import { WILD_ALLELE } from 'models/frontend/Allele/Allele';
 import { ed3, n765 } from 'models/frontend/Allele/Allele.mock';
 import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
@@ -23,7 +21,12 @@ const renderComponent = ({
   childNodes = new Array<Node<CrossNodeModel>>(),
   invisibleSet = new Set<string>(),
   toggleVisible = vi.fn(),
-  filters = new Map<string, CrossEditorFilter>(),
+  filter = new CrossEditorFilter({
+    alleleNames: new Set(),
+    exprPhenotypes: new Set(),
+    reqConditions: new Set(),
+    supConditions: new Set(),
+  }),
   updateFilter = vi.fn(),
 }): void => {
   render(
@@ -31,7 +34,7 @@ const renderComponent = ({
       childNodes={childNodes}
       invisibleSet={invisibleSet}
       toggleVisible={toggleVisible}
-      filters={filters}
+      filter={filter}
       updateFilter={updateFilter}
     />
   );
@@ -102,12 +105,9 @@ describe('CrossFilterModal', () => {
 
   test('modal displays limited strain options with set filters', () => {
     const childNodes = [n765AsChild, ed3AsChild];
-    const parentId = ed3AsChild.parentNode ?? '';
-    const filters = new Map<string, CrossEditorFilter>();
-    const f1 = createFilter({ alleleNames: new Set(['ed3']) });
-    filters.set(parentId, f1);
+    const filter = createFilter({ alleleNames: new Set(['ed3']) });
 
-    renderComponent({ childNodes, filters });
+    renderComponent({ childNodes, filter });
 
     [
       'cross-filter-collapse-exprPhenotypes',

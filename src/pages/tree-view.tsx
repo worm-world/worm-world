@@ -44,10 +44,12 @@ const fixTreeDeserialization = (tree: CrossTree): void => {
 
       // Strain's chromPairMap deserialized as object -- should be Map
       const chromPairObj = node.data.strain.chromPairMap;
-      const allelePairs = [];
+      const allelePairs: AllelePair[] = [];
       for (const key in chromPairObj) {
         allelePairs.push(
-          AllelePair.fromJSON(JSON.stringify(chromPairObj[key]))
+          ...chromPairObj[key].map((pair: Object) =>
+            AllelePair.fromJSON(JSON.stringify(pair))
+          )
         );
       }
       node.data.strain = new Strain({

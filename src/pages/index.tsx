@@ -8,7 +8,7 @@ import { GiEarthWorm as WormIcon } from 'react-icons/gi';
 import { open } from '@tauri-apps/api/dialog';
 import { readTextFile } from '@tauri-apps/api/fs';
 import { toast } from 'react-toastify';
-import { CrossEditorFilter } from 'components/CrossFilterModal/CrossFilterModal';
+import { CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter';
 
 const CrossDesignerPage = (): JSX.Element => {
   const [crossTrees, setCrossTrees] = useState<CrossTree[] | null>(null);

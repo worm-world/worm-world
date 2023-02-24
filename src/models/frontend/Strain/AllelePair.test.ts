@@ -470,5 +470,6 @@ describe('allele pair', () => {
     const str = pair.toJSON();
     const pairBack = AllelePair.fromJSON(str);
     expect(pair.strictEquals(pairBack)).toBe(true);
+    expect(pair).toEqual(pairBack);
   });
 });

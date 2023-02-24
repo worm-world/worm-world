@@ -1,179 +1,46 @@
 import CrossNode from 'components/CrossNode/CrossNode';
 import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import { Node } from 'reactflow';
-import { Strain } from 'models/frontend/Strain/Strain';
-import { Dominance } from 'models/enums';
-
-export interface CrossEditorFilterUpdate {
-  field: keyof iCrossEditorFilter;
-  action: 'add' | 'remove' | 'clear';
-  name: string;
-  nodeId: string;
-}
-export interface iCrossEditorFilter {
-  alleleNames: Set<string>;
-  exprPhenotypes: Set<string>;
-  reqConditions: Set<string>;
-  supConditions: Set<string>;
-}
-
-export class CrossEditorFilter {
-  public alleleNames: Set<string> = new Set();
-  public exprPhenotypes: Set<string> = new Set();
-  public reqConditions: Set<string> = new Set();
-  public supConditions: Set<string> = new Set();
-  constructor(props: iCrossEditorFilter) {
-    Object.assign(this, props);
-  }
-
-  public clone(): CrossEditorFilter {
-    return new CrossEditorFilter({
-      alleleNames: new Set(this.alleleNames),
-      exprPhenotypes: new Set(this.exprPhenotypes),
-      reqConditions: new Set(this.reqConditions),
-      supConditions: new Set(this.supConditions),
-    });
-  }
-
-  /** checks if ANY of the sets contains the value */
-  public has(value: string): boolean {
-    return (
-      this.alleleNames.has(value) ||
-      this.exprPhenotypes.has(value) ||
-      this.reqConditions.has(value) ||
-      this.supConditions.has(value)
-    );
-  }
-
-  public isEmpty(): boolean {
-    return (
-      this.alleleNames.size === 0 &&
-      this.exprPhenotypes.size === 0 &&
-      this.reqConditions.size === 0 &&
-      this.supConditions.size === 0
-    );
-  }
-
-  /** Given a strain, extracts all information that a cross filter might use */
-  public static extractCrossFilterNames(strain: Strain): iCrossEditorFilter {
-    return {
-      alleleNames: new Set(strain.getAlleles().map((allele) => allele.name)),
-      exprPhenotypes: new Set(
-        strain.getExprPhenotypes().map((phen) => phen.getUniqueName())
-      ),
-      reqConditions: new Set(
-        strain.getReqConditions().map((cond) => cond.name)
-      ),
-      supConditions: new Set(
-        strain.getSupConditions().map((cond) => cond.name)
-      ),
-    };
-  }
-
-  /** Combines the possible names from multiple strains into a cross filter sets */
-  public static condenseCrossFilterNames(
-    strains: Strain[]
-  ): iCrossEditorFilter {
-    let alleleNames = new Set<string>();
-    let exprPhenotypes = new Set<string>();
-    let reqConditions = new Set<string>();
-    let supConditions = new Set<string>();
-    strains.forEach((strain) => {
-      const names = this.extractCrossFilterNames(strain);
-      alleleNames = new Set([...alleleNames, ...names.alleleNames]);
-      exprPhenotypes = new Set([...exprPhenotypes, ...names.exprPhenotypes]);
-      reqConditions = new Set([...reqConditions, ...names.reqConditions]);
-      supConditions = new Set([...supConditions, ...names.supConditions]);
-    });
-
-    return { alleleNames, exprPhenotypes, reqConditions, supConditions };
-  }
-
-  /** Checks if a node can be displayed given current filter values */
-  public static includedInFilter = (
-    node: Node<CrossNodeModel>,
-    filter?: CrossEditorFilter
-  ): boolean => {
-    if (filter === undefined) return true;
-    const strain = node.data.strain;
-
-    const alleles = strain.getAlleles();
-    const alleleNames = new Set(alleles.map((a) => a.name));
-    const reqConds = new Set(strain.getReqConditions().map((c) => c.name));
-    const supConds = new Set(strain.getSupConditions().map((c) => c.name));
-
-    const namesToFilter: Array<{
-      key: keyof iCrossEditorFilter;
-      names: Set<string>;
-    }> = [
-      { key: 'alleleNames', names: alleleNames },
-      { key: 'reqConditions', names: reqConds },
-      { key: 'supConditions', names: supConds },
-    ];
-
-    let hasAllFilterValues = true;
-    namesToFilter.forEach(({ key, names }) => {
-      if (!hasAllFilterValues) return;
-      if (filter[key].size > 0) {
-        filter[key].forEach((filterName) => {
-          if (!names.has(filterName)) hasAllFilterValues = false;
-        });
-      }
-    });
-
-    const phenotypes = new Map(
-      strain
-        .getAlleleExpressions()
-        .map((expr) => [expr.expressingPhenotype.getUniqueName(), expr])
-    );
-    const pairs = new Map(
-      strain.getAllelePairs().map((pair) => [pair.getAllele().name, pair])
-    );
-    filter.exprPhenotypes.forEach((phenName: string) => {
-      const phenotype = phenotypes.get(phenName);
-      const pair = pairs.get(phenotype?.alleleName ?? '');
-      if (phenotype === undefined || pair === undefined) {
-        hasAllFilterValues = false;
-        return;
-      }
-      // Verify strain has correct number of alleles to exhibit phenotype
-      if (
-        phenotype.dominance === undefined ||
-        (phenotype.dominance === Dominance.Recessive && !pair.isHomo()) ||
-        (phenotype.dominance === Dominance.SemiDominant && pair.isHomo())
-      )
-        hasAllFilterValues = false;
-    });
-
-    return hasAllFilterValues;
-  };
-}
-
+import {
+  CrossEditorFilter,
+  CrossEditorFilterUpdate,
+  iCrossEditorFilter,
+} from 'components/CrossFilterModal/CrossEditorFilter';
+import React from 'react';
 export interface CrossFilterProps {
+  nodeId?: string;
   childNodes: Array<Node<CrossNodeModel>>;
   invisibleSet: Set<string>;
   toggleVisible: (nodeId: string) => void;
 
-  filters: Map<string, CrossEditorFilter>;
+  filter?: CrossEditorFilter;
   updateFilter: (update: CrossEditorFilterUpdate) => void;
 }
+
 export const CrossFilterModal = (props: CrossFilterProps): JSX.Element => {
   const strains = props.childNodes.map((node) => node.data.strain);
   const names = CrossEditorFilter.condenseCrossFilterNames(strains);
   if (props.childNodes.length === 0) return <></>;
   const nodeId = props.childNodes[0].parentNode ?? '';
-  const filter = props.filters.get(nodeId);
+
   return (
     <>
-      <input type='checkbox' id='cross-filter-modal' className='modal-toggle' />
-      <label htmlFor='cross-filter-modal' className='modal cursor-pointer'>
+      <input
+        type='checkbox'
+        id={`cross-filter-modal-${props.nodeId}`}
+        className='modal-toggle'
+      />
+      <label
+        htmlFor={`cross-filter-modal-${props.nodeId}`}
+        className='modal cursor-pointer'
+      >
         <label className='modal-box bg-base-300' htmlFor=''>
           <FilterList
             title='Filter by alleles'
             nodeId={nodeId}
             names={names.alleleNames}
             field='alleleNames'
-            filter={filter}
+            filter={props.filter}
             updateFilter={props.updateFilter}
           />
           <FilterList
@@ -181,7 +48,7 @@ export const CrossFilterModal = (props: CrossFilterProps): JSX.Element => {
             nodeId={nodeId}
             names={names.exprPhenotypes}
             field='exprPhenotypes'
-            filter={filter}
+            filter={props.filter}
             updateFilter={props.updateFilter}
           />
           <FilterList
@@ -189,7 +56,7 @@ export const CrossFilterModal = (props: CrossFilterProps): JSX.Element => {
             nodeId={nodeId}
             names={names.reqConditions}
             field='reqConditions'
-            filter={filter}
+            filter={props.filter}
             updateFilter={props.updateFilter}
           />
           <FilterList
@@ -197,7 +64,7 @@ export const CrossFilterModal = (props: CrossFilterProps): JSX.Element => {
             nodeId={nodeId}
             names={names.supConditions}
             field='supConditions'
-            filter={filter}
+            filter={props.filter}
             updateFilter={props.updateFilter}
           />
           <div className='divider' />
@@ -208,7 +75,7 @@ export const CrossFilterModal = (props: CrossFilterProps): JSX.Element => {
             </div>
             <div className='collapse-content'>
               <h3 className='text-2xl font-bold'></h3>
-              <StrainList {...props} filter={filter} />
+              <StrainList {...props} filter={props.filter} />
             </div>
           </div>
         </label>
@@ -239,7 +106,9 @@ const FilterList = (props: {
   const listClassName = 'mb-4 flex items-center';
   const filterOptions = [...props.names].map((name, idx) => {
     const listKey = `cross-filter-modal-${props.field}-${idx}`;
-    const checkKey = `cross-filter-modal-phenotype-${idx++}-checkbox`;
+    const checkKey = `cross-filter-modal-${
+      props.nodeId
+    }-phenotype-${idx++}-checkbox`;
     const checked = props.filter?.has(name);
     const update: CrossEditorFilterUpdate = {
       field: props.field,
@@ -291,19 +160,19 @@ const FilterList = (props: {
 };
 
 const StrainList = (props: {
+  nodeId?: string;
   childNodes: Array<Node<CrossNodeModel>>;
   invisibleSet: Set<string>;
   toggleVisible: (nodeId: string) => void;
   filter?: CrossEditorFilter;
 }): JSX.Element => {
-  const childNodes = props.childNodes !== undefined ? props.childNodes : [];
   const strainList: JSX.Element[] = [];
 
   let idx = 0;
-  for (const strain of childNodes) {
+  for (const strain of props.childNodes) {
     if (!CrossEditorFilter.includedInFilter(strain, props.filter)) continue;
 
-    const key = `cross-filter-modal-item-${idx}`;
+    const key = `cross-filter-modal-${props.nodeId}-item-${idx}`;
     const candidateNode = (
       <li key={key}>
         <div className='my-2 ml-8 flex flex-row items-center'>
@@ -312,7 +181,7 @@ const StrainList = (props: {
             checked={!props.invisibleSet.has(strain.id)}
             className='checkbox mx-4'
             onClick={() => props.toggleVisible(strain.id)}
-            key={`cross-filter-modal-item-${idx++}-checkbox`}
+            key={`cross-filter-modal-${props.nodeId}-item-${idx++}-checkbox`}
             readOnly
           />
           <CrossNode model={strain.data} />

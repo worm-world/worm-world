@@ -36,7 +36,7 @@ export class Gene {
   }
 
   @Exclude()
-  generateRecord = (): db_Gene => {
+  generateRecord(): db_Gene {
     return {
       sysName: this.sysName,
       descName: this.descName ?? null,
@@ -45,7 +45,7 @@ export class Gene {
       chromosome: this.chromosome ?? null,
       recombSuppressor: this.recombination ?? null,
     };
-  };
+  }
 
   public toJSON(): string {
     return JSON.stringify(instanceToPlain(this));
