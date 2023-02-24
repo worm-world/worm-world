@@ -88,9 +88,21 @@ const getChromosomeBoxes = (
   toggleHetPair?: (pair: AllelePair) => void
 ): JSX.Element[] => {
   if (strain === undefined) return [];
+
+  let hideEcaBox = false; // default: assume no Eca Box to hide
+  if (strain.chromPairMap.has('Ex')) {
+    const nonWildEcas =
+      strain.chromPairMap.get('Ex')?.filter((pair) => !pair.isWild()) ?? [];
+    hideEcaBox = nonWildEcas.length === 0;
+  }
+  const lastIndex = hideEcaBox
+    ? strain.chromPairMap.size - 2
+    : strain.chromPairMap.size - 1;
+
   return Array.from(strain.chromPairMap.keys())
     .sort(cmpChromosomes)
-    .map((chromName, idx, arr) => {
+    .map((chromName, idx) => {
+      if (chromName === 'Ex' && hideEcaBox) return <></>;
       return (
         <div key={idx} className='flex'>
           {getChromosomeBox(
@@ -100,7 +112,7 @@ const getChromosomeBoxes = (
             toggleHetPair
           )}
           <div className='flex flex-col justify-center pt-3 font-light text-base-content'>
-            {idx < arr.length - 1 ? <span>;</span> : <span></span>}
+            {idx < lastIndex ? <span>;</span> : <span></span>}
           </div>
         </div>
       );
@@ -140,9 +152,9 @@ const getChromosomeBox = (
 
   const displayChrom = chromName ?? '?'; // undefined chromosomes are represented by: ?
   return (
-    <div key={displayChrom} className='mx-2 my-auto flex flex-col items-center'>
+    <div key={displayChrom} className='mx-2  flex flex-col items-center'>
       <div className='font-bold'>{displayChrom}</div>
-      <div className='flex flex-row'>{mutationBoxes}</div>
+      <div className='my-auto flex flex-row'>{mutationBoxes}</div>
     </div>
   );
 };

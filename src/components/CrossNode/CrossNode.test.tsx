@@ -26,8 +26,8 @@ describe('CrossNode component', () => {
     const chromosomeIIISection = screen.getByText(/^III$/);
     expect(chromosomeIIISection).toBeDefined();
 
-    const chromosomeExSection = screen.getByText(/^Ex$/);
-    expect(chromosomeExSection).toBeDefined();
+    const chromosomeExSection = screen.queryByText(/^Ex$/); // wild ecas don't render
+    expect(chromosomeExSection).toBeNull();
   });
 
   test('cmpChromosomes() correctly orders chromosomes', () => {
