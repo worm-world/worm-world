@@ -1,4 +1,4 @@
-import { CrossEditorFilter } from 'components/CrossFilterModal/CrossFilterModal';
+import { CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter';
 import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { MenuItem } from 'components/Menu/Menu';
 import { Sex } from 'models/enums';

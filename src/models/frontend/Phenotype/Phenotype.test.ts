@@ -16,6 +16,6 @@ describe('Phenotype', () => {
     const str = phenotype.toJSON();
     const phenotypeBack = Phenotype.fromJSON(str);
 
-    expect(phenotypeBack.toJSON()).toEqual(str);
+    expect(phenotypeBack).toEqual(phenotype);
   });
 });

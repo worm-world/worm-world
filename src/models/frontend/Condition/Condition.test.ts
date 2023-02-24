@@ -13,6 +13,6 @@ describe('Condition', () => {
     });
     const str = cond.toJSON();
     const condBack = Condition.fromJSON(str);
-    expect(condBack.toJSON()).toEqual(str);
+    expect(condBack).toEqual(cond);
   });
 });

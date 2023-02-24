@@ -2,8 +2,8 @@ import { StoryFn, Meta } from '@storybook/react';
 import {
   CrossEditorFilter,
   CrossEditorFilterUpdate,
-  CrossFilterModal,
-} from 'components/CrossFilterModal/CrossFilterModal';
+} from 'components/CrossFilterModal/CrossEditorFilter';
+import { CrossFilterModal } from 'components/CrossFilterModal/CrossFilterModal';
 import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import {
   ed3AsChild,
@@ -23,13 +23,13 @@ const Template: StoryFn<typeof CrossFilterModal> = ({
   childNodes = [],
   invisibleSet = new Set(),
   toggleVisible = () => {},
-  filters = new Map<string, CrossEditorFilter>(),
+  filter = undefined,
   updateFilter = () => {},
 }: {
   childNodes: Array<Node<CrossNodeModel>>;
   invisibleSet: Set<string>;
   toggleVisible: (nodeId: string) => void;
-  filters: Map<string, CrossEditorFilter>;
+  filter?: CrossEditorFilter;
   updateFilter: (update: CrossEditorFilterUpdate) => void;
 }) => {
   return (
@@ -41,7 +41,7 @@ const Template: StoryFn<typeof CrossFilterModal> = ({
         childNodes={childNodes}
         invisibleSet={invisibleSet}
         toggleVisible={toggleVisible}
-        filters={filters}
+        filter={filter}
         updateFilter={updateFilter}
       ></CrossFilterModal>
     </>
@@ -72,18 +72,14 @@ WithToggleCallback.args = {
   },
 };
 
-const ed3Filter = new Map<string, CrossEditorFilter>();
-ed3Filter.set(
-  ed3AsChild.parentNode ?? '',
-  new CrossEditorFilter({
-    alleleNames: new Set(['ed3']),
-    exprPhenotypes: new Set(['unc-119']),
-    reqConditions: new Set(),
-    supConditions: new Set(),
-  })
-);
+const ed3Filter = new CrossEditorFilter({
+  alleleNames: new Set(['ed3']),
+  exprPhenotypes: new Set(['unc-119']),
+  reqConditions: new Set(),
+  supConditions: new Set(),
+});
 export const WithAppliedfilter = Template.bind({});
 WithAppliedfilter.args = {
   childNodes: [ed3AsChild, n765AsChild],
-  filters: ed3Filter,
+  filter: ed3Filter,
 };

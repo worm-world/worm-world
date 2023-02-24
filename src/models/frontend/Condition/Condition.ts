@@ -34,7 +34,7 @@ export class Condition {
   }
 
   @Exclude()
-  public generateRecord = (): db_Condition => {
+  public generateRecord(): db_Condition {
     return {
       name: this.name,
       description: this.description ?? null,
@@ -44,7 +44,7 @@ export class Condition {
       arrested: this.arrested ?? null,
       maturationDays: this.maturationDays ?? null,
     };
-  };
+  }
 
   public toJSON(): string {
     return JSON.stringify(instanceToPlain(this));

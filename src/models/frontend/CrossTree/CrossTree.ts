@@ -2,7 +2,7 @@ import { db_Tree } from 'models/db/db_Tree';
 import type { Action } from 'models/db/task/Action';
 import { db_Task } from 'models/db/task/db_Task';
 import { Sex } from 'models/enums';
-import { iCrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
+import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import { StrainOption } from 'models/frontend/Strain/Strain';
 import { Node, Edge, XYPosition } from 'reactflow';
 import { ulid } from 'ulid';
@@ -13,7 +13,7 @@ import {
   Type,
 } from 'class-transformer';
 import { FlowType } from 'components/CrossFlow/CrossFlow';
-import { CrossEditorFilter } from 'components/CrossFilterModal/CrossFilterModal';
+import { CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter';
 
 export interface iCrossTree {
   name: string;
@@ -23,6 +23,7 @@ export interface iCrossTree {
     longName: boolean;
     contents: boolean;
   };
+
   nodes: Node[];
   edges: Edge[];
   invisibleNodes: Set<string>;
@@ -41,17 +42,23 @@ export default class CrossTree {
   @Type(() => Date)
   public lastSaved: Date;
 
+  @Transform((data: { obj: any }) => {
+    const nodeList = data?.obj?.invisibleNodes;
+    return new Set(nodeList);
+  })
   public invisibleNodes: Set<string>;
+
   @Type(() => CrossEditorFilter)
   @Transform(
     (data: { obj: any }) => {
-      // The way class-transformer works, it will call this function with an Object where key is "chromPairMap" and
-      // .obj is an object dictionary with the contents of chromPairMap, but it is not a Map.
-      // This means the object will have no functions like .keys() or .values() and will not be iterable.
-      // This function will then convert the object dictionary into a Map so we can use it as normal.
       const d = data?.obj?.crossFilters ?? {};
-      // undefined is written into the JSON as a string "undefined", so we need to convert it back to the literal undefined
-      return new Map(Object.keys(d).map((key) => [key, d[key]]) ?? null);
+      const filters = new Map(
+        Object.keys(d).map((key) => {
+          const filter = CrossEditorFilter.fromJSON(JSON.stringify(d[key]));
+          return [key, filter];
+        }) ?? null
+      );
+      return filters;
     },
     { toClassOnly: true }
   )
@@ -367,6 +374,6 @@ export default class CrossTree {
  * and link parents with one or more parents, etc.
  */
 interface StrainAncestry {
-  strain: iCrossNodeModel;
+  strain: CrossNodeModel;
   parents: StrainAncestry[];
 }

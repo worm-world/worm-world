@@ -372,6 +372,6 @@ describe('cross algorithm', () => {
     const strain1 = new Strain({ allelePairs: allelePairs1 });
     const str = strain1.toJSON();
     const strain1Back = Strain.fromJSON(str);
-    expect(strain1.toJSON()).toEqual(strain1Back.toJSON());
+    expect(strain1Back).toEqual(strain1);
   });
 });
