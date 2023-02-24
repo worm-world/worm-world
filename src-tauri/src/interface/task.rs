@@ -121,6 +121,36 @@ impl InnerDbState {
             }
         }
     }
+
+    pub async fn delete_tasks(&self, tree: String) -> Result<(), DbError> {
+        match sqlx::query!(
+            "DELETE FROM tasks
+            WHERE tree_id = $1",
+            tree,
+        )
+        .execute(&self.conn_pool)
+        .await
+        {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                eprint!("Delete Task error: {e}");
+                Err(DbError::Delete(e.to_string()))
+            }
+        }
+    }
+
+    pub async fn delete_all_tasks(&self) -> Result<(), DbError> {
+        match sqlx::query!("DELETE FROM tasks")
+            .execute(&self.conn_pool)
+            .await
+        {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                eprint!("Delete Task error: {e}");
+                Err(DbError::Delete(e.to_string()))
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -288,6 +318,145 @@ mod test {
         assert_eq!(vec![expected], tasks);
 
         state.delete_task("1".to_string()).await?;
+        let tasks: Vec<Task> = state.get_tasks().await?;
+        assert_eq!(tasks.len(), 0);
+
+        Ok(())
+    }
+
+    #[sqlx::test]
+    async fn test_delete_tasks(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let tasks: Vec<Task> = state.get_tasks().await?;
+        assert_eq!(tasks.len(), 0);
+
+        let tree1 = Tree {
+            id: "1".to_string(),
+            name: "test1".to_string(),
+            last_edited: "2012-01-01".to_string(),
+            data: "{}".to_string(),
+            editable: false,
+        };
+        let tree2 = Tree {
+            id: "2".to_string(),
+            name: "tree2".to_string(),
+            last_edited: "2012-01-01".to_string(),
+            data: "{}".to_string(),
+            editable: false,
+        };
+        state.insert_tree(&tree1).await?;
+        state.insert_tree(&tree2).await?;
+
+        let task1 = Task {
+            id: "3".to_string(),
+            due_date: Some("2012-01-01".to_string()),
+            action: Action::Cross,
+            strain1: "{}".to_string(),
+            strain2: Some("{}".to_string()),
+            notes: None,
+            tree_id: "1".to_string(),
+            completed: true,
+        };
+        let task2 = Task {
+            id: "4".to_string(),
+            due_date: Some("2012-01-01".to_string()),
+            action: Action::SelfCross,
+            strain1: "{}".to_string(),
+            strain2: None,
+            notes: None,
+            tree_id: "1".to_string(),
+            completed: true,
+        };
+        let task3 = Task {
+            id: "5".to_string(),
+            due_date: Some("2012-01-01".to_string()),
+            action: Action::Pcr,
+            strain1: "{}".to_string(),
+            strain2: None,
+            notes: None,
+            tree_id: "2".to_string(),
+            completed: true,
+        };
+
+        state.insert_task(&task1).await?;
+        state.insert_task(&task2).await?;
+        state.insert_task(&task3).await?;
+        let tasks: Vec<Task> = state.get_tasks().await?;
+
+        assert_eq!(vec![task1, task2, task3], tasks);
+
+        state.delete_tasks("1".to_string()).await?;
+        let tasks: Vec<Task> = state.get_tasks().await?;
+        assert_eq!(tasks.len(), 1);
+        assert_eq!(tasks[0].id, "5");
+
+        Ok(())
+    }
+
+    #[sqlx::test]
+    async fn test_delete_all_tasks(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let tasks: Vec<Task> = state.get_tasks().await?;
+        assert_eq!(tasks.len(), 0);
+
+        let tree1 = Tree {
+            id: "1".to_string(),
+            name: "test1".to_string(),
+            last_edited: "2012-01-01".to_string(),
+            data: "{}".to_string(),
+            editable: false,
+        };
+        let tree2 = Tree {
+            id: "2".to_string(),
+            name: "tree2".to_string(),
+            last_edited: "2012-01-01".to_string(),
+            data: "{}".to_string(),
+            editable: false,
+        };
+        state.insert_tree(&tree1).await?;
+        state.insert_tree(&tree2).await?;
+
+        let task1 = Task {
+            id: "3".to_string(),
+            due_date: Some("2012-01-01".to_string()),
+            action: Action::Cross,
+            strain1: "{}".to_string(),
+            strain2: Some("{}".to_string()),
+            notes: None,
+            tree_id: "1".to_string(),
+            completed: true,
+        };
+        let task2 = Task {
+            id: "4".to_string(),
+            due_date: Some("2012-01-01".to_string()),
+            action: Action::SelfCross,
+            strain1: "{}".to_string(),
+            strain2: None,
+            notes: None,
+            tree_id: "1".to_string(),
+            completed: true,
+        };
+        let task3 = Task {
+            id: "5".to_string(),
+            due_date: Some("2012-01-01".to_string()),
+            action: Action::Pcr,
+            strain1: "{}".to_string(),
+            strain2: None,
+            notes: None,
+            tree_id: "2".to_string(),
+            completed: true,
+        };
+
+        state.insert_task(&task1).await?;
+        state.insert_task(&task2).await?;
+        state.insert_task(&task3).await?;
+        let tasks: Vec<Task> = state.get_tasks().await?;
+
+        assert_eq!(vec![task1, task2, task3], tasks);
+
+        state.delete_all_tasks().await?;
         let tasks: Vec<Task> = state.get_tasks().await?;
         assert_eq!(tasks.len(), 0);
 

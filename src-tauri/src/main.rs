@@ -2,7 +2,7 @@
     all(not(debug_assertions), target_os = "windows"),
     windows_subsystem = "windows"
 )]
-use std::{str::FromStr, time::Duration, path::Path};
+use std::{path::Path, str::FromStr, time::Duration};
 
 use anyhow::Result;
 use directories::ProjectDirs;
@@ -16,12 +16,12 @@ mod models;
 
 use models::{
     allele::{Allele, AlleleFieldName},
-    allele_expr::{AlleleExpression, AlleleExpressionFieldName, AlleleExpressionDb},
-    condition::{Condition, ConditionFieldName, ConditionDb},
-    expr_relation::{ExpressionRelation, ExpressionRelationFieldName, ExpressionRelationDb},
+    allele_expr::{AlleleExpression, AlleleExpressionDb, AlleleExpressionFieldName},
+    condition::{Condition, ConditionDb, ConditionFieldName},
+    expr_relation::{ExpressionRelation, ExpressionRelationDb, ExpressionRelationFieldName},
     filter::FilterGroup,
-    gene::{Gene, GeneFieldName, GeneDb},
-    phenotype::{Phenotype, PhenotypeFieldName, PhenotypeDb},
+    gene::{Gene, GeneDb, GeneFieldName},
+    phenotype::{Phenotype, PhenotypeDb, PhenotypeFieldName},
     task::{Task, TaskFieldName},
     task_conds::{TaskCondition, TaskConditionFieldName},
     task_deps::{TaskDependency, TaskDependencyFieldName},
@@ -32,7 +32,7 @@ use thiserror::Error;
 use tokio::sync::RwLock;
 
 mod interface;
-use interface::{DbError, InnerDbState, bulk::Bulk};
+use interface::{bulk::Bulk, DbError, InnerDbState};
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 
@@ -80,6 +80,8 @@ async fn main() {
             insert_task,
             update_task,
             delete_task,
+            delete_tasks,
+            delete_all_tasks,
             get_trees,
             get_filtered_trees,
             insert_tree,
@@ -158,12 +160,12 @@ async fn insert_gene(state: tauri::State<'_, DbState>, gene: Gene) -> Result<(),
 #[tauri::command]
 async fn insert_genes_from_file(
     state: tauri::State<'_, DbState>,
-    path: String
+    path: String,
 ) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
     match Bulk::<GeneDb>::new(Path::new(&path)) {
         Ok(bulk) => state_guard.insert_genes(bulk).await,
-        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned()))
+        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned())),
     }
 }
 
@@ -206,12 +208,12 @@ async fn insert_condition(
 #[tauri::command]
 async fn insert_conditions_from_file(
     state: tauri::State<'_, DbState>,
-    path: String
+    path: String,
 ) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
     match Bulk::<ConditionDb>::new(Path::new(&path)) {
         Ok(bulk) => state_guard.insert_conditions(bulk).await,
-        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned()))
+        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned())),
     }
 }
 
@@ -254,12 +256,12 @@ async fn insert_phenotype(
 #[tauri::command]
 async fn insert_phenotypes_from_file(
     state: tauri::State<'_, DbState>,
-    path: String
+    path: String,
 ) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
     match Bulk::<PhenotypeDb>::new(Path::new(&path)) {
         Ok(bulk) => state_guard.insert_phenotypes(bulk).await,
-        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned()))
+        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned())),
     }
 }
 
@@ -292,12 +294,12 @@ async fn insert_variation_info(
 #[tauri::command]
 async fn insert_variation_infos_from_file(
     state: tauri::State<'_, DbState>,
-    path: String
+    path: String,
 ) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
     match Bulk::<VariationInfoDb>::new(Path::new(&path)) {
         Ok(bulk) => state_guard.insert_variation_infos(bulk).await,
-        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned()))
+        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned())),
     }
 }
 
@@ -330,12 +332,12 @@ async fn insert_allele_expr(
 #[tauri::command]
 async fn insert_allele_exprs_from_file(
     state: tauri::State<'_, DbState>,
-    path: String
+    path: String,
 ) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
     match Bulk::<AlleleExpressionDb>::new(Path::new(&path)) {
         Ok(bulk) => state_guard.insert_allele_exprs(bulk).await,
-        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned()))
+        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned())),
     }
 }
 
@@ -363,12 +365,12 @@ async fn insert_allele(state: tauri::State<'_, DbState>, allele: Allele) -> Resu
 #[tauri::command]
 async fn insert_alleles_from_file(
     state: tauri::State<'_, DbState>,
-    path: String
+    path: String,
 ) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
     match Bulk::<Allele>::new(Path::new(&path)) {
         Ok(bulk) => state_guard.insert_alleles(bulk).await,
-        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned()))
+        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned())),
     }
 }
 
@@ -401,12 +403,12 @@ async fn insert_expr_relation(
 #[tauri::command]
 async fn insert_expr_relations_from_file(
     state: tauri::State<'_, DbState>,
-    path: String
+    path: String,
 ) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
     match Bulk::<ExpressionRelationDb>::new(Path::new(&path)) {
         Ok(bulk) => state_guard.insert_expr_relations(bulk).await,
-        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned()))
+        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned())),
     }
 }
 
@@ -440,6 +442,18 @@ async fn update_task(state: tauri::State<'_, DbState>, task: Task) -> Result<(),
 async fn delete_task(state: tauri::State<'_, DbState>, id: String) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
     state_guard.delete_task(id).await
+}
+
+#[tauri::command]
+async fn delete_tasks(state: tauri::State<'_, DbState>, tree: String) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.delete_tasks(tree).await
+}
+
+#[tauri::command]
+async fn delete_all_tasks(state: tauri::State<'_, DbState>) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.delete_all_tasks().await
 }
 
 #[tauri::command]

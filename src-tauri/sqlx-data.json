@@ -132,6 +132,16 @@
     },
     "query": "UPDATE trees\n            SET name = $2,\n                last_edited = $3,\n                data = $4,\n                editable = $5\n            WHERE\n                id = $1"
   },
+  "548a79e78c8a52e1e400926c95612c998df9513d552a8db71724f5ffdcb76129": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "DELETE FROM tasks"
+  },
   "5682e5f266fe624cac0ecafcdf46b9e7c877df76889c92fbfaac89d6dcb74159": {
     "describe": {
       "columns": [
@@ -417,6 +427,16 @@
       }
     },
     "query": "\n            SELECT name, contents, systematic_gene_name, variation_name FROM alleles ORDER BY name\n            "
+  },
+  "91099ef31d341155d0cfaaec1c463dc74a84713686be2d8ca68ba9cd1ecb5813": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "DELETE FROM tasks\n            WHERE tree_id = $1"
   },
   "a141f0b236e58df5eb33b7f342543d3d10b311054bc7f5f23a3ae1025d940355": {
     "describe": {
