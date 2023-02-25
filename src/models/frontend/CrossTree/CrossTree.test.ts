@@ -10,6 +10,7 @@ import { XYPosition, Node, Edge } from 'reactflow';
 import { expect, test, describe } from 'vitest';
 import { WILD_ALLELE } from '../Allele/Allele';
 import { ed3, n765, ox1059 } from '../Allele/Allele.mock';
+import moment from 'moment';
 
 describe('cross tree', () => {
   // #region generator functions
@@ -405,7 +406,7 @@ describe('cross tree', () => {
     expect(tasks).toHaveLength(1);
     expect(tasks[0].action).toBe('SelfCross');
     // expect(tasks[0].strain1).toBe(JSON.stringify(strain1));
-    expect(tasks[0].strain2).toBeNull();
+    expect(tasks[0].strain2).toBeUndefined();
   });
   test('.generateTasks() returns regular cross tasks', () => {
     let id = 0;
@@ -443,6 +444,7 @@ describe('cross tree', () => {
     expect(tasks[0].action).toBe('Cross');
     // expect(tasks[0].strain1).toBe(JSON.stringify(strain1));
     // expect(tasks[0].strain2).toBe(JSON.stringify(strain2));
+    expect(tasks[0].dueDate?.getDay()).toBe(new Date().getDay());
   });
   test('.generateTasks() generates multiple tasks', () => {
     let id = 0;
@@ -484,11 +486,102 @@ describe('cross tree', () => {
     expect(tasks).toHaveLength(2);
     expect(tasks[0].action).toBe('SelfCross');
     // expect(tasks[0].strain1).toBe(JSON.stringify(strain3));
-    expect(tasks[0].strain2).toBeNull();
+    expect(tasks[0].strain2).toBeUndefined();
     expect(tasks[1].action).toBe('Cross');
+    const today = new Date().getDate();
+    const todayPlusThree = moment().add(3, 'days').toDate().getDate();
+    expect(tasks[0].dueDate?.getDate()).toBe(todayPlusThree);
+    expect(tasks[1].dueDate?.getDate()).toBe(today);
     // expect(tasks[1].strain1).toBe(JSON.stringify(strain1));
     // expect(tasks[1].strain2).toBe(JSON.stringify(strain2));
   });
+  test('.generateTasks() correctly bumps dates', () => {
+    let id = 0;
+    const strain1 = generateCrossNodeModel({ sex: Sex.Hermaphrodite });
+    const strain2 = generateCrossNodeModel({ sex: Sex.Male });
+    const nodes = [
+      generateNode({ id: id++, data: strain1 }),
+      generateNode({ id: id++, data: strain2 }),
+      generateNode({ id: id++, data: strain1 }),
+      generateNode({ id: id++, data: strain2 }),
+      generateNode({ id: id++, data: strain1 }),
+      generateNode({ id: id++, data: strain2 }),
+      generateNode({ id: id++, data: strain1 }),
+      generateNode({ id: id++, data: strain2 }),
+      generateNode({ id: id++, data: strain2 }),
+      generateNode({ id: id++, type: FlowType.XIcon }),
+      generateNode({ id: id++, type: FlowType.XIcon }),
+      generateNode({ id: id++, type: FlowType.XIcon }),
+      generateNode({ id: id++, type: FlowType.SelfIcon }),
+      generateNode({ id: id++, type: FlowType.SelfIcon }),
+    ];
+    const edges = [
+      generateEdge({
+        id: id++,
+        source: '0',
+        target: '9',
+        sourceHandle: 'left',
+        targetHandle: 'right',
+      }),
+      generateEdge({
+        id: id++,
+        source: '1',
+        target: '9',
+        targetHandle: 'left',
+      }),
+      generateEdge({ id: id++, source: '9', target: '2' }),
+      generateEdge({ id: id++, source: '2', target: '12' }),
+      generateEdge({ id: id++, source: '12', target: '3' }),
+      generateEdge({ id: id++, source: '3', target: '13' }),
+      generateEdge({
+        id: id++,
+        source: '13',
+        target: '4',
+        targetHandle: 'top',
+      }),
+      generateEdge({
+        id: id++,
+        source: '5',
+        target: '10',
+        sourceHandle: 'left',
+        targetHandle: 'right',
+      }),
+      generateEdge({
+        id: id++,
+        source: '6',
+        target: '10',
+        targetHandle: 'left',
+      }),
+      generateEdge({ id: id++, source: '10', target: '7' }),
+      generateEdge({
+        id: id++,
+        source: '4',
+        target: '11',
+        sourceHandle: 'left',
+        targetHandle: 'right',
+      }),
+      generateEdge({
+        id: id++,
+        source: '7',
+        target: '11',
+        targetHandle: 'left',
+      }),
+      generateEdge({ id: id++, source: '11', target: '8' }),
+    ];
+    const tree = generateTree({ nodes, edges });
+    const tasks = tree.generateTasks(nodes[8]);
+    expect(tasks).toHaveLength(5);
+    const today = new Date().getDate();
+    const todayPlusThree = moment().add(3, 'days').toDate().getDate();
+    const todayPlusSix = moment().add(6, 'days').toDate().getDate();
+    const todayPlusNine = moment().add(9, 'days').toDate().getDate();
+    expect(tasks[0].dueDate?.getDate()).toBe(todayPlusNine);
+    expect(tasks[1].dueDate?.getDate()).toBe(todayPlusSix);
+    expect(tasks[2].dueDate?.getDate()).toBe(todayPlusThree);
+    expect(tasks[3].dueDate?.getDate()).toBe(today);
+    expect(tasks[4].dueDate?.getDate()).toBe(todayPlusSix);
+  });
+
   test('should be able to serialize and deserialize', () => {
     let id = 0;
     const strain1 = generateCrossNodeModel({

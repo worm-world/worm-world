@@ -23,6 +23,7 @@
     "daisyui": "^2.46.1",
     "html-to-image": "^1.11.4",
     "insert-line": "^1.1.0",
+    "moment": "^2.29.4",
     "nthline": "^1.0.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
