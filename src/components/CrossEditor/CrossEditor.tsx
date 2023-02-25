@@ -921,6 +921,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
                   onConnect={onConnect}
                   onConnectEnd={onConnectEnd}
                   onNodeDragStop={() => saveTree()}
+                  reactFlowInstance={reactFlowInstance}
                 />
               </div>
             </div>

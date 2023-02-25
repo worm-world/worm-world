@@ -2,7 +2,6 @@ import { useMemo, MouseEvent as ReactMouseEvent } from 'react';
 import ReactFlow, {
   MiniMap,
   Controls,
-  ControlProps,
   ControlButton,
   Background,
   Node,
@@ -27,6 +26,7 @@ import {
 } from 'components/FlowWrapper/FlowWrapper';
 import { Options } from 'html-to-image/lib/types';
 import { toast } from 'react-toastify';
+import { FaPlus, FaMinus } from 'react-icons/fa';
 
 type SaveMethod = 'png' | 'svg';
 const saveMethodFuncs: Record<
@@ -129,13 +129,32 @@ interface iCrossFlowProps {
   ) => void;
   onConnectEnd: (event: MouseEvent) => void;
   onNodeDragStop: () => void;
+  reactFlowInstance?: ReactFlowInstance;
 }
 
-const CustomControls = (props: ControlProps): JSX.Element => {
+interface CustomControlsProps {
+  reactFlowInstance?: ReactFlowInstance;
+}
+
+const CustomControls = (props: CustomControlsProps): JSX.Element => {
   return (
-    <Controls {...props}>
-      <ControlButton>
-        <div className='drowndown-hover dropdown m-0'>
+    <Controls
+      position='top-left'
+      className='bg-base-100 text-base-content'
+      showZoom={false}
+    >
+      <ControlButton
+        onClick={() => props.reactFlowInstance?.zoomIn({ duration: 150 })}
+      >
+        <FaPlus className='hover:cursor-pointer' />
+      </ControlButton>
+      <ControlButton
+        onClick={() => props.reactFlowInstance?.zoomOut({ duration: 150 })}
+      >
+        <FaMinus className='hover:cursor-pointer' />
+      </ControlButton>
+      <ControlButton className='drowndown-hover dropdown'>
+        <div>
           <label tabIndex={0} className=''>
             <FiShare className='text-3xl text-base-content hover:cursor-pointer' />
           </label>
@@ -208,10 +227,7 @@ const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
       connectionMode={ConnectionMode.Loose}
       onNodeDragStop={props.onNodeDragStop}
     >
-      <CustomControls
-        position='top-left'
-        className='bg-base-100 text-base-content'
-      />
+      <CustomControls reactFlowInstance={props.reactFlowInstance} />
       <MiniMap
         position='bottom-left'
         className='bg-base-300'
