@@ -8,6 +8,7 @@ import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { Menu } from 'components/Menu/Menu';
 import { BsLightningCharge as MenuIcon } from 'react-icons/bs';
+import BreedCountProbability from 'components/BreedCountProbability/BreedCountProbability';
 
 const getSexIcon = (
   sex: Sex,
@@ -57,7 +58,27 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
               props.model.isParent,
               props.model.toggleSex
             )}
-            <div className='mt-1 text-accent'>{probability}</div>
+            {props.model.isChild && (
+              <div className='dropdown  dropdown-top'>
+                <label
+                  tabIndex={0}
+                  className='btn-ghost btn-xs btn m-1 mt-1 text-accent ring-0 hover:bg-base-200 hover:ring-0'
+                >
+                  {probability}
+                </label>
+                <div
+                  tabIndex={0}
+                  className='card dropdown-content compact rounded-box w-64 bg-base-100 shadow'
+                >
+                  <div className='card-body'>
+                    <BreedCountProbability
+                      probability={props.model.probability}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
             {props.model.getMenuItems !== undefined && (
               <Menu title='Actions' icon={<MenuIcon />} items={menuItems} />
             )}
