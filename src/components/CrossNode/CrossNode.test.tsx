@@ -80,15 +80,15 @@ describe('CrossNode component', () => {
     expect(prob4).not.toBeNull();
 
     const countOne = screen.getByTestId('countOne');
-    expect(countOne.innerHTML).toBe(' 6 for 80% Confidence');
+    expect(countOne.innerHTML).toBe('6 for 80% Confidence');
 
     const countTwo = screen.getByTestId('countTwo');
-    expect(countTwo.innerHTML).toBe(' 9 for 90% Confidence');
+    expect(countTwo.innerHTML).toBe('9 for 90% Confidence');
 
     const countThree = screen.getByTestId('countThree');
-    expect(countThree.innerHTML).toBe(' 11 for 95% Confidence');
+    expect(countThree.innerHTML).toBe('11 for 95% Confidence');
 
     const countFour = screen.getByTestId('countFour');
-    expect(countFour.innerHTML).toBe(' 17 for 99% Confidence');
+    expect(countFour.innerHTML).toBe('17 for 99% Confidence');
   });
 });
