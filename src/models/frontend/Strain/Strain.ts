@@ -2,12 +2,7 @@ import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 import { Allele, WildAllele } from 'models/frontend/Allele/Allele';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 
-import {
-  Type,
-  Transform,
-  instanceToPlain,
-  plainToInstance,
-} from 'class-transformer';
+import { Transform, instanceToPlain, plainToInstance } from 'class-transformer';
 import { Phenotype } from 'models/frontend/Phenotype/Phenotype';
 import { AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
 import { Condition } from 'models/frontend/Condition/Condition';
@@ -35,7 +30,6 @@ interface iStrain {
 }
 export class Strain {
   /* #region initializers */
-  @Type(() => AllelePair)
   @Transform(
     (data: { obj: any }) => {
       // The way class-transformer works, it will call this function with an Object where key is "chromPairMap" and
@@ -45,8 +39,13 @@ export class Strain {
       const d = data?.obj?.chromPairMap ?? {};
       // undefined is written into the JSON as a string "undefined", so we need to convert it back to the literal undefined
       return new Map(
-        Object.keys(d).map((k) => [k === 'undefined' ? undefined : k, d[k]]) ??
-          null
+        Object.keys(d).map((k) => {
+          const pairs = d[k];
+          const restoredPairs = pairs.map((pair: Object) =>
+            AllelePair.fromJSON(JSON.stringify(pair))
+          );
+          return [k === 'undefined' ? undefined : k, restoredPairs];
+        }) ?? null
       );
     },
     { toClassOnly: true }
@@ -193,6 +192,15 @@ export class Strain {
     return this.getAlleleExpressions().flatMap(
       (expr) => expr.suppressingConditions
     );
+  }
+
+  public getMaturationDays(): number {
+    const maturationDays = this.getExprPhenotypes().flatMap(
+      (phen) => phen.maturationDays ?? []
+    );
+    if (maturationDays.length === 0) maturationDays.push(3); // default if no phenotypes are part of strain
+
+    return Math.max(...maturationDays);
   }
   /* #endregion public methods */
 

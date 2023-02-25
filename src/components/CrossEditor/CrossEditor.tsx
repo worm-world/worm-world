@@ -748,32 +748,40 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     const scheduleOption: MenuItem = {
       icon: <ScheduleIcon />,
       text: 'Schedule',
-      menuCallback: () => {
-        saveTree();
-        let node: Node | undefined;
-        setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
-          node = nodeMap.get(nodeId);
-          return nodeMap;
-        });
-        if (node === undefined || node.type !== FlowType.Strain) {
-          console.error(
-            'boooo - the node you are trying to schedule is undefined/not a strain'
-          );
-          return;
-        }
-
-        const clonedTree = props.crossTree.clone();
-        const tasks = clonedTree.generateTasks(node);
-        insertTree(clonedTree.generateRecord(false))
-          .then(async () => await insertDbTasks(tasks))
-          .then(() => navigate('/scheduler/todo'))
-          .catch((error) => console.error(error));
-      },
+      menuCallback: () => scheduleNode(nodeId),
     };
 
     if (isParent) return [scheduleOption];
     if (canSelfCross) return [selfOption, crossOption, scheduleOption]; // herm strain
     return [crossOption, scheduleOption]; // het strain
+  };
+
+  const scheduleNode = (nodeId: string): void => {
+    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
+      setEdges((edges: Edge[]): Edge[] => {
+        const node = nodeMap.get(nodeId);
+        if (node === undefined || node.type !== FlowType.Strain) {
+          console.error(
+            'boooo - the node you are trying to schedule is undefined/not a strain'
+          );
+          return edges;
+        }
+
+        const clonedTree = props.crossTree.clone();
+        clonedTree.nodes = [...nodeMap.values()];
+        clonedTree.edges = [...edges];
+        const tasks = clonedTree
+          .generateTasks(node)
+          .map((task) => task.generateRecord());
+        insertTree(clonedTree.generateRecord(false))
+          .then(async () => await insertDbTasks(tasks))
+          .then(() => navigate('/scheduler/todo'))
+          .catch((error) => console.error(error));
+
+        return edges;
+      });
+      return nodeMap;
+    });
   };
 
   const saveTree = (showSuccessMessage = false): void => {

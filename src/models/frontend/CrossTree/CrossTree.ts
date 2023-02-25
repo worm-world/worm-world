@@ -1,6 +1,5 @@
 import { db_Tree } from 'models/db/db_Tree';
 import type { Action } from 'models/db/task/Action';
-import { db_Task } from 'models/db/task/db_Task';
 import { Sex } from 'models/enums';
 import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import { StrainOption } from 'models/frontend/Strain/Strain';
@@ -14,6 +13,8 @@ import {
 } from 'class-transformer';
 import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter';
+import moment from 'moment';
+import { Task } from 'models/frontend/Task/Task';
 
 export interface iCrossTree {
   name: string;
@@ -29,6 +30,11 @@ export interface iCrossTree {
   invisibleNodes: Set<string>;
   crossFilters: Map<string, CrossEditorFilter>;
   lastSaved: Date;
+}
+
+export interface iTaskDependencyTree {
+  task: Task;
+  taskParents: iTaskDependencyTree[];
 }
 
 // Uses React Flow nodes and edges. The nodes contain a data property
@@ -261,10 +267,15 @@ export default class CrossTree {
   /**
    * Given an UP-TO-DATE cross tree, generates a list of all tasks for a given node
    */
-  public generateTasks(node: Node): db_Task[] {
+  public generateTasks(node: Node): Task[] {
     const ancestryChain = this.getAncestryChain(node);
-    const tasks: db_Task[] = [];
-    this.generateTasksRec(ancestryChain, tasks);
+    const taskDepTree = this.generateTasksRec(ancestryChain);
+    if (taskDepTree === undefined) {
+      return [];
+    }
+    this.addDatesToTasks(taskDepTree);
+    const tasks: Task[] = [];
+    this.makeTreeIntoArray(taskDepTree, tasks);
     return tasks;
   }
   /* #endregion public class methods */
@@ -298,40 +309,103 @@ export default class CrossTree {
    * @returns
    */
   private generateTasksRec(
-    ancestryChain: StrainAncestry,
-    tasks: db_Task[]
-  ): void {
-    if (ancestryChain.parents.length === 0) return;
-    const strain1String = JSON.stringify(
-      instanceToPlain(ancestryChain.parents[0].strain)
+    ancestryChain: StrainAncestry
+  ): iTaskDependencyTree | undefined {
+    if (ancestryChain.parents.length === 0) return undefined;
+
+    const [strain1, strain2] = ancestryChain.parents.map((parent) =>
+      JSON.stringify(instanceToPlain(parent.strain))
     );
-    let strain2String: string | null = null;
-    if (ancestryChain.parents.at(1) !== undefined) {
-      strain2String = JSON.stringify(
-        instanceToPlain(ancestryChain.parents.at(1)?.strain)
-      );
-    }
+
     const result = JSON.stringify(instanceToPlain(ancestryChain.strain));
 
     const action: Action =
       ancestryChain.parents.length === 1 ? 'SelfCross' : 'Cross';
 
-    const task: db_Task = {
+    const taskParents = ancestryChain.parents.flatMap(
+      (parent: StrainAncestry) => this.generateTasksRec(parent) ?? [] // handle undefined
+    );
+
+    const task = new Task({
       id: ulid(),
-      due_date: new Date().toString(), // todo calculate this
+      due_date: moment().toDate().toString(), // todo calculate this
       action,
-      strain1: strain1String,
-      strain2: strain2String,
+      strain1,
+      strain2: strain2 ?? null,
       result,
       notes: null,
       completed: false,
       tree_id: this.id,
+    });
+    return {
+      task,
+      taskParents,
     };
-    tasks.push(task);
+  }
 
-    ancestryChain.parents.forEach((chain) =>
-      this.generateTasksRec(chain, tasks)
+  private addDays(days: number, date?: Date): Date {
+    return moment(date).add(days, 'days').toDate();
+  }
+
+  private addDatesToTasks(taskDeps: iTaskDependencyTree): void {
+    const defaultMaturationDay = 3;
+    taskDeps.taskParents.forEach((parent) => this.addDatesToTasks(parent));
+
+    if (taskDeps.taskParents.length === 0) {
+      taskDeps.task.dueDate = moment().toDate();
+      return;
+    }
+
+    // self cross task
+    const parent0 = taskDeps.taskParents[0].task.result;
+    let maturationDays =
+      parent0?.strain.getMaturationDays() ?? defaultMaturationDay;
+    if (taskDeps.taskParents.length === 1) {
+      taskDeps.task.dueDate = this.addDays(
+        maturationDays,
+        taskDeps.taskParents[0].task.dueDate
+      );
+      return;
+    }
+
+    // cross between 2 strains.
+    const parent1 = taskDeps.taskParents[1].task.result;
+    maturationDays = Math.max(
+      parent0?.strain.getMaturationDays() ?? defaultMaturationDay,
+      parent1?.strain.getMaturationDays() ?? defaultMaturationDay
     );
+    const parent0DueDate = moment(taskDeps.taskParents[0].task.dueDate);
+    const parent1DueDate = moment(taskDeps.taskParents[1].task.dueDate);
+    const latestParentDate = parent0DueDate.isAfter(parent1DueDate)
+      ? parent0DueDate.toDate()
+      : parent1DueDate.toDate();
+
+    taskDeps.task.dueDate = this.addDays(maturationDays, latestParentDate);
+
+    // Determine if a parent tree needs to be started later in time (rather than today)
+    const dueDateDiff = parent0DueDate.diff(parent1DueDate, 'days');
+    if (Math.abs(dueDateDiff) >= maturationDays) {
+      const parentToBump = parent0DueDate.isAfter(parent1DueDate)
+        ? taskDeps.taskParents[1]
+        : taskDeps.taskParents[0];
+
+      this.bumpDatesBack(parentToBump, dueDateDiff);
+    }
+  }
+
+  private bumpDatesBack(
+    tree: iTaskDependencyTree,
+    daysToBumpBack: number
+  ): void {
+    tree.task.dueDate = this.addDays(daysToBumpBack, tree.task.dueDate);
+    tree.taskParents.forEach((parent) =>
+      this.bumpDatesBack(parent, daysToBumpBack)
+    );
+  }
+
+  private makeTreeIntoArray(tree: iTaskDependencyTree, tasks: Task[]): void {
+    tasks.push(tree.task);
+    tree.taskParents.forEach((parent) => this.makeTreeIntoArray(parent, tasks));
   }
 
   /**

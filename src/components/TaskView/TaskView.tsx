@@ -7,6 +7,7 @@ import {
 } from 'react-icons/tb';
 import { BiX as CrossIcon } from 'react-icons/bi';
 import TodoModal from './TodoModal';
+import moment from 'moment';
 
 interface iTaskProps {
   task: Task;
@@ -21,8 +22,10 @@ const TaskItem = (props: iTaskProps): JSX.Element => {
     props.task.strain2 !== undefined;
   const leftStrain = shouldSwap ? props.task.strain2 : props.task.strain1;
   const rightStrain = shouldSwap ? props.task.strain1 : props.task.strain2;
+  const result = props.task.result;
   if (leftStrain !== undefined) leftStrain.probability = undefined;
   if (rightStrain !== undefined) rightStrain.probability = undefined;
+  if (result !== undefined) result.probability = undefined;
   return (
     <>
       <div className='flex h-40 items-center justify-items-start border-2 border-base-300 bg-base-200 shadow-md'>
@@ -74,9 +77,7 @@ const TaskItem = (props: iTaskProps): JSX.Element => {
             )}
             {props.task.action === 'SelfCross' && <div className='ml-4 w-60' />}
             <div className='divider lg:divider-horizontal'>To</div>
-            {props.task.result !== undefined && (
-              <CrossNode model={props.task.result} />
-            )}
+            {result !== undefined && <CrossNode model={result} />}
           </div>
           <textarea
             // value={props.task.notes ?? ""}
@@ -115,10 +116,12 @@ const getDateSections = (tasks: Task[]): Map<string, Set<Task>> => {
 };
 
 export const TaskView = (props: iTaskViewProps): JSX.Element => {
-  const sections = getDateSections(props.tasks);
+  const sections = Array.from(getDateSections(props.tasks)).sort(
+    ([date1], [date2]) => (moment(date1).isAfter(moment(date2)) ? 1 : -1)
+  );
   return (
     <div className='pt-4'>
-      {Array.from(sections).map(([date, section]) => (
+      {sections.map(([date, section]) => (
         <div key={date}>
           <div className='collapse-arrow collapse'>
             <input type='checkbox' defaultChecked />
