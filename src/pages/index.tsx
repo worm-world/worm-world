@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { getFilteredTrees, insertTree } from 'api/crossTree';
-import { db_Tree } from 'models/db/db_Tree';
 import SavedTreeCard from 'components/SavedTreeCard/SavedTreeCard';
 import { TopNav } from 'components/TopNav/TopNav';
 import { GiEarthWorm as WormIcon } from 'react-icons/gi';
@@ -11,18 +10,22 @@ import { toast } from 'react-toastify';
 import { CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter';
 
 const CrossDesignerPage = (): JSX.Element => {
-  const [crossTrees, setCrossTrees] = useState<CrossTree[] | null>(null);
+  const [crossTrees, setCrossTrees] = useState<CrossTree[]>([]);
+  const [hasRefreshedOnce, setHasRefreshedOnce] = useState(false);
 
-  const refreshTrees = (): void => {
-    getFilteredTrees({ filters: [[['Editable', 'True']]], orderBy: [] })
-      .then((trees: db_Tree[]) =>
-        setCrossTrees(trees.map((tree) => CrossTree.fromJSON(tree.data)))
-      )
-      .catch((error) => console.error(error));
+  const refreshTrees = async (): Promise<void> => {
+    const trees = await getFilteredTrees({
+      filters: [[['Editable', 'True']]],
+      orderBy: [],
+    });
+
+    setCrossTrees(trees.map((tree) => CrossTree.fromJSON(tree.data)));
   };
 
   useEffect(() => {
-    refreshTrees();
+    refreshTrees()
+      .then(() => setHasRefreshedOnce(true))
+      .catch((error) => console.error(error));
   }, []);
 
   const newTreeButton = (
@@ -59,20 +62,16 @@ const CrossDesignerPage = (): JSX.Element => {
         title={'Cross Designer'}
         buttons={[newTreeButton, importTreeButton]}
       />
-      {crossTrees !== null && crossTrees.length === 0 ? (
-        <div className='m-14 flex flex-col items-center justify-center'>
-          <h2 className='text-2xl'>Welcome to the Cross Designer!</h2>
-          <h2 className='my-4 flex flex-row text-xl'>
-            Click the &quot;New Tree&quot; button to start.
-          </h2>
-          <WormIcon className='my-8 text-9xl text-base-300' />
-        </div>
+      {hasRefreshedOnce && crossTrees.length === 0 ? (
+        <NoTreePlaceholder />
       ) : (
         <div className='m-8 flex flex-wrap gap-10'>
           {crossTrees?.map((crossTree) => {
             return (
               <SavedTreeCard
-                refreshTrees={refreshTrees}
+                refreshTrees={() => {
+                  refreshTrees().catch((error) => console.error(error));
+                }}
                 key={crossTree.id}
                 tree={crossTree}
               />
@@ -81,6 +80,18 @@ const CrossDesignerPage = (): JSX.Element => {
         </div>
       )}
     </>
+  );
+};
+
+const NoTreePlaceholder = (): JSX.Element => {
+  return (
+    <div className='m-14 flex flex-col items-center justify-center'>
+      <h2 className='text-2xl'>Welcome to the Cross Designer!</h2>
+      <h2 className='my-4 flex flex-row text-xl'>
+        Click the &quot;New Tree&quot; button to start.
+      </h2>
+      <WormIcon className='my-8 text-9xl text-base-300' />
+    </div>
   );
 };
 

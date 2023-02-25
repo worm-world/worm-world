@@ -14,7 +14,7 @@ export const Menu = (props: iMenu): JSX.Element => {
   return (
     <div
       onClick={(e) => e.preventDefault()}
-      className='dropdown z-10'
+      className='dropdown'
       data-testid={'menu'}
     >
       <label

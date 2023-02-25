@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { GiCheckboxTree as TreeIcon } from 'react-icons/gi';
 import { getTrees } from 'api/crossTree';
+import { BiHide, BiShow } from 'react-icons/bi';
 
 export const SchedulePage = (): JSX.Element => {
   const noFilterText = 'No filter';
@@ -13,6 +14,7 @@ export const SchedulePage = (): JSX.Element => {
   const [treeNames, setTreeNames] = useState(new Map<string, string>());
   const [filteredTreeId, setFilteredTreeId] = useState<string>(noFilterText);
   const [promptRemovalTasks, setPromptRemovalTasks] = useState<Task[]>([]);
+  const [showCompleted, setShowCompleted] = useState(false);
 
   useEffect(() => {
     refreshTasks()
@@ -73,20 +75,14 @@ export const SchedulePage = (): JSX.Element => {
   const hasFilter = filteredTreeId !== noFilterText;
   const treeIds = new Set<string>(tasks.map((task) => task.treeId));
   const filteredTasks = tasks.filter(
-    (task) => !hasFilter || task.treeId === filteredTreeId
+    (task) =>
+      (!hasFilter || task.treeId === filteredTreeId) &&
+      (showCompleted || !task.completed)
   );
 
   return (
-    <div className=' overflow-y-hidden'>
-      {tasks.length === 0 && hasLoadedOnce && (
-        <div className='m-14 flex flex-col items-center justify-center'>
-          <h2 className='text-2xl'>No scheduled tasks yet.</h2>
-          <h3 className='my-4 text-xl'>
-            Use the Cross Designer to send cross tasks to the scheduler.
-          </h3>
-          <TreeIcon className='my-4 text-9xl text-base-300' />
-        </div>
-      )}
+    <div className='overflow-y-hidden'>
+      {tasks.length === 0 && hasLoadedOnce && <NoTaskPlaceholder />}
       {tasks.length > 0 && hasLoadedOnce && (
         <>
           <TaskRemovalPrompt
@@ -95,31 +91,24 @@ export const SchedulePage = (): JSX.Element => {
             deleteTasks={handleDeleteTasksWithPrompt}
           />
           <div className='flex items-center justify-between'>
-            <div>
-              <label className='label' htmlFor='filter-tasks-select'>
-                <span className='label-text'>Filter Tasks By Cross Tree</span>
-              </label>
-              <select
-                onChange={(e) => setFilteredTreeId(e.target.value)}
-                className='select-primary select w-full max-w-xs'
-                id='filter-tasks-select'
-              >
-                <option>{noFilterText}</option>
-                {Array.from(treeIds).map((id: string) => {
-                  return (
-                    <option key={id} value={id}>
-                      {treeNames.get(id)}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-            <TaskRemovalBtn
-              hasFilter={hasFilter}
-              filteredTreeId={filteredTreeId}
-              treeName={treeNames.get(filteredTreeId)}
-              deleteTasks={handleDeleteTasks}
+            <TreeFilter
+              noFilterText={noFilterText}
+              setFilteredTreeId={setFilteredTreeId}
+              treeIds={treeIds}
+              treeNames={treeNames}
             />
+            <div className='flex flex-row items-end gap-2'>
+              <ShowCompletedButton
+                showCompleted={showCompleted}
+                toggleShowCompleted={() => setShowCompleted(!showCompleted)}
+              />
+              <TaskRemovalBtn
+                hasFilter={hasFilter}
+                filteredTreeId={filteredTreeId}
+                treeName={treeNames.get(filteredTreeId)}
+                deleteTasks={handleDeleteTasks}
+              />
+            </div>
           </div>
           <TaskView
             refresh={refreshTasks}
@@ -129,6 +118,61 @@ export const SchedulePage = (): JSX.Element => {
         </>
       )}
     </div>
+  );
+};
+
+const NoTaskPlaceholder = (): JSX.Element => {
+  return (
+    <div className='m-14 flex flex-col items-center justify-center'>
+      <h2 className='text-2xl'>No scheduled tasks yet.</h2>
+      <h3 className='my-4 text-xl'>
+        Use the Cross Designer to send cross tasks to the scheduler.
+      </h3>
+      <TreeIcon className='my-4 text-9xl text-base-300' />
+    </div>
+  );
+};
+
+interface TreeFilterProps {
+  setFilteredTreeId: (id: string) => void;
+  noFilterText: string;
+  treeIds: Set<string>;
+  treeNames: Map<string, string>;
+}
+
+const TreeFilter = (props: TreeFilterProps): JSX.Element => {
+  return (
+    <div>
+      <label>
+        <span className='label-text'>Filter Tasks By Cross Tree</span>
+      </label>
+      <select
+        onChange={(e) => props.setFilteredTreeId(e.target.value)}
+        className='select-primary select w-full max-w-xs'
+      >
+        <option>{props.noFilterText}</option>
+        {Array.from(props.treeIds).map((id: string) => {
+          return (
+            <option key={id} value={id}>
+              {props.treeNames.get(id)}
+            </option>
+          );
+        })}
+      </select>
+    </div>
+  );
+};
+
+interface ShowCompletedButtonProps {
+  showCompleted: boolean;
+  toggleShowCompleted: () => void;
+}
+
+const ShowCompletedButton = (props: ShowCompletedButtonProps): JSX.Element => {
+  return (
+    <button className='btn-outline btn' onClick={props.toggleShowCompleted}>
+      {props.showCompleted ? <BiHide size='20' /> : <BiShow size='20' />}
+    </button>
   );
 };
 
