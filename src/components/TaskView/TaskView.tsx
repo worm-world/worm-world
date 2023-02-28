@@ -8,6 +8,20 @@ import {
 import { BiX as CrossIcon } from 'react-icons/bi';
 import TodoModal from './TodoModal';
 import moment from 'moment';
+import { Action } from 'models/db/task/Action';
+
+const getIconColor = (action: Action): string => {
+  switch (action) {
+    case 'Cross':
+      return 'bg-primary hover:bg-primary-focus';
+    case 'SelfCross':
+      return 'bg-secondary hover:bg-secondary-focus';
+    case 'Pcr':
+      return 'bg-accent hover:bg-accent-focus';
+    case 'Freeze':
+      return 'bg-accent hover:bg-accent-focus';
+  }
+};
 
 interface iTaskProps {
   task: Task;
@@ -16,8 +30,9 @@ interface iTaskProps {
 }
 
 const TaskItem = (props: iTaskProps): JSX.Element => {
+  const action = props.task.action;
   const shouldSwap =
-    props.task.action === 'Cross' &&
+    action === 'Cross' &&
     props.task.strain1.sex === 2 &&
     props.task.strain2 !== undefined;
   const leftStrain = shouldSwap ? props.task.strain2 : props.task.strain1;
@@ -28,7 +43,7 @@ const TaskItem = (props: iTaskProps): JSX.Element => {
   if (result !== undefined) result.probability = undefined;
   return (
     <>
-      <div className='flex h-40 items-center justify-items-start border-2 border-base-300 bg-base-200 shadow-md'>
+      <div className='flex h-40 items-center justify-items-start border-2 border-base-300 bg-base-200 shadow-md '>
         <div className='ml-4'>
           <input
             type='checkbox'
@@ -44,27 +59,17 @@ const TaskItem = (props: iTaskProps): JSX.Element => {
         <div className='mr-4 flex grow flex-row items-center justify-between py-8 pl-6 pr-3'>
           <div className='flex flex-row justify-center'>
             {leftStrain !== undefined && <CrossNode model={leftStrain} />}
-            <div className='h-full pb-4'>
-              <div className='m-8 mx-6 mb-2 h-16 w-16 rounded-full border-2 border-neutral bg-accent text-accent-content'>
+            <div className='mx-8 flex flex-col justify-center'>
+              <div
+                className={`h-16 w-16 rounded-full text-primary-content transition-colors ${getIconColor(
+                  action
+                )}`}
+              >
                 <div className='flex h-full items-center justify-center'>
-                  {props.task.action === 'Cross' && (
-                    <CrossIcon size='50' className='stroke-neutral'></CrossIcon>
-                  )}
-                  {props.task.action === 'SelfCross' && (
-                    <SelfCrossIcon
-                      size='35'
-                      className='stroke-neutral'
-                    ></SelfCrossIcon>
-                  )}
-                  {props.task.action === 'Freeze' && (
-                    <FreezeIcon
-                      size='35'
-                      className='stroke-neutral'
-                    ></FreezeIcon>
-                  )}
-                  {props.task.action === 'Pcr' && (
-                    <PCRIcon size='35' className='stroke-neutral'></PCRIcon>
-                  )}
+                  {action === 'Cross' && <CrossIcon size='50' />}
+                  {action === 'SelfCross' && <SelfCrossIcon size='35' />}
+                  {action === 'Freeze' && <FreezeIcon size='35' />}
+                  {action === 'Pcr' && <PCRIcon size='35' />}
                   <label
                     className='btn absolute z-0 w-16 opacity-0'
                     htmlFor='conditions'
@@ -72,10 +77,10 @@ const TaskItem = (props: iTaskProps): JSX.Element => {
                 </div>
               </div>
             </div>
-            {props.task.action === 'Cross' && rightStrain !== undefined && (
+            {action === 'Cross' && rightStrain !== undefined && (
               <CrossNode model={rightStrain} />
             )}
-            {props.task.action === 'SelfCross' && <div className='ml-4 w-60' />}
+            {action === 'SelfCross' && <div className='ml-4 w-60' />}
             <div className='divider lg:divider-horizontal'>To</div>
             {result !== undefined && <CrossNode model={result} />}
           </div>
