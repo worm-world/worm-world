@@ -30,7 +30,7 @@ interface TableHeaderCellProps<T> {
   colFilters: Filter[];
   setSortType: (key: SortTuple<T>) => void;
   setFilterField: (key: keyof T) => void;
-  runMyFilters: () => void;
+  runMyFilters: (sortType?: SortTuple<T>) => void;
 }
 
 /**
@@ -48,15 +48,14 @@ interface TableHeaderCellProps<T> {
 const TableHeaderCell = <T,>(props: TableHeaderCellProps<T>): JSX.Element => {
   const [hovered, setHovered] = useState<boolean>(false);
   const flipSortAndRun = (): void => {
-    if (props.sortType?.[0] === props.column.key) {
-      props.setSortType([
-        props.column.key,
-        props.sortType[1] === 'Asc' ? 'Desc' : 'Asc',
-      ]);
+    let sortType = props.sortType;
+    if (sortType !== undefined && sortType[0] === props.column.key) {
+      sortType = [props.column.key, sortType[1] === 'Asc' ? 'Desc' : 'Asc'];
     } else {
-      props.setSortType([props.column.key, 'Asc']);
+      sortType = [props.column.key, 'Asc'];
     }
-    props.runMyFilters();
+    props.setSortType(sortType);
+    props.runMyFilters(sortType);
   };
   return (
     <th
@@ -211,7 +210,7 @@ export const Table = <T, K>(props: TableProps<T, K>): JSX.Element => {
     }
     setFilterMap(newFilterMap);
   };
-  const createFilterGroup = (): FilterGroup<K> => {
+  const createFilterGroup = (sortType?: SortTuple<T>): FilterGroup<K> => {
     const filters = new Array<Array<FilterTuple<K>>>();
     filterMap.forEach((filterTypes, key) => {
       const filter = new Array<FilterTuple<K>>();
@@ -234,8 +233,8 @@ export const Table = <T, K>(props: TableProps<T, K>): JSX.Element => {
     return filterObj;
   };
 
-  const runMyFilters = (): void => {
-    props.runFilters(createFilterGroup());
+  const runMyFilters = (sortType?: SortTuple<T>): void => {
+    props.runFilters(createFilterGroup(sortType));
   };
 
   return (
