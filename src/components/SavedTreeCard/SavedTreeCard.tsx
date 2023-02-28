@@ -74,7 +74,7 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
 
   return (
     <>
-      <div>
+      <div className='hover hover:brightness-[.97]'>
         <div className='relative left-40 z-10 h-0'>
           <Menu
             items={getMenuItems()}
@@ -88,7 +88,7 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
           state={{ treeId: props.tree.id.toString() }}
         >
           <div className='flex h-1/2 justify-end rounded-t-lg bg-primary' />
-          <div className='h-1/2 bg-base-200 p-4 pt-2'>
+          <div className='h-1/2 bg-base-200 p-4 pt-2 text-base-content'>
             <div className='card-title w-full truncate'>
               <EditableDiv
                 value={name}
