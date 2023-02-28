@@ -169,10 +169,15 @@ interface ShowCompletedButtonProps {
 }
 
 const ShowCompletedButton = (props: ShowCompletedButtonProps): JSX.Element => {
+  const tooltipText = props.showCompleted
+    ? 'Hide completed tasks'
+    : 'Show completed tasks';
   return (
-    <button className='btn-outline btn' onClick={props.toggleShowCompleted}>
-      {props.showCompleted ? <BiHide size='20' /> : <BiShow size='20' />}
-    </button>
+    <div className='tooltip tooltip-bottom' data-tip={tooltipText}>
+      <button className='btn-outline btn' onClick={props.toggleShowCompleted}>
+        {props.showCompleted ? <BiShow size='20' /> : <BiHide size='20' />}
+      </button>
+    </div>
   );
 };
 
