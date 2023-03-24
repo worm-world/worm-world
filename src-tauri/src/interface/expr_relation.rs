@@ -1,4 +1,4 @@
-use super::{DbError, InnerDbState, bulk::Bulk, SQLITE_BIND_LIMIT};
+use super::{bulk::Bulk, DbError, InnerDbState, SQLITE_BIND_LIMIT};
 use crate::models::{
     expr_relation::{ExpressionRelation, ExpressionRelationDb, ExpressionRelationFieldName},
     filter::{FilterGroup, FilterQueryBuilder},
@@ -57,7 +57,7 @@ impl InnerDbState {
             FROM
                 expr_relations",
         );
-        filter.add_filtered_query(&mut qb);
+        filter.add_filtered_query(&mut qb, true);
 
         match qb
             .build_query_as::<ExpressionRelationDb>()
@@ -104,7 +104,10 @@ impl InnerDbState {
         }
     }
 
-    pub async fn insert_expr_relations(&self, bulk: Bulk<ExpressionRelationDb>) -> Result<(), DbError> {
+    pub async fn insert_expr_relations(
+        &self,
+        bulk: Bulk<ExpressionRelationDb>,
+    ) -> Result<(), DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "INSERT INTO expr_relations (
                 allele_name,
@@ -114,28 +117,32 @@ impl InnerDbState {
                 altering_phenotype_wild,
                 altering_condition,
                 is_suppressing
-            ) "
+            ) ",
         );
         if !bulk.errors.is_empty() {
-            return Err(DbError::BulkInsert(format!("Found errors on {} lines", bulk.errors.len())));
+            return Err(DbError::BulkInsert(format!(
+                "Found errors on {} lines",
+                bulk.errors.len()
+            )));
         }
         let bind_limit = SQLITE_BIND_LIMIT / 7;
         if bulk.data.len() > bind_limit {
-            return Err(DbError::BulkInsert(format!("Row count exceeds max: {}", bind_limit)))
+            return Err(DbError::BulkInsert(format!(
+                "Row count exceeds max: {}",
+                bind_limit
+            )));
         }
         qb.push_values(bulk.data, |mut b, item| {
             b.push_bind(item.allele_name)
-            .push_bind(item.expressing_phenotype_name)
-            .push_bind(item.expressing_phenotype_wild)
-            .push_bind(item.altering_phenotype_name)
-            .push_bind(item.altering_phenotype_wild)
-            .push_bind(item.altering_condition)
-            .push_bind(item.is_suppressing);
+                .push_bind(item.expressing_phenotype_name)
+                .push_bind(item.expressing_phenotype_wild)
+                .push_bind(item.altering_phenotype_name)
+                .push_bind(item.altering_phenotype_wild)
+                .push_bind(item.altering_condition)
+                .push_bind(item.is_suppressing);
         });
-        
-        match qb.build().execute(&self.conn_pool)
-        .await
-        {
+
+        match qb.build().execute(&self.conn_pool).await {
             Ok(_) => Ok(()),
             Err(e) => {
                 eprint!("Bulk Insert error: {e}");
@@ -152,8 +159,8 @@ mod test {
 
     use crate::dummy::testdata;
     use crate::interface::bulk::Bulk;
-    use crate::models::expr_relation::{ExpressionRelationFieldName, ExpressionRelationDb};
-    use crate::models::filter::{FilterGroup, Filter, Order};
+    use crate::models::expr_relation::{ExpressionRelationDb, ExpressionRelationFieldName};
+    use crate::models::filter::{Filter, FilterGroup, Order};
     use crate::models::{
         allele::Allele, allele_expr::AlleleExpression, expr_relation::ExpressionRelation,
         phenotype::Phenotype, variation_info::VariationInfo,
@@ -219,10 +226,7 @@ mod test {
                         ExpressionRelationFieldName::AlteringPhenotypeName,
                         Filter::Null,
                     )],
-                    vec![(
-                        ExpressionRelationFieldName::IsSuppressing,
-                        Filter::False,
-                    )],
+                    vec![(ExpressionRelationFieldName::IsSuppressing, Filter::False)],
                     vec![(
                         ExpressionRelationFieldName::AlleleName,
                         Filter::Equal("oxEx219999".to_string()),
@@ -364,7 +368,7 @@ oxIs644,YFP(pharynx),0,Flp,1,,0"
         let bulk: Bulk<ExpressionRelationDb> = Bulk::from_reader(&mut reader);
 
         state.insert_expr_relations(bulk).await?;
-        
+
         let rels = state.get_expr_relations().await?;
         assert_eq!(vec![rel], rels);
         Ok(())

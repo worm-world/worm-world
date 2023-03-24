@@ -53,7 +53,7 @@ impl InnerDbState {
             maturation_days
             FROM conditions",
         );
-        filter.add_filtered_query(&mut qb);
+        filter.add_filtered_query(&mut qb, true);
 
         match qb
             .build_query_as::<ConditionDb>()
@@ -89,12 +89,12 @@ impl InnerDbState {
               FROM
                 expr_relations",
         );
-        expr_relation_filter.add_filtered_query(&mut qb);
+        expr_relation_filter.add_filtered_query(&mut qb, true);
         qb.push(
             ") JOIN conditions AS c 
             ON c.name == ac\n",
         );
-        condition_filter.add_filtered_query(&mut qb);
+        condition_filter.add_filtered_query(&mut qb, true);
 
         match qb
             .build_query_as::<ConditionDb>()

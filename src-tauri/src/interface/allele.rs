@@ -2,10 +2,11 @@ use super::{bulk::Bulk, DbError, InnerDbState, SQLITE_BIND_LIMIT};
 use crate::models::{
     allele::{Allele, AlleleFieldName},
     filter::{FilterGroup, FilterQueryBuilder},
+    gene::{Gene, GeneFieldName},
 };
 
 use anyhow::Result;
-use sqlx::{QueryBuilder, Sqlite};
+use sqlx::{QueryBuilder, Row, Sqlite};
 
 impl InnerDbState {
     pub async fn get_alleles(&self) -> Result<Vec<Allele>, DbError> {
@@ -33,13 +34,77 @@ impl InnerDbState {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT name, contents, systematic_gene_name, variation_name FROM alleles",
         );
-        filter.add_filtered_query(&mut qb);
+        filter.add_filtered_query(&mut qb, true);
         match qb
             .build_query_as::<Allele>()
             .fetch_all(&self.conn_pool)
             .await
         {
             Ok(exprs) => Ok(exprs.into_iter().collect()),
+            Err(e) => {
+                eprint!("Get Filtered Allele error: {e}");
+                Err(DbError::Query(e.to_string()))
+            }
+        }
+    }
+
+    pub async fn get_filtered_alleles_with_gene_filter(
+        &self,
+        allele_filter: &FilterGroup<AlleleFieldName>,
+        gene_filter: &FilterGroup<GeneFieldName>,
+    ) -> Result<Vec<(Allele, Gene)>, DbError> {
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "SELECT name, contents, systematic_gene_name, variation_name, 
+            systematic_name, descriptive_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end 
+            FROM alleles 
+            LEFT JOIN genes 
+            ON systematic_gene_name IS systematic_name 
+            ",
+        );
+
+        if !allele_filter.filters.is_empty() || !gene_filter.filters.is_empty() {
+            qb.push(" WHERE ");
+        }
+        allele_filter.add_filtered_query(&mut qb, false);
+
+        if !allele_filter.filters.is_empty() && !gene_filter.filters.is_empty() {
+            qb.push(" OR ");
+        }
+        gene_filter.add_filtered_query(&mut qb, false);
+
+        match qb.build().fetch_all(&self.conn_pool).await {
+            Ok(exprs) => {
+                let tuples: Vec<(Allele, Gene)> = exprs
+                    .into_iter()
+                    .map(|row| {
+                        let a = Allele {
+                            name: row.get(0),
+                            contents: row.get(1),
+                            systematic_gene_name: row.get(2),
+                            variation_name: row.get(3),
+                        };
+                        let g = Gene {
+                            systematic_name: row.get(4),
+                            descriptive_name: row.get(5),
+                            chromosome: row.get::<Option<String>, _>(6).map(|v: String| v.into()),
+                            phys_loc: row.get::<Option<i64>, _>(7).map(|v| v as i32),
+                            gen_loc: row.get(8),
+                            recomb_suppressor: match (
+                                row.get::<Option<i64>, _>(9),
+                                row.get::<Option<i64>, _>(10),
+                            ) {
+                                (Some(start), Some(end)) => Some((start as i32, end as i32)),
+                                _ => None,
+                            },
+                        };
+                        (a, g)
+                    })
+                    .collect();
+
+                Ok(tuples)
+            }
+
+            // Ok(exprs.into_iter().collect()),
             Err(e) => {
                 eprint!("Get Filtered Allele error: {e}");
                 Err(DbError::Query(e.to_string()))
@@ -111,6 +176,7 @@ mod test {
     use crate::models::allele::AlleleFieldName;
     use crate::models::chromosome::Chromosome;
     use crate::models::filter::{Filter, FilterGroup, Order};
+    use crate::models::gene::GeneFieldName;
     use crate::models::{allele::Allele, gene::Gene, variation_info::VariationInfo};
     use crate::InnerDbState;
     use anyhow::Result;
@@ -383,6 +449,109 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
             .await?;
 
         assert_eq!(exprs, testdata::search_alleles_by_name());
+        Ok(())
+    }
+    /* #endregion */
+
+    /* #region get_filtered_alleles_with_gene_filter */
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_alleles_with_gene_filter(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let allele_filter = &FilterGroup::<AlleleFieldName> {
+            filters: vec![vec![(AlleleFieldName::Name, Filter::Like("ed".to_owned()))]],
+            order_by: vec![],
+        };
+
+        let gene_filter = &FilterGroup::<GeneFieldName> {
+            filters: vec![vec![(
+                GeneFieldName::DescName,
+                Filter::Like("unc-18".to_string()),
+            )]],
+            order_by: vec![],
+        };
+
+        let exprs = state
+            .get_filtered_alleles_with_gene_filter(allele_filter, gene_filter)
+            .await?;
+
+        assert_eq!(exprs, testdata::get_filtered_alleles_and_filtered_genes());
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_alleles_with_empty_gene_filter(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let allele_filter = &FilterGroup::<AlleleFieldName> {
+            filters: vec![vec![(AlleleFieldName::Name, Filter::Like("ed".to_owned()))]],
+            order_by: vec![],
+        };
+
+        let gene_filter = &FilterGroup::<GeneFieldName> {
+            filters: vec![],
+            order_by: vec![],
+        };
+
+        let exprs = state
+            .get_filtered_alleles_with_gene_filter(allele_filter, gene_filter)
+            .await?;
+
+        assert_eq!(exprs, testdata::get_filtered_alleles_with_no_gene_filter());
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_alleles_with_gene_filter_and_empty_allele_filter(
+        pool: Pool<Sqlite>,
+    ) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let allele_filter = &FilterGroup::<AlleleFieldName> {
+            filters: vec![],
+            order_by: vec![],
+        };
+
+        let gene_filter = &FilterGroup::<GeneFieldName> {
+            filters: vec![vec![(
+                GeneFieldName::DescName,
+                Filter::Like("unc-11".to_string()),
+            )]],
+            order_by: vec![],
+        };
+
+        let exprs = state
+            .get_filtered_alleles_with_gene_filter(allele_filter, gene_filter)
+            .await?;
+
+        assert_eq!(
+            exprs,
+            testdata::get_filtered_alleles_and_filtered_genes_no_allele_filter()
+        );
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("dummy"))]
+    async fn test_get_filtered_alleles_with_gene_filter_with_both_empty_filters(
+        pool: Pool<Sqlite>,
+    ) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let allele_filter = &FilterGroup::<AlleleFieldName> {
+            filters: vec![],
+            order_by: vec![],
+        };
+
+        let gene_filter = &FilterGroup::<GeneFieldName> {
+            filters: vec![],
+            order_by: vec![],
+        };
+
+        let exprs = state
+            .get_filtered_alleles_with_gene_filter(allele_filter, gene_filter)
+            .await?;
+
+        assert_eq!(exprs, testdata::get_alleles_with_genes());
         Ok(())
     }
     /* #endregion */

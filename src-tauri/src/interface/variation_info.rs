@@ -34,7 +34,7 @@ impl InnerDbState {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end FROM variation_info",
         );
-        filter.add_filtered_query(&mut qb);
+        filter.add_filtered_query(&mut qb, true);
         match qb
             .build_query_as::<VariationInfoDb>()
             .fetch_all(&self.conn_pool)

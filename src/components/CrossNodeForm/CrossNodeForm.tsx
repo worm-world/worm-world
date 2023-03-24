@@ -1,23 +1,19 @@
 import { useState } from 'react';
 import {
-  Allele,
   WILD_ALLELE,
   isEcaAlleleName,
+  Allele,
 } from 'models/frontend/Allele/Allele';
 import { Sex, sexToString, stringToSex } from 'models/enums';
 import { DynamicMultiSelect } from 'components/DynamicMultiSelect/DynamicMultiSelect';
 import { db_Allele } from 'models/db/db_Allele';
-import { FilterGroup } from 'models/db/filter/FilterGroup';
-import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
+import { getFilteredAlleles } from 'api/allele';
+import { AlleleMultiSelect } from 'components/AlleleMultiSelect/AlleleMultiSelect';
 
 export interface CrossNodeFormProps {
   onSubmitCallback: (sex: Sex, strain: Strain) => void;
-  getFilteredAlleles: (
-    filter: FilterGroup<AlleleFieldName>
-  ) => Promise<db_Allele[]>;
-  createAlleleFromRecord: (dbAllele: db_Allele) => Promise<Allele>;
   enforcedSex?: Sex;
 }
 
@@ -31,19 +27,19 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
 
   const onSubmit = (): void => {
     const homoPairs = Array.from(homoAlleles).map(async (selectedAllele) => {
-      const allele = await props.createAlleleFromRecord(selectedAllele);
+      const allele = await Allele.createFromRecord(selectedAllele);
       return new AllelePair({ top: allele, bot: allele });
     });
 
     // Heterozygous pairs combined with (essentially) heterozygous ECA alleles
     const hetPairs = Array.from(hetAlleles)
       .map(async (selectedAllele) => {
-        const allele = await props.createAlleleFromRecord(selectedAllele);
+        const allele = await Allele.createFromRecord(selectedAllele);
         return new AllelePair({ top: allele, bot: WILD_ALLELE });
       })
       .concat(
         Array.from(exAlleles).map(async (selectedAllele) => {
-          const allele = await props.createAlleleFromRecord(selectedAllele);
+          const allele = await Allele.createFromRecord(selectedAllele);
           return new AllelePair({ top: allele, bot: WILD_ALLELE, isECA: true });
         })
       );
@@ -64,12 +60,8 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
       <h2 className='text-lg'>Add a New Cross Node</h2>
       <SexSelector setSelectedSex={setSex} enforcedSex={props.enforcedSex} />
 
-      <DynamicMultiSelect
+      <AlleleMultiSelect
         placeholder='Type allele name'
-        getFilteredRecordApi={props.getFilteredAlleles}
-        searchOn={'Name'}
-        selectInputOn={'name'}
-        displayResultsOn={['name']}
         label='Homozygous Alleles'
         selectedRecords={homoAlleles}
         setSelectedRecords={setHomoAlleles}
@@ -78,12 +70,8 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
         }
       />
 
-      <DynamicMultiSelect
+      <AlleleMultiSelect
         placeholder='Type allele name'
-        getFilteredRecordApi={props.getFilteredAlleles}
-        searchOn={'Name'}
-        selectInputOn={'name'}
-        displayResultsOn={['name']}
         label='Heterozygous Alleles'
         selectedRecords={hetAlleles}
         setSelectedRecords={setHetAlleles}
@@ -94,7 +82,7 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
 
       <DynamicMultiSelect
         placeholder='Type allele name'
-        getFilteredRecordApi={props.getFilteredAlleles}
+        getFilteredRecordApi={getFilteredAlleles}
         searchOn={'Name'}
         selectInputOn={'name'}
         displayResultsOn={['name']}

@@ -1,4 +1,4 @@
-use super::{DbError, InnerDbState, bulk::Bulk, SQLITE_BIND_LIMIT};
+use super::{bulk::Bulk, DbError, InnerDbState, SQLITE_BIND_LIMIT};
 use crate::models::{
     expr_relation::ExpressionRelationFieldName,
     filter::{FilterGroup, FilterQueryBuilder},
@@ -57,7 +57,7 @@ impl InnerDbState {
                 maturation_days
             FROM phenotypes",
         );
-        filter.add_filtered_query(&mut qb);
+        filter.add_filtered_query(&mut qb, true);
         match qb
             .build_query_as::<PhenotypeDb>()
             .fetch_all(&self.conn_pool)
@@ -95,13 +95,13 @@ impl InnerDbState {
                 FROM
                     expr_relations",
         );
-        expr_relation_filter.add_filtered_query(&mut qb);
+        expr_relation_filter.add_filtered_query(&mut qb, true);
         qb.push(
             ") JOIN phenotypes AS p 
             ON p.name == pn
             AND p.wild == pw\n",
         );
-        phenotype_filter.add_filtered_query(&mut qb);
+        phenotype_filter.add_filtered_query(&mut qb, true);
 
         match qb
             .build_query_as::<PhenotypeDb>()
@@ -147,27 +147,31 @@ impl InnerDbState {
             "INSERT INTO phenotypes (name, wild, short_name, description, male_mating, lethal, female_sterile, arrested, maturation_days) "
         );
         if !bulk.errors.is_empty() {
-            return Err(DbError::BulkInsert(format!("Found errors on {} lines", bulk.errors.len())));
+            return Err(DbError::BulkInsert(format!(
+                "Found errors on {} lines",
+                bulk.errors.len()
+            )));
         }
         let bind_limit = SQLITE_BIND_LIMIT / 9;
         if bulk.data.len() > bind_limit {
-            return Err(DbError::BulkInsert(format!("Row count exceeds max: {}", bind_limit)))
+            return Err(DbError::BulkInsert(format!(
+                "Row count exceeds max: {}",
+                bind_limit
+            )));
         }
         qb.push_values(bulk.data, |mut b, item| {
             b.push_bind(item.name)
-            .push_bind(item.wild)
-            .push_bind(item.short_name)
-            .push_bind(item.description)
-            .push_bind(item.male_mating)
-            .push_bind(item.lethal)
-            .push_bind(item.female_sterile)
-            .push_bind(item.arrested)
-            .push_bind(item.maturation_days);
+                .push_bind(item.wild)
+                .push_bind(item.short_name)
+                .push_bind(item.description)
+                .push_bind(item.male_mating)
+                .push_bind(item.lethal)
+                .push_bind(item.female_sterile)
+                .push_bind(item.arrested)
+                .push_bind(item.maturation_days);
         });
-        
-        match qb.build().execute(&self.conn_pool)
-        .await
-        {
+
+        match qb.build().execute(&self.conn_pool).await {
             Ok(_) => Ok(()),
             Err(e) => {
                 eprint!("Bulk Insert error: {e}");
@@ -185,8 +189,8 @@ mod test {
     use crate::dummy::testdata;
     use crate::interface::bulk::Bulk;
     use crate::models::expr_relation::ExpressionRelationFieldName;
-    use crate::models::filter::{FilterGroup, Filter, Order};
-    use crate::models::phenotype::{Phenotype, PhenotypeFieldName, PhenotypeDb};
+    use crate::models::filter::{Filter, FilterGroup, Order};
+    use crate::models::phenotype::{Phenotype, PhenotypeDb, PhenotypeFieldName};
     use crate::InnerDbState;
     use anyhow::Result;
     use pretty_assertions::assert_eq;
@@ -277,10 +281,7 @@ mod test {
                     ExpressionRelationFieldName::ExpressingPhenotypeWild,
                     Filter::False,
                 )],
-                vec![(
-                    ExpressionRelationFieldName::IsSuppressing,
-                    Filter::False,
-                )],
+                vec![(ExpressionRelationFieldName::IsSuppressing, Filter::False)],
             ],
             order_by: vec![],
         };

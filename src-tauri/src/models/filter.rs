@@ -4,7 +4,7 @@ use sqlx::{QueryBuilder, Sqlite};
 use ts_rs::TS;
 
 pub trait FilterQueryBuilder {
-    fn add_filtered_query(&self, query: &mut QueryBuilder<Sqlite>);
+    fn add_filtered_query(&self, qb: &mut QueryBuilder<Sqlite>, supply_where: bool);
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, TS)]
@@ -142,10 +142,14 @@ where
 }
 
 impl<T: FieldNameEnum> FilterQueryBuilder for FilterGroup<T> {
-    fn add_filtered_query(&self, qb: &mut QueryBuilder<Sqlite>) {
+    fn add_filtered_query(&self, qb: &mut QueryBuilder<Sqlite>, supply_where: bool) {
         if !self.filters.is_empty() {
             // WHERE
-            qb.push(" WHERE \n");
+            if supply_where {
+                qb.push(" WHERE \n");
+            }
+
+            qb.push(" ( \n");
 
             // all comparisons
             for (i, inner_filters) in self.filters.iter().enumerate() {
@@ -163,10 +167,11 @@ impl<T: FieldNameEnum> FilterQueryBuilder for FilterGroup<T> {
                 }
                 qb.push(" ) \n");
             }
+            qb.push(" ) \n");
         }
 
         // ORDER BY
-        if !self.order_by.is_empty() {
+        if !self.order_by.is_empty() && supply_where {
             qb.push(" ORDER BY ");
             let mut qb_separated = qb.separated(", ");
             for (order_field, order_dir) in self.order_by.iter() {
@@ -174,7 +179,11 @@ impl<T: FieldNameEnum> FilterQueryBuilder for FilterGroup<T> {
                     Order::Asc => "ASC",
                     Order::Desc => "DESC",
                 };
-                qb_separated.push(format!("{} COLLATE NOCASE {}", order_field.get_col_name(), order_dir_str));
+                qb_separated.push(format!(
+                    "{} COLLATE NOCASE {}",
+                    order_field.get_col_name(),
+                    order_dir_str
+                ));
             }
             qb_separated.push_unseparated(" ");
         }

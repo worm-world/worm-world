@@ -33,7 +33,7 @@ impl InnerDbState {
     ) -> Result<Vec<AlleleExpression>, DbError> {
         let mut qb: QueryBuilder<Sqlite> =
             QueryBuilder::new("SELECT allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance FROM allele_exprs");
-        filter.add_filtered_query(&mut qb);
+        filter.add_filtered_query(&mut qb, true);
 
         match qb
             .build_query_as::<AlleleExpressionDb>()
@@ -326,13 +326,11 @@ mod test {
 
         let csv_str = "alleleName,expressingPhenotypeName,expressingPhenotypeWild,dominance
 cn64,\"dpy-10\",0,0"
-        .as_bytes();
+            .as_bytes();
         let buf = BufReader::new(csv_str);
-        let mut reader = csv::ReaderBuilder::new()
-            .has_headers(true)
-            .from_reader(buf);
+        let mut reader = csv::ReaderBuilder::new().has_headers(true).from_reader(buf);
         let bulk: Bulk<AlleleExpressionDb> = Bulk::from_reader(&mut reader);
-        
+
         state.insert_allele_exprs(bulk).await?;
 
         let expected_exprs: Vec<AlleleExpression> = vec![AlleleExpression {

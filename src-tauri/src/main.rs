@@ -69,6 +69,7 @@ async fn main() {
             insert_allele_exprs_from_file,
             get_alleles,
             get_filtered_alleles,
+            get_filtered_alleles_with_gene_filter,
             insert_allele,
             insert_alleles_from_file,
             get_expr_relations,
@@ -354,6 +355,18 @@ async fn get_filtered_alleles(
 ) -> Result<Vec<Allele>, DbError> {
     let state_guard = state.0.read().await;
     state_guard.get_filtered_alleles(&filter).await
+}
+
+#[tauri::command]
+async fn get_filtered_alleles_with_gene_filter(
+    state: tauri::State<'_, DbState>,
+    allele_filter: FilterGroup<AlleleFieldName>,
+    gene_filter: FilterGroup<GeneFieldName>,
+) -> Result<Vec<(Allele, Gene)>, DbError> {
+    let state_guard = state.0.read().await;
+    state_guard
+        .get_filtered_alleles_with_gene_filter(&allele_filter, &gene_filter)
+        .await
 }
 
 #[tauri::command]

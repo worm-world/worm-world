@@ -31,7 +31,7 @@ impl InnerDbState {
     ) -> Result<Vec<Tree>, DbError> {
         let mut qb: QueryBuilder<Sqlite> =
             QueryBuilder::new("SELECT id, name, last_edited, data, editable FROM trees");
-        filter.add_filtered_query(&mut qb);
+        filter.add_filtered_query(&mut qb, true);
 
         match qb
             .build_query_as::<TreeDb>()
