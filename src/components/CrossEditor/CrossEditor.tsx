@@ -5,13 +5,11 @@ import {
   useRef,
   MouseEvent as ReactMouseEvent,
 } from 'react';
-import { getFilteredAlleles } from 'api/allele';
 import CrossFlow, { FlowType } from 'components/CrossFlow/CrossFlow';
 import CrossNodeForm from 'components/CrossNodeForm/CrossNodeForm';
 import EditorTop from 'components/EditorTop/EditorTop';
 import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import RightDrawer from 'components/RightDrawer/RightDrawer';
-import { Allele } from 'models/frontend/Allele/Allele';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import {
   Edge,
@@ -964,9 +962,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
                 />
               ) : (
                 <CrossNodeForm
-                  getFilteredAlleles={getFilteredAlleles}
                   onSubmitCallback={getOnSubmitForStrainForm()}
-                  createAlleleFromRecord={Allele.createFromRecord}
                   enforcedSex={enforcedSex}
                 />
               )}

@@ -32,7 +32,7 @@ impl InnerDbState {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT systematic_name, descriptive_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end FROM genes",
         );
-        filter.add_filtered_query(&mut qb);
+        filter.add_filtered_query(&mut qb, true);
 
         match qb
             .build_query_as::<GeneDb>()
@@ -389,4 +389,6 @@ FAKE23.4\tunc-new\t\t10902633\t6.78\t\t"
         );
         Ok(())
     }
+
+    /* #endregion */
 }

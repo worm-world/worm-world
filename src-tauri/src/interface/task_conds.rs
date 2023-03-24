@@ -29,10 +29,9 @@ impl InnerDbState {
         &self,
         filter: &FilterGroup<TaskConditionFieldName>,
     ) -> Result<Vec<TaskCondition>, DbError> {
-        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
-            "SELECT task_id, cond_name FROM task_conds",
-        );
-        filter.add_filtered_query(&mut qb);
+        let mut qb: QueryBuilder<Sqlite> =
+            QueryBuilder::new("SELECT task_id, cond_name FROM task_conds");
+        filter.add_filtered_query(&mut qb, true);
 
         match qb
             .build_query_as::<TaskCondition>()
@@ -47,7 +46,10 @@ impl InnerDbState {
         }
     }
 
-    pub async fn insert_task_condition(&self, task_condtions: &TaskCondition) -> Result<(), DbError> {
+    pub async fn insert_task_condition(
+        &self,
+        task_condtions: &TaskCondition,
+    ) -> Result<(), DbError> {
         match sqlx::query!(
             "INSERT INTO task_conds (task_id, cond_name)
             VALUES($1, $2)
@@ -70,15 +72,15 @@ impl InnerDbState {
 #[cfg(test)]
 mod test {
 
-    use crate::models::task_conds::{TaskCondition, TaskConditionFieldName};
     use crate::models::condition::Condition;
-    use crate::models::task::{Task, Action};
+    use crate::models::task::{Action, Task};
+    use crate::models::task_conds::{TaskCondition, TaskConditionFieldName};
     use crate::InnerDbState;
+    use crate::Tree;
     use crate::{
         dummy::testdata,
-        models::filter::{FilterGroup, Filter},
+        models::filter::{Filter, FilterGroup},
     };
-    use crate::Tree;
     use anyhow::Result;
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
@@ -102,12 +104,10 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_task_conditions(&FilterGroup::<TaskConditionFieldName> {
-                filters: vec![vec![
-                    (
-                        TaskConditionFieldName::Id,
-                        Filter::Equal("1".to_owned()),
-                    ),
-                ]],
+                filters: vec![vec![(
+                    TaskConditionFieldName::Id,
+                    Filter::Equal("1".to_owned()),
+                )]],
                 order_by: vec![],
             })
             .await?;

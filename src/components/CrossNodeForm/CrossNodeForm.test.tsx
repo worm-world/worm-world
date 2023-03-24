@@ -1,13 +1,33 @@
 import { render, screen } from '@testing-library/react';
 import CrossNodeForm from 'components/CrossNodeForm/CrossNodeForm';
 import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
-import { db_Allele } from 'models/db/db_Allele';
 import user from '@testing-library/user-event';
-import * as mock from 'components/CrossNodeForm/CrossNodeForm.mock';
 import { Sex } from 'models/enums';
 import { Strain } from 'models/frontend/Strain/Strain';
+import { beforeEach, test, describe, expect } from 'vitest';
+import { clearMocks, mockIPC } from '@tauri-apps/api/mocks';
+import { db_Allele } from 'models/db/db_Allele';
+import { ed3 } from 'models/frontend/Allele/Allele.mock';
+import { unc119 } from 'models/frontend/Gene/Gene.mock';
 
 describe('Cross node form', () => {
+  beforeEach(() => {
+    mockIPC((cmd, _) => {
+      if (cmd === 'get_filtered_alleles') {
+        return [ed3];
+      }
+      if (cmd === 'get_filtered_alleles_with_gene_filter') {
+        return [[ed3, unc119]];
+      }
+      if (cmd === 'get_filtered_genes') return [unc119];
+      if (cmd === 'get_filtered_allele_exprs') return [];
+    });
+  });
+
+  afterAll(() => {
+    clearMocks();
+  });
+
   test('Create a new node', async () => {
     user.setup();
 
@@ -21,18 +41,12 @@ describe('Cross node form', () => {
       });
     };
 
-    render(
-      <CrossNodeForm
-        onSubmitCallback={addNewNodeToFlow}
-        getFilteredAlleles={mock.getFilteredAlleles}
-        createAlleleFromRecord={mock.alleleCreateFromRecord}
-      />
-    );
+    render(<CrossNodeForm onSubmitCallback={addNewNodeToFlow} />);
 
     // Choose allele
     await user.click(screen.getByLabelText('Homozygous Alleles'));
-    await user.keyboard('B');
-    const option = screen.getByText(/^BB$/i);
+    await user.keyboard('e');
+    const option = screen.getByText(/ed3/i);
     expect(option).toBeVisible();
     await user.click(option);
 
@@ -53,24 +67,26 @@ describe('Cross node form', () => {
       variationName: null,
     };
 
-    // Returns two alleles, since it is based on name matching
-    const getFilteredAlleles = async (): Promise<db_Allele[]> => {
-      return await Promise.resolve([mock.dbAllele, inconsistentDbAllele]);
-    };
+    mockIPC((cmd, _) => {
+      // simulated rust command called "add" that just adds two numbers
+      if (cmd === 'get_filtered_alleles') {
+        return [ed3, inconsistentDbAllele];
+      }
+      if (cmd === 'get_filtered_alleles_with_gene_filter') {
+        return [
+          [ed3, unc119],
+          [inconsistentDbAllele, unc119],
+        ];
+      }
+    });
 
-    render(
-      <CrossNodeForm
-        onSubmitCallback={() => {}}
-        getFilteredAlleles={getFilteredAlleles}
-        createAlleleFromRecord={mock.alleleCreateDoesNotMatter}
-      />
-    );
+    render(<CrossNodeForm onSubmitCallback={() => {}} />);
 
     // Choose allele
     await user.click(screen.getByLabelText('Homozygous Alleles'));
-    await user.keyboard('B');
+    await user.keyboard('e');
     // Consistent
-    const option = screen.getByText(/^BB$/i);
+    const option = screen.getByText(/ed3/i);
     expect(option).toBeVisible();
     // Inconsistent
     const inconsistentOption = screen.queryByPlaceholderText(/^BBB$/i);
@@ -80,37 +96,25 @@ describe('Cross node form', () => {
   test('Can only select allele once per select', async () => {
     user.setup();
 
-    render(
-      <CrossNodeForm
-        onSubmitCallback={() => {}}
-        getFilteredAlleles={mock.getFilteredAlleles}
-        createAlleleFromRecord={mock.alleleCreateDoesNotMatter}
-      />
-    );
+    render(<CrossNodeForm onSubmitCallback={() => {}} />);
 
     // Choose allele
     await user.click(screen.getByLabelText('Homozygous Alleles'));
-    await user.keyboard('B');
-    await user.click(screen.getByText(/^BB$/i));
-    await user.keyboard('B');
+    await user.keyboard('e');
+    await user.click(screen.getByText(/ed3/i));
+    await user.keyboard('e');
     // Only the selected pill has BB--not a duplicate option
-    expect(screen.getAllByText(/^BB$/)).toHaveLength(1);
+    expect(screen.getAllByText(/ed3/)).toHaveLength(1);
   });
 
   test('No input gives no options', async () => {
     user.setup();
 
-    render(
-      <CrossNodeForm
-        onSubmitCallback={() => {}}
-        getFilteredAlleles={mock.getFilteredAlleles}
-        createAlleleFromRecord={mock.alleleCreateDoesNotMatter}
-      />
-    );
+    render(<CrossNodeForm onSubmitCallback={() => {}} />);
     await user.click(screen.getByLabelText('Homozygous Alleles'));
-    await user.keyboard('B');
-    expect(screen.getByText(/^BB$/i)).toBeVisible();
+    await user.keyboard('e');
+    expect(screen.getByText(/ed3/i)).toBeVisible();
     await user.keyboard('{backspace}');
-    expect(screen.queryByText(/^BB$/i)).toBeNull();
+    expect(screen.queryByText(/ed3/i)).toBeNull();
   });
 });
