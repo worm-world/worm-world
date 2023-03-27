@@ -80,7 +80,12 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
             )}
 
             {props.model.getMenuItems !== undefined && (
-              <Menu title='Actions' icon={<MenuIcon />} items={menuItems} />
+              <Menu
+                title='Actions'
+                top={true}
+                icon={<MenuIcon />}
+                items={menuItems}
+              />
             )}
           </div>
 
