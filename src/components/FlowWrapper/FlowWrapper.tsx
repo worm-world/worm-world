@@ -6,6 +6,9 @@ import { XNode, XNodeProps } from 'components/XNode/XNode';
 import { SelfIconProps, SelfNode } from 'components/SelfNode/SelfNode';
 import { NoteNode } from 'components/NoteNode/NoteNode';
 import { NoteNodeProps } from 'components/NoteNode/NoteNodeProps';
+import FilteredOutNode, {
+  FilteredOutNodeProps,
+} from 'components/FilteredOutNode/FilteredOutNode';
 
 export interface iStrainFlowWrapper {
   data: CrossNodeModel;
@@ -91,4 +94,15 @@ export const NoteFlowWrapper = (props: {
   data: NoteNodeProps;
 }): JSX.Element => {
   return <NoteNode {...props.data}></NoteNode>;
+};
+
+export const FilteredOutFlowWrapper = (props: {
+  data: FilteredOutNodeProps;
+}): JSX.Element => {
+  return (
+    <div>
+      <Handle key='top' id='top' type='target' position={Position.Top} />
+      <FilteredOutNode {...props.data} />
+    </div>
+  );
 };

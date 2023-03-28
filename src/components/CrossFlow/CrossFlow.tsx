@@ -26,6 +26,7 @@ import {
   SelfIconFlowWrapper,
   XIconFlowWrapper,
   NoteFlowWrapper,
+  FilteredOutFlowWrapper,
 } from 'components/FlowWrapper/FlowWrapper';
 import { Options } from 'html-to-image/lib/types';
 import { toast } from 'react-toastify';
@@ -203,6 +204,7 @@ export enum FlowType {
   XIcon = 'xIcon',
   SelfIcon = 'selfIcon',
   Note = 'note',
+  FilteredOut = 'filteredOut',
 }
 
 const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
@@ -212,6 +214,7 @@ const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
       xIcon: XIconFlowWrapper,
       selfIcon: SelfIconFlowWrapper,
       note: NoteFlowWrapper,
+      filteredOut: FilteredOutFlowWrapper,
     }),
     []
   );

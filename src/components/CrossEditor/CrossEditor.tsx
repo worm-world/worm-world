@@ -4,6 +4,7 @@ import {
   useEffect,
   useRef,
   MouseEvent as ReactMouseEvent,
+  Fragment,
   TouchEvent as ReactTouchEvent,
   createContext,
 } from 'react';
@@ -49,6 +50,8 @@ import {
   CrossEditorFilter,
   CrossEditorFilterUpdate,
 } from 'components/CrossFilterModal/CrossEditorFilter';
+import { FilteredOutNodeProps } from 'components/FilteredOutNode/FilteredOutNode';
+import FilteredOutModal from 'components/FilteredOutModal/FilteredOutModal';
 
 export interface CrossEditorProps {
   crossTree: CrossTree;
@@ -299,6 +302,21 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     return strainNode;
   };
 
+  /** Create a node representing all offspring excluded by filter */
+  const createFilteredOutNode = (
+    position: XYPosition,
+    parentNode: string
+  ): Node<FilteredOutNodeProps> => {
+    const newNode: Node<FilteredOutNodeProps> = {
+      id: props.crossTree.createId(),
+      type: FlowType.FilteredOut,
+      position,
+      parentNode,
+      data: { nodeId: parentNode },
+    };
+    return newNode;
+  };
+
   /** Creates a node representing the x icon */
   const createXIcon = (parentNode: Node<CrossNodeModel>): Node => {
     const position = CrossTree.getXIconPos(parentNode);
@@ -435,6 +453,29 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     saveTree();
   };
 
+  /** Show the filterOut node child of nodeId iff any strain children of nodeId are hidden */
+  const updateFilterOutNodeVisibility = (nodeId: string): void => {
+    const filterOutNode = [...nodeMap.values()]
+      .filter(
+        (node) =>
+          node.parentNode === nodeId && node.type === FlowType.FilteredOut
+      )
+      .at(0);
+    const strainNodes = [...nodeMap.values()].filter(
+      (node) => node.parentNode === nodeId && node.type === FlowType.Strain
+    );
+    if (filterOutNode !== undefined) {
+      setInvisibleNodes((invisibleNodes: Set<string>) => {
+        if (strainNodes.some((node) => invisibleNodes.has(node.id))) {
+          invisibleNodes.delete(filterOutNode.id);
+        } else {
+          invisibleNodes.add(filterOutNode.id);
+        }
+        return new Set(invisibleNodes);
+      });
+    }
+  };
+
   const toggleNodeVisibility = (nodeId: string): void => {
     setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
       const children = [...nodeMap.values()].filter(
@@ -452,6 +493,8 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       });
       return nodeMap;
     });
+    const parentNodeId = nodeMap.get(nodeId)?.parentNode;
+    if (parentNodeId !== undefined) updateFilterOutNodeVisibility(parentNodeId);
     saveTree();
   };
 
@@ -475,7 +518,11 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         setInvisibleNodes((invisibleNodes: Set<string>): Set<string> => {
           const childList: Array<Node<CrossNodeModel>> = [
             ...nodeMap.values(),
-          ].filter((node) => node.parentNode === update.nodeId);
+          ].filter(
+            (node) =>
+              node.parentNode === update.nodeId && node.type === FlowType.Strain
+          );
+
           if (filter.isEmpty()) {
             filters.delete(update.nodeId);
             childList.forEach((node) => invisibleNodes.delete(node.id));
@@ -497,6 +544,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
 
       return new Map(filters);
     });
+    updateFilterOutNodeVisibility(update.nodeId);
     saveTree();
   };
 
@@ -577,10 +625,10 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       const childPositions = CrossTree.calculateChildPositions(
         selfIcon,
         refNode,
-        children
+        children // Includes filteredOut node
       );
 
-      const childNodes = children.map((child, i) => {
+      const childNodes: Node[] = children.map((child, i) => {
         return createStrainNode({
           sex: Sex.Hermaphrodite,
           strain: child.strain,
@@ -591,6 +639,12 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
           probability: child.prob,
         });
       });
+      const filteredOutNode = createFilteredOutNode(
+        { x: childPositions[0].x - 128 - 10, y: childPositions[0].y }, // subtract width and padding from x
+        selfIcon.id
+      );
+      invisibleNodes.add(filteredOutNode.id);
+      childNodes.unshift(filteredOutNode);
       loadIconWithData(selfIcon);
 
       refNode.data = copyNodeData(refNode, { isParent: true });
@@ -639,7 +693,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       children
     );
 
-    const childrenNodes = children.map((child, i) => {
+    const childNodes: Node[] = children.map((child, i) => {
       return createStrainNode({
         sex: Sex.Hermaphrodite,
         strain: child.strain,
@@ -650,9 +704,15 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         parentNode: xIcon.id,
       });
     });
+    const filteredOutNode = createFilteredOutNode(
+      { x: childPositions[0].x - 128 - 10, y: childPositions[0].y }, // subtract width and padding from x
+      xIcon.id
+    );
+    invisibleNodes.add(filteredOutNode.id);
+    childNodes.unshift(filteredOutNode);
     loadIconWithData(xIcon);
 
-    const childrenEdges = childrenNodes.map((node) =>
+    const childrenEdges = childNodes.map((node) =>
       createEdge(xIcon.id, node.id)
     );
 
@@ -667,7 +727,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     }
 
     setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
-      [lNode, rNode, xIcon, ...childrenNodes].forEach((node) =>
+      [lNode, rNode, xIcon, ...childNodes].forEach((node) =>
         nodeMap.set(node.id, node)
       );
       return new Map(nodeMap);
@@ -863,17 +923,29 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
             node.type === FlowType.SelfIcon || node.type === FlowType.XIcon
         )
         .map((iconNode, idx) => (
-          <CrossFilterModal
-            key={`filter-modal-${idx}`}
-            nodeId={iconNode.id}
-            childNodes={[...nodeMap.values()].filter(
-              (node) => node.parentNode === iconNode.id
-            )}
-            invisibleSet={new Set([...invisibleNodes])}
-            toggleVisible={toggleNodeVisibility}
-            filter={crossFilters.get(iconNode.id)}
-            updateFilter={handleFilterUpdate}
-          />
+          <Fragment key={idx}>
+            <CrossFilterModal
+              nodeId={iconNode.id}
+              childNodes={[...nodeMap.values()].filter(
+                (node) =>
+                  node.parentNode === iconNode.id &&
+                  node.type === FlowType.Strain
+              )}
+              invisibleSet={new Set([...invisibleNodes])}
+              toggleVisible={toggleNodeVisibility}
+              filter={crossFilters.get(iconNode.id)}
+              updateFilter={handleFilterUpdate}
+            />
+            <FilteredOutModal
+              nodeId={iconNode.id}
+              excludedNodes={[...nodeMap.values()].filter(
+                (node) =>
+                  node.parentNode === iconNode.id &&
+                  node.type === FlowType.Strain &&
+                  invisibleNodes.has(node.id)
+              )}
+            />
+          </Fragment>
         ))}
       <div>
         <div className='drawer drawer-end'>
