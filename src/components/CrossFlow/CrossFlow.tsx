@@ -1,4 +1,8 @@
-import { useMemo, MouseEvent as ReactMouseEvent } from 'react';
+import {
+  useMemo,
+  MouseEvent as ReactMouseEvent,
+  TouchEvent as ReactTouchEvent,
+} from 'react';
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -14,7 +18,6 @@ import ReactFlow, {
   ConnectionMode,
 } from 'reactflow';
 import { toPng, toSvg } from 'html-to-image';
-import { FiShare } from 'react-icons/fi';
 import 'reactflow/dist/style.css';
 import { open } from '@tauri-apps/api/dialog';
 import { fs, path } from '@tauri-apps/api';
@@ -26,7 +29,8 @@ import {
 } from 'components/FlowWrapper/FlowWrapper';
 import { Options } from 'html-to-image/lib/types';
 import { toast } from 'react-toastify';
-import { FaPlus, FaMinus } from 'react-icons/fa';
+import { FaPlus, FaMinus, FaEye } from 'react-icons/fa';
+import { BsCardImage } from 'react-icons/bs';
 
 type SaveMethod = 'png' | 'svg';
 const saveMethodFuncs: Record<
@@ -124,16 +128,18 @@ interface iCrossFlowProps {
   onEdgesChange: (changes: EdgeChange[]) => void;
   onConnect: (connection: Connection) => void;
   onConnectStart: (
-    event: ReactMouseEvent,
+    event: ReactMouseEvent | ReactTouchEvent,
     params: OnConnectStartParams
   ) => void;
-  onConnectEnd: (event: MouseEvent) => void;
+  onConnectEnd: (event: MouseEvent | TouchEvent) => void;
   onNodeDragStop: () => void;
   reactFlowInstance?: ReactFlowInstance;
+  toggleShowGenes: () => void;
 }
 
 interface CustomControlsProps {
   reactFlowInstance?: ReactFlowInstance;
+  toggleShowGenes: () => void;
 }
 
 const CustomControls = (props: CustomControlsProps): JSX.Element => {
@@ -156,7 +162,7 @@ const CustomControls = (props: CustomControlsProps): JSX.Element => {
       <ControlButton className='drowndown-hover dropdown'>
         <div>
           <label tabIndex={0} className=''>
-            <FiShare className='text-3xl text-base-content hover:cursor-pointer' />
+            <BsCardImage className='text-3xl text-base-content hover:cursor-pointer' />
           </label>
           <ul
             tabIndex={0}
@@ -184,6 +190,9 @@ const CustomControls = (props: CustomControlsProps): JSX.Element => {
             </li>
           </ul>
         </div>
+      </ControlButton>
+      <ControlButton onClick={() => props.toggleShowGenes()}>
+        <FaEye />
       </ControlButton>
     </Controls>
   );
@@ -227,7 +236,10 @@ const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
       connectionMode={ConnectionMode.Loose}
       onNodeDragStop={props.onNodeDragStop}
     >
-      <CustomControls reactFlowInstance={props.reactFlowInstance} />
+      <CustomControls
+        reactFlowInstance={props.reactFlowInstance}
+        toggleShowGenes={props.toggleShowGenes}
+      />
       <MiniMap
         position='bottom-left'
         className='bg-base-300'
