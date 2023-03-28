@@ -4,6 +4,8 @@ import {
   useEffect,
   useRef,
   MouseEvent as ReactMouseEvent,
+  TouchEvent as ReactTouchEvent,
+  createContext,
 } from 'react';
 import CrossFlow, { FlowType } from 'components/CrossFlow/CrossFlow';
 import CrossNodeForm from 'components/CrossNodeForm/CrossNodeForm';
@@ -58,6 +60,8 @@ export interface CrossEditorProps {
   testing?: boolean;
 }
 
+export const ShowGenesContext = createContext(true);
+
 type DrawerState = 'addStrain' | 'cross' | 'addNote' | 'editNote';
 
 const CrossEditor = (props: CrossEditorProps): JSX.Element => {
@@ -69,6 +73,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   const [nodeMap, setNodeMap] = useState<Map<string, Node>>(
     new Map(props.crossTree.nodes.map((node) => [node.id, node]))
   );
+  const [showGenes, setShowGenes] = useState(true);
   const [invisibleNodes, setInvisibleNodes] = useState<Set<string>>(
     new Set(props.crossTree.invisibleNodes)
   );
@@ -110,7 +115,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   };
 
   const onConnectStart = useCallback(
-    (_: ReactMouseEvent, params: OnConnectStartParams) => {
+    (_: ReactMouseEvent | ReactTouchEvent, params: OnConnectStartParams) => {
       onConnectParams.current = params;
     },
     []
@@ -163,7 +168,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   }, []);
 
   /** Called after onConnect or after dragging an edge */
-  const onConnectEnd = useCallback((_: MouseEvent) => {
+  const onConnectEnd = useCallback((_: MouseEvent | TouchEvent) => {
     const params = onConnectParams.current;
     if (params === null || params === undefined) return;
     if (params.handleType === 'target') return;
@@ -851,7 +856,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       currNode?.data?.sex === Sex.Male ? Sex.Hermaphrodite : Sex.Male;
 
   return (
-    <>
+    <ShowGenesContext.Provider value={showGenes}>
       {[...nodeMap.values()]
         .filter(
           (node) =>
@@ -928,6 +933,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
                   onConnectEnd={onConnectEnd}
                   onNodeDragStop={() => saveTree()}
                   reactFlowInstance={reactFlowInstance}
+                  toggleShowGenes={() => setShowGenes(!showGenes)}
                 />
               </div>
             </div>
@@ -970,7 +976,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
           </div>
         </div>
       </div>
-    </>
+    </ShowGenesContext.Provider>
   );
   // #endregion templating
 };

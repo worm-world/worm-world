@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import { Sex } from 'models/enums';
 import { IoMale, IoFemale, IoMaleFemale } from 'react-icons/io5';
@@ -9,6 +9,7 @@ import { Strain } from 'models/frontend/Strain/Strain';
 import { Menu } from 'components/Menu/Menu';
 import { BsLightningCharge as MenuIcon } from 'react-icons/bs';
 import BreedCountProbability from 'components/BreedCountProbability/BreedCountProbability';
+import { ShowGenesContext } from 'components/CrossEditor/CrossEditor';
 
 const getSexIcon = (
   sex: Sex,
@@ -200,6 +201,7 @@ const getMutationBox = (
       toggleHetPair !== undefined;
 
     const hiddenStyling = toggleEnabled ? `visible group-hover:invisible` : '';
+    const showGene = useContext(ShowGenesContext);
     return (
       <div key={key} className={`group relative flex flex-col`}>
         {toggleEnabled && (
@@ -211,13 +213,29 @@ const getMutationBox = (
           </div>
         )}
         <div className='text-align w-full px-2 text-center'>
+          <span>
+            {showGene && allelePair.top.gene !== undefined
+              ? (allelePair.top.gene?.descName ?? '') + '('
+              : ''}
+          </span>
           {allelePair.top.name}
+          <span>
+            {showGene && allelePair.top.gene !== undefined ? ')' : ''}
+          </span>
         </div>
         <div>
           <hr className={`my-1 border-base-content ${hiddenStyling}`} />
         </div>
         <div className='text-align w-full px-2 text-center'>
+          <span>
+            {showGene && allelePair.bot.gene !== undefined
+              ? (allelePair.bot.gene?.descName ?? '') + '('
+              : ''}
+          </span>
           {allelePair.bot.name}
+          <span>
+            {showGene && allelePair.bot.gene !== undefined ? ')' : ''}
+          </span>
         </div>
       </div>
     );
