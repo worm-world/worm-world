@@ -3,12 +3,12 @@ import * as mock from 'models/frontend/CrossNode/CrossNode.mock';
 import CrossNode, { cmpChromosomes } from 'components/CrossNode/CrossNode';
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 describe('CrossNode component', () => {
-  test('Empty node shows no sections', () => {
+  test('Empty node shows "wild" label', () => {
     const emptyNode = mock.empty;
     render(<CrossNode model={emptyNode} />);
 
     const body = screen.getByTestId('crossNodeBody');
-    expect(body).toBeEmptyDOMElement();
+    expect(body).toHaveTextContent(/wild/i);
   });
 
   test('Wild cross node shows sections', () => {

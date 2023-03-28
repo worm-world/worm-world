@@ -1,7 +1,6 @@
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 import { Allele, WildAllele } from 'models/frontend/Allele/Allele';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
-
 import { Transform, instanceToPlain, plainToInstance } from 'class-transformer';
 import { Phenotype } from 'models/frontend/Phenotype/Phenotype';
 import { AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
@@ -82,6 +81,7 @@ export class Strain {
 
       const chromPairs = this.chromPairMap.get(key) ?? [];
       const otherChromPairs = other.chromPairMap.get(key) ?? [];
+
       if (!AllelePair.chromosomesMatch(chromPairs, otherChromPairs))
         allPairsMatch = false;
     });
@@ -134,33 +134,53 @@ export class Strain {
    * @returns Permuted list of all possible strains and their respective probabilities
    */
   public crossWith(other: Strain): StrainOption[] {
+    this.prepWithWilds(other);
+    other.prepWithWilds(this);
+
     const lStrain = this.clone();
     const rStrain = other.clone();
-
-    // For purposes of crossing, assign each ECA allele a unique logical chromosome in chrom pair map
-    const lStartingIndex = 0;
-    const rStartingIndex = lStrain.chromPairMap.get('Ex')?.length ?? 0;
-    lStrain.logicallySplitEca(lStartingIndex);
-    rStrain.logicallySplitEca(rStartingIndex);
-
-    lStrain.prepWithWilds(rStrain);
-    rStrain.prepWithWilds(lStrain);
 
     const multiChromOptions: ChromosomeOption[][] = [];
 
     // get chromosomal allele probabilities
-    lStrain.chromPairMap.forEach((pairs, chromosome) => {
-      const chromChainList = this.crossChromosome(
-        pairs,
-        rStrain.chromPairMap.get(chromosome) ?? []
+    lStrain.chromPairMap.forEach((lPairs, chromosome) => {
+      const rPairs = rStrain.chromPairMap.get(chromosome) ?? [];
+      multiChromOptions.push(
+        chromosome === 'Ex'
+          ? this.crossExChromosome(lPairs, rPairs)
+          : this.crossChromosome(lPairs, rPairs)
       );
-      multiChromOptions.push(chromChainList);
     });
 
     // permute strains for each chromosome
     const strains = this.cartesianCross(multiChromOptions);
     this.reduceStrainOptions(strains);
     return strains;
+  }
+
+  // Simplified cross of Ex chromosome--equal probabilities of all possible sets
+  private crossExChromosome(
+    leftChrom: AllelePair[],
+    rightChrom: AllelePair[]
+  ): ChromosomeOption[] {
+    const allelePairs: AllelePair[] = [];
+    for (const pair of [...rightChrom, ...leftChrom]) {
+      const notYetInList = !allelePairs.some(
+        (inListPair) => pair.getAllele().name === inListPair.getAllele().name
+      );
+      if (notYetInList && !pair.isWild()) allelePairs.push(pair);
+    }
+
+    const noPairs: AllelePair[][] = [[]];
+    const allSubsets = allelePairs.reduce(
+      (subsets, value) => subsets.concat(subsets.map((set) => [value, ...set])),
+      noPairs
+    );
+    const chromOptions = allSubsets.map((allelePairs) => {
+      return { pairs: allelePairs, prob: 1 / allSubsets.length };
+    });
+
+    return chromOptions;
   }
 
   public getAlleles(): Allele[] {
@@ -205,19 +225,6 @@ export class Strain {
   /* #endregion public methods */
 
   /* #region private methods */
-  /**
-   * Logically break up extrachromosomal array of n alleles
-   * into n logical chromosomes (whose alleles will independently assort)
-   */
-  private logicallySplitEca(ecaIdx: number): void {
-    const eca = this.chromPairMap.get('Ex');
-    if (eca !== undefined) {
-      this.chromPairMap.delete('Ex');
-      eca.forEach((allelePair) => {
-        this.chromPairMap.set(`Ex-${ecaIdx++}` as Chromosome, [allelePair]);
-      });
-    }
-  }
 
   /**
    * Permutes all possible strain combinations due to each chromosome
@@ -279,24 +286,24 @@ export class Strain {
    * Populates {this} with any missing alleles from other (represented as wild strains)
    * @param other Strain to compare against and look for any missing alleles
    */
-  private prepWithWilds(other: Strain, defaultToLeftSide = true): void {
+  public prepWithWilds(other: Strain, defaultToLeftSide = true): void {
     other.chromPairMap.forEach((otherChromPairs, chromosome) => {
       const chromosomePairs = this.chromPairMap.get(chromosome) ?? [];
 
       // Add chromosome to strain, if missing
-      if (!this.chromPairMap.has(chromosome))
+      if (!this.chromPairMap.has(chromosome)) {
         this.chromPairMap.set(chromosome, chromosomePairs);
+      }
 
       otherChromPairs.forEach((otherPair) => {
-        const alreadyHasAllele: boolean =
-          chromosomePairs.findIndex(
-            (pair) =>
-              pair.hasSameBaseAllele(otherPair) ||
-              ((otherPair.isWild() || pair.isWild()) &&
-                pair.hasSameGenLoc(otherPair))
-          ) >= 0;
+        const alreadyHasAllele: boolean = chromosomePairs.some(
+          (pair) =>
+            pair.hasSameBaseAllele(otherPair) ||
+            ((otherPair.isWild() || pair.isWild()) &&
+              pair.hasSameGenLoc(otherPair))
+        );
 
-        // Add wild pair to pairList to match other strain
+        // Add wild pair to pair list to match other strain
         if (!alreadyHasAllele)
           this.insertWildPair(chromosomePairs, otherPair, defaultToLeftSide);
       });

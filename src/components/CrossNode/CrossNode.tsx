@@ -60,7 +60,7 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
               props.model.toggleSex
             )}
             {props.model.isChild && (
-              <div className='dropdown  dropdown-top'>
+              <div className='dropdown dropdown-top'>
                 <label
                   tabIndex={0}
                   className='btn-ghost btn-xs btn m-1 mt-1 text-accent ring-0 hover:bg-base-200 hover:ring-0'
@@ -90,7 +90,7 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
               className='flex min-w-min justify-center text-sm'
               data-testid='crossNodeBody'
             >
-              {getChromosomeBoxes(
+              {getMainContentArea(
                 props.model.strain,
                 canToggleHets,
                 props.model.toggleHetPair
@@ -103,14 +103,25 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
   );
 };
 
+// Return the main content area of the cross node, which will show genotype information
+const getMainContentArea = (
+  strain: Strain,
+  canToggleHets: boolean,
+  toggleHetPair?: (pair: AllelePair) => void
+): JSX.Element => {
+  if (strain.getAllelePairs().length === 0) {
+    return <div className='flex h-12 flex-col justify-center'>(Wild)</div>;
+  } else {
+    return <>{getChromosomeBoxes(strain, canToggleHets, toggleHetPair)}</>;
+  }
+};
+
 // Returns array of chromosome boxes
 const getChromosomeBoxes = (
   strain: Strain,
   canToggleHets: boolean,
   toggleHetPair?: (pair: AllelePair) => void
 ): JSX.Element[] => {
-  if (strain === undefined) return [];
-
   let hideEcaBox = false; // default: assume no Eca Box to hide
   if (strain.chromPairMap.has('Ex')) {
     const nonWildEcas =
