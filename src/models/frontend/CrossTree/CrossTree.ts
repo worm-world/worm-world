@@ -203,7 +203,7 @@ export default class CrossTree {
       const totalWidth = xDistance * rowNodes.length - nodePadding;
       const offSet = totalWidth / 2;
       let currXPos = startingX - offSet;
-      rowNodes.forEach((_) => {
+      rowNodes.forEach(() => {
         positions.push({
           x: currXPos,
           y: currYPos,

@@ -8,6 +8,7 @@ export interface iMenu {
   items: MenuItem[];
   icon: JSX.Element;
   title: string;
+  disabled?: boolean;
   top?: boolean;
 }
 
@@ -20,7 +21,9 @@ export const Menu = (props: iMenu): JSX.Element => {
     >
       <label
         tabIndex={0}
-        className='btn-ghost btn-xs btn m-1 text-base ring-0 hover:bg-base-200 hover:ring-0'
+        className={`btn-ghost btn-xs btn m-1 text-base ring-0 hover:bg-base-200 hover:ring-0 ${
+          props.disabled === true ? 'btn-disabled' : ''
+        }`}
       >
         {props.icon}
       </label>
