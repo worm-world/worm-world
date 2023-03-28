@@ -186,6 +186,38 @@ describe('strain', () => {
     expect(strain).not.toBe(clone); // distinct objects
     expect(strain.equals(clone)).toBe(true); // data remains the same
   });
+
+  test('prepWithWilds() fills nothing when appropriate', () => {
+    const before = new Strain({
+      allelePairs: [new AllelePair({ top: ed3, bot: WILD_ALLELE })],
+    });
+
+    const after = before.clone();
+    after.prepWithWilds(before);
+
+    expect(before).toEqual(after);
+  });
+
+  test('prepWithWilds() fills gaps', () => {
+    const strain1 = new Strain({
+      allelePairs: [new AllelePair({ top: ed3, bot: WILD_ALLELE })],
+    });
+
+    const strain2 = new Strain({
+      allelePairs: [new AllelePair({ top: md299, bot: WILD_ALLELE })],
+    });
+
+    strain1.prepWithWilds(strain2);
+
+    const expected = new Strain({
+      allelePairs: [
+        new AllelePair({ top: ed3, bot: WILD_ALLELE }),
+        new AllelePair({ top: new WildAllele(md299), bot: WILD_ALLELE }),
+      ],
+    });
+
+    expect(strain1.equals(expected)).toBe(true);
+  });
 });
 
 describe('cross algorithm', () => {

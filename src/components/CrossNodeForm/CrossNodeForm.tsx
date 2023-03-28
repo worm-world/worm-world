@@ -31,20 +31,17 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
       return new AllelePair({ top: allele, bot: allele });
     });
 
-    // Heterozygous pairs combined with (essentially) heterozygous ECA alleles
-    const hetPairs = Array.from(hetAlleles)
-      .map(async (selectedAllele) => {
-        const allele = await Allele.createFromRecord(selectedAllele);
-        return new AllelePair({ top: allele, bot: WILD_ALLELE });
-      })
-      .concat(
-        Array.from(exAlleles).map(async (selectedAllele) => {
-          const allele = await Allele.createFromRecord(selectedAllele);
-          return new AllelePair({ top: allele, bot: WILD_ALLELE, isECA: true });
-        })
-      );
+    const hetPairs = Array.from(hetAlleles).map(async (selectedAllele) => {
+      const allele = await Allele.createFromRecord(selectedAllele);
+      return new AllelePair({ top: allele, bot: WILD_ALLELE });
+    });
 
-    Promise.all(homoPairs.concat(hetPairs))
+    const exPairs = Array.from(exAlleles).map(async (selectedAllele) => {
+      const allele = await Allele.createFromRecord(selectedAllele);
+      return new AllelePair({ top: allele, bot: WILD_ALLELE, isECA: true });
+    });
+
+    Promise.all(homoPairs.concat(hetPairs).concat(exPairs))
       .then((allelePairs) => {
         setHomoAlleles(new Set()); // clear form values
         setHetAlleles(new Set());
@@ -66,7 +63,8 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
         selectedRecords={homoAlleles}
         setSelectedRecords={setHomoAlleles}
         shouldInclude={(allele) =>
-          shouldIncludeAllele(homoAlleles, hetAlleles, allele)
+          alleleIsUnused(homoAlleles, hetAlleles, exAlleles, allele) &&
+          !isEcaAlleleName(allele.name)
         }
       />
 
@@ -76,7 +74,8 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
         selectedRecords={hetAlleles}
         setSelectedRecords={setHetAlleles}
         shouldInclude={(allele) =>
-          shouldIncludeAllele(homoAlleles, hetAlleles, allele)
+          alleleIsUnused(homoAlleles, hetAlleles, exAlleles, allele) &&
+          !isEcaAlleleName(allele.name)
         }
       />
 
@@ -89,7 +88,10 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
         label='Extrachromosomal Array'
         selectedRecords={exAlleles}
         setSelectedRecords={setExAlleles}
-        shouldInclude={(allele) => isEcaAlleleName(allele.name)}
+        shouldInclude={(allele) =>
+          alleleIsUnused(homoAlleles, hetAlleles, exAlleles, allele) &&
+          isEcaAlleleName(allele.name)
+        }
       />
       <button className='btn-primary btn mt-5 max-w-xs' onClick={onSubmit}>
         Create
@@ -129,13 +131,16 @@ const SexSelector = (props: {
   );
 };
 
-function shouldIncludeAllele(
+function alleleIsUnused(
   homoAlleles: Set<db_Allele>,
   hetAlleles: Set<db_Allele>,
+  exAlleles: Set<db_Allele>,
   dbAllele: db_Allele
 ): boolean {
-  const names = new Set([...homoAlleles, ...hetAlleles].map((a) => a.name));
-  return !names.has(dbAllele.name) && !isEcaAlleleName(dbAllele.name);
+  const names = new Set(
+    [...homoAlleles, ...hetAlleles, ...exAlleles].map((a) => a.name)
+  );
+  return !names.has(dbAllele.name);
 }
 
 export default CrossNodeForm;
