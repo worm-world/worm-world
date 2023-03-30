@@ -109,7 +109,11 @@ const DataImportForm = <T,>(props: iDataImportFormProps<T>): JSX.Element => {
         }
         record[field.name] = +datum;
       } else {
-        record[field.name] = datum;
+        if (datum === '' || datum === null) {
+          record[field.name] = null;
+        } else {
+          record[field.name] = datum;
+        }
       }
     }
     props.onSubmitCallback(record, () => setFormOpen(false));
