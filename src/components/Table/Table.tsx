@@ -133,6 +133,7 @@ const TableHeader = <T,>(props: TableHeaderProps<T>): JSX.Element => {
 interface TableRowsProps<T> {
   data: T[];
   columns: Array<ColumnDefinitionType<T>>;
+  offset?: number;
 }
 
 const formatData = (d: any): ReactNode => {
@@ -142,12 +143,18 @@ const formatData = (d: any): ReactNode => {
   return d as ReactNode;
 };
 
-const TableRows = <T,>({ data, columns }: TableRowsProps<T>): JSX.Element => {
+const TableRows = <T,>({
+  data,
+  columns,
+  offset,
+}: TableRowsProps<T>): JSX.Element => {
   const rows = data.map((row, index) => {
     return (
       <tr key={`row-${index}`} className='rounded-none'>
         <td className='m-1 w-4 border-none  pr-3 font-bold text-base-300'>
-          {index}
+          {
+            index + (offset ?? 0) + 1 // for 1-based row indexing instead of 0-based for the user
+          }
         </td>
         {columns.map((column, index2) => {
           return (
@@ -175,6 +182,7 @@ export interface TableProps<T, K> {
   fields: Array<Field<T>>;
   columns: Array<ColumnDefinitionType<T>>;
   runFilters: (filterObj: FilterGroup<K>) => void;
+  offset?: number;
 }
 
 type FilterMap<T> = Map<keyof T, Filter[]>;
@@ -222,9 +230,9 @@ export const Table = <T, K>(props: TableProps<T, K>): JSX.Element => {
     const orderBy =
       sortType !== undefined
         ? new Array<[K, Order]>([
-            props.nameMapping[sortType[0]] as K,
-            sortType[1],
-          ])
+          props.nameMapping[sortType[0]] as K,
+          sortType[1],
+        ])
         : new Array<[K, Order]>();
     const filterObj = {
       filters,
@@ -248,7 +256,11 @@ export const Table = <T, K>(props: TableProps<T, K>): JSX.Element => {
           setSortType={setSortType}
           setFilterField={setFocusedFilterField}
         />
-        <TableRows data={props.data} columns={props.columns} />
+        <TableRows
+          data={props.data}
+          columns={props.columns}
+          offset={props.offset}
+        />
       </table>
       <input
         type='checkbox'

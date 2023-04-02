@@ -5,7 +5,6 @@ import DataImportForm from 'components/DataImportForm/DataImportForm';
 import { Field } from 'components/ColumnFilter/ColumnFilter';
 import { FilterGroup } from 'models/db/filter/FilterGroup';
 import { open } from '@tauri-apps/api/dialog';
-
 interface iDataPageProps<T, K> {
   title: string;
   dataName: string;
@@ -17,8 +16,18 @@ interface iDataPageProps<T, K> {
   insertDataFromFile: (path: string) => Promise<void>;
 }
 
+const rowsPerPage = 50;
+
 const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
   const [data, setData] = useState<T[]>([]);
+  const [page, setPage] = useState(0);
+
+  const [curFilter, setCurFilter] = useState<FilterGroup<K>>({
+    filters: [],
+    orderBy: [],
+    limit: rowsPerPage,
+    offset: page * rowsPerPage,
+  });
   const onRecordInsertionFormSubmission = (
     record: T,
     successCallback: () => void
@@ -58,8 +67,13 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
   };
 
   const runFilters = (filterObj: FilterGroup<K>): void => {
+    setCurFilter(filterObj);
     props
-      .getFilteredData(filterObj)
+      .getFilteredData({
+        ...filterObj,
+        limit: rowsPerPage,
+        offset: page * rowsPerPage,
+      })
       .then((ds) => setData(ds))
       .catch((e) =>
         toast.error('Unable to get data: ' + JSON.stringify(e), {
@@ -69,7 +83,7 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
   };
 
   const refresh = (): void => {
-    runFilters({ filters: [], orderBy: [] });
+    runFilters(curFilter);
   };
 
   useEffect(() => {
@@ -80,6 +94,29 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
     <div className='drawer-content flex h-screen flex-col'>
       <div>
         <div className='grid grid-cols-3 place-items-center items-center px-6'>
+          <div className='flex select-none flex-row justify-start pt-4'>
+            {page > 0 && (
+              <span
+                className='cursor-pointer text-xl font-bold'
+                onClick={() => {
+                  setPage(page - 1);
+                  refresh();
+                }}
+              >
+                –
+              </span>
+            )}
+            <span className='mx-2 pt-1'>Page {page + 1}</span>
+            <span
+              className='cursor-pointer text-xl font-bold'
+              onClick={() => {
+                setPage(page + 1);
+                refresh();
+              }}
+            >
+              +
+            </span>
+          </div>
           <h1 className='data-table-title col-start-2'>{props.title}</h1>
           <div className='flex w-full flex-row justify-end gap-2'>
             <DataImportForm
@@ -104,6 +141,7 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
             runFilters={runFilters}
             nameMapping={props.nameMapping}
             data={data}
+            offset={page * rowsPerPage}
             columns={props.cols}
             fields={props.fields}
           />

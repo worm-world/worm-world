@@ -1,15 +1,15 @@
 pub mod allele;
 pub mod allele_expr;
+pub mod bulk;
 pub mod condition;
 pub mod expr_relation;
 pub mod gene;
 pub mod phenotype;
-pub mod variation_info;
 pub mod task;
-pub mod tree;
 pub mod task_conds;
 pub mod task_deps;
-pub mod bulk;
+pub mod tree;
+pub mod variation_info;
 
 pub const SQLITE_BIND_LIMIT: usize = 32766;
 

@@ -108,8 +108,18 @@ impl InnerDbState {
         &self,
         bulk: Bulk<ExpressionRelationDb>,
     ) -> Result<(), DbError> {
-        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
-            "INSERT INTO expr_relations (
+        if !bulk.errors.is_empty() {
+            return Err(DbError::BulkInsert(format!(
+                "Found errors on {} lines",
+                bulk.errors.len()
+            )));
+        }
+        let bind_limit = SQLITE_BIND_LIMIT / 7;
+        let mut data = bulk.data.into_iter().peekable();
+        while data.peek().is_some() {
+            let chunk = data.by_ref().take(bind_limit - 1).collect::<Vec<_>>();
+            let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+                "INSERT OR IGNORE INTO expr_relations (
                 allele_name,
                 expressing_phenotype_name,
                 expressing_phenotype_wild,
@@ -118,37 +128,32 @@ impl InnerDbState {
                 altering_condition,
                 is_suppressing
             ) ",
-        );
-        if !bulk.errors.is_empty() {
-            return Err(DbError::BulkInsert(format!(
-                "Found errors on {} lines",
-                bulk.errors.len()
-            )));
-        }
-        let bind_limit = SQLITE_BIND_LIMIT / 7;
-        if bulk.data.len() > bind_limit {
-            return Err(DbError::BulkInsert(format!(
-                "Row count exceeds max: {}",
-                bind_limit
-            )));
-        }
-        qb.push_values(bulk.data, |mut b, item| {
-            b.push_bind(item.allele_name)
-                .push_bind(item.expressing_phenotype_name)
-                .push_bind(item.expressing_phenotype_wild)
-                .push_bind(item.altering_phenotype_name)
-                .push_bind(item.altering_phenotype_wild)
-                .push_bind(item.altering_condition)
-                .push_bind(item.is_suppressing);
-        });
+            );
+            if chunk.len() > bind_limit {
+                return Err(DbError::BulkInsert(format!(
+                    "Row count exceeds max: {}",
+                    bind_limit
+                )));
+            }
+            qb.push_values(chunk, |mut b, item| {
+                b.push_bind(item.allele_name)
+                    .push_bind(item.expressing_phenotype_name)
+                    .push_bind(item.expressing_phenotype_wild)
+                    .push_bind(item.altering_phenotype_name)
+                    .push_bind(item.altering_phenotype_wild)
+                    .push_bind(item.altering_condition)
+                    .push_bind(item.is_suppressing);
+            });
 
-        match qb.build().execute(&self.conn_pool).await {
-            Ok(_) => Ok(()),
-            Err(e) => {
-                eprint!("Bulk Insert error: {e}");
-                Err(DbError::BulkInsert(e.to_string()))
+            match qb.build().execute(&self.conn_pool).await {
+                Ok(_) => {}
+                Err(e) => {
+                    eprint!("Bulk Insert error: {e}");
+                    return Err(DbError::BulkInsert(e.to_string()));
+                }
             }
         }
+        Ok(())
     }
 }
 
@@ -197,6 +202,8 @@ mod test {
                     )],
                 ],
                 order_by: vec![(ExpressionRelationFieldName::AlleleName, Order::Asc)],
+                limit: None,
+                offset: None,
             })
             .await?;
 
@@ -233,6 +240,8 @@ mod test {
                     )],
                 ],
                 order_by: vec![(ExpressionRelationFieldName::AlleleName, Order::Asc)],
+                limit: None,
+                offset: None,
             })
             .await?;
 
@@ -252,6 +261,8 @@ mod test {
                     Filter::Like("6".to_owned()),
                 )]],
                 order_by: vec![(ExpressionRelationFieldName::AlleleName, Order::Asc)],
+                limit: None,
+                offset: None,
             })
             .await?;
 
@@ -276,6 +287,8 @@ mod test {
                     )],
                 ],
                 order_by: vec![(ExpressionRelationFieldName::AlleleName, Order::Asc)],
+                limit: None,
+                offset: None,
             })
             .await?;
 

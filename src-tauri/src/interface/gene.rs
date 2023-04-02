@@ -78,9 +78,6 @@ impl InnerDbState {
     }
 
     pub async fn insert_genes(&self, bulk: Bulk<GeneDb>) -> Result<(), DbError> {
-        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
-            "INSERT INTO genes (systematic_name, descriptive_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end) "
-        );
         if !bulk.errors.is_empty() {
             return Err(DbError::BulkInsert(format!(
                 "Found errors on {} lines",
@@ -88,29 +85,38 @@ impl InnerDbState {
             )));
         }
         let bind_limit = SQLITE_BIND_LIMIT / 7;
-        if bulk.data.len() > bind_limit {
-            return Err(DbError::BulkInsert(format!(
-                "Row count exceeds max: {}",
-                bind_limit
-            )));
-        }
-        qb.push_values(bulk.data, |mut b, item| {
-            b.push_bind(item.systematic_name)
-                .push_bind(item.descriptive_name)
-                .push_bind(item.chromosome)
-                .push_bind(item.phys_loc)
-                .push_bind(item.gen_loc)
-                .push_bind(item.recomb_suppressor_start)
-                .push_bind(item.recomb_suppressor_end);
-        });
 
-        match qb.build().execute(&self.conn_pool).await {
-            Ok(_) => Ok(()),
-            Err(e) => {
-                eprint!("Bulk Insert error: {e}");
-                Err(DbError::BulkInsert(e.to_string()))
+        let mut data = bulk.data.into_iter().peekable();
+        while data.peek().is_some() {
+            let chunk = data.by_ref().take(bind_limit - 1).collect::<Vec<_>>();
+            let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+                "INSERT OR IGNORE INTO genes (systematic_name, descriptive_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end) "
+            );
+            if chunk.len() > bind_limit {
+                return Err(DbError::BulkInsert(format!(
+                    "Row count exceeds max: {}",
+                    bind_limit
+                )));
+            }
+            qb.push_values(chunk, |mut b, item| {
+                b.push_bind(item.systematic_name)
+                    .push_bind(item.descriptive_name)
+                    .push_bind(item.chromosome)
+                    .push_bind(item.phys_loc)
+                    .push_bind(item.gen_loc)
+                    .push_bind(item.recomb_suppressor_start)
+                    .push_bind(item.recomb_suppressor_end);
+            });
+
+            match qb.build().execute(&self.conn_pool).await {
+                Ok(_) => {}
+                Err(e) => {
+                    eprint!("Bulk Insert error: {e}");
+                    return Err(DbError::BulkInsert(e.to_string()));
+                }
             }
         }
+        Ok(())
     }
 }
 
@@ -156,6 +162,8 @@ mod test {
                     (GeneFieldName::Chromosome, Filter::Equal("IV".to_string())),
                 ]],
                 order_by: vec![(GeneFieldName::DescName, Order::Asc)],
+                limit: None,
+                offset: None,
             })
             .await?;
 
@@ -173,6 +181,8 @@ mod test {
                     (GeneFieldName::Chromosome, Filter::Equal("IV".to_string())),
                 ]],
                 order_by: vec![(GeneFieldName::SysName, Order::Asc)],
+                limit: None,
+                offset: None,
             })
             .await?;
 
@@ -190,6 +200,8 @@ mod test {
                     vec![(GeneFieldName::PhysLoc, Filter::Equal("7682896".to_string()))],
                 ],
                 order_by: vec![],
+                limit: None,
+                offset: None,
             })
             .await?;
 
@@ -218,6 +230,8 @@ mod test {
                     ],
                 ],
                 order_by: vec![(GeneFieldName::DescName, Order::Asc)],
+                limit: None,
+                offset: None,
             })
             .await?;
 
@@ -234,6 +248,8 @@ mod test {
                     Filter::Like("in".to_string()),
                 )]],
                 order_by: vec![(GeneFieldName::DescName, Order::Asc)],
+                limit: None,
+                offset: None,
             })
             .await?;
 
@@ -250,6 +266,8 @@ mod test {
                     (GeneFieldName::DescName, Filter::Like("lin".to_string())),
                 ]],
                 order_by: vec![(GeneFieldName::DescName, Order::Asc)],
+                limit: None,
+                offset: None,
             })
             .await?;
 

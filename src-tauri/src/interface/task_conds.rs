@@ -109,6 +109,8 @@ mod test {
                     Filter::Equal("1".to_owned()),
                 )]],
                 order_by: vec![],
+                limit: None,
+                offset: None,
             })
             .await?;
 

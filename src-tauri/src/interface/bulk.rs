@@ -1,6 +1,6 @@
 use anyhow::Result;
 use csv::Reader;
-use serde::{de::DeserializeOwned};
+use serde::de::DeserializeOwned;
 use std::path::Path;
 
 pub struct Bulk<T>
@@ -23,8 +23,8 @@ impl<T: DeserializeOwned> Bulk<T> {
                 },
             })
             .from_path(path)?;
-        
-            Ok(Self::from_reader(&mut reader))
+
+        Ok(Self::from_reader(&mut reader))
     }
 
     pub fn from_reader<K: std::io::Read>(reader: &mut Reader<K>) -> Self {
@@ -37,9 +37,6 @@ impl<T: DeserializeOwned> Bulk<T> {
             }
         }
 
-        Self {
-            data,
-            errors,
-        } 
+        Self { data, errors }
     }
 }

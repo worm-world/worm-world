@@ -4,7 +4,6 @@ use crate::models::{
     filter::{FilterGroup, FilterQueryBuilder},
     gene::{Gene, GeneFieldName},
 };
-
 use anyhow::Result;
 use sqlx::{QueryBuilder, Row, Sqlite};
 
@@ -134,9 +133,6 @@ impl InnerDbState {
     }
 
     pub async fn insert_alleles(&self, bulk: Bulk<Allele>) -> Result<(), DbError> {
-        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
-            "INSERT INTO alleles (name, contents, systematic_gene_name, variation_name) ",
-        );
         if !bulk.errors.is_empty() {
             return Err(DbError::BulkInsert(format!(
                 "Found errors on {} lines",
@@ -144,26 +140,35 @@ impl InnerDbState {
             )));
         }
         let bind_limit = SQLITE_BIND_LIMIT / 4;
-        if bulk.data.len() > bind_limit {
-            return Err(DbError::BulkInsert(format!(
-                "Row count exceeds max: {}",
-                bind_limit
-            )));
-        }
-        qb.push_values(bulk.data, |mut b, item| {
-            b.push_bind(item.name)
-                .push_bind(item.contents)
-                .push_bind(item.systematic_gene_name)
-                .push_bind(item.variation_name);
-        });
+        let mut data = bulk.data.into_iter().peekable();
+        while data.peek().is_some() {
+            let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+                "INSERT OR IGNORE INTO alleles (name, contents, systematic_gene_name, variation_name) ",
+            );
 
-        match qb.build().execute(&self.conn_pool).await {
-            Ok(_) => Ok(()),
-            Err(e) => {
-                eprint!("Bulk Insert error: {e}");
-                Err(DbError::BulkInsert(e.to_string()))
+            let chunk = data.by_ref().take(bind_limit - 1).collect::<Vec<_>>();
+            if chunk.len() > bind_limit {
+                return Err(DbError::BulkInsert(format!(
+                    "Row count exceeds max: {}",
+                    bind_limit
+                )));
             }
+            qb.push_values(chunk, |mut b, item| {
+                b.push_bind(item.name)
+                    .push_bind(item.contents)
+                    .push_bind(item.systematic_gene_name)
+                    .push_bind(item.variation_name);
+            });
+
+            match qb.build().execute(&self.conn_pool).await {
+                Ok(_) => {}
+                Err(e) => {
+                    eprint!("Bulk Insert error: {e}");
+                    return Err(DbError::BulkInsert(e.to_string()));
+                }
+            };
         }
+        Ok(())
     }
 }
 
@@ -368,6 +373,8 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
                     ),
                 ]],
                 order_by: vec![(AlleleFieldName::Name, Order::Asc)],
+                limit: None,
+                offset: None,
             })
             .await?;
 
@@ -385,6 +392,8 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
                     Filter::Equal("non-existant-allele".to_owned()),
                 )]],
                 order_by: vec![],
+                limit: None,
+                offset: None,
             })
             .await?;
 
@@ -399,6 +408,8 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
             .get_filtered_alleles(&FilterGroup::<AlleleFieldName> {
                 filters: vec![vec![(AlleleFieldName::Contents, Filter::NotNull)]],
                 order_by: vec![(AlleleFieldName::Name, Order::Asc)],
+                limit: None,
+                offset: None,
             })
             .await?;
 
@@ -413,6 +424,8 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
             .get_filtered_alleles(&FilterGroup::<AlleleFieldName> {
                 filters: vec![vec![(AlleleFieldName::Contents, Filter::NotNull)]],
                 order_by: vec![(AlleleFieldName::Name, Order::Desc)],
+                limit: None,
+                offset: None,
             })
             .await?;
         let mut alleles = testdata::get_alleles_with_content();
@@ -428,6 +441,8 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
             .get_filtered_alleles(&FilterGroup::<AlleleFieldName> {
                 filters: vec![vec![(AlleleFieldName::Contents, Filter::Null)]],
                 order_by: vec![(AlleleFieldName::Name, Order::Asc)],
+                limit: None,
+                offset: None,
             })
             .await?;
 
@@ -445,6 +460,8 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
                     Filter::Like("oxEx".to_string()),
                 )]],
                 order_by: vec![(AlleleFieldName::Name, Order::Asc)],
+                limit: None,
+                offset: None,
             })
             .await?;
 
@@ -461,6 +478,8 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
         let allele_filter = &FilterGroup::<AlleleFieldName> {
             filters: vec![vec![(AlleleFieldName::Name, Filter::Like("ed".to_owned()))]],
             order_by: vec![],
+            limit: None,
+            offset: None,
         };
 
         let gene_filter = &FilterGroup::<GeneFieldName> {
@@ -469,6 +488,8 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
                 Filter::Like("unc-18".to_string()),
             )]],
             order_by: vec![],
+            limit: None,
+            offset: None,
         };
 
         let exprs = state
@@ -486,11 +507,15 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
         let allele_filter = &FilterGroup::<AlleleFieldName> {
             filters: vec![vec![(AlleleFieldName::Name, Filter::Like("ed".to_owned()))]],
             order_by: vec![],
+            limit: None,
+            offset: None,
         };
 
         let gene_filter = &FilterGroup::<GeneFieldName> {
             filters: vec![],
             order_by: vec![],
+            limit: None,
+            offset: None,
         };
 
         let exprs = state
@@ -510,6 +535,8 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
         let allele_filter = &FilterGroup::<AlleleFieldName> {
             filters: vec![],
             order_by: vec![],
+            limit: None,
+            offset: None,
         };
 
         let gene_filter = &FilterGroup::<GeneFieldName> {
@@ -518,6 +545,8 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
                 Filter::Like("unc-11".to_string()),
             )]],
             order_by: vec![],
+            limit: None,
+            offset: None,
         };
 
         let exprs = state
@@ -540,11 +569,15 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
         let allele_filter = &FilterGroup::<AlleleFieldName> {
             filters: vec![],
             order_by: vec![],
+            limit: None,
+            offset: None,
         };
 
         let gene_filter = &FilterGroup::<GeneFieldName> {
             filters: vec![],
             order_by: vec![],
+            limit: None,
+            offset: None,
         };
 
         let exprs = state
