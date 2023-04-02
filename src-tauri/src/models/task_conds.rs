@@ -9,7 +9,10 @@ pub struct TaskCondition {
 }
 
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, TS)]
-#[ts(export, export_to = "../src/models/db/filter/TaskConditionFieldName.ts")]
+#[ts(
+    export,
+    export_to = "../src/models/db/filter/TaskConditionFieldName.ts"
+)]
 pub enum TaskConditionFieldName {
     Id,
     Name,

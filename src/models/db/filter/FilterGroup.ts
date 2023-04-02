@@ -58,6 +58,8 @@ export interface FilterGroup<T> {
    * <select query> ... ORDER BY field1, field2;
    */
   orderBy: Array<[T, Order]>;
+  limit?: number;
+  offset?: number;
 }
 
 /**

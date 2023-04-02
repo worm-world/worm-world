@@ -143,9 +143,6 @@ impl InnerDbState {
     }
 
     pub async fn insert_phenotypes(&self, bulk: Bulk<PhenotypeDb>) -> Result<(), DbError> {
-        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
-            "INSERT INTO phenotypes (name, wild, short_name, description, male_mating, lethal, female_sterile, arrested, maturation_days) "
-        );
         if !bulk.errors.is_empty() {
             return Err(DbError::BulkInsert(format!(
                 "Found errors on {} lines",
@@ -153,31 +150,39 @@ impl InnerDbState {
             )));
         }
         let bind_limit = SQLITE_BIND_LIMIT / 9;
-        if bulk.data.len() > bind_limit {
-            return Err(DbError::BulkInsert(format!(
-                "Row count exceeds max: {}",
-                bind_limit
-            )));
-        }
-        qb.push_values(bulk.data, |mut b, item| {
-            b.push_bind(item.name)
-                .push_bind(item.wild)
-                .push_bind(item.short_name)
-                .push_bind(item.description)
-                .push_bind(item.male_mating)
-                .push_bind(item.lethal)
-                .push_bind(item.female_sterile)
-                .push_bind(item.arrested)
-                .push_bind(item.maturation_days);
-        });
+        let mut data = bulk.data.into_iter().peekable();
+        while data.peek().is_some() {
+            let chunk = data.by_ref().take(bind_limit - 1).collect::<Vec<_>>();
+            let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+                "INSERT OR IGNORE INTO phenotypes (name, wild, short_name, description, male_mating, lethal, female_sterile, arrested, maturation_days) "
+            );
+            if chunk.len() > bind_limit {
+                return Err(DbError::BulkInsert(format!(
+                    "Row count exceeds max: {}",
+                    bind_limit
+                )));
+            }
+            qb.push_values(chunk, |mut b, item| {
+                b.push_bind(item.name)
+                    .push_bind(item.wild)
+                    .push_bind(item.short_name)
+                    .push_bind(item.description)
+                    .push_bind(item.male_mating)
+                    .push_bind(item.lethal)
+                    .push_bind(item.female_sterile)
+                    .push_bind(item.arrested)
+                    .push_bind(item.maturation_days);
+            });
 
-        match qb.build().execute(&self.conn_pool).await {
-            Ok(_) => Ok(()),
-            Err(e) => {
-                eprint!("Bulk Insert error: {e}");
-                Err(DbError::BulkInsert(e.to_string()))
+            match qb.build().execute(&self.conn_pool).await {
+                Ok(_) => {}
+                Err(e) => {
+                    eprint!("Bulk Insert error: {e}");
+                    return Err(DbError::BulkInsert(e.to_string()));
+                }
             }
         }
+        Ok(())
     }
 }
 
@@ -222,6 +227,8 @@ mod test {
                     vec![(PhenotypeFieldName::MaturationDays, Filter::Null)],
                 ],
                 order_by: vec![(PhenotypeFieldName::Name, Order::Asc)],
+                limit: None,
+                offset: None,
             })
             .await?;
 
@@ -239,6 +246,8 @@ mod test {
                     Filter::LessThan("3".to_owned(), true),
                 )]],
                 order_by: vec![(PhenotypeFieldName::Name, Order::Asc)],
+                limit: None,
+                offset: None,
             })
             .await?;
 
@@ -256,6 +265,8 @@ mod test {
                     Filter::Like("NLS".to_owned()),
                 )]],
                 order_by: vec![(PhenotypeFieldName::Name, Order::Asc)],
+                limit: None,
+                offset: None,
             })
             .await?;
 
@@ -284,6 +295,8 @@ mod test {
                 vec![(ExpressionRelationFieldName::IsSuppressing, Filter::False)],
             ],
             order_by: vec![],
+            limit: None,
+            offset: None,
         };
 
         let phenotype_filter = FilterGroup::<PhenotypeFieldName> {
@@ -295,6 +308,8 @@ mod test {
                 )],
             ],
             order_by: vec![],
+            limit: None,
+            offset: None,
         };
 
         let state = InnerDbState { conn_pool: pool };

@@ -139,6 +139,10 @@ where
     pub filters: Vec<Vec<(T, Filter)>>,
     #[serde(rename = "orderBy")]
     pub order_by: Vec<(T, Order)>,
+    #[serde(rename = "limit")]
+    pub limit: Option<u32>,
+    #[serde(rename = "offset")]
+    pub offset: Option<u32>,
 }
 
 impl<T: FieldNameEnum> FilterQueryBuilder for FilterGroup<T> {
@@ -186,6 +190,16 @@ impl<T: FieldNameEnum> FilterQueryBuilder for FilterGroup<T> {
                 ));
             }
             qb_separated.push_unseparated(" ");
+        }
+        // LIMIT
+        if let Some(limit) = self.limit {
+            qb.push(" LIMIT ");
+            qb.push_bind(limit);
+        }
+        // OFFSET
+        if let Some(offset) = self.offset {
+            qb.push(" OFFSET ");
+            qb.push_bind(offset);
         }
         // DEBUG (uncomment line below)
         // println!("{}", qb.sql());

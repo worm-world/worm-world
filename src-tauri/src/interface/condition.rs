@@ -134,9 +134,6 @@ impl InnerDbState {
     }
 
     pub async fn insert_conditions(&self, bulk: Bulk<ConditionDb>) -> Result<(), DbError> {
-        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
-            "INSERT INTO conditions (name, description, male_mating, lethal, female_sterile, arrested, maturation_days) "
-        );
         if !bulk.errors.is_empty() {
             return Err(DbError::BulkInsert(format!(
                 "Found errors on {} lines",
@@ -145,29 +142,39 @@ impl InnerDbState {
         }
         // 7 is the number of fields here
         let bind_limit = SQLITE_BIND_LIMIT / 7;
-        if bulk.data.len() > bind_limit {
-            return Err(DbError::BulkInsert(format!(
-                "Row count exceeds max: {}",
-                bind_limit
-            )));
-        }
-        qb.push_values(bulk.data, |mut b, item| {
-            b.push_bind(item.name)
-                .push_bind(item.description)
-                .push_bind(item.male_mating)
-                .push_bind(item.lethal)
-                .push_bind(item.female_sterile)
-                .push_bind(item.arrested)
-                .push_bind(item.maturation_days);
-        });
+        let mut data = bulk.data.into_iter().peekable();
+        while data.peek().is_some() {
+            let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "INSERT OR IGNORE INTO conditions (name, description, male_mating, lethal, female_sterile, arrested, maturation_days) "
+        );
+            let chunk = data.by_ref().take(bind_limit - 1).collect::<Vec<_>>();
 
-        match qb.build().execute(&self.conn_pool).await {
-            Ok(_) => Ok(()),
-            Err(e) => {
-                eprint!("Bulk Insert error: {e}");
-                Err(DbError::BulkInsert(e.to_string()))
+            if chunk.len() > bind_limit {
+                return Err(DbError::BulkInsert(format!(
+                    "Row count exceeds max: {}",
+                    bind_limit
+                )));
+            }
+
+            qb.push_values(chunk, |mut b, item| {
+                b.push_bind(item.name)
+                    .push_bind(item.description)
+                    .push_bind(item.male_mating)
+                    .push_bind(item.lethal)
+                    .push_bind(item.female_sterile)
+                    .push_bind(item.arrested)
+                    .push_bind(item.maturation_days);
+            });
+
+            match qb.build().execute(&self.conn_pool).await {
+                Ok(_) => {}
+                Err(e) => {
+                    eprint!("Bulk Insert error: {e}");
+                    return Err(DbError::BulkInsert(e.to_string()));
+                }
             }
         }
+        Ok(())
     }
 }
 
@@ -209,6 +216,8 @@ mod test {
                     Filter::LessThan("4".to_owned(), false),
                 )]],
                 order_by: vec![(ConditionFieldName::Name, Order::Asc)],
+                limit: None,
+                offset: None,
             })
             .await?;
 
@@ -226,6 +235,8 @@ mod test {
                     Filter::LessThan("4".to_owned(), false),
                 )]],
                 order_by: vec![(ConditionFieldName::Name, Order::Desc)],
+                limit: None,
+                offset: None,
             })
             .await?;
         let mut fc = testdata::get_filtered_conditions();
@@ -244,6 +255,8 @@ mod test {
                     Filter::NotEqual("3".to_owned()),
                 )]],
                 order_by: vec![(ConditionFieldName::Name, Order::Asc)],
+                limit: None,
+                offset: None,
             })
             .await?;
 
@@ -264,6 +277,8 @@ mod test {
                     Filter::Like("ami".to_owned()),
                 )]],
                 order_by: vec![(ConditionFieldName::Name, Order::Asc)],
+                limit: None,
+                offset: None,
             })
             .await?;
 
@@ -293,10 +308,14 @@ mod test {
                 vec![(ExpressionRelationFieldName::IsSuppressing, Filter::False)],
             ],
             order_by: vec![],
+            limit: None,
+            offset: None,
         };
         let condition_filter = FilterGroup::<ConditionFieldName> {
             filters: vec![],
             order_by: vec![(ConditionFieldName::Name, Order::Asc)],
+            limit: None,
+            offset: None,
         };
 
         let conditions = state

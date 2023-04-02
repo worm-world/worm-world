@@ -148,6 +148,8 @@ mod test {
             .get_filtered_trees(&FilterGroup::<TreeFieldName> {
                 filters: vec![vec![(TreeFieldName::Id, Filter::Equal("1".to_owned()))]],
                 order_by: vec![],
+                limit: None,
+                offset: None,
             })
             .await?;
 

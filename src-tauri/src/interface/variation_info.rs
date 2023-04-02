@@ -76,9 +76,6 @@ impl InnerDbState {
     }
 
     pub async fn insert_variation_infos(&self, bulk: Bulk<VariationInfoDb>) -> Result<(), DbError> {
-        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
-            "INSERT INTO variation_info (allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end) "
-        );
         if !bulk.errors.is_empty() {
             return Err(DbError::BulkInsert(format!(
                 "Found errors on {} lines",
@@ -86,28 +83,36 @@ impl InnerDbState {
             )));
         }
         let bind_limit = SQLITE_BIND_LIMIT / 6;
-        if bulk.data.len() > bind_limit {
-            return Err(DbError::BulkInsert(format!(
-                "Row count exceeds max: {}",
-                bind_limit
-            )));
-        }
-        qb.push_values(bulk.data, |mut b, item| {
-            b.push_bind(item.allele_name)
-                .push_bind(item.chromosome)
-                .push_bind(item.phys_loc)
-                .push_bind(item.gen_loc)
-                .push_bind(item.recomb_suppressor_start)
-                .push_bind(item.recomb_suppressor_end);
-        });
+        let mut data = bulk.data.into_iter().peekable();
+        while data.peek().is_some() {
+            let chunk = data.by_ref().take(bind_limit - 1).collect::<Vec<_>>();
+            if chunk.len() > bind_limit {
+                return Err(DbError::BulkInsert(format!(
+                    "Row count exceeds max: {}",
+                    bind_limit
+                )));
+            }
+            let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+                "INSERT OR IGNORE INTO variation_info (allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end) "
+            );
+            qb.push_values(chunk, |mut b, item| {
+                b.push_bind(item.allele_name)
+                    .push_bind(item.chromosome)
+                    .push_bind(item.phys_loc)
+                    .push_bind(item.gen_loc)
+                    .push_bind(item.recomb_suppressor_start)
+                    .push_bind(item.recomb_suppressor_end);
+            });
 
-        match qb.build().execute(&self.conn_pool).await {
-            Ok(_) => Ok(()),
-            Err(e) => {
-                eprint!("Bulk Insert error: {e}");
-                Err(DbError::BulkInsert(e.to_string()))
+            match qb.build().execute(&self.conn_pool).await {
+                Ok(_) => {}
+                Err(e) => {
+                    eprint!("Bulk Insert error: {e}");
+                    return Err(DbError::BulkInsert(e.to_string()));
+                }
             }
         }
+        Ok(())
     }
 }
 
@@ -150,6 +155,8 @@ mod test {
                 (VariationFieldName::AlleleName, Order::Asc),
                 (VariationFieldName::Chromosome, Order::Asc),
             ],
+            limit: None,
+            offset: None,
         };
         let exprs = state.get_filtered_variation_info(&filter).await?;
 
@@ -166,6 +173,8 @@ mod test {
                 Filter::Range("-1.46".to_string(), false, "4.72".to_string(), true),
             )]],
             order_by: vec![(VariationFieldName::AlleleName, Order::Asc)],
+            limit: None,
+            offset: None,
         };
         let exprs = state.get_filtered_variation_info(&filter).await?;
 
@@ -181,6 +190,8 @@ mod test {
                 Filter::Like("IS".to_string()),
             )]],
             order_by: vec![(VariationFieldName::AlleleName, Order::Asc)],
+            limit: None,
+            offset: None,
         };
         let exprs = state.get_filtered_variation_info(&filter).await?;
 
