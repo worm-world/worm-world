@@ -221,7 +221,10 @@ const getMutationBox = (
     const hiddenStyling = toggleEnabled ? `visible group-hover:invisible` : '';
     const showGene = useContext(ShowGenesContext);
     return (
-      <div key={key} className={`group relative flex flex-col`}>
+      <div
+        key={key}
+        className={`group relative flex flex-col whitespace-nowrap`}
+      >
         {toggleEnabled && (
           <div
             className={`invisible absolute top-1/2 left-1/2  -translate-x-1/2 -translate-y-1/2 text-primary group-hover:visible `}

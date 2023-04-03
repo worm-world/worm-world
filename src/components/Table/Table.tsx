@@ -230,9 +230,9 @@ export const Table = <T, K>(props: TableProps<T, K>): JSX.Element => {
     const orderBy =
       sortType !== undefined
         ? new Array<[K, Order]>([
-          props.nameMapping[sortType[0]] as K,
-          sortType[1],
-        ])
+            props.nameMapping[sortType[0]] as K,
+            sortType[1],
+          ])
         : new Array<[K, Order]>();
     const filterObj = {
       filters,
