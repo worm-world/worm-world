@@ -81,7 +81,7 @@ export const SchedulePage = (): JSX.Element => {
   );
 
   return (
-    <div className='overflow-y-hidden'>
+    <div>
       {tasks.length === 0 && hasLoadedOnce && <NoTaskPlaceholder />}
       {tasks.length > 0 && hasLoadedOnce && (
         <>
