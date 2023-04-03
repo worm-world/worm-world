@@ -3,7 +3,7 @@ import { Link, Outlet } from 'react-router-dom';
 
 const Todo = (): JSX.Element => {
   return (
-    <div>
+    <>
       <TopNav title={'Scheduler'} tabIndex={1}>
         {[
           <Link key='todo' to='todo'>
@@ -14,7 +14,7 @@ const Todo = (): JSX.Element => {
       <div className='px-6 pt-2'>
         <Outlet />
       </div>
-    </div>
+    </>
   );
 };
 

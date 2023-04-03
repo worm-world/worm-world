@@ -56,10 +56,10 @@ const TaskItem = (props: iTaskProps): JSX.Element => {
             }}
           />
         </div>
-        <div className='mr-4 flex grow flex-row items-center justify-between py-8 pl-6 pr-3'>
+        <div className='flex grow flex-row items-center justify-between py-8 pl-4 pr-3'>
           <div className='flex flex-row justify-center'>
             {leftStrain !== undefined && <CrossNode model={leftStrain} />}
-            <div className='mx-8 flex flex-col justify-center'>
+            <div className='mx-4 flex flex-col justify-center'>
               <div
                 className={`h-16 w-16 rounded-full text-primary-content transition-colors ${getIconColor(
                   action
@@ -85,8 +85,7 @@ const TaskItem = (props: iTaskProps): JSX.Element => {
             {result !== undefined && <CrossNode model={result} />}
           </div>
           <textarea
-            // value={props.task.notes ?? ""}
-            className='textarea-accent textarea ml-16 h-32 w-32 justify-self-end'
+            className='textarea-accent textarea h-32 w-32 resize-none'
             value={props.task.notes}
             onChange={(e) => {
               props.task.notes = e.target.value;
@@ -125,7 +124,7 @@ export const TaskView = (props: iTaskViewProps): JSX.Element => {
     ([date1], [date2]) => (moment(date1).isAfter(moment(date2)) ? 1 : -1)
   );
   return (
-    <div className='pt-4'>
+    <>
       {sections.map(([date, section]) => (
         <div key={date}>
           <div className='collapse-arrow collapse'>
@@ -154,6 +153,6 @@ export const TaskView = (props: iTaskViewProps): JSX.Element => {
           <div className='divider' />
         </div>
       ))}
-    </div>
+    </>
   );
 };
