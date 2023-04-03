@@ -27,7 +27,7 @@ import {
   Position,
 } from 'reactflow';
 import { insertTree, updateTree } from 'api/crossTree';
-import { Strain } from 'models/frontend/Strain/Strain';
+import { Strain, StrainOption } from 'models/frontend/Strain/Strain';
 import { Sex } from 'models/enums';
 import { FiPlusCircle as AddIcon } from 'react-icons/fi';
 import { FaRegStickyNote as NoteIcon } from 'react-icons/fa';
@@ -171,7 +171,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   }, []);
 
   /** Called after onConnect or after dragging an edge */
-  const onConnectEnd = useCallback((_: MouseEvent | TouchEvent) => {
+  const onConnectEnd = useCallback(() => {
     const params = onConnectParams.current;
     if (params === null || params === undefined) return;
     if (params.handleType === 'target') return;
@@ -194,7 +194,14 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       }
 
       if (params.handleId === Position.Bottom) {
-        selfCross(nodeId);
+        const refNode = nodeMap.get(nodeId);
+        if (refNode === undefined || refNode.type !== FlowType.Strain) {
+          console.error(
+            'uh oh - you tried to self cross a node that is undefined/not a strain'
+          );
+        } else {
+          selfCross(refNode);
+        }
       } else {
         currNodeId.current = nodeId;
         setDrawerState('cross');
@@ -602,119 +609,42 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     saveTree();
   };
 
-  /** */
-  const selfCross = (refNodeId: string): void => {
-    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
-      const refNode = nodeMap.get(refNodeId);
-      if (refNode === undefined || refNode.type !== FlowType.Strain) {
-        console.error(
-          'uh oh - you tried to self cross a node that is undefined/not a strain'
-        );
-        return nodeMap;
-      }
+  const selfCross = (parentNode: Node): void => {
+    // Mark as parent
+    parentNode.data = copyNodeData(parentNode, { isParent: true });
 
-      const selfIcon = createSelfIcon(refNode.id);
-      const edgeToIcon = createEdge(refNode.id, selfIcon.id, {
-        sourceHandle: 'bottom',
-      });
+    // Create nodes and edges
+    const selfNode = createSelfIcon(parentNode.id);
+    loadIconWithData(selfNode);
+    const edgeToIcon = createEdge(parentNode.id, selfNode.id, {
+      sourceHandle: 'bottom',
+    });
+    const parentStrain = parentNode.data;
+    const childStrains = parentStrain.strain.selfCross();
+    const childNodes = getChildNodes(parentNode, selfNode, childStrains);
+    const childEdges = childNodes.map((node) =>
+      createEdge(selfNode.id, node.id)
+    );
 
-      const currStrain: CrossNodeModel = refNode.data;
-      const children = currStrain.strain.selfCross();
-      children.sort((c1, c2) => c1.prob - c2.prob);
-
-      const childPositions = CrossTree.calculateChildPositions(
-        selfIcon,
-        refNode,
-        children // Includes filteredOut node
+    // Update state
+    setNodeMap((nodeMap) => {
+      [parentNode, selfNode, ...childNodes].forEach((node) =>
+        nodeMap.set(node.id, node)
       );
-
-      const childNodes: Node[] = children.map((child, i) => {
-        return createStrainNode({
-          sex: Sex.Hermaphrodite,
-          strain: child.strain,
-          position: childPositions[i],
-          isParent: false,
-          isChild: true,
-          parentNode: selfIcon.id,
-          probability: child.prob,
-        });
-      });
-      const filteredOutNode = createFilteredOutNode(
-        { x: childPositions[0].x - 128 - 10, y: childPositions[0].y }, // subtract width and padding from x
-        selfIcon.id
-      );
-      invisibleNodes.add(filteredOutNode.id);
-      childNodes.unshift(filteredOutNode);
-      loadIconWithData(selfIcon);
-
-      refNode.data = copyNodeData(refNode, { isParent: true });
-
-      // update state
-      [selfIcon, refNode, ...childNodes].forEach((node) => {
-        nodeMap.set(node.id, node);
-      });
-      const childEdges = childNodes.map((node) =>
-        createEdge(selfIcon.id, node.id)
-      );
-      setEdges((edges) => [...edges, edgeToIcon, ...childEdges]);
-      saveTree();
       return new Map(nodeMap);
     });
+    setEdges((edges) => [...edges, edgeToIcon, ...childEdges]);
+
+    saveTree();
   };
 
   const regularCross = (
     lNode: Node<CrossNodeModel>,
     rNode: Node<CrossNodeModel>
   ): void => {
-    // mark as parents
+    // Mark as parents
     lNode.data = copyNodeData(lNode, { isParent: true });
     rNode.data = copyNodeData(rNode, { isParent: true });
-
-    const xIcon = createXIcon(lNode);
-    const lStrain = lNode.data;
-    const rStrain: CrossNodeModel = rNode.data;
-
-    const e1 = createEdge(lNode.id, xIcon.id, {
-      targetHandle: lStrain.sex === Sex.Male ? 'left' : 'right',
-      sourceHandle: lStrain.sex !== Sex.Male ? 'left' : 'right',
-    });
-
-    const e2 = createEdge(rNode.id, xIcon.id, {
-      targetHandle: rStrain.sex === Sex.Male ? 'left' : 'right',
-      sourceHandle: rStrain.sex !== Sex.Male ? 'left' : 'right',
-    });
-
-    const children = lStrain.strain.crossWith(rStrain.strain);
-    children.sort((c1, c2) => c1.prob - c2.prob);
-
-    const childPositions = CrossTree.calculateChildPositions(
-      xIcon,
-      lNode,
-      children
-    );
-
-    const childNodes: Node[] = children.map((child, i) => {
-      return createStrainNode({
-        sex: Sex.Hermaphrodite,
-        strain: child.strain,
-        position: childPositions[i],
-        isParent: false,
-        isChild: true,
-        probability: child.prob,
-        parentNode: xIcon.id,
-      });
-    });
-    const filteredOutNode = createFilteredOutNode(
-      { x: childPositions[0].x - 128 - 10, y: childPositions[0].y }, // subtract width and padding from x
-      xIcon.id
-    );
-    invisibleNodes.add(filteredOutNode.id);
-    childNodes.unshift(filteredOutNode);
-    loadIconWithData(xIcon);
-
-    const childrenEdges = childNodes.map((node) =>
-      createEdge(xIcon.id, node.id)
-    );
 
     // Update positioning of one of the parent strains
     const lControlsR = rNode.parentNode === undefined;
@@ -726,14 +656,76 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       lNode.position = CrossTree.getCrossStrainPos(rNode.data.sex);
     }
 
-    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
-      [lNode, rNode, xIcon, ...childNodes].forEach((node) =>
+    // Create new nodes and edges
+    const xNode = createXIcon(lNode);
+    loadIconWithData(xNode);
+    const lStrain = lNode.data;
+    const rStrain = rNode.data;
+    const e1 = createEdge(lNode.id, xNode.id, {
+      targetHandle: lStrain.sex === Sex.Male ? 'left' : 'right',
+      sourceHandle: lStrain.sex !== Sex.Male ? 'left' : 'right',
+    });
+    const e2 = createEdge(rNode.id, xNode.id, {
+      targetHandle: rStrain.sex === Sex.Male ? 'left' : 'right',
+      sourceHandle: rStrain.sex !== Sex.Male ? 'left' : 'right',
+    });
+    const children = lStrain.strain.crossWith(rStrain.strain);
+    const childNodes = getChildNodes(lNode, xNode, children);
+    const childEdges = childNodes.map((node) => createEdge(xNode.id, node.id));
+
+    // Update state
+    setNodeMap((nodeMap) => {
+      [lNode, rNode, xNode, ...childNodes].forEach((node) =>
         nodeMap.set(node.id, node)
       );
       return new Map(nodeMap);
     });
-    setEdges((edges) => [...edges, e1, e2, ...childrenEdges]);
+    setEdges((edges) => [...edges, e1, e2, ...childEdges]);
+
     saveTree();
+  };
+
+  /** Create a collection of cross nodes to represent children of a cross, from child strain options */
+  const getChildNodes = (
+    parentNode: Node,
+    middleNode: Node,
+    children: StrainOption[]
+  ): Node[] => {
+    children.sort((c1, c2) => c1.prob - c2.prob);
+
+    const childPositions = CrossTree.calculateChildPositions(
+      middleNode,
+      parentNode,
+      children
+    );
+
+    const childNodes: Node[] = children.map((child, i) => {
+      return createStrainNode({
+        sex: Sex.Hermaphrodite,
+        strain: child.strain,
+        position: childPositions[i],
+        isParent: false,
+        isChild: true,
+        probability: child.prob,
+        parentNode: middleNode.id,
+      });
+    });
+
+    if (childNodes.length > 0) {
+      const nodeWidth = 128;
+      const padding = 10;
+      const filteredOutNode = createFilteredOutNode(
+        {
+          x: childPositions[0].x - nodeWidth - padding,
+          y: childPositions[0].y,
+        },
+        middleNode.id
+      );
+      invisibleNodes.add(filteredOutNode.id);
+      childNodes.unshift(filteredOutNode);
+    }
+
+    return childNodes;
   };
 
   /**
@@ -794,9 +786,12 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     const canSelfCross = crossNode.sex === Sex.Hermaphrodite;
     const selfOption: MenuItem = {
       icon: <SelfCrossIcon />,
-      text: 'Self cross',
+      text: 'Self-cross',
       menuCallback: () => {
-        selfCross(nodeId);
+        const node = nodeMap.get(nodeId);
+        if (node !== undefined) {
+          selfCross(node);
+        }
       },
     };
     const crossOption: MenuItem = {
