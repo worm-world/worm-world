@@ -92,7 +92,7 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
             )}
           </div>
 
-          <div className='mt-2 overflow-x-auto px-3 pb-1'>
+          <div className='mt-2 overflow-x-auto px-3 pb-5'>
             <div
               className='flex min-w-min justify-center text-sm'
               data-testid='crossNodeBody'
