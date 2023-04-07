@@ -1,4 +1,3 @@
-import { WildAllele, WILD_ALLELE } from 'models/frontend/Allele/Allele';
 import {
   cn64,
   e204,
@@ -46,10 +45,10 @@ describe('strain', () => {
   });
   test('.equals() returns true for strains with heterozygous pairs', () => {
     const pairs1: AllelePair[] = [
-      new AllelePair({ top: e204, bot: WILD_ALLELE }),
+      new AllelePair({ top: e204, bot: e204.getWildCopy() }),
     ];
     const pairs2: AllelePair[] = [
-      new AllelePair({ top: WILD_ALLELE, bot: e204 }),
+      new AllelePair({ top: e204.getWildCopy(), bot: e204 }),
     ];
     const strain1 = new Strain({ allelePairs: pairs1 });
     const strain2 = new Strain({ allelePairs: pairs2 });
@@ -61,15 +60,15 @@ describe('strain', () => {
     const strainPairs1: AllelePair[] = [
       // Chromosome I
       new AllelePair({ top: oxTi302, bot: oxTi302 }),
-      new AllelePair({ top: WILD_ALLELE, bot: jsSi1949 }),
+      new AllelePair({ top: jsSi1949.getWildCopy(), bot: jsSi1949 }),
       // Chromosome II
       new AllelePair({ top: oxTi75, bot: oxTi75 }),
-      new AllelePair({ top: WILD_ALLELE, bot: cn64 }),
-      new AllelePair({ top: WILD_ALLELE, bot: oxSi1168 }),
+      new AllelePair({ top: cn64.getWildCopy(), bot: cn64 }),
+      new AllelePair({ top: oxSi1168.getWildCopy(), bot: oxSi1168 }),
       // Chromosome III
-      new AllelePair({ top: ox802, bot: WILD_ALLELE }),
+      new AllelePair({ top: ox802, bot: ox802.getWildCopy() }),
       new AllelePair({ top: ox11000, bot: ox11000 }),
-      new AllelePair({ top: e873, bot: WILD_ALLELE }),
+      new AllelePair({ top: e873, bot: e873.getWildCopy() }),
       new AllelePair({ top: ed3, bot: ed3 }),
     ];
 
@@ -83,29 +82,29 @@ describe('strain', () => {
     const strainPairs1: AllelePair[] = [
       // Chromosome I
       new AllelePair({ top: oxTi302, bot: oxTi302 }),
-      new AllelePair({ top: WILD_ALLELE, bot: jsSi1949 }),
+      new AllelePair({ top: jsSi1949.getWildCopy(), bot: jsSi1949 }),
       // Chromosome II
       new AllelePair({ top: oxTi75, bot: oxTi75 }),
-      new AllelePair({ top: WILD_ALLELE, bot: cn64 }),
-      new AllelePair({ top: WILD_ALLELE, bot: oxSi1168 }),
+      new AllelePair({ top: cn64.getWildCopy(), bot: cn64 }),
+      new AllelePair({ top: oxSi1168.getWildCopy(), bot: oxSi1168 }),
       // Chromosome III
-      new AllelePair({ top: ox802, bot: WILD_ALLELE }),
+      new AllelePair({ top: ox802, bot: ox802.getWildCopy() }),
       new AllelePair({ top: ox11000, bot: ox11000 }),
-      new AllelePair({ top: e873, bot: WILD_ALLELE }),
+      new AllelePair({ top: e873, bot: e873.getWildCopy() }),
       new AllelePair({ top: ed3, bot: ed3 }),
     ];
     const strainPairs2: AllelePair[] = [
       // Chromosome I
       new AllelePair({ top: oxTi302, bot: oxTi302 }),
-      new AllelePair({ top: jsSi1949, bot: WILD_ALLELE }), // note the flip here
+      new AllelePair({ top: jsSi1949, bot: jsSi1949.getWildCopy() }), // note the flip here
       // Chromosome II
       new AllelePair({ top: oxTi75, bot: oxTi75 }),
-      new AllelePair({ top: cn64, bot: WILD_ALLELE }),
-      new AllelePair({ top: oxSi1168, bot: WILD_ALLELE }),
+      new AllelePair({ top: cn64, bot: cn64.getWildCopy() }),
+      new AllelePair({ top: oxSi1168, bot: oxSi1168.getWildCopy() }),
       // Chromosome III
-      new AllelePair({ top: WILD_ALLELE, bot: ox802 }),
+      new AllelePair({ top: ox802.getWildCopy(), bot: ox802 }),
       new AllelePair({ top: ox11000, bot: ox11000 }),
-      new AllelePair({ top: WILD_ALLELE, bot: e873 }),
+      new AllelePair({ top: e873.getWildCopy(), bot: e873 }),
       new AllelePair({ top: ed3, bot: ed3 }),
     ];
 
@@ -132,20 +131,20 @@ describe('strain', () => {
     const strainPairs1: AllelePair[] = [
       // Chromosome I
       new AllelePair({ top: oxTi302, bot: oxTi302 }),
-      new AllelePair({ top: WILD_ALLELE, bot: jsSi1949 }),
+      new AllelePair({ top: jsSi1949.getWildCopy(), bot: jsSi1949 }),
       // Chromosome II
       new AllelePair({ top: oxTi75, bot: oxTi75 }),
-      new AllelePair({ top: WILD_ALLELE, bot: cn64 }),
-      new AllelePair({ top: WILD_ALLELE, bot: oxSi1168 }),
+      new AllelePair({ top: cn64.getWildCopy(), bot: cn64 }),
+      new AllelePair({ top: oxSi1168.getWildCopy(), bot: oxSi1168 }),
     ];
     const strainPairs2: AllelePair[] = [
       // Chromosome I
       new AllelePair({ top: oxTi302, bot: oxTi302 }),
-      new AllelePair({ top: WILD_ALLELE, bot: jsSi1949 }),
+      new AllelePair({ top: jsSi1949.getWildCopy(), bot: jsSi1949 }),
       // Chromosome II
       new AllelePair({ top: oxTi75, bot: oxTi75 }),
-      new AllelePair({ top: cn64, bot: WILD_ALLELE }), // flipped this pair, without flipping the next pair
-      new AllelePair({ top: WILD_ALLELE, bot: oxSi1168 }),
+      new AllelePair({ top: cn64, bot: cn64.getWildCopy() }), // flipped this pair, without flipping the next pair
+      new AllelePair({ top: oxSi1168.getWildCopy(), bot: oxSi1168 }),
     ];
 
     const strain1 = new Strain({ allelePairs: strainPairs1 });
@@ -169,15 +168,15 @@ describe('strain', () => {
     const pairs: AllelePair[] = [
       // Chromosome I
       new AllelePair({ top: oxTi302, bot: oxTi302 }),
-      new AllelePair({ top: WILD_ALLELE, bot: jsSi1949 }),
+      new AllelePair({ top: jsSi1949.getWildCopy(), bot: jsSi1949 }),
       // Chromosome II
       new AllelePair({ top: oxTi75, bot: oxTi75 }),
-      new AllelePair({ top: WILD_ALLELE, bot: cn64 }),
-      new AllelePair({ top: WILD_ALLELE, bot: oxSi1168 }),
+      new AllelePair({ top: cn64.getWildCopy(), bot: cn64 }),
+      new AllelePair({ top: oxSi1168.getWildCopy(), bot: oxSi1168 }),
       // Chromosome III
-      new AllelePair({ top: ox802, bot: WILD_ALLELE }),
+      new AllelePair({ top: ox802, bot: ox802.getWildCopy() }),
       new AllelePair({ top: ox11000, bot: ox11000 }),
-      new AllelePair({ top: e873, bot: WILD_ALLELE }),
+      new AllelePair({ top: e873, bot: e873.getWildCopy() }),
       new AllelePair({ top: ed3, bot: ed3 }),
     ];
     const strain = new Strain({ allelePairs: pairs });
@@ -189,7 +188,7 @@ describe('strain', () => {
 
   test('prepWithWilds() fills nothing when appropriate', () => {
     const before = new Strain({
-      allelePairs: [new AllelePair({ top: ed3, bot: WILD_ALLELE })],
+      allelePairs: [new AllelePair({ top: ed3, bot: ed3.getWildCopy() })],
     });
 
     const after = before.clone();
@@ -200,19 +199,19 @@ describe('strain', () => {
 
   test('prepWithWilds() fills gaps', () => {
     const strain1 = new Strain({
-      allelePairs: [new AllelePair({ top: ed3, bot: WILD_ALLELE })],
+      allelePairs: [new AllelePair({ top: ed3, bot: ed3.getWildCopy() })],
     });
 
     const strain2 = new Strain({
-      allelePairs: [new AllelePair({ top: md299, bot: WILD_ALLELE })],
+      allelePairs: [new AllelePair({ top: md299, bot: md299.getWildCopy() })],
     });
 
     strain1.prepWithWilds(strain2);
 
     const expected = new Strain({
       allelePairs: [
-        new AllelePair({ top: ed3, bot: WILD_ALLELE }),
-        new AllelePair({ top: new WildAllele(md299), bot: WILD_ALLELE }),
+        new AllelePair({ top: ed3, bot: ed3.getWildCopy() }),
+        new AllelePair({ top: md299.getWildCopy(), bot: md299.getWildCopy() }),
       ],
     });
 
@@ -246,7 +245,7 @@ describe('cross algorithm', () => {
   test('cross between homozygous and wild strain', () => {
     const homoPairs: AllelePair[] = [new AllelePair({ top: e204, bot: e204 })];
     const wildPairs: AllelePair[] = [
-      new AllelePair({ top: new WildAllele(e204), bot: new WildAllele(e204) }),
+      new AllelePair({ top: e204.getWildCopy(), bot: e204.getWildCopy() }),
     ];
 
     const homoStrain = new Strain({ allelePairs: homoPairs });
@@ -257,7 +256,7 @@ describe('cross algorithm', () => {
 
   test('cross of homozygous and heterozygous strains', () => {
     const hetPairs: AllelePair[] = [
-      new AllelePair({ top: e204, bot: WILD_ALLELE }),
+      new AllelePair({ top: e204, bot: e204.getWildCopy() }),
     ];
     const homoPairs: AllelePair[] = [
       new AllelePair({ top: ox802, bot: ox802 }),
@@ -280,7 +279,7 @@ describe('cross algorithm', () => {
 
   test('self cross of heterozygous pair returns correct strains', () => {
     const allelePairs: AllelePair[] = [
-      new AllelePair({ top: e204, bot: WILD_ALLELE }),
+      new AllelePair({ top: e204, bot: e204.getWildCopy() }),
     ];
     const strain = new Strain({ allelePairs });
     const crossStrains = strain.selfCross();
@@ -290,7 +289,7 @@ describe('cross algorithm', () => {
   test('self cross of chromosome with homozygous and heterozygous pairs', () => {
     const allelePairs: AllelePair[] = [
       new AllelePair({ top: e204, bot: e204 }),
-      new AllelePair({ top: WILD_ALLELE, bot: ox802 }),
+      new AllelePair({ top: ox802.getWildCopy(), bot: ox802 }),
     ];
     const strain = new Strain({ allelePairs });
     const crossStrains = strain.selfCross();
@@ -299,8 +298,8 @@ describe('cross algorithm', () => {
 
   test('intermediate self cross on single chromosome', () => {
     const allelePairs: AllelePair[] = [
-      new AllelePair({ top: e204, bot: WILD_ALLELE }),
-      new AllelePair({ top: WILD_ALLELE, bot: ox802 }),
+      new AllelePair({ top: e204, bot: e204.getWildCopy() }),
+      new AllelePair({ top: ox802.getWildCopy(), bot: ox802 }),
     ];
 
     const strain = new Strain({ allelePairs });
@@ -310,8 +309,8 @@ describe('cross algorithm', () => {
 
   test('simple self cross of het alleles on different chromosomes', () => {
     const allelePairs: AllelePair[] = [
-      new AllelePair({ top: ed3, bot: new WildAllele(ed3) }), // chrom III
-      new AllelePair({ top: md299, bot: new WildAllele(md299) }), // chrom X
+      new AllelePair({ top: ed3, bot: ed3.getWildCopy() }), // chrom III
+      new AllelePair({ top: md299, bot: md299.getWildCopy() }), // chrom X
     ];
     const strain = new Strain({ allelePairs });
     const crossStrains = strain.selfCross();
@@ -321,13 +320,13 @@ describe('cross algorithm', () => {
   test('advanced self-cross on multiple chromosomes', () => {
     const allelePairs: AllelePair[] = [
       // chrom II
-      new AllelePair({ top: cn64, bot: WILD_ALLELE }),
-      new AllelePair({ top: oxTi75, bot: WILD_ALLELE }),
+      new AllelePair({ top: cn64, bot: cn64.getWildCopy() }),
+      new AllelePair({ top: oxTi75, bot: oxTi75.getWildCopy() }),
       // chrom III
-      new AllelePair({ top: ed3, bot: WILD_ALLELE }),
+      new AllelePair({ top: ed3, bot: ed3.getWildCopy() }),
       // chrom IV
       new AllelePair({ top: e53, bot: e53 }),
-      new AllelePair({ top: e204, bot: WILD_ALLELE }),
+      new AllelePair({ top: e204, bot: e204.getWildCopy() }),
     ];
     const strain = new Strain({ allelePairs });
     const crossStrains = strain.selfCross();
@@ -347,17 +346,17 @@ describe('cross algorithm', () => {
   test('cross on multiple chromosomes', () => {
     const allelePairs1: AllelePair[] = [
       // chrom II
-      new AllelePair({ top: oxTi75, bot: new WildAllele(oxTi75) }),
-      new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+      new AllelePair({ top: oxTi75, bot: oxTi75.getWildCopy() }),
+      new AllelePair({ top: cn64, bot: cn64.getWildCopy() }),
       // chrom IV
-      new AllelePair({ top: ox802, bot: new WildAllele(ox802) }),
+      new AllelePair({ top: ox802, bot: ox802.getWildCopy() }),
     ];
     const allelePairs2: AllelePair[] = [
       // chrom III
       new AllelePair({ top: ox11000, bot: ox11000 }),
       // chrom IV
       new AllelePair({ top: e53, bot: e53 }),
-      new AllelePair({ top: e204, bot: new WildAllele(e204) }),
+      new AllelePair({ top: e204, bot: e204.getWildCopy() }),
     ];
     const strain1 = new Strain({ allelePairs: allelePairs1 });
     const strain2 = new Strain({ allelePairs: allelePairs2 });
@@ -370,19 +369,19 @@ describe('cross algorithm', () => {
     const allelePairs1: AllelePair[] = [
       new AllelePair({
         top: oxEx2254,
-        bot: new WildAllele(oxEx2254),
+        bot: oxEx2254.getWildCopy(),
         isECA: true,
       }),
       new AllelePair({
         top: oxEx219999,
-        bot: new WildAllele(oxEx219999),
+        bot: oxEx219999.getWildCopy(),
         isECA: true,
       }),
     ];
     const allelePairs2: AllelePair[] = [
       new AllelePair({
         top: oxEx2254,
-        bot: new WildAllele(oxEx2254),
+        bot: oxEx2254.getWildCopy(),
         isECA: true,
       }),
     ];
@@ -396,10 +395,10 @@ describe('cross algorithm', () => {
   it('should be able to serialize and deserialize', () => {
     const allelePairs1: AllelePair[] = [
       // chrom II
-      new AllelePair({ top: oxTi75, bot: new WildAllele(oxTi75) }),
-      new AllelePair({ top: cn64, bot: new WildAllele(cn64) }),
+      new AllelePair({ top: oxTi75, bot: oxTi75.getWildCopy() }),
+      new AllelePair({ top: cn64, bot: cn64.getWildCopy() }),
       // chrom IV
-      new AllelePair({ top: ox802, bot: new WildAllele(ox802) }),
+      new AllelePair({ top: ox802, bot: ox802.getWildCopy() }),
     ];
     const strain1 = new Strain({ allelePairs: allelePairs1 });
     const str = strain1.toJSON();

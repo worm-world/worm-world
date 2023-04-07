@@ -10,6 +10,8 @@ import { AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpress
 import { Gene } from 'models/frontend/Gene/Gene';
 import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
 
+export const WILD_ALLELE_NAME = '+';
+
 interface IAllele {
   name: string;
   sysGeneName?: string;
@@ -147,8 +149,16 @@ export class Allele {
     return this.gene?.geneticLoc ?? this.variation?.geneticLoc;
   }
 
+  public getWildCopy(): Allele {
+    return new Allele({
+      name: WILD_ALLELE_NAME,
+      variation: this.variation,
+      gene: this.gene,
+    });
+  }
+
   public isWild(): boolean {
-    return this.name === '+';
+    return this.name === WILD_ALLELE_NAME;
   }
 
   public toJSON(): string {
@@ -164,21 +174,3 @@ export function isEcaAlleleName(name: string): boolean {
   const ecaRegex = /^[a-z]{1,3}Ex/;
   return ecaRegex.test(name);
 }
-
-export class WildAllele extends Allele {
-  constructor(refAllele?: Allele) {
-    let variation: VariationInfo | undefined;
-    if (refAllele !== undefined) {
-      variation = new VariationInfo({
-        name: '+',
-        chromosome: refAllele.getChromosome(),
-        geneticLoc: refAllele.getGenPosition(),
-      });
-    }
-    super({ name: '+', variation });
-  }
-}
-
-export const WILD_ALLELE = new Allele({
-  name: '+',
-});

@@ -2,7 +2,6 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter';
 import { CrossFilterModal } from 'components/CrossFilterModal/CrossFilterModal';
-import { WILD_ALLELE } from 'models/frontend/Allele/Allele';
 import { ed3, n765 } from 'models/frontend/Allele/Allele.mock';
 import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import {
@@ -278,7 +277,7 @@ describe('CrossEditorFilter', () => {
   test('.extractCrossFilterNames() to pull info from strain', () => {
     const strain = new Strain({
       allelePairs: [
-        new AllelePair({ top: n765, bot: WILD_ALLELE }),
+        new AllelePair({ top: n765, bot: n765.getWildCopy() }),
         new AllelePair({ top: ed3, bot: ed3 }),
       ],
     });
@@ -292,12 +291,12 @@ describe('CrossEditorFilter', () => {
 
   test('.condenseCrossFilterNames() pulls info from multiple strains', () => {
     const strain1 = new Strain({
-      allelePairs: [new AllelePair({ top: n765, bot: WILD_ALLELE })],
+      allelePairs: [new AllelePair({ top: n765, bot: n765.getWildCopy() })],
     });
     const strain2 = new Strain({
       allelePairs: [
         new AllelePair({ top: ed3, bot: ed3 }),
-        new AllelePair({ top: n765, bot: WILD_ALLELE }),
+        new AllelePair({ top: n765, bot: n765.getWildCopy() }),
       ],
     });
     const names = CrossEditorFilter.condenseCrossFilterNames([

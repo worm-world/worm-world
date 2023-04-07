@@ -11,8 +11,6 @@ describe('Editor Top', () => {
         tree={
           new CrossTree({
             name: 'My Tree',
-            description: '',
-            settings: { longName: false, contents: false },
             nodes: [],
             edges: [],
             lastSaved: new Date(),
@@ -35,8 +33,6 @@ describe('Editor Top', () => {
         tree={
           new CrossTree({
             name: 'My Tree',
-            description: '',
-            settings: { longName: false, contents: false },
             nodes: [],
             edges: [],
             lastSaved: new Date(),

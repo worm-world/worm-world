@@ -99,7 +99,6 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
                 placeholder='(Untitled)'
               />
             </div>
-            <div className='h-8 min-h-[1.25rem]'>{props.tree.description}</div>
             <div className='flex h-8 w-full justify-between'>
               <span>Last saved:</span>
               <span>{props.tree.lastSaved.toLocaleDateString()}</span>

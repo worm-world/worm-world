@@ -1,9 +1,9 @@
 import { instanceToPlain, plainToInstance, Type } from 'class-transformer';
-import { Allele, WildAllele, WILD_ALLELE } from 'models/frontend/Allele/Allele';
+import { Allele } from 'models/frontend/Allele/Allele';
 
 export interface iAllelePair {
   top: Allele;
-  bot?: Allele;
+  bot: Allele;
   isECA?: boolean;
 }
 export class AllelePair implements iAllelePair {
@@ -15,29 +15,25 @@ export class AllelePair implements iAllelePair {
 
   public isECA: boolean;
 
-  constructor(props: iAllelePair) {
-    if (props === null || props === undefined) {
-      this.top = WILD_ALLELE;
-      this.bot = WILD_ALLELE;
+  constructor(args: iAllelePair) {
+    if (args === undefined) {
+      // Temporary case during deserialization
+      this.top = undefined as any;
+      this.bot = undefined as any;
       this.isECA = false;
     } else {
-      const { top, bot = top, isECA = false } = props;
-      const topIsWild = top.name === WILD_ALLELE.name;
-      const botIsWild = bot.name === WILD_ALLELE.name;
-
-      // assign wild alleles to a real allele (for genetic/chrom locations)
-      this.top = topIsWild ? new WildAllele(bot) : top;
-      this.bot = botIsWild ? new WildAllele(top) : bot;
-      this.isECA = isECA;
+      this.top = args.top;
+      this.bot = args.bot;
+      this.isECA = args.isECA ?? false;
     }
   }
 
   /**
-   * Attempt to get distinguishing (non-wild) allele from the pair
+   * Attempt to get distinguishing (non-wild) allele from the pair.
    * If both alleles are wild, returns wild allele
    */
   public getAllele(): Allele {
-    return this.top.name === WILD_ALLELE.name ? this.bot : this.top;
+    return this.top.isWild() ? this.bot : this.top;
   }
 
   /**
@@ -59,14 +55,18 @@ export class AllelePair implements iAllelePair {
     );
   }
 
-  /**
-   * Checks if the other pair has the same base allele as this pair
-   *
-   * "base allele" is the defining allele in a homo / heterozygous pair
-   * @param other Other pair to compare against
-   */
-  public hasSameBaseAllele(other: AllelePair): boolean {
-    return other.getAllele().name === this.getAllele().name;
+  /** Checks if two allele pairs are on the same "variation" or the same gene. */
+  public isOfSameGeneOrVariation(other: AllelePair): boolean {
+    const thisAllele = this.getAllele();
+    const otherAllele = other.getAllele();
+    if (thisAllele.gene !== undefined && otherAllele.gene !== undefined) {
+      return thisAllele.gene.sysName === otherAllele.gene.sysName;
+    } else if (
+      thisAllele.variation !== undefined &&
+      otherAllele.variation !== undefined
+    ) {
+      return thisAllele.variation.name === otherAllele.variation.name;
+    } else return false;
   }
 
   /**
@@ -88,7 +88,7 @@ export class AllelePair implements iAllelePair {
    * Checks if this pair is only made up of wild alleles
    */
   public isWild(): boolean {
-    return this.getAllele().name === WILD_ALLELE.name;
+    return this.getAllele().isWild();
   }
 
   /** Returns true if pair is homozygous (false for heterozygous) */

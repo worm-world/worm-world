@@ -5,12 +5,7 @@ import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 
 export const emptyCrossTree = new CrossTree({
-  description: 'New',
   name: 'Empty cross tree',
-  settings: {
-    longName: false,
-    contents: false,
-  },
   nodes: [],
   edges: [],
   invisibleNodes: new Set(),
@@ -80,12 +75,7 @@ export const edgeChild: Edge = {
 };
 
 export const simpleCrossTree = new CrossTree({
-  description: 'Cross two ed3 heterozygous',
   name: 'ed3 Cross',
-  settings: {
-    longName: false,
-    contents: false,
-  },
   nodes: [ed3HeteroHerm, ed3HeteroMale, ed3HomoHerm, xNode],
   edges: [edgeMale, edgeFemale, edgeChild],
   lastSaved: new Date(),
@@ -232,12 +222,7 @@ export const edges: Edge[] = [
 ];
 
 export const mediumCrossTree = new CrossTree({
-  description: 'Derive the unc-33(-) strain',
   name: 'Make unc-33(-)',
-  settings: {
-    longName: false,
-    contents: false,
-  },
   nodes: [
     node0,
     node1,
