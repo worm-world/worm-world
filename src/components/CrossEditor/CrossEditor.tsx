@@ -460,7 +460,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     saveTree();
   };
 
-  /** Show the filterOut node child of nodeId iff any strain children of nodeId are hidden */
+  /** Show the filterOut node child of nodeId if any strain children of nodeId are hidden */
   const updateFilterOutNodeVisibility = (nodeId: string): void => {
     const filterOutNode = [...nodeMap.values()]
       .filter(

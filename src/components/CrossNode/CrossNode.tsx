@@ -34,7 +34,6 @@ const getSexIcon = (
 
 export interface iCrossNodeProps {
   model: CrossNodeModel;
-  disableMenu?: boolean;
 }
 
 const CrossNode = (props: iCrossNodeProps): JSX.Element => {
@@ -84,7 +83,6 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
             {props.model.getMenuItems !== undefined && (
               <Menu
                 title='Actions'
-                disabled={props.disableMenu}
                 top={true}
                 icon={<MenuIcon />}
                 items={menuItems}
