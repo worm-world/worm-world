@@ -5,7 +5,7 @@ import {
   iCrossNodeModel,
 } from 'models/frontend/CrossNode/CrossNode';
 import * as mockAlleles from 'models/frontend/Allele/Allele.mock';
-import { Allele, WILD_ALLELE, WildAllele } from '../Allele/Allele';
+import { Allele } from '../Allele/Allele';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { MenuItem } from 'components/Menu/Menu';
 import { ImLoop2 as SelfCrossIcon } from 'react-icons/im';
@@ -75,12 +75,25 @@ export const wild = new CrossNodeModel({
     name: 'wild',
     notes: '',
     allelePairs: [
-      new AllelePair({ top: new WildAllele(mockAlleles.oxTi302) }), // chrom i
-      new AllelePair({ top: new WildAllele(mockAlleles.ed3) }), // chrom iii
-      new AllelePair({ top: new WildAllele(mockAlleles.e1282) }), // chrom iv
-      new AllelePair({ top: new WildAllele(mockAlleles.e53) }), // chrom iv
       new AllelePair({
-        top: new WildAllele(mockAlleles.chromExVariation1Allele1),
+        top: mockAlleles.oxTi302.getWildCopy(),
+        bot: mockAlleles.oxTi302.getWildCopy(),
+      }), // chrom i
+      new AllelePair({
+        top: mockAlleles.ed3.getWildCopy(),
+        bot: mockAlleles.ed3.getWildCopy(),
+      }), // chrom iii
+      new AllelePair({
+        top: mockAlleles.e1282.getWildCopy(),
+        bot: mockAlleles.e1282.getWildCopy(),
+      }), // chrom iv
+      new AllelePair({
+        top: mockAlleles.e53.getWildCopy(),
+        bot: mockAlleles.e53.getWildCopy(),
+      }), // chrom iv
+      new AllelePair({
+        top: mockAlleles.chromExVariation1Allele1.getWildCopy(),
+        bot: mockAlleles.chromExVariation1Allele1.getWildCopy(),
         isECA: true,
       }), // eca
     ],
@@ -206,6 +219,7 @@ export const monoid = new CrossNodeModel({
     allelePairs: [
       new AllelePair({
         top: mockAlleles.chromExVariation1Allele1,
+        bot: mockAlleles.chromExVariation1Allele1,
         isECA: true,
       }), // one copy
     ],
@@ -240,7 +254,7 @@ export const ed3HetMale = new CrossNodeModel({
     allelePairs: [
       new AllelePair({
         top: mockAlleles.ed3,
-        bot: WILD_ALLELE,
+        bot: mockAlleles.ed3.getWildCopy(),
       }),
     ],
     notes: '',
@@ -257,7 +271,7 @@ export const ed3HetHerm = new CrossNodeModel({
     allelePairs: [
       new AllelePair({
         top: mockAlleles.ed3,
-        bot: WILD_ALLELE,
+        bot: mockAlleles.ed3.getWildCopy(),
       }),
     ],
     notes: '',
@@ -289,7 +303,8 @@ export const e204WildMale = new CrossNodeModel({
     name: 'e204Wild',
     allelePairs: [
       new AllelePair({
-        top: new WildAllele(mockAlleles.e204),
+        top: mockAlleles.e204.getWildCopy(),
+        bot: mockAlleles.e204.getWildCopy(),
       }),
     ],
     notes: '',
@@ -323,7 +338,7 @@ export const e204HetMale = new CrossNodeModel({
     allelePairs: [
       new AllelePair({
         top: mockAlleles.e204,
-        bot: WILD_ALLELE,
+        bot: mockAlleles.e204.getWildCopy(),
       }),
     ],
     notes: '',
@@ -357,10 +372,10 @@ export const e204HetOx802Het = new CrossNodeModel({
     allelePairs: [
       new AllelePair({
         top: mockAlleles.e204,
-        bot: WILD_ALLELE,
+        bot: mockAlleles.e204.getWildCopy(),
       }),
       new AllelePair({
-        top: WILD_ALLELE,
+        top: mockAlleles.ox802.getWildCopy(),
         bot: mockAlleles.ox802,
       }),
     ],
@@ -381,7 +396,7 @@ export const e204HomoOx802HetHerm = new CrossNodeModel({
         bot: mockAlleles.e204,
       }),
       new AllelePair({
-        top: WILD_ALLELE,
+        top: mockAlleles.ox802.getWildCopy(),
         bot: mockAlleles.ox802,
       }),
     ],
@@ -433,17 +448,17 @@ export const ecaCrossNode = new CrossNodeModel({
     allelePairs: [
       new AllelePair({
         top: mockAlleles.oxEx12345,
-        bot: WILD_ALLELE,
+        bot: mockAlleles.oxEx12345.getWildCopy(),
         isECA: true,
       }),
       new AllelePair({
         top: mockAlleles.oxEx12345,
-        bot: WILD_ALLELE,
+        bot: mockAlleles.oxEx12345.getWildCopy(),
         isECA: true,
       }),
       new AllelePair({
         top: mockAlleles.oxEx2254,
-        bot: WILD_ALLELE,
+        bot: mockAlleles.oxEx2254.getWildCopy(),
         isECA: true,
       }),
     ],

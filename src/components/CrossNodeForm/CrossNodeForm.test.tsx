@@ -67,8 +67,7 @@ describe('Cross node form', () => {
       variationName: null,
     };
 
-    mockIPC((cmd, _) => {
-      // simulated rust command called "add" that just adds two numbers
+    mockIPC((cmd) => {
       if (cmd === 'get_filtered_alleles') {
         return [ed3, inconsistentDbAllele];
       }

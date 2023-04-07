@@ -15,8 +15,6 @@ export const primary = Template.bind({});
 primary.args = {
   tree: new CrossTree({
     name: 'My Tree',
-    description: '',
-    settings: { longName: false, contents: false },
     nodes: [],
     edges: [],
     lastSaved: new Date(),
@@ -34,8 +32,6 @@ export const longTitle = Template.bind({});
 longTitle.args = {
   tree: new CrossTree({
     name: 'My Tree Has a Very Long Name that May Not Fit',
-    description: '',
-    settings: { longName: false, contents: false },
     nodes: [],
     edges: [],
     lastSaved: new Date(),
@@ -53,8 +49,6 @@ export const withoutButton = Template.bind({});
 withoutButton.args = {
   tree: new CrossTree({
     name: 'My Tree',
-    description: '',
-    settings: { longName: false, contents: false },
     nodes: [],
     edges: [],
     lastSaved: new Date(),

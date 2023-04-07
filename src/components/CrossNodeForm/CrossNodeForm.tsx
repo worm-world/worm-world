@@ -1,9 +1,5 @@
 import { useState } from 'react';
-import {
-  WILD_ALLELE,
-  isEcaAlleleName,
-  Allele,
-} from 'models/frontend/Allele/Allele';
+import { isEcaAlleleName, Allele } from 'models/frontend/Allele/Allele';
 import { Sex, sexToString, stringToSex } from 'models/enums';
 import { DynamicMultiSelect } from 'components/DynamicMultiSelect/DynamicMultiSelect';
 import { db_Allele } from 'models/db/db_Allele';
@@ -33,12 +29,16 @@ const CrossNodeForm = (props: CrossNodeFormProps): JSX.Element => {
 
     const hetPairs = Array.from(hetAlleles).map(async (selectedAllele) => {
       const allele = await Allele.createFromRecord(selectedAllele);
-      return new AllelePair({ top: allele, bot: WILD_ALLELE });
+      return new AllelePair({ top: allele, bot: allele.getWildCopy() });
     });
 
     const exPairs = Array.from(exAlleles).map(async (selectedAllele) => {
       const allele = await Allele.createFromRecord(selectedAllele);
-      return new AllelePair({ top: allele, bot: WILD_ALLELE, isECA: true });
+      return new AllelePair({
+        top: allele,
+        bot: allele.getWildCopy(),
+        isECA: true,
+      });
     });
 
     Promise.all(homoPairs.concat(hetPairs).concat(exPairs))

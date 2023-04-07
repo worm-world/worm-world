@@ -19,9 +19,6 @@ describe('SavedTreeCard', () => {
   test('renders', () => {
     render(<MockSavedTreeCard />);
     expect(screen.getByText(mockCrossTree.simpleCrossTree.name)).toBeVisible();
-    expect(
-      screen.getByText(mockCrossTree.simpleCrossTree.description)
-    ).toBeVisible();
   });
 
   test('Has menu', async () => {

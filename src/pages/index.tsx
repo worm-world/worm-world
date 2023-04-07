@@ -119,12 +119,7 @@ const addTree = async (): Promise<void> => {
   try {
     const newTree: CrossTree = new CrossTree({
       name: '',
-      description: '',
       lastSaved: new Date(),
-      settings: {
-        longName: false,
-        contents: false,
-      },
       nodes: [],
       edges: [],
       invisibleNodes: new Set<string>(),

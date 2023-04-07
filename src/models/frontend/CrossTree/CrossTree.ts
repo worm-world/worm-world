@@ -18,13 +18,6 @@ import { Task } from 'models/frontend/Task/Task';
 
 export interface iCrossTree {
   name: string;
-  description: string;
-  settings: {
-    // AKA toggles
-    longName: boolean;
-    contents: boolean;
-  };
-
   nodes: Node[];
   edges: Edge[];
   invisibleNodes: Set<string>;
@@ -44,7 +37,6 @@ export default class CrossTree {
   /** #region class vars / initialization */
   public readonly id: string;
   public name: string;
-  public description: string;
   @Type(() => Date)
   public lastSaved: Date;
 
@@ -72,20 +64,11 @@ export default class CrossTree {
 
   public nodes: Node[];
   public edges: Edge[];
-  public settings: {
-    longName: boolean;
-    contents: boolean;
-  };
 
   constructor(params: iCrossTree) {
     if (params === null || params === undefined) {
       params = {
         name: '',
-        description: '',
-        settings: {
-          longName: false,
-          contents: false,
-        },
         nodes: [],
         edges: [],
         invisibleNodes: new Set(),
@@ -95,9 +78,7 @@ export default class CrossTree {
     }
     this.id = ulid();
     this.name = params.name;
-    this.description = params.description;
     this.lastSaved = params.lastSaved;
-    this.settings = params.settings;
     this.edges = [...params.edges];
     this.nodes = [...params.nodes];
     this.invisibleNodes = new Set(params.invisibleNodes);
@@ -235,11 +216,6 @@ export default class CrossTree {
   public clone(): CrossTree {
     const treeProps: iCrossTree = {
       name: this.name,
-      description: this.description,
-      settings: {
-        longName: false,
-        contents: false,
-      },
       nodes: [...this.nodes],
       invisibleNodes: new Set(this.invisibleNodes),
       crossFilters: new Map(this.crossFilters),

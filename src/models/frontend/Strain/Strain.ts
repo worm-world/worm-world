@@ -1,5 +1,5 @@
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
-import { Allele, WildAllele } from 'models/frontend/Allele/Allele';
+import { Allele } from 'models/frontend/Allele/Allele';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { Transform, instanceToPlain, plainToInstance } from 'class-transformer';
 import { Phenotype } from 'models/frontend/Phenotype/Phenotype';
@@ -125,7 +125,7 @@ export class Strain {
    * @returns Permuted list of all possible strains and their respective probabilities
    */
   public selfCross(): StrainOption[] {
-    return this.crossWith(this.clone());
+    return this.crossWith(this);
   }
 
   /**
@@ -296,11 +296,8 @@ export class Strain {
       }
 
       otherChromPairs.forEach((otherPair) => {
-        const alreadyHasAllele: boolean = chromosomePairs.some(
-          (pair) =>
-            pair.hasSameBaseAllele(otherPair) ||
-            ((otherPair.isWild() || pair.isWild()) &&
-              pair.hasSameGenLoc(otherPair))
+        const alreadyHasAllele = chromosomePairs.some((pair) =>
+          pair.isOfSameGeneOrVariation(otherPair)
         );
 
         // Add wild pair to pair list to match other strain
@@ -322,8 +319,8 @@ export class Strain {
     defaultLeft: boolean
   ): void {
     const wildPair = new AllelePair({
-      top: new WildAllele(otherPair.getAllele()),
-      bot: new WildAllele(otherPair.getAllele()),
+      top: otherPair.getAllele().getWildCopy(),
+      bot: otherPair.getAllele().getWildCopy(),
       isECA: otherPair.isECA,
     });
 
