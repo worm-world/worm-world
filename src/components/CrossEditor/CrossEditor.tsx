@@ -200,7 +200,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
             'uh oh - you tried to self cross a node that is undefined/not a strain'
           );
         } else {
-          selfCross(refNode);
+          selfCross(refNode.id);
         }
       } else {
         currNodeId.current = nodeId;
@@ -609,32 +609,39 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     saveTree();
   };
 
-  const selfCross = (parentNode: Node): void => {
-    // Mark as parent
-    parentNode.data = copyNodeData(parentNode, { isParent: true });
+  const selfCross = (parentNodeId: string): void => {
+    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
+      const parentNode = nodeMap.get(parentNodeId);
+      if (parentNode === undefined || parentNode.type !== FlowType.Strain) {
+        console.error(
+          'uh oh - you tried to self cross a node that is undefined/not a strain'
+        );
+        return nodeMap;
+      }
 
-    // Create nodes and edges
-    const selfNode = createSelfIcon(parentNode.id);
-    loadIconWithData(selfNode);
-    const edgeToIcon = createEdge(parentNode.id, selfNode.id, {
-      sourceHandle: 'bottom',
-    });
-    const parentStrain = parentNode.data;
-    const childStrains = parentStrain.strain.selfCross();
-    const childNodes = getChildNodes(parentNode, selfNode, childStrains);
-    const childEdges = childNodes.map((node) =>
-      createEdge(selfNode.id, node.id)
-    );
+      // Mark as parent
+      parentNode.data = copyNodeData(parentNode, { isParent: true });
 
-    // Update state
-    setNodeMap((nodeMap) => {
+      // Create nodes and edges
+      const selfNode = createSelfIcon(parentNode.id);
+      loadIconWithData(selfNode);
+      const edgeToIcon = createEdge(parentNode.id, selfNode.id, {
+        sourceHandle: 'bottom',
+      });
+      const parentStrain = parentNode.data;
+      const childStrains = parentStrain.strain.selfCross();
+      const childNodes = getChildNodes(parentNode, selfNode, childStrains);
+      const childEdges = childNodes.map((node) =>
+        createEdge(selfNode.id, node.id)
+      );
+
+      // Update state
       [parentNode, selfNode, ...childNodes].forEach((node) =>
         nodeMap.set(node.id, node)
       );
+      setEdges((edges) => [...edges, edgeToIcon, ...childEdges]);
       return new Map(nodeMap);
     });
-    setEdges((edges) => [...edges, edgeToIcon, ...childEdges]);
-
     saveTree();
   };
 
@@ -788,10 +795,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       icon: <SelfCrossIcon />,
       text: 'Self-cross',
       menuCallback: () => {
-        const node = nodeMap.get(nodeId);
-        if (node !== undefined) {
-          selfCross(node);
-        }
+        selfCross(nodeId);
       },
     };
     const crossOption: MenuItem = {
