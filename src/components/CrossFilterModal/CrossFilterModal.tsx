@@ -34,7 +34,7 @@ export const CrossFilterModal = (props: CrossFilterProps): JSX.Element => {
         htmlFor={`cross-filter-modal-${props.nodeId}`}
         className='modal cursor-pointer'
       >
-        <label className='modal-box bg-base-300' htmlFor=''>
+        <label className='modal-box' htmlFor=''>
           <FilterList
             title='Filter by alleles'
             nodeId={nodeId}
@@ -74,7 +74,6 @@ export const CrossFilterModal = (props: CrossFilterProps): JSX.Element => {
               Outputted strains
             </div>
             <div className='collapse-content'>
-              <h3 className='text-2xl font-bold'></h3>
               <StrainList {...props} filter={props.filter} />
             </div>
           </div>

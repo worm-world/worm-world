@@ -96,10 +96,6 @@ describe('CrossFilterModal', () => {
         }
       });
     });
-
-    // check header is there
-    const header = screen.getByRole('heading');
-    expect(header).toBeDefined();
   });
 
   test('modal displays limited strain options with set filters', () => {
