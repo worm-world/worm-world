@@ -20,11 +20,17 @@ import {
   Node,
   applyNodeChanges,
   NodeChange,
+  NodeRemoveChange,
   XYPosition,
   useEdgesState,
   ReactFlowInstance,
   OnConnectStartParams,
   Position,
+  NodePositionChange,
+  NodeDimensionChange,
+  NodeAddChange,
+  NodeResetChange,
+  NodeSelectionChange,
 } from 'reactflow';
 import { insertTree, updateTree } from 'api/crossTree';
 import { Strain, StrainOption } from 'models/frontend/Strain/Strain';
@@ -71,7 +77,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   const navigate = useNavigate();
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
   const [drawerState, setDrawerState] = useState<DrawerState>('addStrain');
-  const [edges, setEdges, onEdgesChange] = useEdgesState(props.crossTree.edges);
+  const [edges, setEdges] = useEdgesState(props.crossTree.edges);
   const [noteFormContent, setNoteFormContent] = useState('');
   const [nodeMap, setNodeMap] = useState<Map<string, Node>>(
     new Map(props.crossTree.nodes.map((node) => [node.id, node]))
@@ -110,11 +116,127 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
    * Callback used by react flow to update the positions of each node when dragged
    */
   const onNodesChange = (changes: NodeChange[]): void => {
-    const newNodeMap = new Map();
+    const newNodeMap = new Map<string, Node>();
     const nodes = [...nodeMap.values()];
-    const movedNodes = applyNodeChanges(changes, nodes);
-    movedNodes.forEach((node) => newNodeMap.set(node.id, node));
+    const [additions, deletions, dimensions, movements, resets, selections] =
+      filterNodeChanges(changes);
+
+    // handle deletions
+    let canDelete = deletions.length > 0;
+    const selected = deletions.filter((del) => nodeMap.get(del.id)?.selected);
+    selected.forEach((selectedNode) => {
+      const toDelete = nodeMap.get(selectedNode.id);
+      if (
+        toDelete?.parentNode !== undefined &&
+        toDelete.type === FlowType.Strain
+      ) {
+        toast.error(
+          "Yikes! You can't remove a node that is the child of a cross"
+        );
+        canDelete = false;
+      }
+    });
+    const parentIds = selected.flatMap((selectedNode) =>
+      edges
+        .filter((edge) => edge.target === selectedNode.id)
+        .map((edge) => edge.source)
+    );
+
+    // Determine invisible and visible deletions
+    const visibleDelSet = new Set(deletions.map((d) => d.id));
+    const invisibleDeletions = nodes
+      .filter(
+        (node) =>
+          invisibleNodes.has(node.id) &&
+          node.parentNode !== undefined &&
+          visibleDelSet.has(node.parentNode)
+      )
+      .map((node) => node.id);
+
+    // Mark invisible nodes for deletion
+    invisibleDeletions.forEach((del) =>
+      deletions.push({ id: del, type: 'remove' })
+    );
+
+    // Apply all changes
+    const toApply = [
+      canDelete ? deletions : [],
+      movements,
+      dimensions,
+      additions,
+      resets,
+      selections,
+    ].flat();
+    applyNodeChanges(toApply, nodes).forEach((node) =>
+      newNodeMap.set(node.id, node)
+    );
+
+    if (canDelete) {
+      // update parent nodes
+      const parentNodes = parentIds.flatMap((id) => nodeMap.get(id) ?? []);
+      const parentIdSet = new Set(parentIds);
+      parentNodes.forEach((node) => {
+        node.data = copyNodeData(node, {
+          isParent: false,
+          toggleNodeSex: () => toggleCrossNodeSex(node.id),
+          toggleNodeHetPair: (pair) => toggleHetPair(pair, node.id),
+        });
+
+        // clear parent relationship between 2 nodes crossed together
+        const clearParentId =
+          node.parentNode !== undefined && parentIdSet.has(node.parentNode);
+        node.parentNode = clearParentId ? undefined : node.parentNode;
+
+        newNodeMap.set(node.id, node);
+      });
+
+      // remove unneeded edges
+      const allDeletions = new Set(deletions.map((d) => d.id));
+      const edgesToDelete = new Set(
+        edges.filter((edge) => allDeletions.has(edge.target)).map((e) => e.id)
+      );
+      const newEdges = edges.filter((edge) => !edgesToDelete.has(edge.id));
+      setEdges(newEdges);
+    }
+
     setNodeMap(newNodeMap);
+
+    if (deletions.length > 0) saveTree();
+  };
+
+  /**
+   * Filters a generic NodeChange[] list into distinct change lists
+   */
+  const filterNodeChanges = (
+    changes: NodeChange[]
+  ): [
+    NodeAddChange[],
+    NodeRemoveChange[],
+    NodeDimensionChange[],
+    NodePositionChange[],
+    NodeResetChange[],
+    NodeSelectionChange[]
+  ] => {
+    const additions: NodeAddChange[] = changes.flatMap((change) =>
+      change.type === 'add' ? change : []
+    );
+    const deletions: NodeRemoveChange[] = changes.flatMap((change) =>
+      change.type === 'remove' ? change : []
+    );
+    const dimensions: NodeDimensionChange[] = changes.flatMap((change) =>
+      change.type === 'dimensions' ? change : []
+    );
+    const movements: NodePositionChange[] = changes.flatMap((change) =>
+      change.type === 'position' ? change : []
+    );
+    const resets: NodeResetChange[] = changes.flatMap((change) =>
+      change.type === 'reset' ? change : []
+    );
+    const selections: NodeSelectionChange[] = changes.flatMap((change) =>
+      change.type === 'select' ? change : []
+    );
+
+    return [additions, deletions, dimensions, movements, resets, selections];
   };
 
   const onConnectStart = useCallback(
@@ -649,10 +771,10 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     // Update positioning of one of the parent strains
     const lControlsR = rNode.parentNode === undefined;
     if (lControlsR) {
-      rNode.parentNode = lControlsR ? lNode.id : rNode.parentNode;
+      rNode.parentNode = lNode.id;
       rNode.position = CrossTree.getCrossStrainPos(lNode.data.sex);
     } else {
-      lNode.parentNode = lControlsR ? lNode.parentNode : rNode.id;
+      lNode.parentNode = rNode.id;
       lNode.position = CrossTree.getCrossStrainPos(rNode.data.sex);
     }
 
@@ -762,7 +884,12 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   /** Clones the passed node's data and optionally marks as a parent/child */
   const copyNodeData = (
     node: Node<CrossNodeModel>,
-    { isChild = node.data.isChild, isParent = node.data.isParent }
+    {
+      isChild = node.data.isChild,
+      isParent = node.data.isParent,
+      toggleNodeSex = node.data.toggleSex,
+      toggleNodeHetPair = node.data.toggleHetPair,
+    }
   ): CrossNodeModel => {
     const updatedParentData = new CrossNodeModel({
       sex: node.data.sex,
@@ -771,8 +898,8 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       isParent,
       probability: node.data.probability,
       getMenuItems: () => getCrossNodeMenuItems(node.data, node.id, isParent),
-      toggleHetPair: isParent || isChild ? undefined : node.data.toggleHetPair,
-      toggleSex: isParent ? undefined : node.data.toggleSex, // disable toggle action
+      toggleHetPair: isParent || isChild ? undefined : toggleNodeHetPair,
+      toggleSex: isParent ? undefined : toggleNodeSex, // disable toggle action
     });
     return updatedParentData;
   };
@@ -994,7 +1121,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
                   )}
                   edges={edges}
                   onNodesChange={onNodesChange}
-                  onEdgesChange={onEdgesChange}
+                  onEdgesChange={() => {}}
                   onConnectStart={onConnectStart}
                   onConnect={onConnect}
                   onConnectEnd={onConnectEnd}
