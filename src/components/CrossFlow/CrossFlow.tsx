@@ -232,6 +232,8 @@ const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
       edges={props.edges}
       onNodesChange={props.onNodesChange}
       onEdgesChange={props.onEdgesChange}
+      onNodesDelete={() => {}}
+      onEdgesDelete={() => {}}
       onConnect={props.onConnect}
       onConnectStart={props.onConnectStart}
       onConnectEnd={props.onConnectEnd}
