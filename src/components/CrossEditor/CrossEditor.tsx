@@ -850,10 +850,12 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         },
         middleNode.id
       );
-      invisibleNodes.add(filteredOutNode.id);
+      setInvisibleNodes((invisibleNodes) => {
+        invisibleNodes.add(filteredOutNode.id);
+        return invisibleNodes;
+      });
       childNodes.unshift(filteredOutNode);
     }
-
     return childNodes;
   };
 
