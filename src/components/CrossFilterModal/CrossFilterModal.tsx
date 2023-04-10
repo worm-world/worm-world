@@ -6,7 +6,7 @@ import {
   CrossEditorFilterUpdate,
   iCrossEditorFilter,
 } from 'components/CrossFilterModal/CrossEditorFilter';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 export interface CrossFilterProps {
   nodeId?: string;
   childNodes: Array<Node<CrossNodeModel>>;
@@ -165,19 +165,50 @@ const StrainList = (props: {
   toggleVisible: (nodeId: string) => void;
   filter?: CrossEditorFilter;
 }): JSX.Element => {
+  const filteredList = props.childNodes.filter((node) =>
+    CrossEditorFilter.includedInFilter(node, props.filter)
+  );
+  const [allSelected, setAllSelected] = useState(true);
+
+  const isVisible = (node: Node<CrossNodeModel>): boolean =>
+    !props.invisibleSet.has(node.id);
+
+  useEffect(() => {
+    setAllSelected(filteredList.every((node) => isVisible(node)));
+  }, [props.invisibleSet]);
+
+  const onClickSelectAll = (): void => {
+    filteredList
+      .filter((node) => (allSelected ? isVisible(node) : !isVisible(node)))
+      .forEach((node) => {
+        if (!node.data.isParent) props.toggleVisible(node.id);
+      });
+  };
+
   const strainList: JSX.Element[] = [];
-
-  let idx = 0;
-  for (const strain of props.childNodes) {
-    if (!CrossEditorFilter.includedInFilter(strain, props.filter)) continue;
-
+  strainList.push(
+    <li key={`cross-filter-modal-${props.nodeId}-all}`}>
+      <div className='my-2 ml-8 flex flex-row items-center'>
+        <input
+          type='checkbox'
+          className='checkbox mx-4'
+          checked={allSelected}
+          onClick={onClickSelectAll}
+          key={`cross-filter-modal-${props.nodeId}-all-checkbox`}
+          readOnly
+        />
+        Select All
+      </div>
+    </li>
+  );
+  filteredList.forEach((strain, idx) => {
     const key = `cross-filter-modal-${props.nodeId}-item-${idx}`;
     const candidateNode = (
       <li key={key}>
         <div className='my-2 ml-8 flex flex-row items-center'>
           <input
             type='checkbox'
-            checked={!props.invisibleSet.has(strain.id)}
+            checked={isVisible(strain)}
             className='checkbox mx-4'
             onClick={() => props.toggleVisible(strain.id)}
             key={`cross-filter-modal-${props.nodeId}-item-${idx++}-checkbox`}
@@ -188,7 +219,7 @@ const StrainList = (props: {
       </li>
     );
     strainList.push(candidateNode);
-  }
+  });
 
   return (
     <ul

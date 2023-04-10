@@ -126,9 +126,9 @@ describe('CrossFilterModal', () => {
       'cross-filter-collapse-outputted-strains'
     );
     const checkboxes = within(strainSec).getAllByRole('checkbox');
-    expect(checkboxes).toHaveLength(1);
+    expect(checkboxes).toHaveLength(1 + 1);
 
-    expect(checkboxes[0]).toBeChecked(); // node 0
+    expect(checkboxes[1]).toBeChecked(); // node 0
   });
 
   test('modal unchecks nodes marked invisible', () => {
@@ -140,11 +140,11 @@ describe('CrossFilterModal', () => {
       'cross-filter-collapse-outputted-strains'
     );
     const checkboxes = within(strainSec).getAllByRole('checkbox');
-    expect(checkboxes).toHaveLength(childNodes.length);
+    expect(checkboxes).toHaveLength(childNodes.length + 1);
 
-    expect(checkboxes[0]).not.toBeChecked(); // node 0
-    expect(checkboxes[1]).toBeChecked(); // node 1
-    expect(checkboxes[2]).toBeChecked(); // node 2
+    expect(checkboxes[1]).not.toBeChecked(); // node 0
+    expect(checkboxes[2]).toBeChecked(); // node 1
+    expect(checkboxes[3]).toBeChecked(); // node 2
   });
 
   test('clicking a strain checkbox triggers callback function', async () => {
@@ -157,14 +157,14 @@ describe('CrossFilterModal', () => {
       'cross-filter-collapse-outputted-strains'
     );
     const checkboxes = within(strainSec).getAllByRole('checkbox');
-    expect(checkboxes).toHaveLength(childNodes.length);
+    expect(checkboxes).toHaveLength(childNodes.length + 1);
 
     expect(toggleVisible).not.toHaveBeenCalled();
-    await user.click(checkboxes[0]);
+    await user.click(checkboxes[1]);
     expect(toggleVisible).toHaveBeenCalledTimes(1);
 
-    await user.click(checkboxes[1]);
     await user.click(checkboxes[2]);
+    await user.click(checkboxes[3]);
     expect(toggleVisible).toHaveBeenCalledTimes(3);
   });
 
