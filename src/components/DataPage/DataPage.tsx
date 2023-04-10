@@ -68,18 +68,21 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
 
   const runFilters = (filterObj: FilterGroup<K>): void => {
     setCurFilter(filterObj);
-    props
-      .getFilteredData({
-        ...filterObj,
-        limit: rowsPerPage,
-        offset: page * rowsPerPage,
-      })
-      .then((ds) => setData(ds))
-      .catch((e) =>
-        toast.error('Unable to get data: ' + JSON.stringify(e), {
-          toastId: props.dataName,
+    setPage(page => {
+      props
+        .getFilteredData({
+          ...filterObj,
+          limit: rowsPerPage,
+          offset: page * rowsPerPage,
         })
-      );
+        .then((ds) => setData(ds))
+        .catch((e) =>
+          toast.error('Unable to get data: ' + JSON.stringify(e), {
+            toastId: props.dataName,
+          })
+        );
+      return page;
+    });
   };
 
   const refresh = (): void => {
