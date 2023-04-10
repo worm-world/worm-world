@@ -958,10 +958,11 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         const clonedTree = props.crossTree.clone();
         clonedTree.nodes = [...nodeMap.values()];
         clonedTree.edges = [...edges];
+        clonedTree.editable = false;
         const tasks = clonedTree
           .generateTasks(node)
           .map((task) => task.generateRecord());
-        insertTree(clonedTree.generateRecord(false))
+        insertTree(clonedTree.generateRecord(clonedTree.editable))
           .then(async () => await insertDbTasks(tasks))
           .then(() => navigate('/scheduler/todo'))
           .catch((error) => console.error(error));
@@ -986,7 +987,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
               tree.invisibleNodes = invisibleNodes;
               tree.crossFilters = crossFilters;
               tree.lastSaved = new Date();
-              updateTree(tree.generateRecord(true))
+              updateTree(tree.generateRecord(props.crossTree.editable))
                 .then(() => {
                   if (showSuccessMessage)
                     toast.success('Successfully saved design');
@@ -1082,7 +1083,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
             checked={rightDrawerOpen}
           />
           <div className='drawer-content flex h-screen flex-col'>
-            {showRightClickMenu && (
+            {showRightClickMenu && props.crossTree.editable && (
               <ContextMenu xPos={rightClickXPos} yPos={rightClickYPos}>
                 <li
                   onClick={() => {
@@ -1111,7 +1112,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
                 </li>
               </ContextMenu>
             )}
-            <EditorTop tree={props.crossTree}></EditorTop>
+            <EditorTop tree={props.crossTree} />
             <div className='grow'>
               <div className='h-full w-full'>
                 <CrossFlow
@@ -1131,6 +1132,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
                   onNodeDragStop={() => saveTree()}
                   reactFlowInstance={reactFlowInstance}
                   toggleShowGenes={() => setShowGenes(!showGenes)}
+                  treeEditable={props.crossTree.editable}
                 />
               </div>
             </div>

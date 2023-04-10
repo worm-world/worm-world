@@ -10,7 +10,6 @@ describe('Editable div', () => {
         value=''
         setValue={() => {}}
         editable={false}
-        setEditable={() => {}}
         onFinishEditing={() => {}}
       />
     );
@@ -27,7 +26,6 @@ describe('Editable div', () => {
         value={value}
         setValue={() => {}}
         editable={false}
-        setEditable={() => {}}
         onFinishEditing={() => {}}
         placeholder={placeholder}
       />
@@ -45,7 +43,6 @@ describe('Editable div', () => {
         value={value}
         setValue={() => {}}
         editable={false}
-        setEditable={() => {}}
         onFinishEditing={() => {}}
         placeholder={placeholder}
       />
@@ -61,7 +58,6 @@ describe('Editable div', () => {
         value=''
         setValue={() => {}}
         editable={true}
-        setEditable={() => {}}
         onFinishEditing={() => {}}
       />
     );
@@ -76,7 +72,6 @@ describe('Editable div', () => {
         value=''
         setValue={() => {}}
         editable={false}
-        setEditable={() => {}}
         onFinishEditing={() => {}}
       />
     );
@@ -91,10 +86,7 @@ describe('Editable div', () => {
     const setValue = (newValue: string): void => {
       value = newValue;
     };
-    let editable = true;
-    const setEditable = (newEditable: boolean): void => {
-      editable = newEditable;
-    };
+    const editable = true;
     const mockOnFinishEditing = vi.fn();
 
     render(
@@ -102,7 +94,6 @@ describe('Editable div', () => {
         value={value}
         setValue={setValue}
         editable={editable}
-        setEditable={setEditable}
         onFinishEditing={mockOnFinishEditing}
       />
     );
@@ -117,10 +108,7 @@ describe('Editable div', () => {
     const setValue = (newValue: string): void => {
       value = newValue;
     };
-    let editable = true;
-    const setEditable = (newEditable: boolean): void => {
-      editable = newEditable;
-    };
+    const editable = true;
     const mockOnFinishEditing = vi.fn();
 
     render(
@@ -128,7 +116,6 @@ describe('Editable div', () => {
         value={value}
         setValue={setValue}
         editable={editable}
-        setEditable={setEditable}
         onFinishEditing={mockOnFinishEditing}
       />
     );
@@ -147,7 +134,6 @@ describe('Editable div', () => {
         value=''
         setValue={() => {}}
         editable={false}
-        setEditable={() => {}}
         onFinishEditing={() => {}}
         onClick={mockOnClick}
       />

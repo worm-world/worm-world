@@ -16,6 +16,7 @@ import ReactFlow, {
   ReactFlowInstance,
   OnConnectStartParams,
   ConnectionMode,
+  ReactFlowProvider,
 } from 'reactflow';
 import { toPng, toSvg } from 'html-to-image';
 import 'reactflow/dist/style.css';
@@ -136,11 +137,13 @@ interface iCrossFlowProps {
   onNodeDragStop: () => void;
   reactFlowInstance?: ReactFlowInstance;
   toggleShowGenes: () => void;
+  treeEditable: boolean;
 }
 
 interface CustomControlsProps {
   reactFlowInstance?: ReactFlowInstance;
   toggleShowGenes: () => void;
+  treeEditable: boolean;
 }
 
 const CustomControls = (props: CustomControlsProps): JSX.Element => {
@@ -149,6 +152,7 @@ const CustomControls = (props: CustomControlsProps): JSX.Element => {
       position='top-left'
       className='bg-base-100 text-base-content'
       showZoom={false}
+      showInteractive={props.treeEditable}
     >
       <ControlButton
         onClick={() => props.reactFlowInstance?.zoomIn({ duration: 150 })}
@@ -220,38 +224,41 @@ const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
   );
 
   return (
-    <ReactFlow
-      ref={props.innerRef}
-      className={props.className}
-      zoomOnScroll={true}
-      nodeTypes={nodeTypes}
-      fitView
-      defaultViewport={{ x: 0, y: 0, zoom: 5 }}
-      onInit={props.onInit}
-      nodes={props.nodes}
-      edges={props.edges}
-      onNodesChange={props.onNodesChange}
-      onEdgesChange={props.onEdgesChange}
-      onNodesDelete={() => {}}
-      onEdgesDelete={() => {}}
-      onConnect={props.onConnect}
-      onConnectStart={props.onConnectStart}
-      onConnectEnd={props.onConnectEnd}
-      nodesFocusable
-      connectionMode={ConnectionMode.Loose}
-      onNodeDragStop={props.onNodeDragStop}
-    >
-      <CustomControls
-        reactFlowInstance={props.reactFlowInstance}
-        toggleShowGenes={props.toggleShowGenes}
-      />
-      <MiniMap
-        position='bottom-left'
-        className='bg-base-300'
-        nodeClassName='bg-base-100'
-      />
-      <Background className='-z-50 bg-base-300' size={1} gap={16} />
-    </ReactFlow>
+    <ReactFlowProvider>
+      <ReactFlow
+        ref={props.innerRef}
+        className={props.className}
+        zoomOnScroll={true}
+        nodeTypes={nodeTypes}
+        fitView
+        defaultViewport={{ x: 0, y: 0, zoom: 5 }}
+        onInit={props.onInit}
+        nodes={props.nodes}
+        edges={props.edges}
+        onNodesChange={props.onNodesChange}
+        onEdgesChange={props.onEdgesChange}
+        onConnect={props.onConnect}
+        onConnectStart={props.onConnectStart}
+        onConnectEnd={props.onConnectEnd}
+        nodesFocusable
+        connectionMode={ConnectionMode.Loose}
+        onNodeDragStop={props.onNodeDragStop}
+        nodesDraggable={props.treeEditable}
+        elementsSelectable={props.treeEditable}
+      >
+        <CustomControls
+          reactFlowInstance={props.reactFlowInstance}
+          toggleShowGenes={props.toggleShowGenes}
+          treeEditable={props.treeEditable}
+        />
+        <MiniMap
+          position='bottom-left'
+          className='bg-base-300'
+          nodeClassName='bg-base-100'
+        />
+        <Background className='-z-50 bg-base-300' size={1} gap={16} />
+      </ReactFlow>
+    </ReactFlowProvider>
   );
 };
 
