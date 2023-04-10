@@ -606,21 +606,18 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   };
 
   const toggleNodeVisibility = (nodeId: string): void => {
-    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
-      const children = [...nodeMap.values()].filter(
-        (node: Node) => node.parentNode === nodeId
-      );
-      if (children.length > 0) {
-        toast.error("Whoops! Can't mark a parent node as invisible");
-        return nodeMap;
-      }
-      setInvisibleNodes((invisibleNodes: Set<string>): Set<string> => {
-        invisibleNodes.has(nodeId)
-          ? invisibleNodes.delete(nodeId)
-          : invisibleNodes.add(nodeId);
-        return new Set(invisibleNodes);
-      });
-      return nodeMap;
+    const children = [...nodeMap.values()].filter(
+      (node: Node) => node.parentNode === nodeId
+    );
+    if (children.length > 0) {
+      toast.error("Whoops! Can't mark a parent node as invisible");
+      return;
+    }
+    setInvisibleNodes((invisibleNodes: Set<string>): Set<string> => {
+      invisibleNodes.has(nodeId)
+        ? invisibleNodes.delete(nodeId)
+        : invisibleNodes.add(nodeId);
+      return new Set(invisibleNodes);
     });
     const parentNodeId = nodeMap.get(nodeId)?.parentNode;
     if (parentNodeId !== undefined) updateFilterOutNodeVisibility(parentNodeId);
