@@ -1,8 +1,14 @@
-# WormWorld
-
-A tool to facilitate the creation and tracking of formula-like written derivations of worm genomes that trace the inheritance of relevant genes across generations according to known statistical patterns and biological rules.
+<p align="center">
+  <img alt='WormWorld' src="public/wormworld_logo.svg" width=260/>
+ </p>
+<h3 align="center">
+   A genetics application to design strains of <i>C. Elegans</i> worms and schedule their breeding process
+</h3>
+<hr/>
 
 ## Getting started
+
+This application utilizes the Tauri framework to enable the project to build on MacOS, Windows and Linux.
 
 1. Install [Node](https://nodejs.org/en/download/)
 2. Install [Rust](https://www.rust-lang.org/tools/install) and run `rustup component add clippy`
@@ -19,6 +25,8 @@ A tool to facilitate the creation and tracking of formula-like written derivatio
 You can view all available scripts in `package.json`.
 
 - `npm run tauri dev` runs the frontend and backend together
+- `npm run tauri build` builds the project into an executable for your platform.
+  > On MacOS, run `npm run tauri build -- --target universal-apple-darwin` for a universal binary.
 - `npm run test-all` tests the frontend (`vitest`) and backend (`cargo test`)
 - `npm run lint` lints the frontend and backend, gives warnings and suggestions, and auto-fixes some formatting errors.
   If your precommit script fails at the linting phase, run this.
@@ -29,12 +37,16 @@ You can view all available scripts in `package.json`.
 Right now, there are models in 3 places:
 
 1. `src/models/`: This folder has the frontend type models
-2. `src-tauri/src/models.rs`: This file has the backend type models.
+2. `src-tauri/src/models.rs`: This file has the backend type models
    > Notice the `serde(rename)` decorators that keep the field names consistent between frontend and backend for (de)serialization.
 3. `src-tauri/db/migrations/`: This folder holds the SQL migrations.
    The files here should be created with `sqlx migrate add -r <name>`, then you can edit the up and down SQL files.
-   - The up commands are run automatically in the `migrate!` method in the program or with `sqlx migrate run`.
+   - The up commands are run automatically in the `migrate!` method in the program or with `sqlx migrate run`
    - The down commands are only relevant for us in development. You can run `sqlx migrate revert`
+
+The backend code is located in the `src-tauri` folder.
+
+The frontend code is located in the `src` folder.
 
 ### Precommits
 
@@ -44,5 +56,6 @@ Currently, they run the following checks:
 
 - check if a commit message is valid as a [conventional commit](https://www.conventionalcommits.org/en/v1.0.0/).
 - Lints the frontend with ESLint
-- Formats the backend with cargo fmt
--
+- Auto-formats the backend and frontend code
+
+Additionally, we have a mirrored Github repo that generates builds for each major OS when we push tags to it. The repo is hosted at [https://github.com/worm-world/worm-world](https://github.com/worm-world/worm-world).
