@@ -14,7 +14,7 @@ export const SchedulePage = (): JSX.Element => {
   const [treeNames, setTreeNames] = useState(new Map<string, string>());
   const [filteredTreeId, setFilteredTreeId] = useState<string>(noFilterText);
   const [promptRemovalTasks, setPromptRemovalTasks] = useState<Task[]>([]);
-  const [showCompleted, setShowCompleted] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(true);
 
   useEffect(() => {
     refreshTasks()
