@@ -18,9 +18,10 @@ const EditorTop = (props: EditorTopProps): JSX.Element => {
 
   const updateTreeName = (): void => {
     props.tree.name = name;
-    updateTree(props.tree.generateRecord(true)).catch((error) =>
+    updateTree(props.tree.generateRecord(props.tree.editable)).catch((error) =>
       console.error(error)
     );
+    setNameEditable(false);
   };
 
   return (
@@ -30,8 +31,7 @@ const EditorTop = (props: EditorTopProps): JSX.Element => {
           <EditableDiv
             value={name}
             setValue={setName}
-            editable={nameEditable}
-            setEditable={setNameEditable}
+            editable={nameEditable && props.tree.editable}
             onFinishEditing={updateTreeName}
             onClick={() => setNameEditable(true)}
             placeholder='(Untitled)'

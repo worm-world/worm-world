@@ -108,7 +108,7 @@ const importTree = async (): Promise<void> => {
     if (filepath === null) return;
     const file = await readTextFile(filepath);
     const clonedTree = CrossTree.fromJSON(file).clone();
-    await insertTree(clonedTree.generateRecord(true));
+    await insertTree(clonedTree.generateRecord(clonedTree.editable));
     toast.success('Successfully imported tree');
   } catch (err) {
     toast.error(`Error importing tree: ${err}`);
@@ -124,8 +124,9 @@ const addTree = async (): Promise<void> => {
       edges: [],
       invisibleNodes: new Set<string>(),
       crossFilters: new Map<string, CrossEditorFilter>(),
+      editable: true,
     });
-    await insertTree(newTree.generateRecord(true));
+    await insertTree(newTree.generateRecord(newTree.editable));
     toast.success('Successfully added tree');
   } catch (err) {
     toast.error(`Error adding tree: ${err}`);

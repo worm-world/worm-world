@@ -17,7 +17,6 @@ const MockEditableDiv = (): JSX.Element => {
       value={value}
       setValue={setValue}
       editable={valueEditable}
-      setEditable={setValueEditable}
       onFinishEditing={onFinishEditing}
       onClick={onClick}
     />

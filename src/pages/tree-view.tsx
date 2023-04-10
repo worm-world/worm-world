@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
 import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
-import { ReactFlowProvider } from 'reactflow';
 
 const TreeViewPage = (): JSX.Element => {
   const [tree, setTree]: [CrossTree | null, (tree: CrossTree | null) => void] =
@@ -27,15 +26,10 @@ const TreeViewPage = (): JSX.Element => {
   if (tree === null) {
     return <>Loading</>;
   } else {
-    return (
-      <ReactFlowProvider>
-        <CrossEditor crossTree={tree} />
-      </ReactFlowProvider>
-    );
+    return <CrossEditor crossTree={tree} />;
   }
 };
 
-// TODO: remove once issue number #154 is resolved
 const fixTreeDeserialization = (tree: CrossTree): void => {
   for (const node of tree.nodes) {
     if (node.type === FlowType.Strain) {

@@ -67,9 +67,10 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
   const updateTreeName = (): void => {
     props.tree.name = name;
     props.tree.lastSaved = new Date();
-    updateTree(props.tree.generateRecord(true))
+    updateTree(props.tree.generateRecord(props.tree.editable))
       .then(props.refreshTrees)
       .catch((error) => console.error(error));
+    setNameEditable(false);
   };
 
   return (
@@ -94,7 +95,6 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
                 value={name}
                 setValue={setName}
                 editable={nameEditable}
-                setEditable={setNameEditable}
                 onFinishEditing={updateTreeName}
                 placeholder='(Untitled)'
               />
@@ -148,7 +148,8 @@ const copyTree = async (tree: CrossTree): Promise<void> => {
   const newTree = tree.clone();
   newTree.name = `Copy of ${tree.name}`;
   newTree.lastSaved = new Date();
-  await insertTree(newTree.generateRecord(true));
+  newTree.editable = true;
+  await insertTree(newTree.generateRecord(newTree.editable));
 };
 
 const exportTree = async (tree: CrossTree): Promise<void> => {

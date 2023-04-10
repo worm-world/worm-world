@@ -3,7 +3,7 @@ import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { MenuItem } from 'components/Menu/Menu';
 import { Sex } from 'models/enums';
 import { iCrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
-import CrossTree from 'models/frontend/CrossTree/CrossTree';
+import CrossTree, { iCrossTree } from 'models/frontend/CrossTree/CrossTree';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { XYPosition, Node, Edge } from 'reactflow';
@@ -15,22 +15,13 @@ describe('cross tree', () => {
   // #region generator functions
   const generateTree = ({
     name = '',
-    description = '',
     nodes = [],
     edges = [],
-    invisibleNodes = new Set(),
+    invisibleNodes = new Set<string>(),
     crossFilters = new Map(),
     lastSaved = new Date(),
-  }: {
-    name?: string;
-    description?: string;
-    settings?: { longName: boolean; contents: boolean };
-    nodes?: Node[];
-    edges?: Edge[];
-    invisibleNodes?: Set<string>;
-    crossFilters?: Map<string, CrossEditorFilter>;
-    lastSaved?: Date;
-  }): CrossTree => {
+    editable = true,
+  }: Partial<iCrossTree>): CrossTree => {
     return new CrossTree({
       name,
       nodes,
@@ -38,6 +29,7 @@ describe('cross tree', () => {
       invisibleNodes,
       lastSaved,
       crossFilters,
+      editable,
     });
   };
 
@@ -633,7 +625,9 @@ describe('cross tree', () => {
     const treeBack = CrossTree.fromJSON(tree.toJSON());
 
     expect(treeBack.toJSON()).toEqual(tree.toJSON());
-    expect(treeBack.generateRecord(false)).toEqual(tree.generateRecord(false));
+    expect(treeBack.generateRecord(treeBack.editable)).toEqual(
+      tree.generateRecord(tree.editable)
+    );
   });
   // #endregion tests
 });

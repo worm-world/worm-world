@@ -11,6 +11,7 @@ export const emptyCrossTree = new CrossTree({
   invisibleNodes: new Set(),
   crossFilters: new Map(),
   lastSaved: new Date(),
+  editable: true,
 });
 
 // Simple cross tree ///////////////////////////////////
@@ -81,6 +82,7 @@ export const simpleCrossTree = new CrossTree({
   lastSaved: new Date(),
   invisibleNodes: new Set(),
   crossFilters: new Map(),
+  editable: true,
 });
 
 // Medium cross tree ////////////////////////////////////////////////
@@ -240,6 +242,7 @@ export const mediumCrossTree = new CrossTree({
   invisibleNodes: new Set(),
   crossFilters: new Map(),
   lastSaved: new Date('2023-01-18'),
+  editable: true,
 });
 
 export const selfNodeAsParent: Node = {

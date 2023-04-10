@@ -8,7 +8,6 @@ interface EditableDivProps {
   value: string;
   setValue: (newValue: string) => void;
   editable: boolean;
-  setEditable: (editable: boolean) => void;
   onFinishEditing: () => void;
   onClick?: MouseEventHandler;
   placeholder?: string;
@@ -17,12 +16,10 @@ interface EditableDivProps {
 const EditableDiv = (props: EditableDivProps): JSX.Element => {
   const handleKeyDown: KeyboardEventHandler = (event) => {
     if (event.key === 'Enter') {
-      props.setEditable(false);
       props.onFinishEditing();
     }
   };
   const handleBlur: FocusEventHandler<HTMLInputElement> = () => {
-    props.setEditable(false);
     props.onFinishEditing();
   };
   return (

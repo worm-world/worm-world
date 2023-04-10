@@ -23,6 +23,7 @@ export interface iCrossTree {
   invisibleNodes: Set<string>;
   crossFilters: Map<string, CrossEditorFilter>;
   lastSaved: Date;
+  editable: boolean;
 }
 
 export interface iTaskDependencyTree {
@@ -37,6 +38,7 @@ export default class CrossTree {
   /** #region class vars / initialization */
   public readonly id: string;
   public name: string;
+  public editable: boolean;
   @Type(() => Date)
   public lastSaved: Date;
 
@@ -74,6 +76,7 @@ export default class CrossTree {
         invisibleNodes: new Set(),
         crossFilters: new Map(),
         lastSaved: new Date(),
+        editable: true,
       };
     }
     this.id = ulid();
@@ -83,6 +86,7 @@ export default class CrossTree {
     this.nodes = [...params.nodes];
     this.invisibleNodes = new Set(params.invisibleNodes);
     this.crossFilters = new Map(params.crossFilters);
+    this.editable = params.editable;
   }
   /** #endregion class vars / initialization */
 
@@ -221,6 +225,7 @@ export default class CrossTree {
       crossFilters: new Map(this.crossFilters),
       edges: [...this.edges],
       lastSaved: new Date(),
+      editable: this.editable,
     };
     const tree = new CrossTree(treeProps);
     return tree;
