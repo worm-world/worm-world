@@ -1,5 +1,5 @@
 import CrossNode from 'components/CrossNode/CrossNode';
-import { Task } from 'models/frontend/Task/Task';
+import { Task, getConditionsFromTask } from 'models/frontend/Task/Task';
 import {
   TbSnowflake as FreezeIcon,
   TbMicroscope as PCRIcon,
@@ -41,6 +41,11 @@ const TaskItem = (props: iTaskProps): JSX.Element => {
   if (leftStrain !== undefined) leftStrain.probability = undefined;
   if (rightStrain !== undefined) rightStrain.probability = undefined;
   if (result !== undefined) result.probability = undefined;
+
+  const conditionAmount = getConditionsFromTask(
+    props.task.strain1,
+    props.task.strain2
+  ).size;
   return (
     <>
       <div className='flex h-40 items-center justify-items-start border-2 border-base-300 bg-base-200 shadow-md '>
@@ -59,21 +64,28 @@ const TaskItem = (props: iTaskProps): JSX.Element => {
         <div className='mr-4 flex grow flex-row items-center justify-between py-8 pl-6 pr-3'>
           <div className='flex flex-row justify-center'>
             {leftStrain !== undefined && <CrossNode model={leftStrain} />}
-            <div className='mx-8 flex flex-col justify-center'>
-              <div
-                className={`h-16 w-16 rounded-full text-primary-content transition-colors ${getIconColor(
-                  action
-                )}`}
-              >
-                <div className='flex h-full items-center justify-center'>
-                  {action === 'Cross' && <CrossIcon size='50' />}
-                  {action === 'SelfCross' && <SelfCrossIcon size='35' />}
-                  {action === 'Freeze' && <FreezeIcon size='35' />}
-                  {action === 'Pcr' && <PCRIcon size='35' />}
-                  <label
-                    className='btn absolute z-0 w-16 opacity-0'
-                    htmlFor={props.task.id}
-                  ></label>
+            <div className='mx-4 flex flex-col justify-center'>
+              <div className='indicator'>
+                {conditionAmount > 0 && (
+                  <span className='badge-info badge indicator-item w-4'>
+                    {conditionAmount}
+                  </span>
+                )}
+                <div
+                  className={`h-16 w-16 rounded-full text-primary-content transition-colors ${getIconColor(
+                    action
+                  )}`}
+                >
+                  <div className='flex h-full items-center justify-center'>
+                    {action === 'Cross' && <CrossIcon size='50' />}
+                    {action === 'SelfCross' && <SelfCrossIcon size='35' />}
+                    {action === 'Freeze' && <FreezeIcon size='35' />}
+                    {action === 'Pcr' && <PCRIcon size='35' />}
+                    <label
+                      className='btn absolute z-0 w-16 opacity-0'
+                      htmlFor={props.task.id}
+                    ></label>
+                  </div>
                 </div>
               </div>
             </div>
