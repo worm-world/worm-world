@@ -68,7 +68,7 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
 
   const runFilters = (filterObj: FilterGroup<K>): void => {
     setCurFilter(filterObj);
-    setPage(page => {
+    setPage((page) => {
       props
         .getFilteredData({
           ...filterObj,

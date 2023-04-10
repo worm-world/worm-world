@@ -1,14 +1,15 @@
 import { getTasks, updateDbTask } from 'api/task';
-import { Task } from 'models/frontend/Task/Task';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { toast } from 'react-toastify';
+import { Task, getConditionsFromTask } from 'models/frontend/Task/Task';
 
 interface iTodoModalProps {
   task: Task;
   refresh: () => Promise<void>;
 }
+
 const TodoModal = (props: iTodoModalProps): JSX.Element => {
   const navigate = useNavigate();
   const navigateToTree = useCallback((): void => {
@@ -48,6 +49,9 @@ const TodoModal = (props: iTodoModalProps): JSX.Element => {
     void props.refresh();
     setIsChecked(false);
   };
+  const taskCondtions = Array.from(
+    getConditionsFromTask(props.task.strain1, props.task.strain2)
+  );
 
   return (
     <>
@@ -64,13 +68,32 @@ const TodoModal = (props: iTodoModalProps): JSX.Element => {
             htmlFor={props.task.id}
             className='btn-sm btn-circle btn absolute right-2 top-2'
           >
-            ✕
+            x
           </label>
-          Plate Temp: 40C
-          <br></br>
-          Drug Coating: Asprin
-          <br></br>
-          <br></br>
+          {taskCondtions.length > 0 && (
+            <>
+              <h3 className='text-lg font-bold'>Conditions</h3>
+              <div className='mt-4 overflow-x-auto'>
+                <table className='table w-full'>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  {taskCondtions.map((condition) => {
+                    return (
+                      <tr key={condition[1].name}>
+                        <td>{condition[1].name}</td>
+                        <td>{condition[1].description}</td>
+                      </tr>
+                    );
+                  })}
+                </table>
+              </div>
+            </>
+          )}
+          <h3 className='mb-4 mt-2 text-lg font-bold'>Update Due-Date:</h3>
           <input
             type='range'
             min='1'
@@ -79,12 +102,13 @@ const TodoModal = (props: iTodoModalProps): JSX.Element => {
             className='range'
             step='1'
           />
-          <div className='flex w-full justify-between px-2 text-xs'>
-            <span>1</span>
-            <span>2</span>
-            <span>3</span>
-            <span>4</span>
-            <span>5</span>
+
+          <div className='mb-4 flex w-full justify-between px-2 text-xs'>
+            <span>1 Day</span>
+            <span>2 Days</span>
+            <span>3 Days</span>
+            <span>4 Days</span>
+            <span>5 Days</span>
           </div>
           <button
             onClick={handleClick}
@@ -96,16 +120,8 @@ const TodoModal = (props: iTodoModalProps): JSX.Element => {
           <button className='btn-primary btn ml-8' onClick={navigateToTree}>
             View Non-Editable Origin Tree
           </button>
-          <br></br>
-          Warning: postponing this task may lead to unknown progeny
-          <br></br>
         </div>
       </div>
-      <input
-        type='checkbox'
-        id={`task-${props.task.id}`}
-        className='modal-toggle'
-      />
     </>
   );
 };

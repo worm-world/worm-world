@@ -3,6 +3,7 @@ import { db_Task } from 'models/db/task/db_Task';
 import { CrossNodeModel } from '../CrossNode/CrossNode';
 import { Type, plainToInstance, instanceToPlain } from 'class-transformer';
 import { empty } from 'models/frontend/CrossNode/CrossNode.mock';
+import { Condition } from '../Condition/Condition';
 
 export interface iTask {
   id: string;
@@ -85,3 +86,27 @@ export class Task {
     return [plainToInstance(Task, JSON.parse(json))].flat()[0];
   }
 }
+
+export const getConditionsFromTask = (
+  worm1: CrossNodeModel,
+  worm2?: CrossNodeModel
+): Map<string, Condition> => {
+  const conditions = new Map<string, Condition>();
+
+  [
+    ...worm1.strain.chromPairMap.values(),
+    ...(worm2?.strain.chromPairMap.values() ?? []),
+  ].forEach((chrom) => {
+    chrom.forEach((allelePair) => {
+      [
+        ...allelePair.bot.alleleExpressions,
+        ...allelePair.top.alleleExpressions,
+      ].forEach((ae) =>
+        [...ae.suppressingConditions, ...ae.requiredConditions].forEach((c) =>
+          conditions.set(c.name, c)
+        )
+      );
+    });
+  });
+  return conditions;
+};
