@@ -57,7 +57,7 @@ const CrossDesignerPage = (): JSX.Element => {
   );
 
   return (
-    <>
+    <div className='overflow-x-hidden'>
       <TopNav
         title={'Cross Designer'}
         buttons={[newTreeButton, importTreeButton]}
@@ -65,7 +65,7 @@ const CrossDesignerPage = (): JSX.Element => {
       {hasRefreshedOnce && crossTrees.length === 0 ? (
         <NoTreePlaceholder />
       ) : (
-        <div className='m-8 flex flex-wrap gap-10'>
+        <div className='my-8 mx-36 flex flex-wrap '>
           {crossTrees?.map((crossTree) => {
             return (
               <SavedTreeCard
@@ -79,7 +79,7 @@ const CrossDesignerPage = (): JSX.Element => {
           })}
         </div>
       )}
-    </>
+    </div>
   );
 };
 

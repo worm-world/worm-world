@@ -75,7 +75,7 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
 
   return (
     <>
-      <div>
+      <div className='m-4'>
         <div className='relative left-40 z-10 h-0'>
           <Menu
             items={getMenuItems()}
