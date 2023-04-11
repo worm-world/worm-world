@@ -27,6 +27,7 @@ import {
   ItermediateSelfCross,
   IntermediateCross,
   EcaCross,
+  WildToWildCross,
 } from 'models/frontend/Strain/Strain.mock';
 import { expect, test, describe } from 'vitest';
 
@@ -390,6 +391,16 @@ describe('cross algorithm', () => {
     const crossStrains = strain1.crossWith(strain2);
 
     testStrainResults(crossStrains, EcaCross);
+  });
+
+  it('should output a single child for wild-wild crosses', () => {
+    const wildStrain1 = new Strain({ allelePairs: [] });
+    const wildStrain2 = wildStrain1.clone();
+    const selfCrossStrains = wildStrain1.selfCross();
+    const wildToWildCrossStrains = wildStrain1.crossWith(wildStrain2);
+
+    testStrainResults(selfCrossStrains, WildToWildCross);
+    testStrainResults(wildToWildCrossStrains, WildToWildCross);
   });
 
   it('should be able to serialize and deserialize', () => {

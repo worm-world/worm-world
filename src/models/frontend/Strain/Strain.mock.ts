@@ -1058,3 +1058,12 @@ export const EcaCross: StrainOption[] = [
     prob: 0.25,
   },
 ];
+
+export const WildToWildCross: StrainOption[] = [
+  {
+    strain: new Strain({
+      allelePairs: [],
+    }),
+    prob: 1.0,
+  },
+];
