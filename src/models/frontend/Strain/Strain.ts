@@ -134,6 +134,9 @@ export class Strain {
    * @returns Permuted list of all possible strains and their respective probabilities
    */
   public crossWith(other: Strain): StrainOption[] {
+    if (this.chromPairMap.size === 0 && other.chromPairMap.size === 0)
+      return [{ strain: new Strain({ allelePairs: [] }), prob: 1.0 }];
+
     this.prepWithWilds(other);
     other.prepWithWilds(this);
 
