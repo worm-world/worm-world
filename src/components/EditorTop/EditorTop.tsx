@@ -2,6 +2,7 @@ import { updateTree } from 'api/crossTree';
 import EditableDiv from 'components/EditableDiv/EditableDiv';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { useState, useEffect } from 'react';
+import { BiMenu as MenuIcon } from 'react-icons/bi';
 
 export interface EditorTopProps {
   tree: CrossTree;
@@ -26,6 +27,9 @@ const EditorTop = (props: EditorTopProps): JSX.Element => {
 
   return (
     <div className='flex flex-row justify-between border-b-4 border-b-base-300 bg-base-200 pt-2 pb-2'>
+      <label htmlFor='nav-drawer' className='btn-ghost drawer-button btn ml-4'>
+        <MenuIcon className='text-2xl' />
+      </label>
       <div className='flex-grow pr-10 pl-20'>
         <h1 className='w-full text-left align-middle text-3xl text-base-content'>
           <EditableDiv

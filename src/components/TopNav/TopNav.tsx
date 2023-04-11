@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { BiMenu as MenuIcon } from 'react-icons/bi';
 interface iTopNavInputProps {
   title: string;
   children?: JSX.Element[];
@@ -10,8 +11,11 @@ export function TopNav(props: iTopNavInputProps): JSX.Element {
   const initialTabIdx = props.tabIndex === undefined ? 0 : props.tabIndex;
   const [tabIdx, setTabIdx] = React.useState(initialTabIdx);
   return (
-    <div className='justify-left flex flex-row border-b-4 border-b-base-300 bg-base-200 pt-4 pb-4'>
-      <h1 className='content-center pl-24 text-3xl text-base-content'>
+    <div className='justify-left flex flex-row items-center bg-base-200 py-4 shadow-md'>
+      <label htmlFor='nav-drawer' className='btn-ghost drawer-button btn ml-4'>
+        <MenuIcon className='text-2xl' />
+      </label>
+      <h1 className='ml-4 content-center text-3xl text-base-content'>
         {props.title}
       </h1>
       <div className='flex flex-col justify-end pl-10'>

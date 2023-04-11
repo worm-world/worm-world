@@ -49,7 +49,7 @@ import { BrowserRouter } from 'react-router-dom';
  * Helper method to render the component for us on the "screen".
  */
 const renderComponent = ({ drawerWidth = 100 }): void => {
-  render(<SideNav drawerWidth={drawerWidth} />, {
+  render(<SideNav>{}</SideNav>, {
     wrapper: BrowserRouter, // Need this wrapper since the component uses the react router
   });
 };
@@ -62,11 +62,5 @@ describe('SideNav', () => {
     screen.getByRole('list'); // Throws an error if the element can't be found
     const links = screen.getAllByRole('link');
     expect(links.length).toBeGreaterThan(1);
-  });
-
-  test('closed SideNav is not visible', () => {
-    renderComponent({ drawerWidth: 0 });
-    const sideDrawer = screen.getByTestId('side-drawer');
-    expect(getComputedStyle(sideDrawer).width).toEqual('0px');
   });
 });

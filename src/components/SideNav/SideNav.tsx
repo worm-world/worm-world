@@ -7,7 +7,7 @@ import {
 import { Key, useEffect } from 'react';
 import { themeChange } from 'theme-change';
 interface SideNavProps {
-  drawerWidth: number;
+  children: React.ReactNode;
 }
 interface SideNavItem {
   name: String;
@@ -36,7 +36,11 @@ const SideNavItems: SideNavItem[] = [
 const getListItems = (): JSX.Element[] => {
   return SideNavItems.map((item) => (
     <li key={item.name as Key}>
-      <Link to={item.path as To} className='pl-5'>
+      <Link
+        to={item.path as To}
+        className='pl-5'
+        onClick={() => document.getElementById('nav-drawer')?.click()}
+      >
         {item.icon}
         {item.name}
       </Link>
@@ -83,39 +87,44 @@ const SideNav = (props: SideNavProps): JSX.Element => {
   }, []);
 
   return (
-    <div
-      className={'drawer-side'}
-      data-testid='side-drawer'
-      style={{ width: props.drawerWidth }}
-    >
-      <label
-        htmlFor='nav-drawer'
-        className='drawer-overlay bg-transparent'
-        hidden={true}
-      ></label>
-      <div className='flex h-full flex-col justify-between border-r-4 border-r-base-300 bg-base-200'>
-        <ul className='menu w-full'>
-          <li key='wormworld'>
-            <Link to={'/' as To}>
-              <h4 className='pl-2 text-center text-4xl'>WormWorld</h4>
-            </Link>
-          </li>
-          {getListItems()}
-        </ul>
-        <div className='pb-5 pl-5'>
-          <label className='label'>Theme</label>
-          <select className='select-bordered select' data-choose-theme>
-            {allThemes.map((theme) => (
-              <option key={theme} value={theme}>
-                {theme}
-              </option>
-            ))}
-          </select>
-          <div className='grid w-32 grid-cols-4 pt-2'>
-            <div className='h-2 w-full bg-primary'>&nbsp;</div>
-            <div className='h-2 w-full bg-secondary'>&nbsp;</div>
-            <div className='h-2 w-full bg-accent'>&nbsp;</div>
-            <div className='h-2 w-full bg-neutral'>&nbsp;</div>
+    <div className='drawer '>
+      <input id='nav-drawer' type='checkbox' className='drawer-toggle' />
+      <div className='drawer-content'>{props.children}</div>
+
+      <div className='drawer-side' data-testid='side-drawer'>
+        <label htmlFor='nav-drawer' className='drawer-overlay'></label>
+        <div className='flex h-full w-60 flex-col justify-between  bg-base-100'>
+          <ul className='menu mt-4'>
+            <li key='wormworld '>
+              <Link
+                to={'/' as To}
+                onClick={() => document.getElementById('nav-drawer')?.click()}
+              >
+                <img
+                  alt='WormWorld'
+                  src='wormworld_logo.svg'
+                  className=' w-52'
+                />
+              </Link>
+            </li>
+            <div className='divider mt-0' />
+            {getListItems()}
+          </ul>
+          <div className='pb-5 pl-5'>
+            <label className='label'>Theme</label>
+            <select className='select-bordered select' data-choose-theme>
+              {allThemes.map((theme) => (
+                <option key={theme} value={theme}>
+                  {theme}
+                </option>
+              ))}
+            </select>
+            <div className='grid w-32 grid-cols-4 pt-2'>
+              <div className='h-2 bg-primary'>&nbsp;</div>
+              <div className='h-2 bg-secondary'>&nbsp;</div>
+              <div className='h-2 bg-accent'>&nbsp;</div>
+              <div className='h-2 bg-neutral'>&nbsp;</div>
+            </div>
           </div>
         </div>
       </div>
