@@ -21,6 +21,14 @@ export const getFilteredPhenotypes = async (
   });
 };
 
+export const getCountFilteredPhenotypes = async (
+  filter: FilterGroup<PhenotypeFieldName>
+): Promise<number> => {
+  return await invoke('get_count_filtered_phenotypes', {
+    filter,
+  });
+};
+
 export const getPhenotype = async (
   name: string,
   wild: boolean

@@ -31,7 +31,7 @@ impl InnerDbState {
     ) -> Result<Vec<TaskDependency>, DbError> {
         let mut qb: QueryBuilder<Sqlite> =
             QueryBuilder::new("SELECT parent_id, child_id FROM task_deps");
-        filter.add_filtered_query(&mut qb, true);
+        filter.add_filtered_query(&mut qb, true, true);
 
         match qb
             .build_query_as::<TaskDependency>()

@@ -1,7 +1,7 @@
 use super::{bulk::Bulk, DbError, InnerDbState, SQLITE_BIND_LIMIT};
 use crate::models::{
     allele_expr::{AlleleExpression, AlleleExpressionDb, AlleleExpressionFieldName},
-    filter::{FilterGroup, FilterQueryBuilder},
+    filter::{Count, FilterGroup, FilterQueryBuilder},
 };
 use anyhow::Result;
 use sqlx::{QueryBuilder, Sqlite};
@@ -33,7 +33,7 @@ impl InnerDbState {
     ) -> Result<Vec<AlleleExpression>, DbError> {
         let mut qb: QueryBuilder<Sqlite> =
             QueryBuilder::new("SELECT allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance FROM allele_exprs");
-        filter.add_filtered_query(&mut qb, true);
+        filter.add_filtered_query(&mut qb, true, true);
 
         match qb
             .build_query_as::<AlleleExpressionDb>()
@@ -43,6 +43,27 @@ impl InnerDbState {
             Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
                 eprint!("Get Filtered Allele Exprs error: {e}");
+                Err(DbError::Query(e.to_string()))
+            }
+        }
+    }
+
+    pub async fn get_count_filtered_allele_exprs(
+        &self,
+        filter: &FilterGroup<AlleleExpressionFieldName>,
+    ) -> Result<u32, DbError> {
+        let mut qb: QueryBuilder<Sqlite> =
+            QueryBuilder::new("SELECT COUNT(*) as count FROM allele_exprs");
+        filter.add_filtered_query(&mut qb, true, false);
+
+        match qb
+            .build_query_as::<Count>()
+            .fetch_one(&self.conn_pool)
+            .await
+        {
+            Ok(count) => Ok(count.count),
+            Err(e) => {
+                eprint!("Get Filtered Allele Exprs Count error: {e}");
                 Err(DbError::Query(e.to_string()))
             }
         }

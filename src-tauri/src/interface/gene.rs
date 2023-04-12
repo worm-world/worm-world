@@ -1,6 +1,6 @@
 use super::{bulk::Bulk, DbError, InnerDbState, SQLITE_BIND_LIMIT};
 use crate::models::{
-    filter::{FilterGroup, FilterQueryBuilder},
+    filter::{Count, FilterGroup, FilterQueryBuilder},
     gene::{Gene, GeneDb, GeneFieldName},
 };
 use anyhow::Result;
@@ -32,7 +32,7 @@ impl InnerDbState {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT systematic_name, descriptive_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end FROM genes",
         );
-        filter.add_filtered_query(&mut qb, true);
+        filter.add_filtered_query(&mut qb, true, true);
 
         match qb
             .build_query_as::<GeneDb>()
@@ -42,6 +42,26 @@ impl InnerDbState {
             Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
                 eprint!("Get Filtered Gene error: {e}");
+                Err(DbError::Query(e.to_string()))
+            }
+        }
+    }
+
+    pub async fn get_count_filtered_genes(
+        &self,
+        filter: &FilterGroup<GeneFieldName>,
+    ) -> Result<u32, DbError> {
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new("SELECT COUNT(*) as count FROM genes");
+        filter.add_filtered_query(&mut qb, true, false);
+
+        match qb
+            .build_query_as::<Count>()
+            .fetch_one(&self.conn_pool)
+            .await
+        {
+            Ok(count) => Ok(count.count),
+            Err(e) => {
+                eprint!("Get Filtered Gene Count error: {e}");
                 Err(DbError::Query(e.to_string()))
             }
         }

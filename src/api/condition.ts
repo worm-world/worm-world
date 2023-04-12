@@ -21,6 +21,14 @@ export const getFilteredConditions = async (
   });
 };
 
+export const getCountFilteredConditions = async (
+  filter: FilterGroup<ConditionFieldName>
+): Promise<number> => {
+  return await invoke('get_count_filtered_conditions', {
+    filter,
+  });
+};
+
 export const getCondition = async (name: string): Promise<db_Condition> => {
   const filter: FilterGroup<ConditionFieldName> = {
     filters: [[['Name', { Equal: name }]]],

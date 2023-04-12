@@ -1,4 +1,5 @@
 import {
+  getCountFilteredAlleleExpressions,
   getFilteredAlleleExpressions,
   insertAlleleExpressionsFromFile,
   insertDbAlleleExpression,
@@ -58,6 +59,7 @@ export default function AlleleExpressionDataPage(): JSX.Element {
       fields={fields}
       nameMapping={nameMapping}
       getFilteredData={getFilteredAlleleExpressions}
+      getCountFilteredData={getCountFilteredAlleleExpressions}
       insertDatum={insertDbAlleleExpression}
       insertDataFromFile={insertAlleleExpressionsFromFile}
     />

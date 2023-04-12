@@ -1,6 +1,7 @@
 import { db_Condition } from 'models/db/db_Condition';
 import { ColumnDefinitionType } from 'components/Table/Table';
 import {
+  getCountFilteredConditions,
   getFilteredConditions,
   insertConditionsFromFile,
   insertDbCondition,
@@ -76,6 +77,7 @@ export default function ConditionDataPage(): JSX.Element {
       fields={fields}
       nameMapping={nameMapping}
       getFilteredData={getFilteredConditions}
+      getCountFilteredData={getCountFilteredConditions}
       insertDatum={insertDbCondition}
       insertDataFromFile={insertConditionsFromFile}
     />

@@ -2,7 +2,7 @@ use super::{bulk::Bulk, DbError, InnerDbState, SQLITE_BIND_LIMIT};
 use crate::models::{
     condition::{Condition, ConditionDb, ConditionFieldName},
     expr_relation::ExpressionRelationFieldName,
-    filter::{FilterGroup, FilterQueryBuilder},
+    filter::{Count, FilterGroup, FilterQueryBuilder},
 };
 use anyhow::Result;
 use sqlx::{QueryBuilder, Sqlite};
@@ -53,7 +53,7 @@ impl InnerDbState {
             maturation_days
             FROM conditions",
         );
-        filter.add_filtered_query(&mut qb, true);
+        filter.add_filtered_query(&mut qb, true, true);
 
         match qb
             .build_query_as::<ConditionDb>()
@@ -63,6 +63,27 @@ impl InnerDbState {
             Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
                 eprint!("Get Filtered Condition error: {e}");
+                Err(DbError::Query(e.to_string()))
+            }
+        }
+    }
+
+    pub async fn get_count_filtered_conditions(
+        &self,
+        filter: &FilterGroup<ConditionFieldName>,
+    ) -> Result<u32, DbError> {
+        let mut qb: QueryBuilder<Sqlite> =
+            QueryBuilder::new("SELECT COUNT(*) as count FROM conditions");
+        filter.add_filtered_query(&mut qb, true, false);
+
+        match qb
+            .build_query_as::<Count>()
+            .fetch_one(&self.conn_pool)
+            .await
+        {
+            Ok(count) => Ok(count.count),
+            Err(e) => {
+                eprint!("Get Conditions Count error: {e}");
                 Err(DbError::Query(e.to_string()))
             }
         }
@@ -89,12 +110,12 @@ impl InnerDbState {
               FROM
                 expr_relations",
         );
-        expr_relation_filter.add_filtered_query(&mut qb, true);
+        expr_relation_filter.add_filtered_query(&mut qb, true, true);
         qb.push(
             ") JOIN conditions AS c 
             ON c.name == ac\n",
         );
-        condition_filter.add_filtered_query(&mut qb, true);
+        condition_filter.add_filtered_query(&mut qb, true, true);
 
         match qb
             .build_query_as::<ConditionDb>()

@@ -1,4 +1,5 @@
 import {
+  getCountFilteredVariations,
   getFilteredVariations,
   insertDbVariation,
   insertVariationsFromFile,
@@ -58,6 +59,7 @@ export default function VariationDataPage(): JSX.Element {
       fields={fields}
       nameMapping={nameMapping}
       getFilteredData={getFilteredVariations}
+      getCountFilteredData={getCountFilteredVariations}
       insertDatum={insertDbVariation}
       insertDataFromFile={insertVariationsFromFile}
     />
