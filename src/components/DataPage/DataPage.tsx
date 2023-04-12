@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Table, ColumnDefinitionType } from 'components/Table/Table';
 import DataImportForm from 'components/DataImportForm/DataImportForm';
