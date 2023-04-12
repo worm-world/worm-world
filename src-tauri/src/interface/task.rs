@@ -32,7 +32,7 @@ impl InnerDbState {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT id, due_date, action, strain1, strain2, result, notes, tree_id, completed FROM tasks",
         );
-        filter.add_filtered_query(&mut qb, true);
+        filter.add_filtered_query(&mut qb, true, true);
 
         match qb
             .build_query_as::<TaskDb>()

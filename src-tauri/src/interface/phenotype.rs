@@ -1,7 +1,7 @@
 use super::{bulk::Bulk, DbError, InnerDbState, SQLITE_BIND_LIMIT};
 use crate::models::{
     expr_relation::ExpressionRelationFieldName,
-    filter::{FilterGroup, FilterQueryBuilder},
+    filter::{Count, FilterGroup, FilterQueryBuilder},
     phenotype::{Phenotype, PhenotypeDb, PhenotypeFieldName},
 };
 use anyhow::Result;
@@ -57,7 +57,7 @@ impl InnerDbState {
                 maturation_days
             FROM phenotypes",
         );
-        filter.add_filtered_query(&mut qb, true);
+        filter.add_filtered_query(&mut qb, true, true);
         match qb
             .build_query_as::<PhenotypeDb>()
             .fetch_all(&self.conn_pool)
@@ -66,6 +66,27 @@ impl InnerDbState {
             Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
                 eprint!("Get Filtered Phenotype error: {e}");
+                Err(DbError::Query(e.to_string()))
+            }
+        }
+    }
+
+    pub async fn get_count_filtered_phenotypes(
+        &self,
+        filter: &FilterGroup<PhenotypeFieldName>,
+    ) -> Result<u32, DbError> {
+        let mut qb: QueryBuilder<Sqlite> =
+            QueryBuilder::new("SELECT COUNT(*) as count FROM phenotypes");
+        filter.add_filtered_query(&mut qb, true, false);
+
+        match qb
+            .build_query_as::<Count>()
+            .fetch_one(&self.conn_pool)
+            .await
+        {
+            Ok(count) => Ok(count.count),
+            Err(e) => {
+                eprint!("Get Filtered Phenotypes Count error: {e}");
                 Err(DbError::Query(e.to_string()))
             }
         }
@@ -95,13 +116,13 @@ impl InnerDbState {
                 FROM
                     expr_relations",
         );
-        expr_relation_filter.add_filtered_query(&mut qb, true);
+        expr_relation_filter.add_filtered_query(&mut qb, true, true);
         qb.push(
             ") JOIN phenotypes AS p 
             ON p.name == pn
             AND p.wild == pw\n",
         );
-        phenotype_filter.add_filtered_query(&mut qb, true);
+        phenotype_filter.add_filtered_query(&mut qb, true, true);
 
         match qb
             .build_query_as::<PhenotypeDb>()

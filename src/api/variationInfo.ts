@@ -19,6 +19,14 @@ export const getFilteredVariations = async (
   });
 };
 
+export const getCountFilteredVariations = async (
+  filter: FilterGroup<VariationFieldName>
+): Promise<number> => {
+  return await invoke('get_count_filtered_variation_info', {
+    filter,
+  });
+};
+
 export const getVariation = async (
   alleleName: string
 ): Promise<db_VariationInfo> => {

@@ -1,7 +1,7 @@
 use super::{bulk::Bulk, DbError, InnerDbState, SQLITE_BIND_LIMIT};
 use crate::models::{
     expr_relation::{ExpressionRelation, ExpressionRelationDb, ExpressionRelationFieldName},
-    filter::{FilterGroup, FilterQueryBuilder},
+    filter::{Count, FilterGroup, FilterQueryBuilder},
 };
 use anyhow::Result;
 use sqlx::{QueryBuilder, Sqlite};
@@ -57,7 +57,7 @@ impl InnerDbState {
             FROM
                 expr_relations",
         );
-        filter.add_filtered_query(&mut qb, true);
+        filter.add_filtered_query(&mut qb, true, true);
 
         match qb
             .build_query_as::<ExpressionRelationDb>()
@@ -67,6 +67,27 @@ impl InnerDbState {
             Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
                 eprint!("Get Filtered Exprs Relation error: {e}");
+                Err(DbError::Query(e.to_string()))
+            }
+        }
+    }
+
+    pub async fn get_count_filtered_expr_relations(
+        &self,
+        filter: &FilterGroup<ExpressionRelationFieldName>,
+    ) -> Result<u32, DbError> {
+        let mut qb: QueryBuilder<Sqlite> =
+            QueryBuilder::new("SELECT COUNT(*) as count FROM expr_relations");
+        filter.add_filtered_query(&mut qb, true, false);
+
+        match qb
+            .build_query_as::<Count>()
+            .fetch_one(&self.conn_pool)
+            .await
+        {
+            Ok(count) => Ok(count.count),
+            Err(e) => {
+                eprint!("Get Filtered Gene Count error: {e}");
                 Err(DbError::Query(e.to_string()))
             }
         }
@@ -214,41 +235,41 @@ mod test {
     #[sqlx::test(fixtures("dummy"))]
     async fn test_get_filtered_expr_relations_many_and_clauses(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
-        let exprs = state
-            .get_filtered_expr_relations(&FilterGroup::<ExpressionRelationFieldName> {
-                filters: vec![
-                    vec![(
-                        ExpressionRelationFieldName::ExpressingPhenotypeName,
-                        Filter::Equal("paralyzed".to_owned()),
-                    )],
-                    vec![(
-                        ExpressionRelationFieldName::AlteringCondition,
-                        Filter::NotNull,
-                    )],
-                    vec![(
-                        ExpressionRelationFieldName::ExpressingPhenotypeWild,
-                        Filter::False,
-                    )],
-                    vec![(
-                        ExpressionRelationFieldName::AlteringPhenotypeName,
-                        Filter::Null,
-                    )],
-                    vec![(ExpressionRelationFieldName::IsSuppressing, Filter::False)],
-                    vec![(
-                        ExpressionRelationFieldName::AlleleName,
-                        Filter::Equal("oxEx219999".to_string()),
-                    )],
-                ],
-                order_by: vec![(ExpressionRelationFieldName::AlleleName, Order::Asc)],
-                limit: None,
-                offset: None,
-            })
-            .await?;
+        let filter = FilterGroup::<ExpressionRelationFieldName> {
+            filters: vec![
+                vec![(
+                    ExpressionRelationFieldName::ExpressingPhenotypeName,
+                    Filter::Equal("paralyzed".to_owned()),
+                )],
+                vec![(
+                    ExpressionRelationFieldName::AlteringCondition,
+                    Filter::NotNull,
+                )],
+                vec![(
+                    ExpressionRelationFieldName::ExpressingPhenotypeWild,
+                    Filter::False,
+                )],
+                vec![(
+                    ExpressionRelationFieldName::AlteringPhenotypeName,
+                    Filter::Null,
+                )],
+                vec![(ExpressionRelationFieldName::IsSuppressing, Filter::False)],
+                vec![(
+                    ExpressionRelationFieldName::AlleleName,
+                    Filter::Equal("oxEx219999".to_string()),
+                )],
+            ],
+            order_by: vec![(ExpressionRelationFieldName::AlleleName, Order::Asc)],
+            limit: None,
+            offset: None,
+        };
+        let exprs = state.get_filtered_expr_relations(&filter).await?;
 
-        assert_eq!(
-            exprs,
-            testdata::get_filtered_expr_relations_many_and_clauses()
-        );
+        let expected = testdata::get_filtered_expr_relations_many_and_clauses();
+
+        assert_eq!(exprs, expected);
+        let count = state.get_count_filtered_expr_relations(&filter).await?;
+        assert_eq!(count as usize, expected.len(),);
         Ok(())
     }
     #[sqlx::test(fixtures("dummy"))]

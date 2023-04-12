@@ -19,6 +19,14 @@ export const getFilteredGenes = async (
   });
 };
 
+export const getCountFilteredGenes = async (
+  filter: FilterGroup<GeneFieldName>
+): Promise<number> => {
+  return await invoke('get_count_filtered_genes', {
+    filter,
+  });
+};
+
 export const getGene = async (name: string): Promise<db_Gene> => {
   const filter: FilterGroup<GeneFieldName> = {
     filters: [[['SysName', { Equal: name }]]],

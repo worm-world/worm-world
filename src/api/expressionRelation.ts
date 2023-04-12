@@ -17,6 +17,14 @@ export const getFilteredExpressionRelations = async (
   });
 };
 
+export const getCountFilteredExpressionRelations = async (
+  filter: FilterGroup<ExpressionRelationFieldName>
+): Promise<number> => {
+  return await invoke('get_count_filtered_expr_relations', {
+    filter,
+  });
+};
+
 export const insertDbExpressionRelation = async (
   record: db_ExpressionRelation
 ): Promise<void> => {

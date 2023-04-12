@@ -31,7 +31,7 @@ impl InnerDbState {
     ) -> Result<Vec<TaskCondition>, DbError> {
         let mut qb: QueryBuilder<Sqlite> =
             QueryBuilder::new("SELECT task_id, cond_name FROM task_conds");
-        filter.add_filtered_query(&mut qb, true);
+        filter.add_filtered_query(&mut qb, true, true);
 
         match qb
             .build_query_as::<TaskCondition>()

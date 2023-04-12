@@ -1,6 +1,7 @@
 import { db_Phenotype } from 'models/db/db_Phenotype';
 import { ColumnDefinitionType } from 'components/Table/Table';
 import {
+  getCountFilteredPhenotypes,
   getFilteredPhenotypes,
   insertDbPhenotype,
   insertPhenotypesFromFile,
@@ -90,6 +91,7 @@ export default function PhenotypeDataPage(): JSX.Element {
       fields={fields}
       nameMapping={nameMapping}
       getFilteredData={getFilteredPhenotypes}
+      getCountFilteredData={getCountFilteredPhenotypes}
       insertDatum={insertDbPhenotype}
       insertDataFromFile={insertPhenotypesFromFile}
     />

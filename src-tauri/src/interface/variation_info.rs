@@ -1,6 +1,6 @@
 use super::bulk::Bulk;
 use super::{DbError, InnerDbState, SQLITE_BIND_LIMIT};
-use crate::models::filter::FilterQueryBuilder;
+use crate::models::filter::{Count, FilterQueryBuilder};
 use crate::models::variation_info::VariationInfoDb;
 use crate::models::{
     filter::FilterGroup,
@@ -34,7 +34,7 @@ impl InnerDbState {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end FROM variation_info",
         );
-        filter.add_filtered_query(&mut qb, true);
+        filter.add_filtered_query(&mut qb, true, true);
         match qb
             .build_query_as::<VariationInfoDb>()
             .fetch_all(&self.conn_pool)
@@ -42,11 +42,33 @@ impl InnerDbState {
         {
             Ok(exprs) => Ok(exprs.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
-                eprint!("Get Filtered Gene error: {e}");
+                eprint!("Get Filtered Variation Info error: {e}");
                 Err(DbError::Query(e.to_string()))
             }
         }
     }
+
+    pub async fn get_count_filtered_variation_info(
+        &self,
+        filter: &FilterGroup<VariationFieldName>,
+    ) -> Result<u32, DbError> {
+        let mut qb: QueryBuilder<Sqlite> =
+            QueryBuilder::new("SELECT COUNT(*) as count FROM variation_info");
+        filter.add_filtered_query(&mut qb, true, false);
+
+        match qb
+            .build_query_as::<Count>()
+            .fetch_one(&self.conn_pool)
+            .await
+        {
+            Ok(count) => Ok(count.count),
+            Err(e) => {
+                eprint!("Get Filtered Variation Info Count error: {e}");
+                Err(DbError::Query(e.to_string()))
+            }
+        }
+    }
+
     pub async fn insert_variation_info(&self, vi: &VariationInfo) -> Result<(), DbError> {
         let chromosome = vi.chromosome.as_ref().map(|v| v.to_string());
         let (start, end): (Option<i32>, Option<i32>) = match vi.recomb_suppressor {

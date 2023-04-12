@@ -1,7 +1,7 @@
 use super::{bulk::Bulk, DbError, InnerDbState, SQLITE_BIND_LIMIT};
 use crate::models::{
     allele::{Allele, AlleleFieldName},
-    filter::{FilterGroup, FilterQueryBuilder},
+    filter::{Count, FilterGroup, FilterQueryBuilder},
     gene::{Gene, GeneFieldName},
 };
 use anyhow::Result;
@@ -33,7 +33,7 @@ impl InnerDbState {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT name, contents, systematic_gene_name, variation_name FROM alleles",
         );
-        filter.add_filtered_query(&mut qb, true);
+        filter.add_filtered_query(&mut qb, true, true);
         match qb
             .build_query_as::<Allele>()
             .fetch_all(&self.conn_pool)
@@ -42,6 +42,27 @@ impl InnerDbState {
             Ok(exprs) => Ok(exprs.into_iter().collect()),
             Err(e) => {
                 eprint!("Get Filtered Allele error: {e}");
+                Err(DbError::Query(e.to_string()))
+            }
+        }
+    }
+
+    pub async fn get_count_filtered_alleles(
+        &self,
+        filter: &FilterGroup<AlleleFieldName>,
+    ) -> Result<u32, DbError> {
+        let mut qb: QueryBuilder<Sqlite> =
+            QueryBuilder::new("SELECT COUNT(*) as count FROM alleles");
+        filter.add_filtered_query(&mut qb, true, false);
+
+        match qb
+            .build_query_as::<Count>()
+            .fetch_one(&self.conn_pool)
+            .await
+        {
+            Ok(count) => Ok(count.count),
+            Err(e) => {
+                eprint!("Get Filtered Alleles Count error: {e}");
                 Err(DbError::Query(e.to_string()))
             }
         }
@@ -64,12 +85,12 @@ impl InnerDbState {
         if !allele_filter.filters.is_empty() || !gene_filter.filters.is_empty() {
             qb.push(" WHERE ");
         }
-        allele_filter.add_filtered_query(&mut qb, false);
+        allele_filter.add_filtered_query(&mut qb, false, true);
 
         if !allele_filter.filters.is_empty() && !gene_filter.filters.is_empty() {
             qb.push(" OR ");
         }
-        gene_filter.add_filtered_query(&mut qb, false);
+        gene_filter.add_filtered_query(&mut qb, false, true);
 
         match qb.build().fetch_all(&self.conn_pool).await {
             Ok(exprs) => {

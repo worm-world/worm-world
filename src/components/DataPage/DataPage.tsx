@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Table, ColumnDefinitionType } from 'components/Table/Table';
 import DataImportForm from 'components/DataImportForm/DataImportForm';
@@ -13,6 +13,7 @@ interface iDataPageProps<T, K> {
   nameMapping: { [key in keyof T]: K };
   insertDatum: (record: T) => Promise<void>;
   getFilteredData: (filterObj: FilterGroup<K>) => Promise<T[]>;
+  getCountFilteredData: (filterObj: FilterGroup<K>) => Promise<number>;
   insertDataFromFile: (path: string) => Promise<void>;
 }
 
@@ -20,13 +21,30 @@ const rowsPerPage = 50;
 
 const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
   const [data, setData] = useState<T[]>([]);
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState<number | undefined>(0);
+  const [rowCount, setRowCount] = useState(0);
+
+  const autoSize = (element: HTMLElement): void => {
+    element.style.width = '0';
+    const { borderLeftWidth, borderRightWidth } = getComputedStyle(element);
+    /**
+     * Turns a string like '36px' into the number 36
+     */
+    const numberPxToNumber = (numberPx: string): number =>
+      parseInt(numberPx.slice(0, -2));
+    const borderWidth =
+      numberPxToNumber(borderLeftWidth) +
+      numberPxToNumber(borderRightWidth) +
+      17;
+    // For some reason border is not included in scrollWidth
+    element.style.width = `${element.scrollWidth + borderWidth}px`;
+  };
 
   const [curFilter, setCurFilter] = useState<FilterGroup<K>>({
     filters: [],
     orderBy: [],
     limit: rowsPerPage,
-    offset: page * rowsPerPage,
+    offset: (page ?? 0) * rowsPerPage,
   });
   const onRecordInsertionFormSubmission = (
     record: T,
@@ -70,12 +88,23 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
     setCurFilter(filterObj);
     setPage((page) => {
       props
-        .getFilteredData({
-          ...filterObj,
-          limit: rowsPerPage,
-          offset: page * rowsPerPage,
+        .getCountFilteredData(filterObj)
+        .then((c) => {
+          if ((page ?? 0) > Math.ceil(c / rowsPerPage)) setPage(undefined);
+          props
+            .getFilteredData({
+              ...filterObj,
+              limit: rowsPerPage,
+              offset: (page ?? 0) * rowsPerPage,
+            })
+            .then((ds) => setData(ds))
+            .catch((e) =>
+              toast.error('Unable to get data: ' + JSON.stringify(e), {
+                toastId: props.dataName,
+              })
+            );
+          setRowCount(c);
         })
-        .then((ds) => setData(ds))
         .catch((e) =>
           toast.error('Unable to get data: ' + JSON.stringify(e), {
             toastId: props.dataName,
@@ -98,26 +127,34 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
       <div>
         <div className='grid grid-cols-3 place-items-center items-center px-6'>
           <div className='flex select-none flex-row justify-start pt-4'>
-            {page > 0 && (
-              <span
-                className='cursor-pointer text-xl font-bold'
-                onClick={() => {
-                  setPage(page - 1);
-                  refresh();
+            <span className='mx-2 pt-1'>
+              Page
+              <input
+                value={page !== undefined && rowCount > 0 ? page + 1 : ''}
+                type='number'
+                className='ml-2 w-6 bg-base-200 text-right'
+                onChange={(e) => {
+                  if (e.target.value === '') {
+                    setPage(undefined);
+                    return;
+                  }
+                  const newPage = parseInt(e.target.value);
+                  if (
+                    newPage > 0 &&
+                    newPage <= Math.ceil(rowCount / rowsPerPage)
+                  ) {
+                    setPage(newPage - 1);
+                    refresh();
+                    autoSize(e.target);
+                  }
                 }}
-              >
-                –
+              />
+              <span className='opacity-60'>
+                /{Math.ceil(rowCount / rowsPerPage)}
               </span>
-            )}
-            <span className='mx-2 pt-1'>Page {page + 1}</span>
-            <span
-              className='cursor-pointer text-xl font-bold'
-              onClick={() => {
-                setPage(page + 1);
-                refresh();
-              }}
-            >
-              +
+            </span>
+            <span className='ml-6 pt-2 text-sm opacity-60'>
+              {rowCount > 0 ? rowCount.toLocaleString() + ' total rows' : ''}
             </span>
           </div>
           <h1 className='data-table-title col-start-2'>{props.title}</h1>
@@ -144,7 +181,7 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
             runFilters={runFilters}
             nameMapping={props.nameMapping}
             data={data}
-            offset={page * rowsPerPage}
+            offset={(page ?? 0) * rowsPerPage}
             columns={props.cols}
             fields={props.fields}
           />

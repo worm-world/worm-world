@@ -47,33 +47,40 @@ async fn main() {
         .invoke_handler(tauri::generate_handler![
             get_genes,
             get_filtered_genes,
+            get_count_filtered_genes,
             insert_gene,
             insert_genes_from_file,
             get_conditions,
             get_filtered_conditions,
+            get_count_filtered_conditions,
             get_altering_conditions,
             insert_condition,
             insert_conditions_from_file,
             get_phenotypes,
             get_filtered_phenotypes,
+            get_count_filtered_phenotypes,
             get_altering_phenotypes,
             insert_phenotype,
             insert_phenotypes_from_file,
             get_variation_info,
             get_filtered_variation_info,
+            get_count_filtered_variation_info,
             insert_variation_info,
             insert_variation_infos_from_file,
             get_allele_exprs,
             get_filtered_allele_exprs,
+            get_count_filtered_allele_exprs,
             insert_allele_expr,
             insert_allele_exprs_from_file,
             get_alleles,
             get_filtered_alleles,
+            get_count_filtered_alleles,
             get_filtered_alleles_with_gene_filter,
             insert_allele,
             insert_alleles_from_file,
             get_expr_relations,
             get_filtered_expr_relations,
+            get_count_filtered_expr_relations,
             insert_expr_relation,
             insert_expr_relations_from_file,
             get_tasks,
@@ -90,6 +97,7 @@ async fn main() {
             delete_tree,
             get_task_conditions,
             get_filtered_task_conditions,
+            get_count_filtered_conditions,
             insert_task_condition,
             get_task_dependencies,
             get_filtered_task_dependency,
@@ -153,6 +161,15 @@ async fn get_filtered_genes(
 }
 
 #[tauri::command]
+async fn get_count_filtered_genes(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<GeneFieldName>,
+) -> Result<u32, DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.get_count_filtered_genes(&filter).await
+}
+
+#[tauri::command]
 async fn insert_gene(state: tauri::State<'_, DbState>, gene: Gene) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
     state_guard.insert_gene(&gene).await
@@ -183,6 +200,15 @@ async fn get_filtered_conditions(
 ) -> Result<Vec<Condition>, DbError> {
     let state_guard = state.0.read().await;
     state_guard.get_filtered_conditions(&filter).await
+}
+
+#[tauri::command]
+async fn get_count_filtered_conditions(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<ConditionFieldName>,
+) -> Result<u32, DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.get_count_filtered_conditions(&filter).await
 }
 
 #[tauri::command]
@@ -231,6 +257,15 @@ async fn get_filtered_phenotypes(
 ) -> Result<Vec<Phenotype>, DbError> {
     let state_guard = state.0.read().await;
     state_guard.get_filtered_phenotypes(&filter).await
+}
+
+#[tauri::command]
+async fn get_count_filtered_phenotypes(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<PhenotypeFieldName>,
+) -> Result<u32, DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.get_count_filtered_phenotypes(&filter).await
 }
 
 #[tauri::command]
@@ -284,6 +319,15 @@ async fn get_filtered_variation_info(
 }
 
 #[tauri::command]
+async fn get_count_filtered_variation_info(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<VariationFieldName>,
+) -> Result<u32, DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.get_count_filtered_variation_info(&filter).await
+}
+
+#[tauri::command]
 async fn insert_variation_info(
     state: tauri::State<'_, DbState>,
     variation_info: VariationInfo,
@@ -322,6 +366,15 @@ async fn get_filtered_allele_exprs(
 }
 
 #[tauri::command]
+async fn get_count_filtered_allele_exprs(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<AlleleExpressionFieldName>,
+) -> Result<u32, DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.get_count_filtered_allele_exprs(&filter).await
+}
+
+#[tauri::command]
 async fn insert_allele_expr(
     state: tauri::State<'_, DbState>,
     allele_expr: AlleleExpression,
@@ -355,6 +408,15 @@ async fn get_filtered_alleles(
 ) -> Result<Vec<Allele>, DbError> {
     let state_guard = state.0.read().await;
     state_guard.get_filtered_alleles(&filter).await
+}
+
+#[tauri::command]
+async fn get_count_filtered_alleles(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<AlleleFieldName>,
+) -> Result<u32, DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.get_count_filtered_alleles(&filter).await
 }
 
 #[tauri::command]
@@ -402,6 +464,15 @@ async fn get_filtered_expr_relations(
 ) -> Result<Vec<ExpressionRelation>, DbError> {
     let state_guard = state.0.read().await;
     state_guard.get_filtered_expr_relations(&filter).await
+}
+
+#[tauri::command]
+async fn get_count_filtered_expr_relations(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<ExpressionRelationFieldName>,
+) -> Result<u32, DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.get_count_filtered_expr_relations(&filter).await
 }
 
 #[tauri::command]

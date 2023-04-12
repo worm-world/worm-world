@@ -19,6 +19,12 @@ export const getFilteredAlleles = async (
   return await invoke('get_filtered_alleles', { filter });
 };
 
+export const getCountFilteredAlleles = async (
+  filter: FilterGroup<AlleleFieldName>
+): Promise<number> => {
+  return await invoke('get_count_filtered_alleles', { filter });
+};
+
 export const getFilteredAllelesWithGeneFilter = async (
   alleleFilter: FilterGroup<AlleleFieldName>,
   geneFilter: FilterGroup<GeneFieldName>

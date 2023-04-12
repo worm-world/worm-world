@@ -1,4 +1,5 @@
 import {
+  getCountFilteredExpressionRelations,
   getFilteredExpressionRelations,
   insertDbExpressionRelation,
   insertExpressionRelationsFromFile,
@@ -78,6 +79,7 @@ export default function ExpressionRelationDataPage(): JSX.Element {
       fields={fields}
       nameMapping={nameMapping}
       getFilteredData={getFilteredExpressionRelations}
+      getCountFilteredData={getCountFilteredExpressionRelations}
       insertDatum={insertDbExpressionRelation}
       insertDataFromFile={insertExpressionRelationsFromFile}
     />

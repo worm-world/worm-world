@@ -1,10 +1,15 @@
 use super::FieldNameEnum;
 use serde::{Deserialize, Serialize};
-use sqlx::{QueryBuilder, Sqlite};
+use sqlx::{FromRow, QueryBuilder, Sqlite};
 use ts_rs::TS;
 
 pub trait FilterQueryBuilder {
-    fn add_filtered_query(&self, qb: &mut QueryBuilder<Sqlite>, supply_where: bool);
+    fn add_filtered_query(
+        &self,
+        qb: &mut QueryBuilder<Sqlite>,
+        supply_where: bool,
+        paginated: bool,
+    );
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, TS)]
@@ -12,6 +17,11 @@ pub trait FilterQueryBuilder {
 pub enum Order {
     Asc,
     Desc,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, FromRow)]
+pub struct Count {
+    pub count: u32,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, TS)]
@@ -146,7 +156,12 @@ where
 }
 
 impl<T: FieldNameEnum> FilterQueryBuilder for FilterGroup<T> {
-    fn add_filtered_query(&self, qb: &mut QueryBuilder<Sqlite>, supply_where: bool) {
+    fn add_filtered_query(
+        &self,
+        qb: &mut QueryBuilder<Sqlite>,
+        supply_where: bool,
+        paginated: bool,
+    ) {
         if !self.filters.is_empty() {
             // WHERE
             if supply_where {
@@ -192,14 +207,16 @@ impl<T: FieldNameEnum> FilterQueryBuilder for FilterGroup<T> {
             qb_separated.push_unseparated(" ");
         }
         // LIMIT
-        if let Some(limit) = self.limit {
-            qb.push(" LIMIT ");
-            qb.push_bind(limit);
-        }
-        // OFFSET
-        if let Some(offset) = self.offset {
-            qb.push(" OFFSET ");
-            qb.push_bind(offset);
+        if supply_where && paginated {
+            if let Some(limit) = self.limit {
+                qb.push(" LIMIT ");
+                qb.push_bind(limit);
+            }
+            // OFFSET
+            if let Some(offset) = self.offset {
+                qb.push(" OFFSET ");
+                qb.push_bind(offset);
+            }
         }
         // DEBUG (uncomment line below)
         // println!("{}", qb.sql());

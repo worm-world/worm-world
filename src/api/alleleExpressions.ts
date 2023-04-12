@@ -20,6 +20,12 @@ export const getFilteredAlleleExpressions = async (
   return await invoke('get_filtered_allele_exprs', { filter });
 };
 
+export const getCountFilteredAlleleExpressions = async (
+  filter: FilterGroup<AlleleExpressionFieldName>
+): Promise<number> => {
+  return await invoke('get_count_filtered_allele_exprs', { filter });
+};
+
 export const getAlleleExpression = async (
   alleleName: string,
   expressingPhenotypeName: string,

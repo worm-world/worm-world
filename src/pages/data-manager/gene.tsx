@@ -1,4 +1,9 @@
-import { getFilteredGenes, insertDbGene, insertGenesFromFile } from 'api/gene';
+import {
+  getCountFilteredGenes,
+  getFilteredGenes,
+  insertDbGene,
+  insertGenesFromFile,
+} from 'api/gene';
 import { db_Gene } from 'models/db/db_Gene';
 import { ColumnDefinitionType } from 'components/Table/Table';
 import { chromosomes } from 'models/frontend/Chromosome';
@@ -61,6 +66,7 @@ export default function GeneDataPage(): JSX.Element {
       fields={fields}
       nameMapping={nameMapping}
       getFilteredData={getFilteredGenes}
+      getCountFilteredData={getCountFilteredGenes}
       insertDatum={insertDbGene}
       insertDataFromFile={insertGenesFromFile}
     />
