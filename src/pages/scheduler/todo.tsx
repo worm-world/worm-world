@@ -154,7 +154,9 @@ const TreeFilter = (props: TreeFilterProps): JSX.Element => {
         {Array.from(props.treeIds).map((id: string) => {
           return (
             <option key={id} value={id}>
-              {props.treeNames.get(id)}
+              {props.treeNames.get(id) === ''
+                ? '(Untitled)'
+                : props.treeNames.get(id)}
             </option>
           );
         })}
