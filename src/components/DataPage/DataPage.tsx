@@ -131,11 +131,13 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
               Page
               <input
                 value={page !== undefined && rowCount > 0 ? page + 1 : ''}
+                placeholder='1'
                 type='number'
                 className='ml-2 w-6 bg-base-200 text-right'
                 onChange={(e) => {
                   if (e.target.value === '') {
                     setPage(undefined);
+                    refresh();
                     return;
                   }
                   const newPage = parseInt(e.target.value);
