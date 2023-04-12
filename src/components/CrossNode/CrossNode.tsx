@@ -60,7 +60,7 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
               props.model.toggleSex
             )}
             {props.model.isChild && (
-              <div className='dropdown dropdown-top'>
+              <div className='dropdown-top dropdown'>
                 <label
                   tabIndex={0}
                   className='btn-ghost btn-xs btn m-1 mt-1 text-accent ring-0 hover:bg-base-200 hover:ring-0'
@@ -90,7 +90,7 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
             )}
           </div>
 
-          <div className='mt-2 overflow-x-auto px-3 pb-5'>
+          <div className='mt-2 overflow-x-auto px-3 pb-1'>
             <div
               className='flex min-w-min justify-center text-sm'
               data-testid='crossNodeBody'
