@@ -92,6 +92,9 @@ const FilterInput = <T,>(props: iFilterInputProps<T>): JSX.Element => {
   const filterType = getFilterType(props.filter);
   switch (filterType) {
     case 'Range': {
+      // Specify strict inequality according to filter type
+      props.filterValues[1] = false;
+      props.filterValues[3] = false;
       return (
         <div className='form-control ml-5 flex flex-col'>
           <FilterTextInput
@@ -104,7 +107,7 @@ const FilterInput = <T,>(props: iFilterInputProps<T>): JSX.Element => {
           <FilterTextInput
             setFilterValues={props.setFilterValues}
             filterValues={props.filterValues}
-            index={1}
+            index={2}
             type='number'
             label='Upper'
           />
@@ -113,6 +116,8 @@ const FilterInput = <T,>(props: iFilterInputProps<T>): JSX.Element => {
     }
     case 'GreaterThan':
     case 'LessThan':
+      // Specify strict inequality according to filter type
+      props.filterValues[1] = false;
       return (
         <FilterTextInput
           setFilterValues={props.setFilterValues}
@@ -194,21 +199,30 @@ export const ColumnFilter = <T,>(props: iColumnFilterProps<T>): JSX.Element => {
             {props.field.title + ' Filters'}
           </div>
           {props.columnFilters.map((filterType, i) => (
-            <FilterEntry
-              key={i}
-              index={i}
-              filter={filterType}
-              field={props.field}
-              setFilter={(filterType) => {
-                const newFilters = [...props.columnFilters];
-                if (filterType === null) {
-                  newFilters.splice(i, 1);
-                } else {
-                  newFilters[i] = filterType;
+            <div key={i} className='flex flex-row'>
+              <span
+                className={
+                  'mr-2 py-4 ' + (i === 0 ? ' opacity-0' : 'opacity-60')
                 }
-                props.setColumnFilters(newFilters);
-              }}
-            />
+              >
+                OR
+              </span>
+              <FilterEntry
+                key={i}
+                index={i}
+                filter={filterType}
+                field={props.field}
+                setFilter={(filterType) => {
+                  const newFilters = [...props.columnFilters];
+                  if (filterType === null) {
+                    newFilters.splice(i, 1);
+                  } else {
+                    newFilters[i] = filterType;
+                  }
+                  props.setColumnFilters(newFilters);
+                }}
+              />
+            </div>
           ))}
           <button
             title='add-filter'
