@@ -102,7 +102,7 @@ const SideNav = (props: SideNavProps): JSX.Element => {
               >
                 <img
                   alt='WormWorld'
-                  src='wormworld_logo.svg'
+                  src='/wormworld_logo.svg'
                   className=' w-52'
                 />
               </Link>
