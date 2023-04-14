@@ -65,7 +65,7 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
   };
 
   const updateTreeName = (): void => {
-    props.tree.name = name;
+    props.tree.name = name.trim();
     props.tree.lastSaved = new Date();
     updateTree(props.tree.generateRecord(props.tree.editable))
       .then(props.refreshTrees)
