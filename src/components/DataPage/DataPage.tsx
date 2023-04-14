@@ -57,9 +57,12 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
         refresh();
       })
       .catch((e: Error) => {
-        toast.error(
-          'An error has occured when inserting data: ' + JSON.stringify(e)
-        );
+        let eMsg = e.message;
+        if (eMsg === 'undefined' || eMsg === undefined || eMsg === null)
+          eMsg =
+            'An error has occured when inserting data: ' + JSON.stringify(e);
+
+        toast.error(eMsg);
       });
   };
 

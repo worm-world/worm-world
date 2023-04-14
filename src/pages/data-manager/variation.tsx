@@ -12,7 +12,7 @@ import DataPage from 'components/DataPage/DataPage';
 import { Field } from 'components/ColumnFilter/ColumnFilter';
 
 export const cols: Array<ColumnDefinitionType<db_VariationInfo>> = [
-  { key: 'alleleName', header: 'Allele Name' },
+  { key: 'alleleName', header: 'Variation Name' },
   { key: 'chromosome', header: 'Chromosome' },
   { key: 'physLoc', header: 'Physical Location' },
   { key: 'geneticLoc', header: 'Genetic Location' },
@@ -21,7 +21,7 @@ export const cols: Array<ColumnDefinitionType<db_VariationInfo>> = [
 const fields: Array<Field<db_VariationInfo>> = [
   {
     name: 'alleleName',
-    title: 'Allele Name',
+    title: 'Variation Name',
     type: 'text',
   },
   {
