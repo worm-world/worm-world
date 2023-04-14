@@ -7,6 +7,8 @@ import { GiCheckboxTree as TreeIcon } from 'react-icons/gi';
 import { getTrees } from 'api/crossTree';
 import { BiHide, BiShow } from 'react-icons/bi';
 
+const untitledName = '(Untitled)';
+
 export const SchedulePage = (): JSX.Element => {
   const noFilterText = 'No filter';
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -155,7 +157,7 @@ const TreeFilter = (props: TreeFilterProps): JSX.Element => {
           return (
             <option key={id} value={id}>
               {props.treeNames.get(id) === ''
-                ? '(Untitled)'
+                ? untitledName
                 : props.treeNames.get(id)}
             </option>
           );
@@ -245,7 +247,9 @@ const TaskRemovalPrompt = (props: {
     ? 'modal-open modal cursor-pointer'
     : 'modal cursor-pointer';
 
-  const treeName = props.treeNames.get(props.tasks[0].treeId);
+  let treeName = props.treeNames.get(props.tasks[0].treeId);
+  if (treeName === '' || treeName === undefined) treeName = untitledName;
+
   const modalHeader = `"${treeName}" complete`;
   const confirmationText = `Great job! It looks like you've completed all tasks for "${treeName}". Would you like to clear them out of the scheduler?`;
   return (
