@@ -18,7 +18,7 @@ const EditorTop = (props: EditorTopProps): JSX.Element => {
   }, [props.tree.name]);
 
   const updateTreeName = (): void => {
-    props.tree.name = name;
+    props.tree.name = name.trim();
     updateTree(props.tree.generateRecord(props.tree.editable)).catch((error) =>
       console.error(error)
     );
