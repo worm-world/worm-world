@@ -1,5 +1,10 @@
 import { BiX as CloseIcon, BiPlus as PlusIcon } from 'react-icons/bi';
-import { ChangeEvent, HTMLInputTypeAttribute, useState } from 'react';
+import {
+  ChangeEvent,
+  HTMLInputTypeAttribute,
+  useEffect,
+  useState,
+} from 'react';
 import { Filter } from 'models/db/filter/Filter';
 import {
   FilterType,
@@ -130,6 +135,13 @@ const FilterInput = <T,>(props: iFilterInputProps<T>): JSX.Element => {
     case 'NotEqual':
     case 'Like':
     case 'Equal':
+      if (
+        props.field?.type === 'select' &&
+        getValuesForFilterType(props.filter)[0] === ''
+      ) {
+        const options = props.field?.selectOptions ?? ['undefined'];
+        props.setFilterValues([options[0]]);
+      }
       return props.field?.type === 'select' ? (
         // if select, render a select input
         <div className='form-control flex flex-col'>
