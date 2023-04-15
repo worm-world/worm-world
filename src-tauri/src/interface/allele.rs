@@ -191,6 +191,22 @@ impl InnerDbState {
         }
         Ok(())
     }
+
+    pub async fn delete_filtered_alleles(
+        &self,
+        filter: &FilterGroup<AlleleFieldName>,
+    ) -> Result<(), DbError> {
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new("DELETE FROM alleles");
+        filter.add_filtered_query(&mut qb, true, false);
+
+        match qb.build().execute(&self.conn_pool).await {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                eprint!("Delete Allele error: {e}");
+                Err(DbError::Delete(e.to_string()))
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -210,7 +226,7 @@ mod test {
     use sqlx::{Pool, Sqlite};
 
     /* #region get_alleles tests */
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_alleles(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let alleles = state.get_alleles().await?;
@@ -378,7 +394,7 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
     }
 
     /* #region get_filtered_alleles tests */
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_alleles(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -403,7 +419,7 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
         Ok(())
     }
 
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_alleles_no_results(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -422,7 +438,7 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
         Ok(())
     }
 
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_alleles_not_null_contents(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -438,7 +454,7 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
         Ok(())
     }
 
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_alleles_not_null_contents_desc(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -455,7 +471,7 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
         Ok(())
     }
 
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_alleles_null_contents(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -471,7 +487,7 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
         Ok(())
     }
 
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_search_allele_by_name(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -492,7 +508,7 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
     /* #endregion */
 
     /* #region get_filtered_alleles_with_gene_filter */
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_alleles_with_gene_filter(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
 
@@ -521,7 +537,7 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
         Ok(())
     }
 
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_alleles_with_empty_gene_filter(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
 
@@ -547,7 +563,7 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
         Ok(())
     }
 
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_alleles_with_gene_filter_and_empty_allele_filter(
         pool: Pool<Sqlite>,
     ) -> Result<()> {
@@ -581,7 +597,7 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
         Ok(())
     }
 
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_alleles_with_gene_filter_with_both_empty_filters(
         pool: Pool<Sqlite>,
     ) -> Result<()> {
@@ -606,6 +622,86 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
             .await?;
 
         assert_eq!(exprs, testdata::get_alleles_with_genes());
+        Ok(())
+    }
+    /* #endregion */
+
+    /* #region delete_alleles test */
+    #[sqlx::test(fixtures("allele"))]
+    async fn test_delete_single_allele(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let mut alleles: Vec<Allele> = state.get_alleles().await?;
+        assert_eq!(alleles.len(), testdata::get_alleles().len());
+
+        let delete_filter = &FilterGroup::<AlleleFieldName> {
+            filters: vec![vec![(
+                AlleleFieldName::Name,
+                Filter::Equal("cn64".to_string()),
+            )]],
+            order_by: vec![],
+            limit: None,
+            offset: None,
+        };
+
+        state.delete_filtered_alleles(delete_filter).await?;
+
+        alleles = state.get_alleles().await?;
+        assert_eq!(alleles.len(), testdata::get_alleles().len() - 1);
+
+        alleles = state.get_filtered_alleles(delete_filter).await?;
+        assert_eq!(alleles.len(), 0);
+
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("allele"))]
+    async fn test_delete_filtered_alleles(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let mut alleles: Vec<Allele> = state.get_alleles().await?;
+        let orig_len = alleles.len();
+        assert_eq!(orig_len, testdata::get_alleles().len());
+
+        // Remove all trans-genes
+        let filter = &FilterGroup::<AlleleFieldName> {
+            filters: vec![vec![(AlleleFieldName::SysGeneName, Filter::Null)]],
+            order_by: vec![],
+            limit: None,
+            offset: None,
+        };
+
+        alleles = state.get_filtered_alleles(filter).await?;
+        let filtered_len = alleles.len();
+        assert!(filtered_len > 0);
+
+        state.delete_filtered_alleles(filter).await?;
+        alleles = state.get_alleles().await?;
+
+        assert_eq!(alleles.len(), orig_len - filtered_len);
+        assert_eq!(state.get_filtered_alleles(filter).await?.len(), 0);
+
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("allele"))]
+    async fn test_delete_all_alleles(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let mut alleles: Vec<Allele> = state.get_alleles().await?;
+        assert_eq!(alleles.len(), testdata::get_alleles().len());
+
+        let filter = &FilterGroup::<AlleleFieldName> {
+            filters: vec![],
+            order_by: vec![],
+            limit: None,
+            offset: None,
+        };
+
+        state.delete_filtered_alleles(filter).await?;
+        alleles = state.get_alleles().await?;
+
+        assert_eq!(alleles.len(), 0);
+
         Ok(())
     }
     /* #endregion */

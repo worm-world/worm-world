@@ -138,6 +138,22 @@ impl InnerDbState {
         }
         Ok(())
     }
+
+    pub async fn delete_filtered_genes(
+        &self,
+        filter: &FilterGroup<GeneFieldName>,
+    ) -> Result<(), DbError> {
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new("DELETE FROM genes");
+        filter.add_filtered_query(&mut qb, true, false);
+
+        match qb.build().execute(&self.conn_pool).await {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                eprint!("Delete Gene error: {e}");
+                Err(DbError::Delete(e.to_string()))
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -159,7 +175,7 @@ mod test {
     use sqlx::{Pool, Sqlite};
 
     /* #region get_genes tests */
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_genes(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
 
@@ -172,7 +188,7 @@ mod test {
     /* #endregion */
 
     /* #region get_filtered_genes tests */
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_genes(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -191,7 +207,7 @@ mod test {
         Ok(())
     }
 
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_genes_alternate_ordering(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -210,7 +226,7 @@ mod test {
         Ok(())
     }
 
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_genes_and_clause(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -228,7 +244,7 @@ mod test {
         assert_eq!(exprs, testdata::get_filtered_genes_and_clause());
         Ok(())
     }
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_genes_and_with_or_clause(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -258,7 +274,7 @@ mod test {
         assert_eq!(exprs, testdata::get_filtered_genes_and_or_clause());
         Ok(())
     }
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_search_genes_by_desc_name(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -276,7 +292,7 @@ mod test {
         assert_eq!(exprs, testdata::search_genes_by_desc_name());
         Ok(())
     }
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_search_genes_by_sys_or_desc_name(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -428,5 +444,105 @@ FAKE23.4\tunc-new\t\t10902633\t6.78\t\t"
         Ok(())
     }
 
+    /* #endregion */
+
+    /* #region delete_genes test */
+    #[sqlx::test]
+    async fn test_delete_single_gene(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        // prep with single gene
+        let gene = Gene {
+            systematic_name: "T14B4.7".to_string(),
+            descriptive_name: Some("dpy-10".to_string()),
+            chromosome: Some(Chromosome::Ii),
+            phys_loc: Some(6710149),
+            gen_loc: Some(0.0),
+            recomb_suppressor: None,
+        };
+        state.insert_gene(&gene).await?;
+
+        let mut genes: Vec<Gene> = state.get_genes().await?;
+        assert_eq!(genes.len(), 1);
+
+        state
+            .delete_filtered_genes(&FilterGroup::<GeneFieldName> {
+                filters: vec![vec![(
+                    GeneFieldName::SysName,
+                    Filter::Equal("T14B4.7".to_string()),
+                )]],
+                order_by: vec![],
+                limit: None,
+                offset: None,
+            })
+            .await?;
+
+        genes = state.get_genes().await?;
+        assert_eq!(genes.len(), 0);
+        Ok(())
+    }
+
+    #[sqlx::test]
+
+    async fn test_delete_filtered_genes(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        // prep with single gene
+        for gene in testdata::get_genes().iter() {
+            state.insert_gene(gene).await?;
+        }
+
+        let mut genes: Vec<Gene> = state.get_genes().await?;
+        let orig_len = genes.len();
+        assert_eq!(orig_len, testdata::get_genes().len());
+
+        let filter = &FilterGroup::<GeneFieldName> {
+            filters: vec![vec![(
+                GeneFieldName::Chromosome,
+                Filter::Equal(Chromosome::X.to_string()),
+            )]],
+            order_by: vec![],
+            limit: None,
+            offset: None,
+        };
+
+        genes = state.get_filtered_genes(filter).await?;
+        let filtered_len = genes.len();
+        assert!(filtered_len > 0);
+
+        state.delete_filtered_genes(filter).await?;
+        genes = state.get_genes().await?;
+
+        assert_eq!(genes.len(), orig_len - filtered_len);
+
+        Ok(())
+    }
+
+    #[sqlx::test]
+    async fn test_delete_all_genes(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        // prep with single gene
+        for gene in testdata::get_genes().iter() {
+            state.insert_gene(gene).await?;
+        }
+
+        let mut genes: Vec<Gene> = state.get_genes().await?;
+        assert_eq!(genes.len(), testdata::get_genes().len());
+
+        let filter = &FilterGroup::<GeneFieldName> {
+            filters: vec![],
+            order_by: vec![],
+            limit: None,
+            offset: None,
+        };
+
+        state.delete_filtered_genes(filter).await?;
+        genes = state.get_genes().await?;
+
+        assert_eq!(genes.len(), 0);
+
+        Ok(())
+    }
     /* #endregion */
 }

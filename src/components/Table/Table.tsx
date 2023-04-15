@@ -6,6 +6,7 @@ import {
   FaFilter as FilterIcon,
   FaSortDown as SortDownIcon,
   FaSortUp as SortUpIcon,
+  FaRegTrashAlt as TrashIcon,
 } from 'react-icons/fa';
 import { Field, ColumnFilterModalBox } from '../ColumnFilter/ColumnFilter';
 
@@ -120,11 +121,16 @@ const TableHeader = <T,>(props: TableHeaderProps<T>): JSX.Element => {
       />
     );
   });
+
+  const rowNumCol = <th className='m-0 rounded-none opacity-0'></th>;
+  const deleteCol = rowNumCol;
+
   return (
     <thead>
       <tr className='rounded-none'>
-        <th className='m-0 rounded-none opacity-0'></th>
+        {rowNumCol}
         {headers}
+        {deleteCol}
       </tr>
     </thead>
   );
@@ -133,6 +139,7 @@ const TableHeader = <T,>(props: TableHeaderProps<T>): JSX.Element => {
 interface TableRowsProps<T> {
   data: T[];
   columns: Array<ColumnDefinitionType<T>>;
+  deleteRecord: (row: T) => void;
   offset?: number;
 }
 
@@ -147,28 +154,42 @@ const TableRows = <T,>({
   data,
   columns,
   offset,
+  deleteRecord,
 }: TableRowsProps<T>): JSX.Element => {
   const rows = data.map((row, index) => {
+    const deleteCell = (
+      <td
+        className=' w-10 border-none text-error transition-all hover:text-lg'
+        onClick={() => {
+          Promise.resolve(
+            window.confirm('Are you sure you want to delete this row?')
+          )
+            .then((confirmed: boolean) => {
+              if (confirmed) deleteRecord(row);
+            })
+            .catch((e: Error) => {
+              throw e; // throw upward for DataPage.tsx to handle
+            });
+        }}
+      >
+        <TrashIcon />
+      </td>
+    );
+
     return (
       <tr key={`row-${index}`} className='rounded-none'>
         <td className='m-1 w-4 border-none  pr-3 font-bold text-base-300'>
-          {
-            index + (offset ?? 0) + 1 // for 1-based row indexing instead of 0-based for the user
-          }
+          {index + (offset ?? 0) + 1 /* for 1-based indexing */}
         </td>
+
         {columns.map((column, index2) => {
           return (
-            <td
-              key={`cell-${index2}`}
-              className={
-                'border-2 border-base-300'
-                //  + (row[column.key] == null ? ' bg-base-200' : '')
-              }
-            >
+            <td key={`cell-${index2}`} className={'border-2 border-base-300'}>
               {formatData(row[column.key])}
             </td>
           );
         })}
+        {deleteCell}
       </tr>
     );
   });
@@ -183,6 +204,7 @@ export interface TableProps<T, K> {
   columns: Array<ColumnDefinitionType<T>>;
   runFilters: (filterObj: FilterGroup<K>) => void;
   offset?: number;
+  deleteRecord: (row: T) => void;
 }
 
 type FilterMap<T> = Map<keyof T, Filter[]>;
@@ -260,6 +282,7 @@ export const Table = <T, K>(props: TableProps<T, K>): JSX.Element => {
           data={props.data}
           columns={props.columns}
           offset={props.offset}
+          deleteRecord={props.deleteRecord}
         />
       </table>
       <input

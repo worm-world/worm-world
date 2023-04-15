@@ -15,6 +15,7 @@ interface iDataPageProps<T, K> {
   getFilteredData: (filterObj: FilterGroup<K>) => Promise<T[]>;
   getCountFilteredData: (filterObj: FilterGroup<K>) => Promise<number>;
   insertDataFromFile: (path: string) => Promise<void>;
+  deleteRecord: (row: T) => Promise<void>;
 }
 
 const rowsPerPage = 50;
@@ -63,6 +64,16 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
       });
   };
 
+  const deleteRecordCallback = (record: T): void => {
+    props
+      .deleteRecord(record)
+      .then((_) => refresh())
+      .catch((e: Error) => {
+        toast.error(
+          'An error occured when deleting a record: ' + JSON.stringify(e)
+        );
+      });
+  };
   const importData = async (): Promise<void> => {
     try {
       const filepath: string | null = (await open({
@@ -186,6 +197,7 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
             offset={(page ?? 0) * rowsPerPage}
             columns={props.cols}
             fields={props.fields}
+            deleteRecord={deleteRecordCallback}
           />
         </div>
       </div>

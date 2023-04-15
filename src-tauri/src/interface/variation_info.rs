@@ -136,6 +136,22 @@ impl InnerDbState {
         }
         Ok(())
     }
+
+    pub async fn delete_filtered_variation_infos(
+        &self,
+        filter: &FilterGroup<VariationFieldName>,
+    ) -> Result<(), DbError> {
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new("DELETE FROM variation_info");
+        filter.add_filtered_query(&mut qb, true, false);
+
+        match qb.build().execute(&self.conn_pool).await {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                eprint!("Delete Variation error: {e}");
+                Err(DbError::Delete(e.to_string()))
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -154,7 +170,7 @@ mod test {
     use sqlx::{Pool, Sqlite};
 
     /* #region get_variation tests */
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_variation_info(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
 
@@ -165,7 +181,7 @@ mod test {
     /* #endregion */
 
     /* #region get_filtered_variation tests */
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_variation_info(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let filter = FilterGroup::<VariationFieldName> {
@@ -186,7 +202,7 @@ mod test {
         Ok(())
     }
 
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_variation_gen_loc_range(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let filter = FilterGroup::<VariationFieldName> {
@@ -203,7 +219,7 @@ mod test {
         assert_eq!(exprs, testdata::get_filtered_variation_gen_loc_range());
         Ok(())
     }
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_search_variation_by_allele_name(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let filter = FilterGroup::<VariationFieldName> {
@@ -316,4 +332,88 @@ oxIs13,X,,,,"
         assert_eq!(expected, vis);
         Ok(())
     }
+
+    /* #endregion */
+
+    /* #region delete_alleles test */
+    #[sqlx::test(fixtures("variation"))]
+    async fn test_delete_single_variation_info(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let mut variation_info: Vec<VariationInfo> = state.get_variation_info().await?;
+        assert_eq!(variation_info.len(), testdata::get_variation_info().len());
+
+        let delete_filter = &FilterGroup::<VariationFieldName> {
+            filters: vec![vec![(
+                VariationFieldName::AlleleName,
+                Filter::Equal("oxEx219999".to_string()),
+            )]],
+            order_by: vec![],
+            limit: None,
+            offset: None,
+        };
+
+        state.delete_filtered_variation_infos(delete_filter).await?;
+
+        variation_info = state.get_variation_info().await?;
+        assert_eq!(
+            variation_info.len(),
+            testdata::get_variation_info().len() - 1
+        );
+
+        variation_info = state.get_filtered_variation_info(delete_filter).await?;
+        assert_eq!(variation_info.len(), 0);
+
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("variation"))]
+    async fn test_delete_filtered_variation_infos(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let mut variation_info: Vec<VariationInfo> = state.get_variation_info().await?;
+        let orig_len = variation_info.len();
+        assert_eq!(orig_len, testdata::get_variation_info().len());
+
+        let filter = &FilterGroup::<VariationFieldName> {
+            filters: vec![vec![(VariationFieldName::Chromosome, Filter::Null)]],
+            order_by: vec![],
+            limit: None,
+            offset: None,
+        };
+
+        variation_info = state.get_filtered_variation_info(filter).await?;
+        let filtered_len = variation_info.len();
+        assert!(filtered_len > 0);
+
+        state.delete_filtered_variation_infos(filter).await?;
+        variation_info = state.get_variation_info().await?;
+
+        assert_eq!(variation_info.len(), orig_len - filtered_len);
+        assert_eq!(state.get_filtered_variation_info(filter).await?.len(), 0);
+
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("variation"))]
+    async fn test_delete_all_variation_info(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let mut variation_info: Vec<VariationInfo> = state.get_variation_info().await?;
+        assert_eq!(variation_info.len(), testdata::get_variation_info().len());
+
+        let filter = &FilterGroup::<VariationFieldName> {
+            filters: vec![],
+            order_by: vec![],
+            limit: None,
+            offset: None,
+        };
+
+        state.delete_filtered_variation_infos(filter).await?;
+        variation_info = state.get_variation_info().await?;
+
+        assert_eq!(variation_info.len(), 0);
+
+        Ok(())
+    }
+    /* #endregion */
 }

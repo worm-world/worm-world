@@ -61,3 +61,35 @@ export const insertAlleleExpressionsFromFile = async (
 ): Promise<void> => {
   await invoke('insert_allele_exprs_from_file', { path });
 };
+
+export const deleteFilteredAlleleExpressions = async (
+  filter: FilterGroup<AlleleExpressionFieldName>
+): Promise<void> => {
+  await invoke('delete_filtered_allele_exprs', { filter });
+};
+
+export const deleteAlleleExpression = async (
+  alleleExpr: db_AlleleExpression
+): Promise<void> => {
+  // filter based on all primary keys
+  const filter: FilterGroup<AlleleExpressionFieldName> = {
+    filters: [
+      [['AlleleName', { Equal: alleleExpr.alleleName }]],
+      [
+        [
+          'ExpressingPhenotypeName',
+          { Equal: alleleExpr.expressingPhenotypeName },
+        ],
+      ],
+      [
+        [
+          'ExpressingPhenotypeWild',
+          getDbBoolean(alleleExpr.expressingPhenotypeWild),
+        ],
+      ],
+    ],
+    orderBy: [],
+  };
+
+  await deleteFilteredAlleleExpressions(filter);
+};

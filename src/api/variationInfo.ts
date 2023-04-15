@@ -53,3 +53,20 @@ export const insertDbVariation = async (
 export const insertVariationsFromFile = async (path: string): Promise<void> => {
   await invoke('insert_variation_infos_from_file', { path });
 };
+
+export const deleteFilteredVariations = async (
+  filter: FilterGroup<VariationFieldName>
+): Promise<void> => {
+  await invoke('delete_filtered_variation_infos', { filter });
+};
+
+export const deleteVariation = async (
+  variation: db_VariationInfo
+): Promise<void> => {
+  const filter: FilterGroup<VariationFieldName> = {
+    filters: [[['AlleleName', { Equal: variation.alleleName }]]],
+    orderBy: [],
+  };
+
+  await deleteFilteredVariations(filter);
+};

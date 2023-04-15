@@ -45,44 +45,59 @@ async fn main() {
     tauri::Builder::default()
         .manage(DbState(RwLock::new(InnerDbState { conn_pool: pool })))
         .invoke_handler(tauri::generate_handler![
+            // genes
             get_genes,
             get_filtered_genes,
             get_count_filtered_genes,
             insert_gene,
             insert_genes_from_file,
+            delete_filtered_genes,
+            // conditions
             get_conditions,
             get_filtered_conditions,
             get_count_filtered_conditions,
             get_altering_conditions,
             insert_condition,
             insert_conditions_from_file,
+            delete_filtered_conditions,
+            // phenotypes
             get_phenotypes,
             get_filtered_phenotypes,
             get_count_filtered_phenotypes,
             get_altering_phenotypes,
             insert_phenotype,
             insert_phenotypes_from_file,
+            delete_filtered_phenotypes,
+            // variations
             get_variation_info,
             get_filtered_variation_info,
             get_count_filtered_variation_info,
             insert_variation_info,
             insert_variation_infos_from_file,
+            delete_filtered_variation_infos,
+            // allele_exprs
             get_allele_exprs,
             get_filtered_allele_exprs,
             get_count_filtered_allele_exprs,
             insert_allele_expr,
             insert_allele_exprs_from_file,
+            delete_filtered_allele_exprs,
+            // alleles
             get_alleles,
             get_filtered_alleles,
             get_count_filtered_alleles,
             get_filtered_alleles_with_gene_filter,
             insert_allele,
             insert_alleles_from_file,
+            delete_filtered_alleles,
+            // expr_relations
             get_expr_relations,
             get_filtered_expr_relations,
             get_count_filtered_expr_relations,
             insert_expr_relation,
             insert_expr_relations_from_file,
+            delete_filtered_expr_relations,
+            // tasks
             get_tasks,
             get_filtered_tasks,
             insert_task,
@@ -90,11 +105,13 @@ async fn main() {
             delete_task,
             delete_tasks,
             delete_all_tasks,
+            // trees
             get_trees,
             get_filtered_trees,
             insert_tree,
             update_tree,
             delete_tree,
+            // task conditions/dependencies
             get_task_conditions,
             get_filtered_task_conditions,
             get_count_filtered_conditions,
@@ -145,6 +162,7 @@ async fn sqlite_setup() -> Result<Pool<Sqlite>> {
     Ok(sqlite_pool)
 }
 
+/* #region genes */
 #[tauri::command]
 async fn get_genes(state: tauri::State<'_, DbState>) -> Result<Vec<Gene>, DbError> {
     let state_guard = state.0.read().await;
@@ -187,6 +205,17 @@ async fn insert_genes_from_file(
     }
 }
 
+#[tauri::command]
+async fn delete_filtered_genes(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<GeneFieldName>,
+) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.delete_filtered_genes(&filter).await
+}
+/* #endregion genes */
+
+/* #region conditions */
 #[tauri::command]
 async fn get_conditions(state: tauri::State<'_, DbState>) -> Result<Vec<Condition>, DbError> {
     let state_guard = state.0.read().await;
@@ -245,6 +274,17 @@ async fn insert_conditions_from_file(
 }
 
 #[tauri::command]
+async fn delete_filtered_conditions(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<ConditionFieldName>,
+) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.delete_filtered_conditions(&filter).await
+}
+/* #endregion conditions */
+
+/* #region phenotypes */
+#[tauri::command]
 async fn get_phenotypes(state: tauri::State<'_, DbState>) -> Result<Vec<Phenotype>, DbError> {
     let state_guard = state.0.read().await;
     state_guard.get_phenotypes().await
@@ -300,7 +340,17 @@ async fn insert_phenotypes_from_file(
         Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned())),
     }
 }
+#[tauri::command]
+async fn delete_filtered_phenotypes(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<PhenotypeFieldName>,
+) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.delete_filtered_phenotypes(&filter).await
+}
+/* #endregion phenotypes */
 
+/* #region variations */
 #[tauri::command]
 async fn get_variation_info(
     state: tauri::State<'_, DbState>,
@@ -349,6 +399,17 @@ async fn insert_variation_infos_from_file(
 }
 
 #[tauri::command]
+async fn delete_filtered_variation_infos(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<VariationFieldName>,
+) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.delete_filtered_variation_infos(&filter).await
+}
+/* #endregion variations */
+
+/* #region allele_exprs */
+#[tauri::command]
 async fn get_allele_exprs(
     state: tauri::State<'_, DbState>,
 ) -> Result<Vec<AlleleExpression>, DbError> {
@@ -395,6 +456,17 @@ async fn insert_allele_exprs_from_file(
     }
 }
 
+#[tauri::command]
+async fn delete_filtered_allele_exprs(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<AlleleExpressionFieldName>,
+) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.delete_filtered_allele_exprs(&filter).await
+}
+/* #endregion allele_exprs */
+
+/* #region alleles */
 #[tauri::command]
 async fn get_alleles(state: tauri::State<'_, DbState>) -> Result<Vec<Allele>, DbError> {
     let state_guard = state.0.read().await;
@@ -450,6 +522,17 @@ async fn insert_alleles_from_file(
 }
 
 #[tauri::command]
+async fn delete_filtered_alleles(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<AlleleFieldName>,
+) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.delete_filtered_alleles(&filter).await
+}
+/* #endregion alleles */
+
+/* #region expr_relations */
+#[tauri::command]
 async fn get_expr_relations(
     state: tauri::State<'_, DbState>,
 ) -> Result<Vec<ExpressionRelation>, DbError> {
@@ -495,7 +578,17 @@ async fn insert_expr_relations_from_file(
         Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned())),
     }
 }
+#[tauri::command]
+async fn delete_filtered_expr_relations(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<ExpressionRelationFieldName>,
+) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.delete_filtered_expr_relations(&filter).await
+}
+/* #endregion expr_relations */
 
+/* #region tasks */
 #[tauri::command]
 async fn get_tasks(state: tauri::State<'_, DbState>) -> Result<Vec<Task>, DbError> {
     let state_guard = state.0.read().await;
@@ -539,7 +632,9 @@ async fn delete_all_tasks(state: tauri::State<'_, DbState>) -> Result<(), DbErro
     let state_guard = state.0.read().await;
     state_guard.delete_all_tasks().await
 }
+/* #endregion tasks */
 
+/* #region trees */
 #[tauri::command]
 async fn get_trees(state: tauri::State<'_, DbState>) -> Result<Vec<Tree>, DbError> {
     let state_guard = state.0.read().await;
@@ -571,7 +666,9 @@ async fn delete_tree(state: tauri::State<'_, DbState>, id: String) -> Result<(),
     let state_guard = state.0.read().await;
     state_guard.delete_tree(id).await
 }
+/* #endregion trees */
 
+/* #region task_conditions/dependencies */
 #[tauri::command]
 async fn get_task_conditions(
     state: tauri::State<'_, DbState>,
@@ -622,3 +719,4 @@ async fn insert_task_dependency(
     let state_guard = state.0.read().await;
     state_guard.insert_task_dependency(&task).await
 }
+/* #endregion task_conditions/dependencies */

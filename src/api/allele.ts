@@ -58,3 +58,18 @@ export const insertDbAllele = async (record: db_Allele): Promise<void> => {
 export const insertAllelesFromFile = async (path: string): Promise<void> => {
   await invoke('insert_alleles_from_file', { path });
 };
+
+export const deleteFilteredAlleles = async (
+  filter: FilterGroup<AlleleFieldName>
+): Promise<void> => {
+  await invoke('delete_filtered_alleles', { filter });
+};
+
+export const deleteAllele = async (allele: db_Allele): Promise<void> => {
+  const filter: FilterGroup<AlleleFieldName> = {
+    filters: [[['Name', { Equal: allele.name }]]],
+    orderBy: [],
+  };
+
+  await deleteFilteredAlleles(filter);
+};

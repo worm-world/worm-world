@@ -83,3 +83,23 @@ export const insertDbPhenotype = async (
 export const insertPhenotypesFromFile = async (path: string): Promise<void> => {
   await invoke('insert_phenotypes_from_file', { path });
 };
+
+export const deleteFilteredPhenotypes = async (
+  filter: FilterGroup<PhenotypeFieldName>
+): Promise<void> => {
+  await invoke('delete_filtered_phenotypes', { filter });
+};
+
+export const deletePhenotype = async (
+  phenotype: db_Phenotype
+): Promise<void> => {
+  const filter: FilterGroup<PhenotypeFieldName> = {
+    filters: [
+      [['Name', { Equal: phenotype.name }]],
+      [['Wild', getDbBoolean(phenotype.wild)]],
+    ],
+    orderBy: [],
+  };
+
+  await deleteFilteredPhenotypes(filter);
+};

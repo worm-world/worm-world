@@ -197,6 +197,22 @@ impl InnerDbState {
         }
         Ok(())
     }
+
+    pub async fn delete_filtered_conditions(
+        &self,
+        filter: &FilterGroup<ConditionFieldName>,
+    ) -> Result<(), DbError> {
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new("DELETE FROM conditions");
+        filter.add_filtered_query(&mut qb, true, false);
+
+        match qb.build().execute(&self.conn_pool).await {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                eprint!("Delete Condition error: {e}");
+                Err(DbError::Delete(e.to_string()))
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -215,7 +231,7 @@ mod test {
     use sqlx::{Pool, Sqlite};
 
     /* #region get_conditions test */
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_conditions(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let conds = state.get_conditions().await?;
@@ -227,7 +243,7 @@ mod test {
     /* #endregion */
 
     /* #region get_filtered_conditions tests */
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_conditions(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -246,7 +262,7 @@ mod test {
         Ok(())
     }
 
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_conditions_desc(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -266,7 +282,7 @@ mod test {
         Ok(())
     }
 
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_conditions_not_3_maturation_days(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -288,7 +304,7 @@ mod test {
         Ok(())
     }
 
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_search_conditions_by_name(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -309,7 +325,7 @@ mod test {
     /* endregion get_filtered_conditions tests */
 
     /* #region get_altering_conditions test */
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_altering_conditions(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let expr_relation_filter = FilterGroup::<ExpressionRelationFieldName> {
@@ -412,6 +428,88 @@ Tetracycline\t\t3\t0\t0\t0\t3"
         state.insert_conditions(bulk).await?;
 
         assert_eq!(state.get_conditions().await?, testdata::get_conditions());
+        Ok(())
+    }
+    /* #endregion */
+
+    /* #region delete_conditions test */
+    #[sqlx::test(fixtures("full_db"))]
+    async fn test_delete_single_condition(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let mut conditions: Vec<Condition> = state.get_conditions().await?;
+        assert_eq!(conditions.len(), testdata::get_conditions().len());
+
+        let delete_filter = &FilterGroup::<ConditionFieldName> {
+            filters: vec![vec![(
+                ConditionFieldName::Name,
+                Filter::Equal("15C".to_string()),
+            )]],
+            order_by: vec![],
+            limit: None,
+            offset: None,
+        };
+
+        state.delete_filtered_conditions(delete_filter).await?;
+
+        conditions = state.get_conditions().await?;
+        assert_eq!(conditions.len(), testdata::get_conditions().len() - 1);
+
+        conditions = state.get_filtered_conditions(delete_filter).await?;
+        assert_eq!(conditions.len(), 0);
+
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("condition"))]
+    async fn test_delete_filtered_conditions(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let mut conditions: Vec<Condition> = state.get_conditions().await?;
+        let orig_len = conditions.len();
+        assert_eq!(orig_len, testdata::get_conditions().len());
+
+        let filter = &FilterGroup::<ConditionFieldName> {
+            filters: vec![vec![(
+                ConditionFieldName::MaturationDays,
+                Filter::Equal("3".to_string()),
+            )]],
+            order_by: vec![],
+            limit: None,
+            offset: None,
+        };
+
+        conditions = state.get_filtered_conditions(filter).await?;
+        let filtered_len = conditions.len();
+        assert!(filtered_len > 0);
+
+        state.delete_filtered_conditions(filter).await?;
+        conditions = state.get_conditions().await?;
+
+        assert_eq!(conditions.len(), 1);
+        assert_eq!(state.get_filtered_conditions(filter).await?.len(), 0);
+
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("condition"))]
+    async fn test_delete_all_conditions(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let mut conditions: Vec<Condition> = state.get_conditions().await?;
+        assert_eq!(conditions.len(), testdata::get_conditions().len());
+
+        let filter = &FilterGroup::<ConditionFieldName> {
+            filters: vec![],
+            order_by: vec![],
+            limit: None,
+            offset: None,
+        };
+
+        state.delete_filtered_conditions(filter).await?;
+        conditions = state.get_conditions().await?;
+
+        assert_eq!(conditions.len(), 0);
+
         Ok(())
     }
     /* #endregion */
