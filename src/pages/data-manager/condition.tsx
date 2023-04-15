@@ -1,6 +1,7 @@
 import { db_Condition } from 'models/db/db_Condition';
 import { ColumnDefinitionType } from 'components/Table/Table';
 import {
+  deleteCondition,
   getCountFilteredConditions,
   getFilteredConditions,
   insertConditionsFromFile,
@@ -80,6 +81,7 @@ export default function ConditionDataPage(): JSX.Element {
       getCountFilteredData={getCountFilteredConditions}
       insertDatum={insertDbCondition}
       insertDataFromFile={insertConditionsFromFile}
+      deleteRecord={deleteCondition}
     />
   );
 }

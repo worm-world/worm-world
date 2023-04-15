@@ -1,4 +1,5 @@
 import {
+  deleteVariation,
   getCountFilteredVariations,
   getFilteredVariations,
   insertDbVariation,
@@ -62,6 +63,7 @@ export default function VariationDataPage(): JSX.Element {
       getCountFilteredData={getCountFilteredVariations}
       insertDatum={insertDbVariation}
       insertDataFromFile={insertVariationsFromFile}
+      deleteRecord={deleteVariation}
     />
   );
 }

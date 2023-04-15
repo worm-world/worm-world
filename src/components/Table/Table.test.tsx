@@ -7,6 +7,8 @@ import { db_Allele } from 'models/db/db_Allele';
 import { Field } from 'components/ColumnFilter/ColumnFilter';
 import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
 
+const invisibleColHeaderCt = 2;
+
 const alleleData: db_Allele[] = [
   {
     name: 'allele1',
@@ -75,6 +77,7 @@ describe('Table component', () => {
         nameMapping={nameMapping}
         fields={fields}
         runFilters={runFilters}
+        deleteRecord={() => {}}
       />
     );
 
@@ -91,10 +94,11 @@ describe('Table component', () => {
         nameMapping={nameMapping}
         fields={fields}
         runFilters={runFilters}
+        deleteRecord={() => {}}
       />
     );
     const colHeaders = screen.getAllByRole('columnheader');
-    expect(colHeaders).toHaveLength(alleleCols.length + 1);
+    expect(colHeaders).toHaveLength(alleleCols.length + invisibleColHeaderCt);
 
     alleleCols.forEach((col, i) => {
       if (i > 0) {
@@ -115,6 +119,7 @@ describe('Table component', () => {
         nameMapping={nameMapping}
         fields={fields}
         runFilters={runFilters}
+        deleteRecord={() => {}}
       />
     );
     const rows = screen.getAllByRole('row');
@@ -140,10 +145,11 @@ describe('Table component', () => {
         nameMapping={nameMapping}
         fields={fields}
         runFilters={runFilters}
+        deleteRecord={() => {}}
       />
     );
     const headers = screen.getAllByRole('columnheader');
-    expect(headers).toHaveLength(alleleCols.length + 1);
+    expect(headers).toHaveLength(alleleCols.length + invisibleColHeaderCt);
 
     const rows = screen.getAllByRole('row');
     expect(rows).toHaveLength(1);
@@ -160,10 +166,11 @@ describe('Table component', () => {
         nameMapping={nameMapping}
         fields={fields}
         runFilters={runFilters}
+        deleteRecord={() => {}}
       />
     );
     const headers = screen.getAllByRole('columnheader');
-    expect(headers).toHaveLength(alleleCols.length + 1);
+    expect(headers).toHaveLength(alleleCols.length + invisibleColHeaderCt);
 
     await userEvent.hover(headers[0]);
 
@@ -184,10 +191,11 @@ describe('Table component', () => {
         nameMapping={nameMapping}
         fields={fields}
         runFilters={runFilters}
+        deleteRecord={() => {}}
       />
     );
     const headers = screen.getAllByRole('columnheader');
-    expect(headers).toHaveLength(alleleCols.length + 1);
+    expect(headers).toHaveLength(alleleCols.length + invisibleColHeaderCt);
 
     await userEvent.hover(headers[0]);
 

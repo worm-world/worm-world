@@ -83,3 +83,20 @@ export const insertDbCondition = async (
 export const insertConditionsFromFile = async (path: string): Promise<void> => {
   await invoke('insert_conditions_from_file', { path });
 };
+
+export const deleteFilteredConditions = async (
+  filter: FilterGroup<ConditionFieldName>
+): Promise<void> => {
+  await invoke('delete_filtered_conditions', { filter });
+};
+
+export const deleteCondition = async (
+  condition: db_Condition
+): Promise<void> => {
+  const filter: FilterGroup<ConditionFieldName> = {
+    filters: [[['Name', { Equal: condition.name }]]],
+    orderBy: [],
+  };
+
+  await deleteFilteredConditions(filter);
+};

@@ -171,7 +171,7 @@ mod test {
     use sqlx::{Pool, Sqlite};
 
     /* #region get_tasks tests */
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_tasks(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
 
@@ -184,7 +184,7 @@ mod test {
     /* #endregion */
 
     /* #region get_filtered_tasks tests */
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_tasks(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state

@@ -1,4 +1,5 @@
 import {
+  deleteGene,
   getCountFilteredGenes,
   getFilteredGenes,
   insertDbGene,
@@ -69,6 +70,7 @@ export default function GeneDataPage(): JSX.Element {
       getCountFilteredData={getCountFilteredGenes}
       insertDatum={insertDbGene}
       insertDataFromFile={insertGenesFromFile}
+      deleteRecord={deleteGene}
     />
   );
 }

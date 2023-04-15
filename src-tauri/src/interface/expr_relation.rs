@@ -176,6 +176,22 @@ impl InnerDbState {
         }
         Ok(())
     }
+
+    pub async fn delete_filtered_expr_relations(
+        &self,
+        filter: &FilterGroup<ExpressionRelationFieldName>,
+    ) -> Result<(), DbError> {
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new("DELETE FROM expr_relations");
+        filter.add_filtered_query(&mut qb, true, false);
+
+        match qb.build().execute(&self.conn_pool).await {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                eprint!("Delete Expression Relation error: {e}");
+                Err(DbError::Delete(e.to_string()))
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -197,7 +213,7 @@ mod test {
     use sqlx::{Pool, Sqlite};
 
     /* #region get_expr_relations tests */
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_expr_relations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let rels = state.get_expr_relations().await?;
@@ -207,7 +223,7 @@ mod test {
     /* #endregion */
 
     /* #region get_filtered_expr_relations tests */
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_expr_relations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -232,7 +248,7 @@ mod test {
         Ok(())
     }
 
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_expr_relations_many_and_clauses(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let filter = FilterGroup::<ExpressionRelationFieldName> {
@@ -272,7 +288,7 @@ mod test {
         assert_eq!(count as usize, expected.len(),);
         Ok(())
     }
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_search_expr_relations_by_allele_name(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -290,7 +306,7 @@ mod test {
         assert_eq!(exprs, testdata::search_expr_relations_by_allele_name());
         Ok(())
     }
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_search_expr_relations_by_allele_name_and_expressing_phenotype(
         pool: Pool<Sqlite>,
     ) -> Result<()> {
@@ -560,4 +576,108 @@ oxIs644,YFP(pharynx),0,Flp,1,,0"
         state.insert_expr_relation(&rel).await.unwrap();
     }
     /* #endregion insert_filtered_expr_relation tests */
+
+    /* #region delete_expr_relations test */
+    #[sqlx::test(fixtures("full_db"))]
+    async fn test_delete_single_condition(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let mut expr_relations: Vec<ExpressionRelation> = state.get_expr_relations().await?;
+        assert_eq!(expr_relations.len(), testdata::get_expr_relations().len());
+
+        let delete_filter = &FilterGroup::<ExpressionRelationFieldName> {
+            filters: vec![
+                vec![(
+                    ExpressionRelationFieldName::AlleleName,
+                    Filter::Equal("eT1(III)".to_string()),
+                )],
+                vec![(
+                    ExpressionRelationFieldName::ExpressingPhenotypeName,
+                    Filter::Equal("eT1IIIhet_aneuploid".to_string()),
+                )],
+                vec![(
+                    ExpressionRelationFieldName::ExpressingPhenotypeWild,
+                    Filter::False,
+                )],
+                vec![(
+                    ExpressionRelationFieldName::AlteringPhenotypeName,
+                    Filter::Equal("eT1Vhet_aneuploid".to_string()),
+                )],
+                vec![(
+                    ExpressionRelationFieldName::AlteringPhenotypeWild,
+                    Filter::False,
+                )],
+                vec![(ExpressionRelationFieldName::AlteringCondition, Filter::Null)],
+            ],
+            order_by: vec![],
+            limit: None,
+            offset: None,
+        };
+
+        state.delete_filtered_expr_relations(delete_filter).await?;
+
+        expr_relations = state.get_expr_relations().await?;
+        assert_eq!(
+            expr_relations.len(),
+            testdata::get_expr_relations().len() - 1
+        );
+
+        expr_relations = state.get_filtered_expr_relations(delete_filter).await?;
+        assert_eq!(expr_relations.len(), 0);
+
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("full_db"))]
+    async fn test_delete_filtered_expr_relations(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let mut expr_relations: Vec<ExpressionRelation> = state.get_expr_relations().await?;
+        let orig_len = expr_relations.len();
+        assert_eq!(orig_len, testdata::get_expr_relations().len());
+
+        let filter = &FilterGroup::<ExpressionRelationFieldName> {
+            filters: vec![vec![(
+                ExpressionRelationFieldName::AlteringCondition,
+                Filter::Null,
+            )]],
+            order_by: vec![],
+            limit: None,
+            offset: None,
+        };
+
+        expr_relations = state.get_filtered_expr_relations(filter).await?;
+        let filtered_len = expr_relations.len();
+        assert!(filtered_len > 0);
+
+        state.delete_filtered_expr_relations(filter).await?;
+        expr_relations = state.get_expr_relations().await?;
+
+        assert_eq!(expr_relations.len(), orig_len - filtered_len);
+        assert_eq!(state.get_filtered_expr_relations(filter).await?.len(), 0);
+
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("full_db"))]
+    async fn test_delete_all_expr_relations(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let mut expr_relations: Vec<ExpressionRelation> = state.get_expr_relations().await?;
+        assert_eq!(expr_relations.len(), testdata::get_expr_relations().len());
+
+        let filter = &FilterGroup::<ExpressionRelationFieldName> {
+            filters: vec![],
+            order_by: vec![],
+            limit: None,
+            offset: None,
+        };
+
+        state.delete_filtered_expr_relations(filter).await?;
+        expr_relations = state.get_expr_relations().await?;
+
+        assert_eq!(expr_relations.len(), 0);
+
+        Ok(())
+    }
+    /* #endregion */
 }

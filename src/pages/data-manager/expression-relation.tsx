@@ -1,4 +1,5 @@
 import {
+  deleteExpressionRelation,
   getCountFilteredExpressionRelations,
   getFilteredExpressionRelations,
   insertDbExpressionRelation,
@@ -82,6 +83,7 @@ export default function ExpressionRelationDataPage(): JSX.Element {
       getCountFilteredData={getCountFilteredExpressionRelations}
       insertDatum={insertDbExpressionRelation}
       insertDataFromFile={insertExpressionRelationsFromFile}
+      deleteRecord={deleteExpressionRelation}
     />
   );
 }

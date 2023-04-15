@@ -50,3 +50,18 @@ export const insertDbGene = async (record: db_Gene): Promise<void> => {
 export const insertGenesFromFile = async (path: string): Promise<void> => {
   await invoke('insert_genes_from_file', { path });
 };
+
+export const deleteFilteredGenes = async (
+  filter: FilterGroup<GeneFieldName>
+): Promise<void> => {
+  await invoke('delete_filtered_genes', { filter });
+};
+
+export const deleteGene = async (gene: db_Gene): Promise<void> => {
+  const filter: FilterGroup<GeneFieldName> = {
+    filters: [[['SysName', { Equal: gene.sysName }]]],
+    orderBy: [],
+  };
+
+  await deleteFilteredGenes(filter);
+};

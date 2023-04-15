@@ -1,4 +1,5 @@
 import {
+  deleteAllele,
   getCountFilteredAlleles,
   getFilteredAlleles,
   insertAllelesFromFile,
@@ -58,6 +59,7 @@ export default function AlleleDataPage(): JSX.Element {
       getCountFilteredData={getCountFilteredAlleles}
       insertDatum={insertDbAllele}
       insertDataFromFile={insertAllelesFromFile}
+      deleteRecord={deleteAllele}
     />
   );
 }

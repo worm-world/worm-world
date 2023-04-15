@@ -128,6 +128,21 @@ impl InnerDbState {
         }
         Ok(())
     }
+    pub async fn delete_filtered_allele_exprs(
+        &self,
+        filter: &FilterGroup<AlleleExpressionFieldName>,
+    ) -> Result<(), DbError> {
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new("DELETE FROM allele_exprs");
+        filter.add_filtered_query(&mut qb, true, false);
+
+        match qb.build().execute(&self.conn_pool).await {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                eprint!("Delete Allele Expression error: {e}");
+                Err(DbError::Delete(e.to_string()))
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -138,6 +153,7 @@ mod test {
     use crate::interface::bulk::Bulk;
     use crate::models::allele_expr::{AlleleExpressionDb, AlleleExpressionFieldName};
     use crate::models::chromosome::Chromosome;
+    use crate::models::expr_relation::ExpressionRelationFieldName;
     use crate::models::filter::{Filter, FilterGroup, Order};
     use crate::models::{
         allele::Allele, allele_expr::AlleleExpression, gene::Gene, phenotype::Phenotype,
@@ -148,7 +164,7 @@ mod test {
     use sqlx::{Pool, Sqlite};
 
     /* #region get_allele_expr tests */
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_allele_expr(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state.get_allele_exprs().await?;
@@ -158,7 +174,7 @@ mod test {
     /* #endregion */
 
     /* #region get_filtered_allele_expr tests */
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_allele_expr(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -177,7 +193,7 @@ mod test {
         Ok(())
     }
 
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_allele_expr_wild_unc119(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -202,7 +218,7 @@ mod test {
         Ok(())
     }
 
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_allele_expr_empty_filter_multi_order_by(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -225,7 +241,7 @@ mod test {
         Ok(())
     }
 
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_search_allele_expr_by_allele_name(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -250,7 +266,7 @@ mod test {
         Ok(())
     }
 
-    #[sqlx::test(fixtures("dummy"))]
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_search_allele_expr_by_phenotype_name(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -378,6 +394,108 @@ cn64,\"dpy-10\",0,0"
         }];
         let exprs = state.get_allele_exprs().await?;
         assert_eq!(expected_exprs, exprs);
+        Ok(())
+    }
+    /* #endregion */
+
+    /* #region delete_allele_expr tests */
+    #[sqlx::test(fixtures("full_db"))]
+    async fn test_delete_single_allele_expr(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let mut allele_exprs: Vec<AlleleExpression> = state.get_allele_exprs().await?;
+        assert_eq!(allele_exprs.len(), testdata::get_allele_exprs().len());
+
+        let delete_filter = &FilterGroup::<AlleleExpressionFieldName> {
+            filters: vec![
+                vec![(
+                    AlleleExpressionFieldName::AlleleName,
+                    Filter::Equal("cn64".to_string()),
+                )],
+                vec![(
+                    AlleleExpressionFieldName::ExpressingPhenotypeName,
+                    Filter::Equal("dpy-10".to_string()),
+                )],
+                vec![(
+                    AlleleExpressionFieldName::ExpressingPhenotypeWild,
+                    Filter::False,
+                )],
+            ],
+            order_by: vec![],
+            limit: None,
+            offset: None,
+        };
+
+        state.delete_filtered_allele_exprs(delete_filter).await?;
+
+        allele_exprs = state.get_allele_exprs().await?;
+        assert_eq!(allele_exprs.len(), testdata::get_allele_exprs().len() - 1);
+
+        allele_exprs = state.get_filtered_allele_exprs(delete_filter).await?;
+        assert_eq!(allele_exprs.len(), 0);
+
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("full_db"))]
+    async fn test_delete_filtered_allele_exprs(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let mut allele_exprs: Vec<AlleleExpression> = state.get_allele_exprs().await?;
+        let orig_len = allele_exprs.len();
+        assert_eq!(orig_len, testdata::get_allele_exprs().len());
+
+        let filter = &FilterGroup::<AlleleExpressionFieldName> {
+            filters: vec![vec![(
+                AlleleExpressionFieldName::AlleleName,
+                Filter::Equal("cn64".to_string()),
+            )]],
+            order_by: vec![],
+            limit: None,
+            offset: None,
+        };
+
+        allele_exprs = state.get_filtered_allele_exprs(filter).await?;
+        let filtered_len = allele_exprs.len();
+        assert!(filtered_len > 0);
+
+        state.delete_filtered_allele_exprs(filter).await?;
+        allele_exprs = state.get_allele_exprs().await?;
+
+        assert_eq!(allele_exprs.len(), orig_len - filtered_len);
+        assert_eq!(state.get_filtered_allele_exprs(filter).await?.len(), 0);
+
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("full_db"))]
+    async fn test_delete_all_allele_exprs(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        // remove dependencies
+        state
+            .delete_filtered_expr_relations(&FilterGroup::<ExpressionRelationFieldName> {
+                filters: vec![],
+                order_by: vec![],
+                limit: None,
+                offset: None,
+            })
+            .await?;
+
+        let mut allele_exprs: Vec<AlleleExpression> = state.get_allele_exprs().await?;
+        assert_eq!(allele_exprs.len(), testdata::get_allele_exprs().len());
+
+        let filter = &FilterGroup::<AlleleExpressionFieldName> {
+            filters: vec![],
+            order_by: vec![],
+            limit: None,
+            offset: None,
+        };
+
+        state.delete_filtered_allele_exprs(filter).await?;
+        allele_exprs = state.get_allele_exprs().await?;
+
+        assert_eq!(allele_exprs.len(), 0);
+
         Ok(())
     }
     /* #endregion */
