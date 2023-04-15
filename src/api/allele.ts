@@ -52,6 +52,13 @@ export const insertAllele = async (allele: Allele): Promise<void> => {
 };
 
 export const insertDbAllele = async (record: db_Allele): Promise<void> => {
+  if (record.sysGeneName === null && record.variationName === null)
+    throw Error(
+      'You need to specify an allele OR a variation when creating this allele'
+    );
+  else if (record.sysGeneName !== null && record.variationName !== null)
+    throw Error('An allele can only belong to a gene OR a variation, not both');
+
   await invoke('insert_allele', { allele: record });
 };
 
