@@ -11,7 +11,7 @@ pub struct TaskDependency {
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, TS)]
 #[ts(
     export,
-    export_to = "../src/models/db/filter/TaskDependencyFieldName.ts"
+    export_to = "../src/models/db/filter/db_TaskDependencyFieldName.ts"
 )]
 pub enum TaskDependencyFieldName {
     ParentId,

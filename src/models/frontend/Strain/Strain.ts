@@ -1,10 +1,16 @@
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 import { Allele } from 'models/frontend/Allele/Allele';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
-import { Transform, instanceToPlain, plainToInstance } from 'class-transformer';
+import {
+  Exclude,
+  Transform,
+  instanceToPlain,
+  plainToInstance,
+} from 'class-transformer';
 import { Phenotype } from 'models/frontend/Phenotype/Phenotype';
 import { AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
 import { Condition } from 'models/frontend/Condition/Condition';
+import { db_Strain } from 'models/db/db_Strain';
 
 export interface StrainOption {
   strain: Strain;
@@ -27,6 +33,7 @@ interface iStrain {
   allelePairs: AllelePair[];
   notes?: string;
 }
+
 export class Strain {
   /* #region initializers */
   @Transform(
@@ -584,5 +591,14 @@ export class Strain {
     return [plainToInstance(Strain, JSON.parse(json))].flat()[0];
   }
 
-  /* #endregion private methods */
+  @Exclude()
+  generateRecord(): db_Strain {
+    if (this.name === undefined) {
+      throw Error('Attempted to generate a record for a strain without a name');
+    }
+    return {
+      name: this.name,
+      notes: this.notes ?? null,
+    };
+  }
 }

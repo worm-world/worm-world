@@ -1,13 +1,13 @@
 import { TopNav } from 'components/TopNav/TopNav';
 import { Link, Outlet } from 'react-router-dom';
 
-const Todo = (): JSX.Element => {
+const Schedules = (): JSX.Element => {
   return (
     <>
-      <TopNav title={'Scheduler'} tabIndex={1}>
+      <TopNav title={'Schedules'} tabIndex={1}>
         {[
           <Link key='todo' to='todo'>
-            ToDo
+            To Do
           </Link>,
         ]}
       </TopNav>
@@ -18,4 +18,4 @@ const Todo = (): JSX.Element => {
   );
 };
 
-export default Todo;
+export default Schedules;

@@ -1,6 +1,6 @@
 import { invoke } from '@tauri-apps/api/tauri';
 import { FilterGroup } from 'models/db/filter/FilterGroup';
-import { TaskDependencyFieldName } from 'models/db/filter/TaskDependencyFieldName';
+import { TaskDependencyFieldName } from 'models/db/filter/db_TaskDependencyFieldName';
 import { iTaskDependency } from 'models/frontend/Task/TaskDependency';
 
 export const getTaskDependencies = async (): Promise<iTaskDependency[]> => {

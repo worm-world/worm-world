@@ -225,7 +225,7 @@ const getMutationBox = (
       >
         {toggleEnabled && (
           <div
-            className={`invisible absolute top-1/2 left-1/2  -translate-x-1/2 -translate-y-1/2 text-primary group-hover:visible `}
+            className={`invisible absolute left-1/2 top-1/2  -translate-x-1/2 -translate-y-1/2 text-primary group-hover:visible `}
             onClick={() => toggleHetPair(allelePair)}
           >
             <SwapIcon />

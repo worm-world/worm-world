@@ -81,7 +81,7 @@ export const DynamicMultiSelect = <T, U>(
         {searchRes.length === 0 ? (
           <></> // Don't show list if no results
         ) : (
-          <ul className='dropdown-content menu rounded-box mt-2 mb-2 w-52  overflow-auto bg-base-100 p-2 shadow'>
+          <ul className='dropdown-content menu rounded-box mb-2 mt-2 w-52  overflow-auto bg-base-100 p-2 shadow'>
             {searchRes.map((record, idx) => {
               return (
                 <li

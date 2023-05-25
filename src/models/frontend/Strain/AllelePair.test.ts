@@ -12,7 +12,7 @@ import {
 } from 'models/frontend/Allele/Allele.mock';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { expect, test, describe } from 'vitest';
-import { WILD_ALLELE_NAME } from '../Allele/Allele';
+import { WILD_ALLELE_NAME } from 'models/frontend/Allele/Allele';
 
 describe('allele pair', () => {
   test('constructs homozygous pair', () => {

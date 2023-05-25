@@ -196,6 +196,16 @@
     },
     "query": "\n            SELECT systematic_name, descriptive_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end FROM genes ORDER BY descriptive_name\n            "
   },
+  "57959bd8062ef7d42835c6630b4c9eb200f4bf71a3fc0a4fb3080528d8f640ef": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 2
+      }
+    },
+    "query": "\n            INSERT INTO strains (name, notes)\n            VALUES ($1, $2)\n            "
+  },
   "5b3c81eb5ee6e7836b6f13fea56dd1433c61e200f487569aa201e26a8c7d3546": {
     "describe": {
       "columns": [],
@@ -621,6 +631,30 @@
       }
     },
     "query": "\n            SELECT id, due_date, action, strain1, strain2, result, notes, tree_id, completed FROM tasks ORDER BY id\n            "
+  },
+  "e8016b110556ccc321f551558c3745158f6abfecd872c0f612ca83623efbe302": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "notes",
+          "ordinal": 1,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        true
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT name, notes FROM strains ORDER BY name\n            "
   },
   "f13067dabb927b051246a195865a73d848e506d71ce434dee87f9c4e33216197": {
     "describe": {

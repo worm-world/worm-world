@@ -113,7 +113,7 @@ const TodoModal = (props: iTodoModalProps): JSX.Element => {
           <button
             onClick={handleClick}
             disabled={props.task.completed}
-            className='btn-primary btn mt-4 mb-4'
+            className='btn-primary btn mb-4 mt-4'
           >
             Postpone Task
           </button>

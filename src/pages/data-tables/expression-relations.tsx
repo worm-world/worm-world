@@ -74,7 +74,7 @@ const nameMapping: {
 export default function ExpressionRelationDataPage(): JSX.Element {
   return (
     <DataPage
-      title='Expression Relation'
+      title='Expression Relations'
       dataName='expressionRelation'
       cols={cols}
       fields={fields}

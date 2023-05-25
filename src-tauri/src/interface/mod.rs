@@ -5,6 +5,7 @@ pub mod condition;
 pub mod expr_relation;
 pub mod gene;
 pub mod phenotype;
+pub mod strain;
 pub mod task;
 pub mod task_conds;
 pub mod task_deps;

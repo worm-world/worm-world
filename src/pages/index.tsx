@@ -59,13 +59,13 @@ const CrossDesignerPage = (): JSX.Element => {
   return (
     <div className='overflow-x-hidden'>
       <TopNav
-        title={'Cross Designer'}
+        title={'Cross Designs'}
         buttons={[newTreeButton, importTreeButton]}
       />
       {hasRefreshedOnce && crossTrees.length === 0 ? (
         <NoTreePlaceholder />
       ) : (
-        <div className='my-8 mx-36 flex flex-wrap '>
+        <div className='mx-36 my-8 flex flex-wrap '>
           {crossTrees?.map((crossTree) => {
             return (
               <SavedTreeCard

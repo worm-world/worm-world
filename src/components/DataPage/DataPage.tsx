@@ -47,6 +47,7 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
     limit: rowsPerPage,
     offset: (page ?? 0) * rowsPerPage,
   });
+
   const onRecordInsertionFormSubmission = (
     record: T,
     successCallback: () => void

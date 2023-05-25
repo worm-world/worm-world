@@ -221,14 +221,6 @@ describe('strain', () => {
 });
 
 describe('cross algorithm', () => {
-  // const printCrossResults = (crossResult: StrainOption[]): void => {
-  //   crossResult.forEach((strain, idx) =>
-  //     console.log(
-  //       `Strain ${idx}  --  Prob: ${strain.prob}\n${strain.strain.toString()}\n`
-  //     )
-  //   );
-  // };
-
   const testStrainResults = (
     crossStrains: StrainOption[],
     expectedStrains: StrainOption[]

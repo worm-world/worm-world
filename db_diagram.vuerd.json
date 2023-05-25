@@ -3,9 +3,9 @@
     "version": "2.2.11",
     "width": 3000,
     "height": 3000,
-    "scrollTop": -365.47999681396203,
-    "scrollLeft": -1272.3999959716816,
-    "zoomLevel": 0.8,
+    "scrollTop": -956,
+    "scrollLeft": -245,
+    "zoomLevel": 0.9,
     "show": {
       "tableComment": true,
       "columnComment": true,
@@ -143,9 +143,9 @@
         ],
         "ui": {
           "active": false,
-          "left": 403.5,
-          "top": 1140.2777,
-          "zIndex": 3,
+          "left": 456,
+          "top": 975.2777,
+          "zIndex": 6,
           "widthName": 60,
           "widthComment": 60
         },
@@ -251,8 +251,8 @@
         ],
         "ui": {
           "active": false,
-          "left": 24.2226,
-          "top": 1429.7772,
+          "left": 454.2226,
+          "top": 1299.7772,
           "zIndex": 4,
           "widthName": 60,
           "widthComment": 60
@@ -451,8 +451,8 @@
         ],
         "ui": {
           "active": false,
-          "left": 2121.3242,
-          "top": 1266.1937,
+          "left": 1653.8242,
+          "top": 1211.1937,
           "zIndex": 8,
           "widthName": 69.2216796875,
           "widthComment": 60
@@ -536,9 +536,9 @@
         ],
         "ui": {
           "active": false,
-          "left": 770.0291,
-          "top": 1299.7224,
-          "zIndex": 6,
+          "left": 1002.5291,
+          "top": 1307.2224,
+          "zIndex": 10,
           "widthName": 71.37353515625,
           "widthComment": 120
         },
@@ -644,8 +644,8 @@
         ],
         "ui": {
           "active": false,
-          "left": 1240.902,
-          "top": 863.9749,
+          "left": 1638.402,
+          "top": 893.9749,
           "zIndex": 9,
           "widthName": 61.97900390625,
           "widthComment": 120
@@ -752,8 +752,8 @@
         ],
         "ui": {
           "active": false,
-          "left": 1278.8339,
-          "top": 1660.6661,
+          "left": 1636.3339,
+          "top": 1608.1661,
           "zIndex": 7,
           "widthName": 60,
           "widthComment": 120
@@ -814,9 +814,9 @@
         ],
         "ui": {
           "active": false,
-          "left": 71.6666,
-          "top": 428.3335,
-          "zIndex": 1,
+          "left": 11.6666,
+          "top": 1013.3335,
+          "zIndex": 11,
           "widthName": 60,
           "widthComment": 60
         },
@@ -876,9 +876,9 @@
         ],
         "ui": {
           "active": false,
-          "left": 80.6105,
-          "top": 925.723,
-          "zIndex": 2,
+          "left": 15,
+          "top": 1320.723,
+          "zIndex": 12,
           "widthName": 77.87353515625,
           "widthComment": 60
         },
@@ -1007,9 +1007,9 @@
         ],
         "ui": {
           "active": false,
-          "left": 1472.3069,
-          "top": 198.9163,
-          "zIndex": 63,
+          "left": 2123.418,
+          "top": 33.9163,
+          "zIndex": 13,
           "widthName": 60,
           "widthComment": 60
         },
@@ -1115,8 +1115,8 @@
         ],
         "ui": {
           "active": false,
-          "left": 26,
-          "top": 1706.5,
+          "left": 456.0001,
+          "top": 1624,
           "zIndex": 5,
           "widthName": 79.3271484375,
           "widthComment": 60
@@ -1292,9 +1292,9 @@
         ],
         "ui": {
           "active": false,
-          "left": 1530.1945,
-          "top": 1097.5558,
-          "zIndex": 12,
+          "left": 2260.1945,
+          "top": 1157.5558,
+          "zIndex": 3,
           "widthName": 60.5380859375,
           "widthComment": 60
         },
@@ -1491,10 +1491,10 @@
           }
         ],
         "ui": {
-          "active": true,
-          "left": 2104.3337,
-          "top": 223.3335,
-          "zIndex": 70,
+          "active": false,
+          "left": 2124.3337,
+          "top": 368.3335,
+          "zIndex": 1,
           "widthName": 60,
           "widthComment": 60
         },
@@ -1554,9 +1554,9 @@
         ],
         "ui": {
           "active": false,
-          "left": 1962.25,
-          "top": 545,
-          "zIndex": 10,
+          "left": 1667.25,
+          "top": 425,
+          "zIndex": 2,
           "widthName": 61.26171875,
           "widthComment": 60
         },
@@ -1639,9 +1639,9 @@
         ],
         "ui": {
           "active": false,
-          "left": 2390.25,
-          "top": 567,
-          "zIndex": 13,
+          "left": 2221.361,
+          "top": 782.5554,
+          "zIndex": 14,
           "widthName": 67.76171875,
           "widthComment": 60
         },
@@ -1665,8 +1665,8 @@
           "columnIds": [
             "82f16f93-8387-4398-855d-b75404608b1e"
           ],
-          "x": 390.5497484375,
-          "y": 1543.0272,
+          "x": 820.5497484375,
+          "y": 1375.2772,
           "direction": "right"
         },
         "end": {
@@ -1674,8 +1674,8 @@
           "columnIds": [
             "8732f168-01a3-4a8c-accd-6057f3c7400e"
           ],
-          "x": 770.0291,
-          "y": 1364.9724,
+          "x": 1002.5291,
+          "y": 1372.4724,
           "direction": "left"
         },
         "constraintName": "fk_alleles_to_allele_expressions",
@@ -1691,8 +1691,8 @@
           "columnIds": [
             "e10f2d47-9a0d-4dfb-9ac1-e33b666b6c64"
           ],
-          "x": 2121.3242,
-          "y": 1460.360366666667,
+          "x": 1653.8242,
+          "y": 1327.6937,
           "direction": "left"
         },
         "end": {
@@ -1700,8 +1700,8 @@
           "columnIds": [
             "b4fbd051-23a3-4006-b3e1-02d706018df5"
           ],
-          "x": 1189.84794765625,
-          "y": 1408.4724,
+          "x": 1422.34794765625,
+          "y": 1328.9724,
           "direction": "right"
         },
         "constraintName": "fk_phenotypes_to_allele_expressions",
@@ -1717,8 +1717,8 @@
           "columnIds": [
             "a28bcc43-cedb-4c1c-8c7d-3829bd00ea0f"
           ],
-          "x": 585.568603515625,
-          "y": 1291.2777,
+          "x": 638.068603515625,
+          "y": 1126.2777,
           "direction": "bottom"
         },
         "end": {
@@ -1726,9 +1726,9 @@
           "columnIds": [
             "4cc4f236-c503-4907-bac8-346b40529050"
           ],
-          "x": 390.5497484375,
-          "y": 1467.5272,
-          "direction": "right"
+          "x": 637.38617421875,
+          "y": 1299.7772,
+          "direction": "top"
         },
         "constraintName": "fk_genes_to_alleles",
         "visible": true,
@@ -1743,18 +1743,18 @@
           "columnIds": [
             "e10f2d47-9a0d-4dfb-9ac1-e33b666b6c64"
           ],
-          "x": 2121.3242,
-          "y": 1382.6937000000003,
-          "direction": "left"
+          "x": 1846.379131640625,
+          "y": 1211.1937,
+          "direction": "top"
         },
         "end": {
           "tableId": "043996fc-4488-47ee-932d-079e874ad3db",
           "columnIds": [
             "f87c993a-111b-4aa2-9870-6781d62e9d63"
           ],
-          "x": 1667.950828125,
-          "y": 977.2249,
-          "direction": "right"
+          "x": 1851.9264140625,
+          "y": 1044.9749000000002,
+          "direction": "bottom"
         },
         "constraintName": "fk_phenotypes_to_allele_suppresions",
         "visible": true,
@@ -1769,18 +1769,18 @@
           "columnIds": [
             "e10f2d47-9a0d-4dfb-9ac1-e33b666b6c64"
           ],
-          "x": 2121.3242,
-          "y": 1305.0270333333335,
-          "direction": "left"
+          "x": 1846.379131640625,
+          "y": 1444.1937,
+          "direction": "bottom"
         },
         "end": {
           "tableId": "7413ed9b-1886-4955-a1ac-bd627be6a590",
           "columnIds": [
             "004f4822-9b09-44b8-84d3-7d33555ef99f"
           ],
-          "x": 1698.65274765625,
-          "y": 1736.1661,
-          "direction": "right"
+          "x": 1846.243323828125,
+          "y": 1608.1661,
+          "direction": "top"
         },
         "constraintName": "fk_phenotypes_to_allele_reqs",
         "visible": true,
@@ -1796,8 +1796,8 @@
             "8732f168-01a3-4a8c-accd-6057f3c7400e",
             "b4fbd051-23a3-4006-b3e1-02d706018df5"
           ],
-          "x": 1189.84794765625,
-          "y": 1321.4724,
+          "x": 1422.34794765625,
+          "y": 1372.4724,
           "direction": "right"
         },
         "end": {
@@ -1806,8 +1806,8 @@
             "6d05eff4-57f0-49c5-925d-2a4c53a4f879",
             "5df53d71-c3d3-4a23-b731-ba68b86735e1"
           ],
-          "x": 1278.8339,
-          "y": 1736.1661,
+          "x": 1636.3339,
+          "y": 1683.6661,
           "direction": "left"
         },
         "constraintName": "fk_allele_expressions_to_allele_reqs",
@@ -1824,8 +1824,8 @@
             "8732f168-01a3-4a8c-accd-6057f3c7400e",
             "b4fbd051-23a3-4006-b3e1-02d706018df5"
           ],
-          "x": 1189.84794765625,
-          "y": 1364.9724,
+          "x": 1422.34794765625,
+          "y": 1415.9724,
           "direction": "right"
         },
         "end": {
@@ -1834,8 +1834,8 @@
             "64b95d93-a971-40e0-b732-2a2679424bd1",
             "257d8e1d-ea86-4ef7-b02e-8883c83132c5"
           ],
-          "x": 1240.902,
-          "y": 939.4749,
+          "x": 1638.402,
+          "y": 969.4749,
           "direction": "left"
         },
         "constraintName": "fk_allele_expressions_to_allele_suppresions",
@@ -1851,8 +1851,8 @@
           "columnIds": [
             "7a29df19-3297-4da2-a9dd-bd9d0957a27e"
           ],
-          "x": 245.16660000000002,
-          "y": 538.3335,
+          "x": 185.1666,
+          "y": 1123.3335,
           "direction": "bottom"
         },
         "end": {
@@ -1860,8 +1860,8 @@
           "columnIds": [
             "87cf4b09-b7c3-42c3-a2fe-55efa314c1d2"
           ],
-          "x": 254.1105,
-          "y": 925.723,
+          "x": 188.5,
+          "y": 1320.723,
           "direction": "top"
         },
         "constraintName": "fk_strains_to_strain_alleles",
@@ -1877,18 +1877,18 @@
           "columnIds": [
             "82f16f93-8387-4398-855d-b75404608b1e"
           ],
-          "x": 207.38617421875,
-          "y": 1429.7772,
-          "direction": "top"
+          "x": 454.2226,
+          "y": 1375.2772,
+          "direction": "left"
         },
         "end": {
           "tableId": "b8b4a1d0-ebad-479d-a0de-7405defacd49",
           "columnIds": [
             "f23c47c6-ea2c-4142-b4d1-ad7a3d2235bf"
           ],
-          "x": 254.1105,
-          "y": 1035.723,
-          "direction": "bottom"
+          "x": 362,
+          "y": 1375.723,
+          "direction": "right"
         },
         "constraintName": "fk_alleles_to_strain_alleles",
         "visible": true,
@@ -1903,8 +1903,8 @@
           "columnIds": [
             "34122943-ab27-4f22-977f-b97604974df1"
           ],
-          "x": 208.068603515625,
-          "y": 1706.5,
+          "x": 638.068703515625,
+          "y": 1624,
           "direction": "top"
         },
         "end": {
@@ -1912,8 +1912,8 @@
           "columnIds": [
             "1de60def-1b06-4def-8f6d-d6281a915c03"
           ],
-          "x": 207.38617421875,
-          "y": 1580.7772,
+          "x": 637.38617421875,
+          "y": 1450.7772,
           "direction": "bottom"
         },
         "constraintName": "fk_variation_info_to_alleles",
@@ -1929,17 +1929,17 @@
           "columnIds": [
             "4cea157f-2d8c-4950-acb9-f3ed52dbbfa7"
           ],
-          "x": 1722.749431640625,
-          "y": 1097.5558,
-          "direction": "top"
+          "x": 2260.1945,
+          "y": 1210.6808,
+          "direction": "left"
         },
         "end": {
           "tableId": "043996fc-4488-47ee-932d-079e874ad3db",
           "columnIds": [
             "d394b1fd-da96-4867-a48d-308338f39de1"
           ],
-          "x": 1667.950828125,
-          "y": 901.7249,
+          "x": 2065.450828125,
+          "y": 969.4749,
           "direction": "right"
         },
         "constraintName": "fk_conditions_to_expr_sups",
@@ -1955,18 +1955,18 @@
           "columnIds": [
             "4cea157f-2d8c-4950-acb9-f3ed52dbbfa7"
           ],
-          "x": 1722.749431640625,
-          "y": 1310.0558,
-          "direction": "bottom"
+          "x": 2260.1945,
+          "y": 1316.9308,
+          "direction": "left"
         },
         "end": {
           "tableId": "7413ed9b-1886-4955-a1ac-bd627be6a590",
           "columnIds": [
             "ba795c48-2dc5-4a29-994e-1f401f319feb"
           ],
-          "x": 1488.743323828125,
-          "y": 1660.6661,
-          "direction": "top"
+          "x": 2056.15274765625,
+          "y": 1683.6661,
+          "direction": "right"
         },
         "constraintName": "fk_conditions_to_expr_reqs",
         "visible": true,
@@ -1981,17 +1981,17 @@
           "columnIds": [
             "67975396-030b-4b16-b899-f4fde0da5f07"
           ],
-          "x": 2162.4968673177086,
-          "y": 456.33349999999996,
-          "direction": "bottom"
+          "x": 2124.3337,
+          "y": 426.5835,
+          "direction": "left"
         },
         "end": {
           "tableId": "07ba6f78-6fc6-4c09-8352-b6a1302862c3",
           "columnIds": [
             "78f7bfc9-099b-4b84-b343-acc070bef1f2"
           ],
-          "x": 2309.25,
-          "y": 627.5,
+          "x": 2014.25,
+          "y": 452.5,
           "direction": "right"
         },
         "constraintName": "fk_tasks_to_taskdependants",
@@ -2007,17 +2007,17 @@
           "columnIds": [
             "67975396-030b-4b16-b899-f4fde0da5f07"
           ],
-          "x": 2278.823201953125,
-          "y": 456.33349999999996,
-          "direction": "bottom"
+          "x": 2124.3337,
+          "y": 543.0835,
+          "direction": "left"
         },
         "end": {
           "tableId": "07ba6f78-6fc6-4c09-8352-b6a1302862c3",
           "columnIds": [
             "5d2a2ac0-8463-40c1-a824-82d596b78a9b"
           ],
-          "x": 2309.25,
-          "y": 572.5,
+          "x": 2014.25,
+          "y": 507.5,
           "direction": "right"
         },
         "constraintName": "fk_tasks_to_taskdependants",
@@ -2033,8 +2033,8 @@
           "columnIds": [
             "67975396-030b-4b16-b899-f4fde0da5f07"
           ],
-          "x": 2395.1495365885417,
-          "y": 456.33349999999996,
+          "x": 2298.823201953125,
+          "y": 601.3335,
           "direction": "bottom"
         },
         "end": {
@@ -2042,9 +2042,9 @@
           "columnIds": [
             "bec18e00-40f5-4b4a-94fe-064d94749917"
           ],
-          "x": 2390.25,
-          "y": 599.625,
-          "direction": "left"
+          "x": 2399.830482421875,
+          "y": 782.5554,
+          "direction": "top"
         },
         "constraintName": "fk_tasks_to_task_conds",
         "visible": true,
@@ -2059,18 +2059,18 @@
           "columnIds": [
             "4cea157f-2d8c-4950-acb9-f3ed52dbbfa7"
           ],
-          "x": 1915.30436328125,
-          "y": 1203.8058,
-          "direction": "right"
+          "x": 2452.749431640625,
+          "y": 1157.5558,
+          "direction": "top"
         },
         "end": {
           "tableId": "f72d9e1b-45dd-4956-84a1-5e636c4c07ec",
           "columnIds": [
             "9ed15f05-d991-4dc1-ac00-4f3f391f74a2"
           ],
-          "x": 2390.25,
-          "y": 664.875,
-          "direction": "left"
+          "x": 2399.830482421875,
+          "y": 913.0554,
+          "direction": "bottom"
         },
         "constraintName": "fk_conditions_to_task_conds",
         "visible": true,
@@ -2085,18 +2085,18 @@
           "columnIds": [
             "c06762bc-abe9-4b7e-8586-c484617d3ce5"
           ],
-          "x": 1824.1867828125,
-          "y": 284.6663,
-          "direction": "right"
+          "x": 2299.35794140625,
+          "y": 205.4163,
+          "direction": "bottom"
         },
         "end": {
           "tableId": "82028dde-cc17-4c19-b4d9-5f3b8be8a045",
           "columnIds": [
             "9cff8bd5-8b23-4b50-917a-398ffc7efb62"
           ],
-          "x": 2104.3337,
-          "y": 339.83349999999996,
-          "direction": "left"
+          "x": 2298.823201953125,
+          "y": 368.3335,
+          "direction": "top"
         },
         "constraintName": "fk_trees_to_tasks",
         "visible": true,

@@ -60,8 +60,8 @@ const RightDrawer = (props: RightDrawerProps): JSX.Element => {
       />
       <div className='flex w-full flex-col justify-start'>
         <div className='mb-1 flex flex-row justify-between'>
-          <h2 className='mt-2 ml-8 text-3xl font-bold'>{props.title ?? ''}</h2>
-          <button className='mt-2 mr-2' onClick={() => props.close()}>
+          <h2 className='ml-8 mt-2 text-3xl font-bold'>{props.title ?? ''}</h2>
+          <button className='mr-2 mt-2' onClick={() => props.close()}>
             <CloseIcon className='text-3xl' />
           </button>
         </div>

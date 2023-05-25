@@ -7,7 +7,7 @@ import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 
-const TreeViewPage = (): JSX.Element => {
+const EditorPage = (): JSX.Element => {
   const [tree, setTree]: [CrossTree | null, (tree: CrossTree | null) => void] =
     useState<CrossTree | null>(null);
 
@@ -55,4 +55,4 @@ const fixTreeDeserialization = (tree: CrossTree): void => {
   }
 };
 
-export default TreeViewPage;
+export default EditorPage;

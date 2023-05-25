@@ -1,40 +1,39 @@
 import { Link, To } from 'react-router-dom';
-import {
-  BiShareAlt as AccountTreeIcon,
-  BiCalendar as EventNoteIcon,
-  BiData as Dataset,
-} from 'react-icons/bi';
+import { BiCalendar, BiData } from 'react-icons/bi';
+import { TbBinaryTree } from 'react-icons/tb';
 import { Key, useEffect } from 'react';
 import { themeChange } from 'theme-change';
-interface SideNavProps {
+
+interface LayoutProps {
   children: React.ReactNode;
 }
-interface SideNavItem {
+
+interface NavItem {
   name: String;
   path: String;
   icon: JSX.Element;
 }
 
-const SideNavItems: SideNavItem[] = [
+const navItems: NavItem[] = [
   {
-    name: 'Cross Designer',
+    name: 'Cross Designs',
     path: '/',
-    icon: <AccountTreeIcon className='text-2xl' />,
+    icon: <TbBinaryTree className='text-2xl' />,
   },
   {
-    name: 'Scheduler',
-    path: '/scheduler/todo',
-    icon: <EventNoteIcon className='text-2xl' />,
+    name: 'Schedules',
+    path: '/schedules/todo',
+    icon: <BiCalendar className='text-2xl' />,
   },
   {
-    name: 'Data Manager',
-    path: 'data-manager/gene',
-    icon: <Dataset className='text-2xl' />,
+    name: 'Data Tables',
+    path: '/data-tables/genes',
+    icon: <BiData className='text-2xl' />,
   },
 ];
 
 const getListItems = (): JSX.Element[] => {
-  return SideNavItems.map((item) => (
+  return navItems.map((item) => (
     <li key={item.name as Key}>
       <Link
         to={item.path as To}
@@ -55,39 +54,39 @@ const allThemes = [
   'bumblebee',
   'emerald',
   'corporate',
-  'synthwave',
-  'retro',
-  'cyberpunk',
-  'valentine',
-  'halloween',
-  'garden',
-  'forest',
-  'aqua',
-  'lofi',
-  'pastel',
-  'fantasy',
-  'wireframe',
-  'black',
-  'luxury',
-  'dracula',
-  'cmyk',
-  'autumn',
-  'business',
-  'acid',
-  'lemonade',
-  'night',
-  'coffee',
-  'winter',
+  // 'synthwave',
+  // 'retro',
+  // 'cyberpunk',
+  // 'valentine',
+  // 'halloween',
+  // 'garden',
+  // 'forest',
+  // 'aqua',
+  // 'lofi',
+  // 'pastel',
+  // 'fantasy',
+  // 'wireframe',
+  // 'black',
+  // 'luxury',
+  // 'dracula',
+  // 'cmyk',
+  // 'autumn',
+  // 'business',
+  // 'acid',
+  // 'lemonade',
+  // 'night',
+  // 'coffee',
+  // 'winter',
 ];
 
-const SideNav = (props: SideNavProps): JSX.Element => {
+const Layout = (props: LayoutProps): JSX.Element => {
   useEffect(() => {
     themeChange(false);
     // 👆 false parameter is required for react project
   }, []);
 
   return (
-    <div className='drawer '>
+    <div className='drawer'>
       <input id='nav-drawer' type='checkbox' className='drawer-toggle' />
       <div className='drawer-content'>{props.children}</div>
 
@@ -95,7 +94,7 @@ const SideNav = (props: SideNavProps): JSX.Element => {
         <label htmlFor='nav-drawer' className='drawer-overlay'></label>
         <div className='flex h-full w-60 flex-col justify-between  bg-base-100'>
           <ul className='menu mt-4'>
-            <li key='wormworld '>
+            <li key='wormworld'>
               <Link
                 to={'/' as To}
                 onClick={() => document.getElementById('nav-drawer')?.click()}
@@ -132,4 +131,4 @@ const SideNav = (props: SideNavProps): JSX.Element => {
   );
 };
 
-export default SideNav;
+export default Layout;

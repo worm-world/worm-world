@@ -22,6 +22,7 @@ use models::{
     filter::FilterGroup,
     gene::{Gene, GeneDb, GeneFieldName},
     phenotype::{Phenotype, PhenotypeDb, PhenotypeFieldName},
+    strain::{Strain, StrainFieldName},
     task::{Task, TaskFieldName},
     task_conds::{TaskCondition, TaskConditionFieldName},
     task_deps::{TaskDependency, TaskDependencyFieldName},
@@ -119,6 +120,18 @@ async fn main() {
             get_task_dependencies,
             get_filtered_task_dependency,
             insert_task_dependency,
+            // strains
+            get_strains,
+            get_filtered_strains,
+            get_count_filtered_strains,
+            insert_strain,
+            // insert_strains_from_file,
+            delete_filtered_strains,
+            // strain_alleles
+            // get_strains_alleles,
+            // get_filtered_strain_alleles,
+            // get_count_filtered_strain_alleles,
+            // insert_strain_alleles,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -711,6 +724,7 @@ async fn get_filtered_task_dependency(
     let state_guard = state.0.read().await;
     state_guard.get_filtered_task_dependency(&filter).await
 }
+
 #[tauri::command]
 async fn insert_task_dependency(
     state: tauri::State<'_, DbState>,
@@ -720,3 +734,85 @@ async fn insert_task_dependency(
     state_guard.insert_task_dependency(&task).await
 }
 /* #endregion task_conditions/dependencies */
+
+/* #region strains */
+#[tauri::command]
+async fn get_strains(state: tauri::State<'_, DbState>) -> Result<Vec<Strain>, DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.get_strains().await
+}
+
+#[tauri::command]
+async fn get_count_filtered_strains(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<StrainFieldName>,
+) -> Result<u32, DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.get_count_filtered_strains(&filter).await
+}
+
+#[tauri::command]
+async fn get_filtered_strains(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<StrainFieldName>,
+) -> Result<Vec<Strain>, DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.get_filtered_strains(&filter).await
+}
+
+#[tauri::command]
+async fn insert_strain(state: tauri::State<'_, DbState>, strain: Strain) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.insert_strain(&strain).await
+}
+
+#[tauri::command]
+async fn delete_filtered_strains(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<StrainFieldName>,
+) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.delete_filtered_strains(&filter).await
+}
+/* #endregion strains */
+
+/* #region strain_alleles */
+// #[tauri::command]
+// async fn get_strain_alleles(state: tauri::State<'_, DbState>) -> Result<Vec<Strain>, DbError> {
+//     let state_guard = state.0.read().await;
+//     state_guard.get_strains().await
+// }
+
+// #[tauri::command]
+// async fn get_count_filtered_strains(
+//     state: tauri::State<'_, DbState>,
+//     filter: FilterGroup<StrainFieldName>,
+// ) -> Result<u32, DbError> {
+//     let state_guard = state.0.read().await;
+//     state_guard.get_count_filtered_strains(&filter).await
+// }
+
+// #[tauri::command]
+// async fn get_filtered_strains(
+//     state: tauri::State<'_, DbState>,
+//     filter: FilterGroup<StrainFieldName>,
+// ) -> Result<Vec<Strain>, DbError> {
+//     let state_guard = state.0.read().await;
+//     state_guard.get_filtered_strains(&filter).await
+// }
+
+// #[tauri::command]
+// async fn insert_strain(state: tauri::State<'_, DbState>, strain: Strain) -> Result<(), DbError> {
+//     let state_guard = state.0.read().await;
+//     state_guard.insert_strain(&strain).await
+// }
+
+// #[tauri::command]
+// async fn delete_filtered_strains(
+//     state: tauri::State<'_, DbState>,
+//     filter: FilterGroup<StrainFieldName>,
+// ) -> Result<(), DbError> {
+//     let state_guard = state.0.read().await;
+//     state_guard.delete_filtered_strains(&filter).await
+// }
+/* #endregion strains */

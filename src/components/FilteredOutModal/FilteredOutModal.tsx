@@ -36,7 +36,7 @@ const FilteredOutModal = (props: FilteredOutModalProps): JSX.Element => {
                 return (
                   <li
                     key={idx}
-                    className='flex flex-row items-center py-4 pr-16 pl-8'
+                    className='flex flex-row items-center py-4 pl-8 pr-16'
                   >
                     <div className='text-content mr-8 brightness-95'>{`${
                       idx + 1

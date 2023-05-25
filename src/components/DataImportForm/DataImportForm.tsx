@@ -126,7 +126,7 @@ const DataImportForm = <T,>(props: iDataImportFormProps<T>): JSX.Element => {
         className='btn'
         onClick={handleOpen}
       >
-        {'Add New ' + props.title}
+        {'Add New ' + props.title.slice(0, -1)}
       </label>
       <input
         type='checkbox'
