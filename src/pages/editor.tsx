@@ -49,7 +49,7 @@ const fixTreeDeserialization = (tree: CrossTree): void => {
       node.data.strain = new Strain({
         name: node.data.strain.name,
         allelePairs,
-        notes: node.data.strain.notes,
+        description: node.data.strain.description,
       });
     }
   }

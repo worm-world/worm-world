@@ -1,7 +1,7 @@
 use super::{DbError, InnerDbState};
 use crate::models::{
     filter::{FilterGroup, FilterQueryBuilder},
-    task_deps::{TaskDependency, TaskDependencyFieldName},
+    task_dep::{TaskDependency, TaskDependencyFieldName},
 };
 use anyhow::Result;
 use sqlx::{QueryBuilder, Sqlite};
@@ -73,11 +73,11 @@ impl InnerDbState {
 mod test {
 
     use crate::models::task::{Action, Task};
-    use crate::models::task_deps::{TaskDependency, TaskDependencyFieldName};
+    use crate::models::task_dep::{TaskDependency, TaskDependencyFieldName};
     use crate::InnerDbState;
     use crate::Tree;
     use crate::{
-        dummy::testdata,
+        interface::mock,
         models::filter::{Filter, FilterGroup},
     };
     use anyhow::Result;
@@ -92,7 +92,7 @@ mod test {
         let mut task_dependancies: Vec<TaskDependency> = state.get_task_dependencies().await?;
         task_dependancies.sort_by(|a, b| (a.parent_id.cmp(&b.parent_id)));
 
-        assert_eq!(task_dependancies, testdata::get_task_dependencies());
+        assert_eq!(task_dependancies, mock::task_dep::get_task_dependencies());
         Ok(())
     }
     /* #endregion */
@@ -113,7 +113,7 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::get_filtered_task_dependency());
+        assert_eq!(exprs, mock::task_dep::get_filtered_task_dependency());
         Ok(())
     }
     /* #endregion */

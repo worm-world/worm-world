@@ -2,5 +2,5 @@
 
 export interface db_Strain {
   name: string;
-  notes: string | null;
+  description: string | null;
 }

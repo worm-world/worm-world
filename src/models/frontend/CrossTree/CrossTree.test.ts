@@ -69,13 +69,13 @@ describe('cross tree', () => {
   const generateStrain = ({
     allelePairs = [],
     name = undefined,
-    notes = undefined,
+    description = undefined,
   }: {
     name?: string;
     allelePairs?: AllelePair[];
-    notes?: string;
+    description?: string;
   }): Strain => {
-    return new Strain({ name, allelePairs, notes });
+    return new Strain({ name, allelePairs, description });
   };
 
   const generateEdge = ({

@@ -1,7 +1,7 @@
 use super::{DbError, InnerDbState};
 use crate::models::{
     filter::{FilterGroup, FilterQueryBuilder},
-    task_conds::{TaskCondition, TaskConditionFieldName},
+    task_cond::{TaskCondition, TaskConditionFieldName},
 };
 use anyhow::Result;
 use sqlx::{QueryBuilder, Sqlite};
@@ -74,11 +74,11 @@ mod test {
 
     use crate::models::condition::Condition;
     use crate::models::task::{Action, Task};
-    use crate::models::task_conds::{TaskCondition, TaskConditionFieldName};
+    use crate::models::task_cond::{TaskCondition, TaskConditionFieldName};
     use crate::InnerDbState;
     use crate::Tree;
     use crate::{
-        dummy::testdata,
+        interface::mock,
         models::filter::{Filter, FilterGroup},
     };
     use anyhow::Result;
@@ -93,7 +93,7 @@ mod test {
         let mut task_condition: Vec<TaskCondition> = state.get_task_conditions().await?;
         task_condition.sort_by(|a, b| (a.task_id.cmp(&b.task_id)));
 
-        assert_eq!(task_condition, testdata::get_task_conditions());
+        assert_eq!(task_condition, mock::task_cond::get_task_conditions());
         Ok(())
     }
     /* #endregion */
@@ -114,7 +114,7 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::get_filtered_task_conditions());
+        assert_eq!(exprs, mock::task_cond::get_filtered_task_conditions());
         Ok(())
     }
     /* #endregion */

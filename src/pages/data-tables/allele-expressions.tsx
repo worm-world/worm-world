@@ -4,7 +4,7 @@ import {
   getFilteredAlleleExpressions,
   insertAlleleExpressionsFromFile,
   insertDbAlleleExpression,
-} from 'api/alleleExpressions';
+} from 'api/alleleExpression';
 import { db_AlleleExpression } from 'models/db/db_AlleleExpression';
 import { ColumnDefinitionType } from 'components/Table/Table';
 import { AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';

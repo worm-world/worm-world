@@ -2,18 +2,20 @@
     all(not(debug_assertions), target_os = "windows"),
     windows_subsystem = "windows"
 )]
-use std::{path::Path, str::FromStr, time::Duration};
-
 use anyhow::Result;
 use directories::ProjectDirs;
 use sqlx::{
     sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePoolOptions, SqliteSynchronous},
     Pool, Sqlite,
 };
+use std::{path::Path, str::FromStr, time::Duration};
+use thiserror::Error;
+use tokio::sync::RwLock;
 
-mod dummy;
+mod interface;
+use interface::{bulk::Bulk, DbError, InnerDbState};
+
 mod models;
-
 use models::{
     allele::{Allele, AlleleFieldName},
     allele_expr::{AlleleExpression, AlleleExpressionDb, AlleleExpressionFieldName},
@@ -23,19 +25,13 @@ use models::{
     gene::{Gene, GeneDb, GeneFieldName},
     phenotype::{Phenotype, PhenotypeDb, PhenotypeFieldName},
     strain::{Strain, StrainFieldName},
+    strain_allele::{StrainAllele, StrainAlleleFieldName},
     task::{Task, TaskFieldName},
-    task_conds::{TaskCondition, TaskConditionFieldName},
-    task_deps::{TaskDependency, TaskDependencyFieldName},
+    task_cond::{TaskCondition, TaskConditionFieldName},
+    task_dep::{TaskDependency, TaskDependencyFieldName},
     tree::{Tree, TreeFieldName},
-    variation_info::{VariationFieldName, VariationInfo, VariationInfoDb},
+    variation::{Variation, VariationDb, VariationFieldName},
 };
-use thiserror::Error;
-use tokio::sync::RwLock;
-
-mod interface;
-use interface::{bulk::Bulk, DbError, InnerDbState};
-
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 
 #[tokio::main]
 async fn main() {
@@ -70,12 +66,12 @@ async fn main() {
             insert_phenotypes_from_file,
             delete_filtered_phenotypes,
             // variations
-            get_variation_info,
-            get_filtered_variation_info,
-            get_count_filtered_variation_info,
-            insert_variation_info,
-            insert_variation_infos_from_file,
-            delete_filtered_variation_infos,
+            get_variations,
+            get_filtered_variations,
+            get_count_filtered_variations,
+            insert_variation,
+            insert_variations_from_file,
+            delete_filtered_variations,
             // allele_exprs
             get_allele_exprs,
             get_filtered_allele_exprs,
@@ -127,11 +123,13 @@ async fn main() {
             insert_strain,
             // insert_strains_from_file,
             delete_filtered_strains,
-            // strain_alleles
-            // get_strains_alleles,
-            // get_filtered_strain_alleles,
-            // get_count_filtered_strain_alleles,
-            // insert_strain_alleles,
+            // strain_alleles,
+            get_strain_alleles,
+            get_filtered_strain_alleles,
+            get_count_filtered_strain_alleles,
+            insert_strain_allele,
+            // insert_strain_alleles_from_file,
+            delete_filtered_strain_alleles,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -365,59 +363,57 @@ async fn delete_filtered_phenotypes(
 
 /* #region variations */
 #[tauri::command]
-async fn get_variation_info(
-    state: tauri::State<'_, DbState>,
-) -> Result<Vec<VariationInfo>, DbError> {
+async fn get_variations(state: tauri::State<'_, DbState>) -> Result<Vec<Variation>, DbError> {
     let state_guard = state.0.read().await;
-    state_guard.get_variation_info().await
+    state_guard.get_variations().await
 }
 
 #[tauri::command]
-async fn get_filtered_variation_info(
+async fn get_filtered_variations(
     state: tauri::State<'_, DbState>,
     filter: FilterGroup<VariationFieldName>,
-) -> Result<Vec<VariationInfo>, DbError> {
+) -> Result<Vec<Variation>, DbError> {
     let state_guard = state.0.read().await;
-    state_guard.get_filtered_variation_info(&filter).await
+    state_guard.get_filtered_variations(&filter).await
 }
 
 #[tauri::command]
-async fn get_count_filtered_variation_info(
+async fn get_count_filtered_variations(
     state: tauri::State<'_, DbState>,
     filter: FilterGroup<VariationFieldName>,
 ) -> Result<u32, DbError> {
     let state_guard = state.0.read().await;
-    state_guard.get_count_filtered_variation_info(&filter).await
+    state_guard.get_count_filtered_variations(&filter).await
 }
 
 #[tauri::command]
-async fn insert_variation_info(
+async fn insert_variation(
     state: tauri::State<'_, DbState>,
-    variation_info: VariationInfo,
+    variation: Variation,
 ) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
-    state_guard.insert_variation_info(&variation_info).await
+    state_guard.insert_variation(&variation).await
 }
 
 #[tauri::command]
-async fn insert_variation_infos_from_file(
+async fn insert_variations_from_file(
     state: tauri::State<'_, DbState>,
     path: String,
 ) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
-    match Bulk::<VariationInfoDb>::new(Path::new(&path)) {
-        Ok(bulk) => state_guard.insert_variation_infos(bulk).await,
+    match Bulk::<VariationDb>::new(Path::new(&path)) {
+        Ok(bulk) => state_guard.insert_variations(bulk).await,
         Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned())),
     }
 }
 
 #[tauri::command]
-async fn delete_filtered_variation_infos(
+async fn delete_filtered_variations(
     state: tauri::State<'_, DbState>,
     filter: FilterGroup<VariationFieldName>,
 ) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
-    state_guard.delete_filtered_variation_infos(&filter).await
+    state_guard.delete_filtered_variations(&filter).await
 }
 /* #endregion variations */
 
@@ -777,42 +773,47 @@ async fn delete_filtered_strains(
 /* #endregion strains */
 
 /* #region strain_alleles */
-// #[tauri::command]
-// async fn get_strain_alleles(state: tauri::State<'_, DbState>) -> Result<Vec<Strain>, DbError> {
-//     let state_guard = state.0.read().await;
-//     state_guard.get_strains().await
-// }
+#[tauri::command]
+async fn get_strain_alleles(
+    state: tauri::State<'_, DbState>,
+) -> Result<Vec<StrainAllele>, DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.get_strain_alleles().await
+}
 
-// #[tauri::command]
-// async fn get_count_filtered_strains(
-//     state: tauri::State<'_, DbState>,
-//     filter: FilterGroup<StrainFieldName>,
-// ) -> Result<u32, DbError> {
-//     let state_guard = state.0.read().await;
-//     state_guard.get_count_filtered_strains(&filter).await
-// }
+#[tauri::command]
+async fn get_count_filtered_strain_alleles(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<StrainAlleleFieldName>,
+) -> Result<u32, DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.get_count_filtered_strain_alleles(&filter).await
+}
 
-// #[tauri::command]
-// async fn get_filtered_strains(
-//     state: tauri::State<'_, DbState>,
-//     filter: FilterGroup<StrainFieldName>,
-// ) -> Result<Vec<Strain>, DbError> {
-//     let state_guard = state.0.read().await;
-//     state_guard.get_filtered_strains(&filter).await
-// }
+#[tauri::command]
+async fn get_filtered_strain_alleles(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<StrainAlleleFieldName>,
+) -> Result<Vec<StrainAllele>, DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.get_filtered_strain_alleles(&filter).await
+}
 
-// #[tauri::command]
-// async fn insert_strain(state: tauri::State<'_, DbState>, strain: Strain) -> Result<(), DbError> {
-//     let state_guard = state.0.read().await;
-//     state_guard.insert_strain(&strain).await
-// }
+#[tauri::command]
+async fn insert_strain_allele(
+    state: tauri::State<'_, DbState>,
+    strain_allele: StrainAllele,
+) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.insert_strain_allele(&strain_allele).await
+}
 
-// #[tauri::command]
-// async fn delete_filtered_strains(
-//     state: tauri::State<'_, DbState>,
-//     filter: FilterGroup<StrainFieldName>,
-// ) -> Result<(), DbError> {
-//     let state_guard = state.0.read().await;
-//     state_guard.delete_filtered_strains(&filter).await
-// }
+#[tauri::command]
+async fn delete_filtered_strain_alleles(
+    state: tauri::State<'_, DbState>,
+    filter: FilterGroup<StrainAlleleFieldName>,
+) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.delete_filtered_strain_alleles(&filter).await
+}
 /* #endregion strains */

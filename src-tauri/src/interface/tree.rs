@@ -120,7 +120,7 @@ mod test {
     use crate::models::tree::{Tree, TreeFieldName};
     use crate::InnerDbState;
     use crate::{
-        dummy::testdata,
+        interface::mock,
         models::filter::{Filter, FilterGroup},
     };
     use anyhow::Result;
@@ -135,7 +135,7 @@ mod test {
         let mut trees: Vec<Tree> = state.get_trees().await?;
         trees.sort_by(|a, b| (a.id.cmp(&b.id)));
 
-        assert_eq!(trees, testdata::get_trees());
+        assert_eq!(trees, mock::tree::get_trees());
         Ok(())
     }
     /* #endregion */
@@ -153,7 +153,7 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::get_filtered_trees());
+        assert_eq!(exprs, mock::tree::get_filtered_trees());
         Ok(())
     }
     /* #endregion */

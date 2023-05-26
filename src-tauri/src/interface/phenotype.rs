@@ -228,8 +228,8 @@ mod test {
 
     use std::io::BufReader;
 
-    use crate::dummy::testdata;
     use crate::interface::bulk::Bulk;
+    use crate::interface::mock;
     use crate::models::expr_relation::ExpressionRelationFieldName;
     use crate::models::filter::{Filter, FilterGroup, Order};
     use crate::models::phenotype::{Phenotype, PhenotypeDb, PhenotypeFieldName};
@@ -244,7 +244,7 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let phens = state.get_phenotypes().await?;
 
-        let expected_phens = testdata::get_phenotypes();
+        let expected_phens = mock::phenotype::get_phenotypes();
         assert_eq!(phens, expected_phens);
         Ok(())
     }
@@ -269,7 +269,7 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::get_filtered_phenotypes());
+        assert_eq!(exprs, mock::phenotype::get_filtered_phenotypes());
         Ok(())
     }
 
@@ -288,7 +288,10 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::get_phenotypes_maturation_less_equal_3());
+        assert_eq!(
+            exprs,
+            mock::phenotype::get_phenotypes_maturation_less_equal_3()
+        );
         Ok(())
     }
 
@@ -307,7 +310,7 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::search_phenotypes_by_short_name());
+        assert_eq!(exprs, mock::phenotype::search_phenotypes_by_short_name());
         Ok(())
     }
     /* #endregion */
@@ -354,7 +357,7 @@ mod test {
             .get_altering_phenotypes(&expr_relation_filter, &phenotype_filter)
             .await?;
 
-        assert_eq!(exprs, testdata::get_altering_phenotypes());
+        assert_eq!(exprs, mock::phenotype::get_altering_phenotypes());
         Ok(())
     }
     /* #endregion */
@@ -442,10 +445,10 @@ unc-5,0,unc,,0,0,0,0,4"
 
     /* #region delete_alleles test */
     #[sqlx::test(fixtures("phenotype"))]
-    async fn test_delete_single_allele(pool: Pool<Sqlite>) -> Result<()> {
+    async fn test_delete_single_phenotype(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let mut phenotypes: Vec<Phenotype> = state.get_phenotypes().await?;
-        assert_eq!(phenotypes.len(), testdata::get_phenotypes().len());
+        assert_eq!(phenotypes.len(), mock::phenotype::get_phenotypes().len());
 
         let delete_filter = &FilterGroup::<PhenotypeFieldName> {
             filters: vec![
@@ -460,7 +463,10 @@ unc-5,0,unc,,0,0,0,0,4"
         state.delete_filtered_phenotypes(delete_filter).await?;
 
         phenotypes = state.get_phenotypes().await?;
-        assert_eq!(phenotypes.len(), testdata::get_phenotypes().len() - 1);
+        assert_eq!(
+            phenotypes.len(),
+            mock::phenotype::get_phenotypes().len() - 1
+        );
 
         phenotypes = state.get_filtered_phenotypes(delete_filter).await?;
         assert_eq!(phenotypes.len(), 0);
@@ -474,7 +480,7 @@ unc-5,0,unc,,0,0,0,0,4"
 
         let mut phenotypes: Vec<Phenotype> = state.get_phenotypes().await?;
         let orig_len = phenotypes.len();
-        assert_eq!(orig_len, testdata::get_phenotypes().len());
+        assert_eq!(orig_len, mock::phenotype::get_phenotypes().len());
 
         let filter = &FilterGroup::<PhenotypeFieldName> {
             filters: vec![vec![(PhenotypeFieldName::Wild, Filter::False)]],
@@ -497,11 +503,11 @@ unc-5,0,unc,,0,0,0,0,4"
     }
 
     #[sqlx::test(fixtures("phenotype"))]
-    async fn test_delete_all_allele(pool: Pool<Sqlite>) -> Result<()> {
+    async fn test_delete_all_phenotype(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
 
         let mut phenotypes: Vec<Phenotype> = state.get_phenotypes().await?;
-        assert_eq!(phenotypes.len(), testdata::get_phenotypes().len());
+        assert_eq!(phenotypes.len(), mock::phenotype::get_phenotypes().len());
 
         let filter = &FilterGroup::<PhenotypeFieldName> {
             filters: vec![],

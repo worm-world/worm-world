@@ -31,7 +31,7 @@ interface ChromosomeOption {
 interface iStrain {
   name?: string;
   allelePairs: AllelePair[];
-  notes?: string;
+  description?: string;
 }
 
 export class Strain {
@@ -60,12 +60,12 @@ export class Strain {
 
   public name?: string;
 
-  public notes?: string;
+  public description?: string;
 
   constructor(props: iStrain) {
     if (props !== undefined && props !== null) {
       this.name = props.name;
-      this.notes = props.notes;
+      this.description = props.description;
       this.addPairsToStrain(props.allelePairs);
     }
     this.chromPairMap = new Map(this.chromPairMap);
@@ -122,7 +122,7 @@ export class Strain {
     );
     return new Strain({
       name: this.name,
-      notes: this.notes,
+      description: this.description,
       allelePairs,
     });
   }
@@ -598,7 +598,7 @@ export class Strain {
     }
     return {
       name: this.name,
-      notes: this.notes ?? null,
+      description: this.description ?? null,
     };
   }
 }

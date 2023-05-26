@@ -3,9 +3,9 @@
     "version": "2.2.11",
     "width": 3000,
     "height": 3000,
-    "scrollTop": -956,
-    "scrollLeft": -245,
-    "zoomLevel": 0.9,
+    "scrollTop": -1254,
+    "scrollLeft": -1111,
+    "zoomLevel": 0.3,
     "show": {
       "tableComment": true,
       "columnComment": true,
@@ -226,7 +226,7 @@
             "id": "4cc4f236-c503-4907-bac8-346b40529050"
           },
           {
-            "name": "variation_info",
+            "name": "variation",
             "comment": "",
             "dataType": "INTEGER",
             "default": "",
@@ -241,7 +241,7 @@
               "pk": false,
               "fk": true,
               "pfk": false,
-              "widthName": 79.3271484375,
+              "widthName": 60,
               "widthComment": 60,
               "widthDataType": 60,
               "widthDefault": 60
@@ -1017,7 +1017,7 @@
         "id": "9546fb7b-5f49-45c6-812a-11d517a1f0e1"
       },
       {
-        "name": "variation_info",
+        "name": "variation",
         "comment": "",
         "columns": [
           {
@@ -1118,7 +1118,7 @@
           "left": 456.0001,
           "top": 1624,
           "zIndex": 5,
-          "widthName": 79.3271484375,
+          "widthName": 60,
           "widthComment": 60
         },
         "visible": true,
@@ -1665,7 +1665,7 @@
           "columnIds": [
             "82f16f93-8387-4398-855d-b75404608b1e"
           ],
-          "x": 820.5497484375,
+          "x": 811.8915453125,
           "y": 1375.2772,
           "direction": "right"
         },
@@ -1726,7 +1726,7 @@
           "columnIds": [
             "4cc4f236-c503-4907-bac8-346b40529050"
           ],
-          "x": 637.38617421875,
+          "x": 633.05707265625,
           "y": 1299.7772,
           "direction": "top"
         },
@@ -1912,11 +1912,11 @@
           "columnIds": [
             "1de60def-1b06-4def-8f6d-d6281a915c03"
           ],
-          "x": 637.38617421875,
+          "x": 633.05707265625,
           "y": 1450.7772,
           "direction": "bottom"
         },
-        "constraintName": "fk_variation_info_to_alleles",
+        "constraintName": "fk_variation_to_alleles",
         "visible": true,
         "id": "d2bcfd5f-bd84-4fd4-bb08-98a0783550e4"
       },

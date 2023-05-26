@@ -34,6 +34,9 @@ const DataManager = (): JSX.Element => {
         <Link key='strains' to='strains' className='tab'>
           Strains
         </Link>
+        <Link key='strain-alleles' to='strain-alleles' className='tab'>
+          Strain Alleles
+        </Link>
       </TopNav>
       <Outlet />
     </div>

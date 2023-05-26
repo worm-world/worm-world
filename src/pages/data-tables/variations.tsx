@@ -4,22 +4,22 @@ import {
   getFilteredVariations,
   insertDbVariation,
   insertVariationsFromFile,
-} from 'api/variationInfo';
-import { db_VariationInfo } from 'models/db/db_VariationInfo';
+} from 'api/variation';
+import { db_Variation } from 'models/db/db_Variation';
 import { ColumnDefinitionType } from 'components/Table/Table';
 import { chromosomes } from 'models/frontend/Chromosome';
 import { VariationFieldName } from 'models/db/filter/db_VariationFieldName';
 import DataPage from 'components/DataPage/DataPage';
 import { Field } from 'components/ColumnFilter/ColumnFilter';
 
-export const cols: Array<ColumnDefinitionType<db_VariationInfo>> = [
+export const cols: Array<ColumnDefinitionType<db_Variation>> = [
   { key: 'alleleName', header: 'Variation Name' },
   { key: 'chromosome', header: 'Chromosome' },
   { key: 'physLoc', header: 'Physical Location' },
   { key: 'geneticLoc', header: 'Genetic Location' },
 ];
 
-const fields: Array<Field<db_VariationInfo>> = [
+const fields: Array<Field<db_Variation>> = [
   {
     name: 'alleleName',
     title: 'Variation Name',
@@ -43,7 +43,7 @@ const fields: Array<Field<db_VariationInfo>> = [
   },
 ];
 
-const nameMapping: { [key in keyof db_VariationInfo]: VariationFieldName } = {
+const nameMapping: { [key in keyof db_Variation]: VariationFieldName } = {
   alleleName: 'AlleleName',
   chromosome: 'Chromosome',
   physLoc: 'PhysLoc',

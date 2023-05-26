@@ -1,42 +1,42 @@
 use super::bulk::Bulk;
 use super::{DbError, InnerDbState, SQLITE_BIND_LIMIT};
 use crate::models::filter::{Count, FilterQueryBuilder};
-use crate::models::variation_info::VariationInfoDb;
+use crate::models::variation::VariationDb;
 use crate::models::{
     filter::FilterGroup,
-    variation_info::{VariationFieldName, VariationInfo},
+    variation::{Variation, VariationFieldName},
 };
 use anyhow::Result;
 use sqlx::{QueryBuilder, Sqlite};
 
 impl InnerDbState {
-    pub async fn get_variation_info(&self) -> Result<Vec<VariationInfo>, DbError> {
+    pub async fn get_variations(&self) -> Result<Vec<Variation>, DbError> {
         match sqlx::query_as!(
-            VariationInfoDb,
+            VariationDb,
             "
-            SELECT allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end FROM variation_info ORDER BY allele_name
+            SELECT allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end FROM variations ORDER BY allele_name
             "
         )
         .fetch_all(&self.conn_pool)
         .await
         {
-            Ok(vi) => Ok(vi.into_iter().map(|e| e.into()).collect()),
+            Ok(v) => Ok(v.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
-                eprint!("Get variation info error: {e}");
+                eprint!("Get variations info error: {e}");
                 Err(DbError::Query(e.to_string()))
             }
         }
     }
-    pub async fn get_filtered_variation_info(
+    pub async fn get_filtered_variations(
         &self,
         filter: &FilterGroup<VariationFieldName>,
-    ) -> Result<Vec<VariationInfo>, DbError> {
+    ) -> Result<Vec<Variation>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
-            "SELECT allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end FROM variation_info",
+            "SELECT allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end FROM variations",
         );
         filter.add_filtered_query(&mut qb, true, true);
         match qb
-            .build_query_as::<VariationInfoDb>()
+            .build_query_as::<VariationDb>()
             .fetch_all(&self.conn_pool)
             .await
         {
@@ -48,12 +48,12 @@ impl InnerDbState {
         }
     }
 
-    pub async fn get_count_filtered_variation_info(
+    pub async fn get_count_filtered_variations(
         &self,
         filter: &FilterGroup<VariationFieldName>,
     ) -> Result<u32, DbError> {
         let mut qb: QueryBuilder<Sqlite> =
-            QueryBuilder::new("SELECT COUNT(*) as count FROM variation_info");
+            QueryBuilder::new("SELECT COUNT(*) as count FROM variations");
         filter.add_filtered_query(&mut qb, true, false);
 
         match qb
@@ -69,20 +69,20 @@ impl InnerDbState {
         }
     }
 
-    pub async fn insert_variation_info(&self, vi: &VariationInfo) -> Result<(), DbError> {
-        let chromosome = vi.chromosome.as_ref().map(|v| v.to_string());
-        let (start, end): (Option<i32>, Option<i32>) = match vi.recomb_suppressor {
+    pub async fn insert_variation(&self, v: &Variation) -> Result<(), DbError> {
+        let chromosome = v.chromosome.as_ref().map(|v| v.to_string());
+        let (start, end): (Option<i32>, Option<i32>) = match v.recomb_suppressor {
             Some(recomb_range) => (Some(recomb_range.0), Some(recomb_range.1)),
             None => (None, None),
         };
         match sqlx::query!(
-            "INSERT INTO variation_info (allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end)
+            "INSERT INTO variations (allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end)
             VALUES($1, $2, $3, $4, $5, $6)
             ",
-            vi.allele_name,
+            v.allele_name,
             chromosome,
-            vi.phys_loc,
-            vi.gen_loc,
+            v.phys_loc,
+            v.gen_loc,
             start,
             end
         )
@@ -91,13 +91,13 @@ impl InnerDbState {
         {
             Ok(_) => Ok(()),
             Err(e) => {
-                eprint!("Insert Variation info error: {e}");
+                eprint!("Insert variation error: {e}");
                 Err(DbError::Insert(e.to_string()))
             }
         }
     }
 
-    pub async fn insert_variation_infos(&self, bulk: Bulk<VariationInfoDb>) -> Result<(), DbError> {
+    pub async fn insert_variations(&self, bulk: Bulk<VariationDb>) -> Result<(), DbError> {
         if !bulk.errors.is_empty() {
             return Err(DbError::BulkInsert(format!(
                 "Found errors on {} lines",
@@ -115,7 +115,7 @@ impl InnerDbState {
                 )));
             }
             let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
-                "INSERT OR IGNORE INTO variation_info (allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end) "
+                "INSERT OR IGNORE INTO variations (allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end) "
             );
             qb.push_values(chunk, |mut b, item| {
                 b.push_bind(item.allele_name)
@@ -129,7 +129,7 @@ impl InnerDbState {
             match qb.build().execute(&self.conn_pool).await {
                 Ok(_) => {}
                 Err(e) => {
-                    eprint!("Bulk Insert error: {e}");
+                    eprint!("Bulk insert error: {e}");
                     return Err(DbError::BulkInsert(e.to_string()));
                 }
             }
@@ -137,17 +137,17 @@ impl InnerDbState {
         Ok(())
     }
 
-    pub async fn delete_filtered_variation_infos(
+    pub async fn delete_filtered_variations(
         &self,
         filter: &FilterGroup<VariationFieldName>,
     ) -> Result<(), DbError> {
-        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new("DELETE FROM variation_info");
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new("DELETE FROM variations");
         filter.add_filtered_query(&mut qb, true, false);
 
         match qb.build().execute(&self.conn_pool).await {
             Ok(_) => Ok(()),
             Err(e) => {
-                eprint!("Delete Variation error: {e}");
+                eprint!("Delete variations error: {e}");
                 Err(DbError::Delete(e.to_string()))
             }
         }
@@ -159,11 +159,11 @@ mod test {
 
     use std::io::BufReader;
 
-    use crate::dummy::testdata;
     use crate::interface::bulk::Bulk;
+    use crate::interface::mock;
     use crate::models::chromosome::Chromosome;
     use crate::models::filter::{Filter, FilterGroup, Order};
-    use crate::models::variation_info::{VariationFieldName, VariationInfo, VariationInfoDb};
+    use crate::models::variation::{Variation, VariationDb, VariationFieldName};
     use crate::InnerDbState;
     use anyhow::Result;
     use pretty_assertions::assert_eq;
@@ -171,18 +171,18 @@ mod test {
 
     /* #region get_variation tests */
     #[sqlx::test(fixtures("full_db"))]
-    async fn test_get_variation_info(pool: Pool<Sqlite>) -> Result<()> {
+    async fn test_get_variations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
 
-        let vis: Vec<VariationInfo> = state.get_variation_info().await?;
-        assert_eq!(vis, testdata::get_variation_info());
+        let vis: Vec<Variation> = state.get_variations().await?;
+        assert_eq!(vis, mock::variation::get_variations());
         Ok(())
     }
     /* #endregion */
 
     /* #region get_filtered_variation tests */
     #[sqlx::test(fixtures("full_db"))]
-    async fn test_get_filtered_variation_info(pool: Pool<Sqlite>) -> Result<()> {
+    async fn test_get_filtered_variations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let filter = FilterGroup::<VariationFieldName> {
             filters: vec![
@@ -196,9 +196,9 @@ mod test {
             limit: None,
             offset: None,
         };
-        let exprs = state.get_filtered_variation_info(&filter).await?;
+        let exprs = state.get_filtered_variations(&filter).await?;
 
-        assert_eq!(exprs, testdata::get_filtered_variation_info());
+        assert_eq!(exprs, mock::variation::get_filtered_variations());
         Ok(())
     }
 
@@ -214,9 +214,12 @@ mod test {
             limit: None,
             offset: None,
         };
-        let exprs = state.get_filtered_variation_info(&filter).await?;
+        let exprs = state.get_filtered_variations(&filter).await?;
 
-        assert_eq!(exprs, testdata::get_filtered_variation_gen_loc_range());
+        assert_eq!(
+            exprs,
+            mock::variation::get_filtered_variations_gen_loc_range()
+        );
         Ok(())
     }
     #[sqlx::test(fixtures("full_db"))]
@@ -231,22 +234,22 @@ mod test {
             limit: None,
             offset: None,
         };
-        let exprs = state.get_filtered_variation_info(&filter).await?;
+        let exprs = state.get_filtered_variations(&filter).await?;
 
-        assert_eq!(exprs, testdata::search_variation_by_allele_name());
+        assert_eq!(exprs, mock::variation::search_variation_by_allele_name());
         Ok(())
     }
     /* #endregion */
 
     /* #region insert_variation tests */
     #[sqlx::test]
-    async fn test_insert_variation_info(pool: Pool<Sqlite>) -> Result<()> {
+    async fn test_insert_variation(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
 
-        let vis: Vec<VariationInfo> = state.get_variation_info().await?;
+        let vis: Vec<Variation> = state.get_variations().await?;
         assert_eq!(vis.len(), 0);
 
-        let expected = VariationInfo {
+        let expected = Variation {
             allele_name: "oxIs12".to_string(),
             chromosome: Some(Chromosome::X),
             phys_loc: None,
@@ -254,21 +257,21 @@ mod test {
             recomb_suppressor: None,
         };
 
-        state.insert_variation_info(&expected).await?;
-        let vis: Vec<VariationInfo> = state.get_variation_info().await?;
+        state.insert_variation(&expected).await?;
+        let vis: Vec<Variation> = state.get_variations().await?;
 
         assert_eq!(vec![expected], vis);
         Ok(())
     }
 
     #[sqlx::test]
-    async fn test_insert_variation_info_no_chromosome(pool: Pool<Sqlite>) -> Result<()> {
+    async fn test_insert_variation_no_chromosome(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
 
-        let vis: Vec<VariationInfo> = state.get_variation_info().await?;
+        let vis: Vec<Variation> = state.get_variations().await?;
         assert_eq!(vis.len(), 0);
 
-        let expected = VariationInfo {
+        let expected = Variation {
             allele_name: "oxIs12_no_chrom".to_string(),
             chromosome: None,
             phys_loc: None,
@@ -276,38 +279,38 @@ mod test {
             recomb_suppressor: None,
         };
 
-        state.insert_variation_info(&expected).await?;
-        let vis: Vec<VariationInfo> = state.get_variation_info().await?;
+        state.insert_variation(&expected).await?;
+        let vis: Vec<Variation> = state.get_variations().await?;
 
         assert_eq!(vec![expected], vis);
         Ok(())
     }
     /* #endregion */
 
-    /* #region insert_variation_infos tests */
+    /* #region insert_variation tests */
     #[sqlx::test]
-    async fn test_insert_variation_infos(pool: Pool<Sqlite>) -> Result<()> {
+    async fn test_insert_variations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
 
-        let vis: Vec<VariationInfo> = state.get_variation_info().await?;
+        let vis: Vec<Variation> = state.get_variations().await?;
         assert_eq!(vis.len(), 0);
 
         let expected = vec![
-            VariationInfo {
+            Variation {
                 allele_name: "fake".to_string(),
                 chromosome: None,
                 phys_loc: None,
                 gen_loc: None,
                 recomb_suppressor: None,
             },
-            VariationInfo {
+            Variation {
                 allele_name: "oxIs12".to_string(),
                 chromosome: Some(Chromosome::X),
                 phys_loc: None,
                 gen_loc: None,
                 recomb_suppressor: None,
             },
-            VariationInfo {
+            Variation {
                 allele_name: "oxIs13".to_string(),
                 chromosome: Some(Chromosome::X),
                 phys_loc: None,
@@ -324,10 +327,10 @@ oxIs13,X,,,,"
                 .as_bytes();
         let buf = BufReader::new(csv_str);
         let mut reader = csv::ReaderBuilder::new().has_headers(true).from_reader(buf);
-        let bulk: Bulk<VariationInfoDb> = Bulk::from_reader(&mut reader);
+        let bulk: Bulk<VariationDb> = Bulk::from_reader(&mut reader);
 
-        state.insert_variation_infos(bulk).await?;
-        let vis: Vec<VariationInfo> = state.get_variation_info().await?;
+        state.insert_variations(bulk).await?;
+        let vis: Vec<Variation> = state.get_variations().await?;
 
         assert_eq!(expected, vis);
         Ok(())
@@ -337,10 +340,10 @@ oxIs13,X,,,,"
 
     /* #region delete_alleles test */
     #[sqlx::test(fixtures("variation"))]
-    async fn test_delete_single_variation_info(pool: Pool<Sqlite>) -> Result<()> {
+    async fn test_delete_single_variations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
-        let mut variation_info: Vec<VariationInfo> = state.get_variation_info().await?;
-        assert_eq!(variation_info.len(), testdata::get_variation_info().len());
+        let mut variation: Vec<Variation> = state.get_variations().await?;
+        assert_eq!(variation.len(), mock::variation::get_variations().len());
 
         let delete_filter = &FilterGroup::<VariationFieldName> {
             filters: vec![vec![(
@@ -352,27 +355,24 @@ oxIs13,X,,,,"
             offset: None,
         };
 
-        state.delete_filtered_variation_infos(delete_filter).await?;
+        state.delete_filtered_variations(delete_filter).await?;
 
-        variation_info = state.get_variation_info().await?;
-        assert_eq!(
-            variation_info.len(),
-            testdata::get_variation_info().len() - 1
-        );
+        variation = state.get_variations().await?;
+        assert_eq!(variation.len(), mock::variation::get_variations().len() - 1);
 
-        variation_info = state.get_filtered_variation_info(delete_filter).await?;
-        assert_eq!(variation_info.len(), 0);
+        variation = state.get_filtered_variations(delete_filter).await?;
+        assert_eq!(variation.len(), 0);
 
         Ok(())
     }
 
     #[sqlx::test(fixtures("variation"))]
-    async fn test_delete_filtered_variation_infos(pool: Pool<Sqlite>) -> Result<()> {
+    async fn test_delete_filtered_variations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
 
-        let mut variation_info: Vec<VariationInfo> = state.get_variation_info().await?;
-        let orig_len = variation_info.len();
-        assert_eq!(orig_len, testdata::get_variation_info().len());
+        let mut variation: Vec<Variation> = state.get_variations().await?;
+        let orig_len = variation.len();
+        assert_eq!(orig_len, mock::variation::get_variations().len());
 
         let filter = &FilterGroup::<VariationFieldName> {
             filters: vec![vec![(VariationFieldName::Chromosome, Filter::Null)]],
@@ -381,25 +381,25 @@ oxIs13,X,,,,"
             offset: None,
         };
 
-        variation_info = state.get_filtered_variation_info(filter).await?;
-        let filtered_len = variation_info.len();
+        variation = state.get_filtered_variations(filter).await?;
+        let filtered_len = variation.len();
         assert!(filtered_len > 0);
 
-        state.delete_filtered_variation_infos(filter).await?;
-        variation_info = state.get_variation_info().await?;
+        state.delete_filtered_variations(filter).await?;
+        variation = state.get_variations().await?;
 
-        assert_eq!(variation_info.len(), orig_len - filtered_len);
-        assert_eq!(state.get_filtered_variation_info(filter).await?.len(), 0);
+        assert_eq!(variation.len(), orig_len - filtered_len);
+        assert_eq!(state.get_filtered_variations(filter).await?.len(), 0);
 
         Ok(())
     }
 
     #[sqlx::test(fixtures("variation"))]
-    async fn test_delete_all_variation_info(pool: Pool<Sqlite>) -> Result<()> {
+    async fn test_delete_all_variations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
 
-        let mut variation_info: Vec<VariationInfo> = state.get_variation_info().await?;
-        assert_eq!(variation_info.len(), testdata::get_variation_info().len());
+        let mut variation: Vec<Variation> = state.get_variations().await?;
+        assert_eq!(variation.len(), mock::variation::get_variations().len());
 
         let filter = &FilterGroup::<VariationFieldName> {
             filters: vec![],
@@ -408,10 +408,10 @@ oxIs13,X,,,,"
             offset: None,
         };
 
-        state.delete_filtered_variation_infos(filter).await?;
-        variation_info = state.get_variation_info().await?;
+        state.delete_filtered_variations(filter).await?;
+        variation = state.get_variations().await?;
 
-        assert_eq!(variation_info.len(), 0);
+        assert_eq!(variation.len(), 0);
 
         Ok(())
     }

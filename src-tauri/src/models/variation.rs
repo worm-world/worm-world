@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 #[derive(Serialize, Deserialize, Debug, sqlx::FromRow, PartialEq, TS)]
-#[ts(export, export_to = "../src/models/db/db_VariationInfo.ts")]
-#[serde(rename = "db_VariationInfo")]
-pub struct VariationInfo {
+#[ts(export, export_to = "../src/models/db/db_Variation.ts")]
+#[serde(rename = "db_Variation")]
+pub struct Variation {
     #[serde(rename = "alleleName")]
     pub allele_name: String,
     pub chromosome: Option<Chromosome>,
@@ -17,9 +17,9 @@ pub struct VariationInfo {
     pub recomb_suppressor: Option<(i32, i32)>,
 }
 
-impl From<VariationInfoDb> for VariationInfo {
-    fn from(item: VariationInfoDb) -> VariationInfo {
-        VariationInfo {
+impl From<VariationDb> for Variation {
+    fn from(item: VariationDb) -> Variation {
+        Variation {
             allele_name: item.allele_name,
             chromosome: item.chromosome.map(|v| v.into()),
             phys_loc: item.phys_loc.map(|v| v as i32),
@@ -33,7 +33,7 @@ impl From<VariationInfoDb> for VariationInfo {
 }
 
 #[derive(Serialize, Deserialize, Debug, sqlx::FromRow)]
-pub struct VariationInfoDb {
+pub struct VariationDb {
     #[serde(rename = "alleleName")]
     pub allele_name: String,
     pub chromosome: Option<String>,

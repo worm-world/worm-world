@@ -1,8 +1,8 @@
 import { Exclude, instanceToPlain, plainToInstance } from 'class-transformer';
-import { db_VariationInfo } from 'models/db/db_VariationInfo';
+import { db_Variation } from 'models/db/db_Variation';
 import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 
-interface iVariationInfo {
+interface iVariation {
   name: string;
   chromosome?: Chromosome;
   physLoc?: number; // Physical location of the gene on a chromosome
@@ -10,19 +10,19 @@ interface iVariationInfo {
   recombination?: [number, number];
 }
 
-export class VariationInfo {
+export class Variation {
   name: string = ''; // Will be, by convention, same as allele name
   chromosome?: Chromosome;
   physLoc?: number; // Physical location of the gene on a chromosome
   geneticLoc?: number; // Gene's genetic distance from the middle of a chromosome
   recombination?: [number, number];
 
-  constructor(fields: iVariationInfo) {
+  constructor(fields: iVariation) {
     Object.assign(this, fields);
   }
 
-  static createFromRecord(record: db_VariationInfo): VariationInfo {
-    return new VariationInfo({
+  static createFromRecord(record: db_Variation): Variation {
+    return new Variation({
       name: record.alleleName,
       physLoc: record.physLoc ?? undefined,
       geneticLoc: record.geneticLoc ?? undefined,
@@ -32,7 +32,7 @@ export class VariationInfo {
   }
 
   @Exclude()
-  public generateRecord(): db_VariationInfo {
+  public generateRecord(): db_Variation {
     return {
       alleleName: this.name,
       physLoc: this.physLoc ?? null,
@@ -46,7 +46,7 @@ export class VariationInfo {
     return JSON.stringify(instanceToPlain(this));
   }
 
-  static fromJSON(json: string): VariationInfo {
-    return [plainToInstance(VariationInfo, JSON.parse(json))].flat()[0];
+  static fromJSON(json: string): Variation {
+    return [plainToInstance(Variation, JSON.parse(json))].flat()[0];
   }
 }

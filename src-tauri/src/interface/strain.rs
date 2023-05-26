@@ -12,7 +12,7 @@ impl InnerDbState {
         match sqlx::query_as!(
             Strain,
             "
-            SELECT name, notes FROM strains ORDER BY name
+            SELECT name, description FROM strains ORDER BY name
             "
         )
         .fetch_all(&self.conn_pool)
@@ -30,7 +30,8 @@ impl InnerDbState {
         &self,
         filter: &FilterGroup<StrainFieldName>,
     ) -> Result<Vec<Strain>, DbError> {
-        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new("SELECT name, notes from strains");
+        let mut qb: QueryBuilder<Sqlite> =
+            QueryBuilder::new("SELECT name, description from strains");
         filter.add_filtered_query(&mut qb, true, true);
 
         match qb
@@ -40,7 +41,7 @@ impl InnerDbState {
         {
             Ok(exprs) => Ok(exprs.into_iter().collect()),
             Err(e) => {
-                eprint!("Get Filtered Strains error: {e}");
+                eprint!("Get filtered strains error: {e}");
                 Err(DbError::Query(e.to_string()))
             }
         }
@@ -70,18 +71,18 @@ impl InnerDbState {
     pub async fn insert_strain(&self, strain: &Strain) -> Result<(), DbError> {
         match sqlx::query!(
             "
-            INSERT INTO strains (name, notes)
+            INSERT INTO strains (name, description)
             VALUES ($1, $2)
             ",
             strain.name,
-            strain.notes,
+            strain.description,
         )
         .execute(&self.conn_pool)
         .await
         {
             Ok(_) => Ok(()),
             Err(e) => {
-                eprint!("Insert Strain error: {e}");
+                eprint!("Insert strain error: {e}");
                 Err(DbError::Insert(e.to_string()))
             }
         }
@@ -97,12 +98,40 @@ impl InnerDbState {
         match qb.build().execute(&self.conn_pool).await {
             Ok(_) => Ok(()),
             Err(e) => {
-                eprint!("Delete Strain error: {e}");
+                eprint!("Delete strain error: {e}");
                 Err(DbError::Delete(e.to_string()))
             }
         }
     }
 }
 
-#[cfg(test)]
-mod test {}
+// #[cfg(test)]
+// mod test {
+
+//     use std::io::BufReader;
+
+//     use crate::interface::bulk::Bulk;
+//     use crate::models::chromosome::Chromosome;
+//     use crate::models::filter::Order;
+//     use crate::models::gene::{Gene, GeneDb, GeneFieldName};
+//     use crate::models::strain::Strain;
+//     use crate::InnerDbState;
+//     use crate::{
+//         interface::mock,
+//         models::filter::{Filter, FilterGroup},
+//     };
+//     use anyhow::Result;
+//     use pretty_assertions::assert_eq;
+//     use sqlx::{Pool, Sqlite};
+
+//     /* #region get_strains tests */
+//     #[sqlx::test(fixtures("full_db"))]
+//     async fn test_get_strains(pool: Pool<Sqlite>) -> Result<()> {
+//         let state = InnerDbState { conn_pool: pool };
+
+//         let mut strains: Vec<Strain> = state.get_strains().await?;
+//         assert_eq!(strains, mock::strain::get_strains());
+//         Ok(())
+//     }
+//     /* #endregion */
+// }

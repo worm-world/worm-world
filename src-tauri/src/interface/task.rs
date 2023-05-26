@@ -163,7 +163,7 @@ mod test {
     use crate::models::tree::Tree;
     use crate::InnerDbState;
     use crate::{
-        dummy::testdata,
+        interface::mock,
         models::filter::{Filter, FilterGroup},
     };
     use anyhow::Result;
@@ -178,7 +178,7 @@ mod test {
         let mut tasks: Vec<Task> = state.get_tasks().await?;
         tasks.sort_by(|a, b| (a.id.cmp(&b.id)));
 
-        assert_eq!(tasks, testdata::get_tasks());
+        assert_eq!(tasks, mock::task::get_tasks());
         Ok(())
     }
     /* #endregion */
@@ -196,7 +196,7 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::get_filtered_tasks());
+        assert_eq!(exprs, mock::task::get_filtered_tasks());
         Ok(())
     }
     /* #endregion */

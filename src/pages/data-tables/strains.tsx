@@ -13,25 +13,25 @@ import { StrainFieldName } from 'models/db/filter/db_StrainFieldName';
 
 export const cols: Array<ColumnDefinitionType<db_Strain>> = [
   { key: 'name', header: 'Name' },
-  { key: 'notes', header: 'Notes' },
+  { key: 'description', header: 'Description' },
 ];
 
 const fields: Array<Field<db_Strain>> = [
   {
     name: 'name',
-    title: 'Variation Name',
+    title: 'Name',
     type: 'text',
   },
   {
-    name: 'notes',
-    title: 'Notes',
+    name: 'description',
+    title: 'Description',
     type: 'text',
   },
 ];
 
 const nameMapping: { [key in keyof db_Strain]: StrainFieldName } = {
   name: 'Name',
-  notes: 'Notes',
+  description: 'Description',
 };
 
 export default function StrainDataPage(): JSX.Element {
