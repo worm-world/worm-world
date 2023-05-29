@@ -1,4 +1,4 @@
-use super::{DbError, InnerDbState};
+use super::{bulk::Bulk, DbError, InnerDbState, SQLITE_BIND_LIMIT};
 use crate::models::{
     filter::{Count, FilterGroup, FilterQueryBuilder},
     strain::{Strain, StrainFieldName},
@@ -88,6 +88,41 @@ impl InnerDbState {
         }
     }
 
+    pub async fn insert_strains(&self, bulk: Bulk<Strain>) -> Result<(), DbError> {
+        if !bulk.errors.is_empty() {
+            return Err(DbError::BulkInsert(format!(
+                "Found errors on {} lines",
+                bulk.errors.len()
+            )));
+        }
+        let bind_limit = SQLITE_BIND_LIMIT / 2;
+
+        let mut data = bulk.data.into_iter().peekable();
+        while data.peek().is_some() {
+            let chunk = data.by_ref().take(bind_limit - 1).collect::<Vec<_>>();
+            let mut qb: QueryBuilder<Sqlite> =
+                QueryBuilder::new("INSERT OR IGNORE INTO strains (name, description)");
+            if chunk.len() > bind_limit {
+                return Err(DbError::BulkInsert(format!(
+                    "Row count exceeds max: {}",
+                    bind_limit
+                )));
+            }
+            qb.push_values(chunk, |mut b, item| {
+                b.push_bind(item.name).push_bind(item.description);
+            });
+
+            match qb.build().execute(&self.conn_pool).await {
+                Ok(_) => {}
+                Err(e) => {
+                    eprint!("Bulk insert error: {e}");
+                    return Err(DbError::BulkInsert(e.to_string()));
+                }
+            }
+        }
+        Ok(())
+    }
+
     pub async fn delete_filtered_strains(
         &self,
         filter: &FilterGroup<StrainFieldName>,
@@ -105,33 +140,304 @@ impl InnerDbState {
     }
 }
 
-// #[cfg(test)]
-// mod test {
+#[cfg(test)]
+mod test {
+    use std::io::BufReader;
 
-//     use std::io::BufReader;
+    use crate::interface::bulk::Bulk;
+    use crate::models::filter::{Filter, FilterGroup, Order};
+    use crate::models::strain::Strain;
+    use crate::InnerDbState;
+    use crate::{interface::mock, models::strain::StrainFieldName};
+    use anyhow::Result;
+    use pretty_assertions::assert_eq;
+    use sqlx::{Pool, Sqlite};
 
-//     use crate::interface::bulk::Bulk;
-//     use crate::models::chromosome::Chromosome;
-//     use crate::models::filter::Order;
-//     use crate::models::gene::{Gene, GeneDb, GeneFieldName};
-//     use crate::models::strain::Strain;
-//     use crate::InnerDbState;
-//     use crate::{
-//         interface::mock,
-//         models::filter::{Filter, FilterGroup},
-//     };
-//     use anyhow::Result;
-//     use pretty_assertions::assert_eq;
-//     use sqlx::{Pool, Sqlite};
+    #[sqlx::test(fixtures("full_db"))]
+    async fn test_get_strains(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
 
-//     /* #region get_strains tests */
-//     #[sqlx::test(fixtures("full_db"))]
-//     async fn test_get_strains(pool: Pool<Sqlite>) -> Result<()> {
-//         let state = InnerDbState { conn_pool: pool };
+        let strains: Vec<Strain> = state.get_strains().await?;
+        assert_eq!(strains, mock::strain::get_strains());
+        Ok(())
+    }
 
-//         let mut strains: Vec<Strain> = state.get_strains().await?;
-//         assert_eq!(strains, mock::strain::get_strains());
-//         Ok(())
-//     }
-//     /* #endregion */
-// }
+    #[sqlx::test(fixtures("full_db"))]
+    async fn test_get_filtered_strains(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_strains(&FilterGroup::<StrainFieldName> {
+                filters: vec![vec![
+                    (StrainFieldName::Name, Filter::Equal("N2".to_string())),
+                    (StrainFieldName::Name, Filter::Equal("CB128".to_string())),
+                ]],
+                order_by: vec![(StrainFieldName::Name, Order::Asc)],
+                limit: None,
+                offset: None,
+            })
+            .await?;
+
+        assert_eq!(exprs, mock::strain::get_filtered_strains());
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("full_db"))]
+    async fn test_get_filtered_strains_alternate_ordering(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_strains(&FilterGroup::<StrainFieldName> {
+                filters: vec![vec![
+                    (StrainFieldName::Name, Filter::Equal("N2".to_string())),
+                    (StrainFieldName::Name, Filter::Equal("CB128".to_string())),
+                ]],
+                order_by: vec![(StrainFieldName::Description, Order::Asc)],
+                limit: None,
+                offset: None,
+            })
+            .await?;
+
+        assert_eq!(
+            exprs,
+            mock::strain::get_filtered_strains_alternate_ordering()
+        );
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("full_db"))]
+    async fn test_get_filtered_strains_and_clause(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_strains(&FilterGroup::<StrainFieldName> {
+                filters: vec![
+                    vec![(StrainFieldName::Name, Filter::Equal("N2".to_string()))],
+                    vec![(
+                        StrainFieldName::Description,
+                        Filter::Equal("wild isolate".to_string()),
+                    )],
+                ],
+                order_by: vec![],
+                limit: None,
+                offset: None,
+            })
+            .await?;
+
+        assert_eq!(exprs, mock::strain::get_filtered_strains_and_clause());
+        Ok(())
+    }
+    #[sqlx::test(fixtures("full_db"))]
+    async fn test_get_filtered_strains_and_with_or_clause(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_strains(&FilterGroup::<StrainFieldName> {
+                filters: vec![
+                    vec![(
+                        StrainFieldName::Description,
+                        Filter::Like("Dpy".to_string()),
+                    )],
+                    vec![
+                        (StrainFieldName::Name, Filter::Equal("EG5071".to_string())),
+                        (StrainFieldName::Name, Filter::Like("BT".to_string())),
+                    ],
+                ],
+                order_by: vec![(StrainFieldName::Name, Order::Asc)],
+                limit: None,
+                offset: None,
+            })
+            .await?;
+
+        assert_eq!(exprs, mock::strain::get_filtered_strains_and_or_clause());
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("full_db"))]
+    async fn test_get_count_filtered_strains(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let count = state
+            .get_count_filtered_strains(&FilterGroup::<StrainFieldName> {
+                filters: vec![],
+                order_by: vec![],
+                limit: None,
+                offset: None,
+            })
+            .await?;
+        assert_eq!(count as usize, mock::strain::get_strains().len());
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("full_db"))]
+    async fn test_search_strains_by_desc_name(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_strains(&FilterGroup::<StrainFieldName> {
+                filters: vec![vec![(
+                    StrainFieldName::Name,
+                    Filter::Like("EG".to_string()),
+                )]],
+                order_by: vec![(StrainFieldName::Name, Order::Desc)],
+                limit: None,
+                offset: None,
+            })
+            .await?;
+
+        assert_eq!(exprs, mock::strain::search_strains_by_desc_name());
+        Ok(())
+    }
+
+    #[sqlx::test]
+    async fn test_insert_strain(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let strains: Vec<Strain> = state.get_strains().await?;
+        assert_eq!(strains.len(), 0);
+
+        let expected = Strain {
+            name: "N2".to_string(),
+            description: Some("wild isolate".to_string()),
+        };
+
+        state.insert_strain(&expected).await?;
+        let strains: Vec<Strain> = state.get_strains().await?;
+
+        assert_eq!(vec![expected], strains);
+        Ok(())
+    }
+
+    #[sqlx::test]
+    async fn test_insert_strain_no_description(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let strains: Vec<Strain> = state.get_strains().await?;
+        assert_eq!(strains.len(), 0);
+
+        let expected = Strain {
+            name: "MT2495".to_string(),
+            description: None,
+        };
+
+        state.insert_strain(&expected).await?;
+        let strains: Vec<Strain> = state.get_strains().await?;
+
+        assert_eq!(vec![expected], strains);
+        Ok(())
+    }
+
+    #[sqlx::test]
+    async fn test_insert_strains(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let csv_str = "name,description\nN2,wild isolate\nMT2495,\nCB128,Small Dpy.".as_bytes();
+        let buf = BufReader::new(csv_str);
+        let mut reader = csv::ReaderBuilder::new().has_headers(true).from_reader(buf);
+        let bulk: Bulk<Strain> = Bulk::from_reader(&mut reader);
+
+        state.insert_strains(bulk).await?;
+
+        let strains: Vec<Strain> = state.get_strains().await?;
+        assert_eq!(
+            strains,
+            vec![
+                Strain {
+                    name: "CB128".to_string(),
+                    description: Some("Small Dpy.".to_string()),
+                },
+                Strain {
+                    name: "MT2495".to_string(),
+                    description: None,
+                },
+                Strain {
+                    name: "N2".to_string(),
+                    description: Some("wild isolate".to_string()),
+                },
+            ]
+        );
+        Ok(())
+    }
+
+    #[sqlx::test]
+    async fn test_insert_strains_tabs(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let tsv_str = "name\tdescription\nN2\twild isolate\nMT2495\t\nCB128\tSmall Dpy.".as_bytes();
+        let buf = BufReader::new(tsv_str);
+        let mut reader = csv::ReaderBuilder::new()
+            .has_headers(true)
+            .delimiter(b'\t')
+            .from_reader(buf);
+        let bulk: Bulk<Strain> = Bulk::from_reader(&mut reader);
+
+        state.insert_strains(bulk).await?;
+
+        let strains: Vec<Strain> = state.get_strains().await?;
+        assert_eq!(
+            strains,
+            vec![
+                Strain {
+                    name: "CB128".to_string(),
+                    description: Some("Small Dpy.".to_string()),
+                },
+                Strain {
+                    name: "MT2495".to_string(),
+                    description: None,
+                },
+                Strain {
+                    name: "N2".to_string(),
+                    description: Some("wild isolate".to_string()),
+                },
+            ]
+        );
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("strain"))]
+
+    async fn test_delete_filtered_strains(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let mut strains: Vec<Strain> = state.get_strains().await?;
+        let orig_len = strains.len();
+        assert_eq!(orig_len, mock::strain::get_strains().len());
+
+        let filter = &FilterGroup::<StrainFieldName> {
+            filters: vec![vec![(
+                StrainFieldName::Name,
+                Filter::Equal("N2".to_owned()),
+            )]],
+            order_by: vec![],
+            limit: None,
+            offset: None,
+        };
+
+        strains = state.get_filtered_strains(filter).await?;
+        let filtered_len = strains.len();
+        assert!(filtered_len > 0);
+
+        state.delete_filtered_strains(filter).await?;
+        strains = state.get_strains().await?;
+
+        assert_eq!(strains.len(), orig_len - filtered_len);
+
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("strain"))]
+    async fn test_delete_all_strains(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let mut strains: Vec<Strain> = state.get_strains().await?;
+        assert_eq!(strains.len(), mock::strain::get_strains().len());
+
+        let filter = &FilterGroup::<StrainFieldName> {
+            filters: vec![],
+            order_by: vec![],
+            limit: None,
+            offset: None,
+        };
+
+        state.delete_filtered_strains(filter).await?;
+        strains = state.get_strains().await?;
+
+        assert_eq!(strains.len(), 0);
+
+        Ok(())
+    }
+}

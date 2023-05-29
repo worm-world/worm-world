@@ -9,6 +9,33 @@ INSERT INTO genes (
         recomb_suppressor_end
     )
 VALUES (
+        "F57H12.2",
+        "unc-24",
+        "IV",
+        7979870,
+        3.51,
+        NULL,
+        NULL
+    ),
+    (
+        "T22B3.1",
+        "dpy-20",
+        "IV",
+        11696430,
+        5.22,
+        NULL,
+        NULL
+    ),
+    (
+        "F56H11.1",
+        "fbl-1",
+        "IV",
+        9540806,
+        4.3,
+        NULL,
+        NULL
+    ),
+    (
         "M142.1",
         "unc-119",
         "III",
@@ -61,7 +88,8 @@ INSERT INTO variations (
         recomb_suppressor_start,
         recomb_suppressor_end
     )
-VALUES ("oxIs644", NULL, NULL, NULL, NULL, NULL),
+VALUES ("oxIs363", "IV", NULL, NULL, NULL, NULL),
+    ("oxIs644", NULL, NULL, NULL, NULL, NULL),
     ("oxIs12", "X", NULL, NULL, NULL, NULL),
     ("oxTi302", "I", 10166146, 4.72, NULL, NULL),
     ("oxTi75", "II", NULL, -1.46, NULL, NULL),
@@ -208,11 +236,42 @@ INSERT INTO alleles (
         variation_name,
         contents
     )
-VALUES ("ed3", "M142.1", NULL, NULL),
-    ("n765", "ZK662.4", NULL, NULL),
+VALUES ("cn64", "T14B4.7", NULL, NULL),
+    ("e128", "T14B4.7", NULL, NULL),
+    ("e1282", "T22B3.1", NULL, NULL),
+    ("e138", "F57H12.2", NULL, NULL),
+    ("eT1(III)", NULL, "eT1(III)", "[unc-36(e873)]"),
+    ("eT1(V)", NULL, "eT1(V)", NULL),
+    ("ed3", "M142.1", NULL, NULL),
+    ("hd43", "F56H11.1", NULL, NULL),
     ("md299", "F27D9.1", NULL, NULL),
-    ("cn64", "T14B4.7", NULL, NULL),
+    ("n744", "ZK662.4", NULL, NULL),
+    ("n765", "ZK662.4", NULL, NULL),
     ("ox1059", "C10C6.1", NULL, NULL),
+    (
+        "oxEx219999",
+        NULL,
+        "oxEx219999",
+        "[Primb-1::HisCl1::SL2::GFP]"
+    ),
+    (
+        "oxEx2254",
+        NULL,
+        "oxEx2254",
+        "[Psnt-1::Flp, Punc-122::GAP-43::mScarlet, cbr-unc-119(+), NeoR]"
+    ),
+    (
+        "oxIs12",
+        NULL,
+        "oxIs12",
+        "[Punc-47::GFP; lin-15(+)]"
+    ),
+    (
+        "oxIs363",
+        NULL,
+        "oxIs363",
+        "[unc-122p::GFP + unc-119(+)]"
+    ),
     (
         "oxIs644",
         NULL,
@@ -220,10 +279,10 @@ VALUES ("ed3", "M142.1", NULL, NULL),
         "[Peft-3::FRT-UTR-FRT::mYFP::unc-54UTR; lin-15(+)]"
     ),
     (
-        "oxIs12",
+        "oxSi1168",
         NULL,
-        "oxIs12",
-        "[Punc-47::GFP; lin-15(+)]"
+        "oxSi1168",
+        "[Psnt-1:Flp, *ttTi5605]"
     ),
     (
         "oxTi302",
@@ -243,26 +302,6 @@ VALUES ("ed3", "M142.1", NULL, NULL),
         NULL,
         "tmC5[F36H1.3(tmIs1220)]",
         "[Pmyo-2::YFP]"
-    ),
-    (
-        "oxEx2254",
-        NULL,
-        "oxEx2254",
-        "[Psnt-1::Flp, Punc-122::GAP-43::mScarlet, cbr-unc-119(+), NeoR]"
-    ),
-    (
-        "oxSi1168",
-        NULL,
-        "oxSi1168",
-        "[Psnt-1:Flp, *ttTi5605]"
-    ),
-    ("eT1(V)", NULL, "eT1(V)", NULL),
-    ("eT1(III)", NULL, "eT1(III)", "[unc-36(e873)]"),
-    (
-        "oxEx219999",
-        NULL,
-        "oxEx219999",
-        "[Primb-1::HisCl1::SL2::GFP]"
     );
 INSERT INTO allele_exprs (
         allele_name,
@@ -419,4 +458,31 @@ VALUES (1, "Histamine"),
 INSERT INTO task_deps (parent_id, child_id)
 VALUES (1, 2),
     (2, 3);
+INSERT INTO strains (name, description)
+VALUES ('N2', 'wild isolate'),
+    ('EG6207', 'Reference: WBPaper00059962'),
+    ('MT2495', NULL),
+    ('CB128', 'Small Dpy.'),
+    (
+        'TN64',
+        'Temperature sensitive. Dpy when grown at 15C. DpyRoller when grown at 25C. Heterozygotes are Rollers at any temperature.'
+    ),
+    (
+        'EG5071',
+        'oxIs363 [unc-122p::GFP + unc-119(+)]. Wild type. Very dim GFP expression in the coelomycytes. Only visible on compound microscope. Plasmid pBN04 inserted by MosSCI into cxTi10882 site.'
+    ),
+    (
+        'BT14',
+        'Heterozygotes are WT and segregate WT, Steriles (hd43 homozygotes) and Dpy Uncs.'
+    );
+INSERT INTO strain_alleles (strain_name, allele_name, homozygous)
+VALUES ('EG6207', 'ed3', TRUE),
+    ('MT2495', 'n744', TRUE),
+    ('CB128', 'e128', TRUE),
+    ('TN64', 'cn64', TRUE),
+    ('EG5071', 'ed3', TRUE),
+    ('EG5071', 'oxIs363', TRUE),
+    ('BT14', 'hd43', FALSE),
+    ('BT14', 'e1282', FALSE),
+    ('BT14', 'e138', TRUE);
 COMMIT TRANSACTION;

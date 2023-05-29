@@ -170,7 +170,6 @@ mod test {
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
 
-    /* #region get_tasks tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_tasks(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -181,9 +180,7 @@ mod test {
         assert_eq!(tasks, mock::task::get_tasks());
         Ok(())
     }
-    /* #endregion */
 
-    /* #region get_filtered_tasks tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_tasks(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -199,9 +196,7 @@ mod test {
         assert_eq!(exprs, mock::task::get_filtered_tasks());
         Ok(())
     }
-    /* #endregion */
 
-    /* #region insert_task tests */
     #[sqlx::test]
     async fn test_insert_task(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -236,9 +231,6 @@ mod test {
         assert_eq!(vec![expected], tasks);
         Ok(())
     }
-
-    /* #endregion */
-    /* #region update_task tests */
 
     #[sqlx::test]
     async fn test_update_task(pool: Pool<Sqlite>) -> Result<()> {
@@ -290,9 +282,7 @@ mod test {
         assert_eq!(vec![new_expected], tasks);
         Ok(())
     }
-    /* #endregion */
 
-    /* #region delete_task tests */
     #[sqlx::test]
     async fn test_delete_task(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -477,6 +467,4 @@ mod test {
 
         Ok(())
     }
-
-    /* #endregion */
 }

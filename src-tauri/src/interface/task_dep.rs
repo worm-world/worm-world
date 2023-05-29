@@ -84,7 +84,6 @@ mod test {
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
 
-    /* #region get_tasks tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_task_dependencies(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -95,9 +94,7 @@ mod test {
         assert_eq!(task_dependancies, mock::task_dep::get_task_dependencies());
         Ok(())
     }
-    /* #endregion */
 
-    /* #region get_filtered_tasks tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_task_dependancies(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -116,9 +113,7 @@ mod test {
         assert_eq!(exprs, mock::task_dep::get_filtered_task_dependency());
         Ok(())
     }
-    /* #endregion */
 
-    /* #region insert_task tests */
     #[sqlx::test]
     async fn test_insert_task_dependency(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -179,6 +174,4 @@ mod test {
         assert_eq!(vec![expected], task_dependancies);
         Ok(())
     }
-
-    /* #endregion */
 }

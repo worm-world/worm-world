@@ -174,7 +174,6 @@ mod test {
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
 
-    /* #region get_genes tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_genes(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -185,9 +184,7 @@ mod test {
         assert_eq!(genes, mock::gene::get_genes());
         Ok(())
     }
-    /* #endregion */
 
-    /* #region get_filtered_genes tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_genes(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -245,7 +242,7 @@ mod test {
         Ok(())
     }
     #[sqlx::test(fixtures("full_db"))]
-    async fn test_get_filtered_genes_and_with_or_clause(pool: Pool<Sqlite>) -> Result<()> {
+    async fn test_get_filtered_genes_and_or_clause(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_genes(&FilterGroup::<GeneFieldName> {
@@ -310,9 +307,7 @@ mod test {
         assert_eq!(exprs, mock::gene::search_genes_by_sys_or_desc_name());
         Ok(())
     }
-    /* #endregion */
 
-    /* #region insert_gene tests */
     #[sqlx::test]
     async fn test_insert_gene(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -358,9 +353,7 @@ mod test {
         assert_eq!(vec![expected], genes);
         Ok(())
     }
-    /* #endregion */
 
-    /* #region insert_genes test */
     #[sqlx::test]
     async fn test_insert_genes(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -444,9 +437,6 @@ FAKE23.4\tunc-new\t\t10902633\t6.78\t\t"
         Ok(())
     }
 
-    /* #endregion */
-
-    /* #region delete_genes test */
     #[sqlx::test]
     async fn test_delete_single_gene(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -544,5 +534,4 @@ FAKE23.4\tunc-new\t\t10902633\t6.78\t\t"
 
         Ok(())
     }
-    /* #endregion */
 }

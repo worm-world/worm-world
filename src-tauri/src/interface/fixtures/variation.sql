@@ -7,7 +7,8 @@ INSERT INTO variations (
         recomb_suppressor_start,
         recomb_suppressor_end
     )
-VALUES ("oxIs644", NULL, NULL, NULL, NULL, NULL),
+VALUES ("oxIs363", "IV", NULL, NULL, NULL, NULL),
+    ("oxIs644", NULL, NULL, NULL, NULL, NULL),
     ("oxIs12", "X", NULL, NULL, NULL, NULL),
     ("oxTi302", "I", 10166146, 4.72, NULL, NULL),
     ("oxTi75", "II", NULL, -1.46, NULL, NULL),

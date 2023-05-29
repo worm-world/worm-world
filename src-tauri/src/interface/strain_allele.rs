@@ -1,4 +1,4 @@
-use super::{DbError, InnerDbState};
+use super::{bulk::Bulk, DbError, InnerDbState, SQLITE_BIND_LIMIT};
 use crate::models::{
     filter::{Count, FilterGroup, FilterQueryBuilder},
     strain_allele::{StrainAllele, StrainAlleleFieldName},
@@ -12,7 +12,7 @@ impl InnerDbState {
         match sqlx::query_as!(
             StrainAllele,
             "
-            SELECT strain, allele FROM strain_alleles ORDER BY strain
+            SELECT strain_name, allele_name, homozygous FROM strain_alleles ORDER BY strain_name
             "
         )
         .fetch_all(&self.conn_pool)
@@ -31,7 +31,7 @@ impl InnerDbState {
         filter: &FilterGroup<StrainAlleleFieldName>,
     ) -> Result<Vec<StrainAllele>, DbError> {
         let mut qb: QueryBuilder<Sqlite> =
-            QueryBuilder::new("SELECT strain, allele from strain_alleles");
+            QueryBuilder::new("SELECT strain_name, allele_name, homozygous from strain_alleles");
         filter.add_filtered_query(&mut qb, true, true);
 
         match qb
@@ -71,11 +71,12 @@ impl InnerDbState {
     pub async fn insert_strain_allele(&self, strain_allele: &StrainAllele) -> Result<(), DbError> {
         match sqlx::query!(
             "
-            INSERT INTO strain_alleles (strain, allele)
-            VALUES ($1, $2)
+            INSERT INTO strain_alleles (strain_name, allele_name, homozygous)
+            VALUES ($1, $2, $3)
             ",
-            strain_allele.strain,
-            strain_allele.allele,
+            strain_allele.strain_name,
+            strain_allele.allele_name,
+            strain_allele.homozygous
         )
         .execute(&self.conn_pool)
         .await
@@ -86,6 +87,44 @@ impl InnerDbState {
                 Err(DbError::Insert(e.to_string()))
             }
         }
+    }
+
+    pub async fn insert_strain_alleles(&self, bulk: Bulk<StrainAllele>) -> Result<(), DbError> {
+        if !bulk.errors.is_empty() {
+            return Err(DbError::BulkInsert(format!(
+                "Found errors on {} lines",
+                bulk.errors.first().unwrap().1
+            )));
+        }
+        let bind_limit = SQLITE_BIND_LIMIT / 3;
+
+        let mut data = bulk.data.into_iter().peekable();
+        while data.peek().is_some() {
+            let chunk = data.by_ref().take(bind_limit - 1).collect::<Vec<_>>();
+            let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+                "INSERT OR IGNORE INTO strain_alleles (strain_name, allele_name, homozygous)",
+            );
+            if chunk.len() > bind_limit {
+                return Err(DbError::BulkInsert(format!(
+                    "Row count exceeds max: {}",
+                    bind_limit
+                )));
+            }
+            qb.push_values(chunk, |mut b, item| {
+                b.push_bind(item.strain_name)
+                    .push_bind(item.allele_name)
+                    .push_bind(item.homozygous);
+            });
+
+            match qb.build().execute(&self.conn_pool).await {
+                Ok(_) => {}
+                Err(e) => {
+                    eprint!("Bulk insert error: {e}");
+                    return Err(DbError::BulkInsert(e.to_string()));
+                }
+            }
+        }
+        Ok(())
     }
 
     pub async fn delete_filtered_strain_alleles(
@@ -106,4 +145,248 @@ impl InnerDbState {
 }
 
 #[cfg(test)]
-mod test {}
+mod test {
+    use std::io::BufReader;
+
+    use crate::interface::bulk::Bulk;
+    use crate::models::filter::{Filter, FilterGroup, Order};
+    use crate::models::strain_allele::StrainAllele;
+    use crate::InnerDbState;
+    use crate::{interface::mock, models::strain_allele::StrainAlleleFieldName};
+    use anyhow::Result;
+    use pretty_assertions::assert_eq;
+    use sqlx::{Pool, Sqlite};
+
+    #[sqlx::test(fixtures("full_db"))]
+    async fn test_get_strain_alleles(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let strain_alleles: Vec<StrainAllele> = state.get_strain_alleles().await?;
+        assert_eq!(strain_alleles, mock::strain_allele::get_strain_alleles());
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("full_db"))]
+    async fn test_get_filtered_strain_alleles(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_strain_alleles(&FilterGroup::<StrainAlleleFieldName> {
+                filters: vec![vec![(
+                    StrainAlleleFieldName::AlleleName,
+                    Filter::Equal("ed3".to_string()),
+                )]],
+                order_by: vec![(StrainAlleleFieldName::StrainName, Order::Asc)],
+                limit: None,
+                offset: None,
+            })
+            .await?;
+
+        assert_eq!(exprs, mock::strain_allele::get_filtered_strain_alleles());
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("full_db"))]
+    async fn test_get_filtered_strain_alleles_and_or_clause(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_strain_alleles(&FilterGroup::<StrainAlleleFieldName> {
+                filters: vec![
+                    vec![(
+                        StrainAlleleFieldName::AlleleName,
+                        Filter::Equal("ed3".to_string()),
+                    )],
+                    vec![
+                        (
+                            StrainAlleleFieldName::StrainName,
+                            Filter::Like("BT".to_string()),
+                        ),
+                        (
+                            StrainAlleleFieldName::StrainName,
+                            Filter::Like("EG507".to_string()),
+                        ),
+                    ],
+                ],
+                order_by: vec![(StrainAlleleFieldName::StrainName, Order::Asc)],
+                limit: None,
+                offset: None,
+            })
+            .await?;
+
+        assert_eq!(
+            exprs,
+            mock::strain_allele::get_filtered_strain_alleles_and_or_clause()
+        );
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("full_db"))]
+    async fn test_get_count_filtered_strain_alleles(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let count = state
+            .get_count_filtered_strain_alleles(&FilterGroup::<StrainAlleleFieldName> {
+                filters: vec![],
+                order_by: vec![],
+                limit: None,
+                offset: None,
+            })
+            .await?;
+        assert_eq!(
+            count as usize,
+            mock::strain_allele::get_strain_alleles().len()
+        );
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("strain", "allele"))]
+    async fn test_insert_strain_allele(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let strain_alleles: Vec<StrainAllele> = state.get_strain_alleles().await?;
+        assert_eq!(strain_alleles.len(), 0);
+
+        let expected = StrainAllele {
+            strain_name: "CB128".to_string(),
+            allele_name: "e128".to_string(),
+            homozygous: true,
+        };
+
+        state.insert_strain_allele(&expected).await?;
+        let strain_alleles: Vec<StrainAllele> = state.get_strain_alleles().await?;
+
+        assert_eq!(vec![expected], strain_alleles);
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("allele", "strain"))]
+    async fn test_insert_strain_alleles(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let csv_str =
+            "strain_name,allele_name,homozygous\nEG6207,ed3,true\nMT2495,n744,true\nTN64,cn64,true"
+                .as_bytes();
+        let buf = BufReader::new(csv_str);
+        let mut reader = csv::ReaderBuilder::new().has_headers(true).from_reader(buf);
+        let bulk: Bulk<StrainAllele> = Bulk::from_reader(&mut reader);
+
+        state.insert_strain_alleles(bulk).await?;
+
+        let strain_alleles: Vec<StrainAllele> = state.get_strain_alleles().await?;
+        assert_eq!(
+            strain_alleles,
+            vec![
+                StrainAllele {
+                    strain_name: "EG6207".to_string(),
+                    allele_name: "ed3".to_string(),
+                    homozygous: true,
+                },
+                StrainAllele {
+                    strain_name: "MT2495".to_string(),
+                    allele_name: "n744".to_string(),
+                    homozygous: true,
+                },
+                StrainAllele {
+                    strain_name: "TN64".to_string(),
+                    allele_name: "cn64".to_string(),
+                    homozygous: true,
+                },
+            ]
+        );
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("strain", "allele"))]
+    async fn test_insert_strain_alleles_tabs(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let tsv_str =
+            "strain_name\tallele_name\thomozygous\nEG6207\ted3\ttrue\nMT2495\tn744\ttrue\nTN64\tcn64\ttrue"
+                .as_bytes();
+        let buf = BufReader::new(tsv_str);
+        let mut reader = csv::ReaderBuilder::new()
+            .has_headers(true)
+            .delimiter(b'\t')
+            .from_reader(buf);
+        let bulk: Bulk<StrainAllele> = Bulk::from_reader(&mut reader);
+
+        state.insert_strain_alleles(bulk).await?;
+
+        let strain_alleles: Vec<StrainAllele> = state.get_strain_alleles().await?;
+        assert_eq!(
+            strain_alleles,
+            vec![
+                StrainAllele {
+                    strain_name: "EG6207".to_string(),
+                    allele_name: "ed3".to_string(),
+                    homozygous: true,
+                },
+                StrainAllele {
+                    strain_name: "MT2495".to_string(),
+                    allele_name: "n744".to_string(),
+                    homozygous: true,
+                },
+                StrainAllele {
+                    strain_name: "TN64".to_string(),
+                    allele_name: "cn64".to_string(),
+                    homozygous: true,
+                },
+            ]
+        );
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("full_db"))]
+
+    async fn test_delete_filtered_strain_alleles(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let mut strain_alleles: Vec<StrainAllele> = state.get_strain_alleles().await?;
+        let orig_len = strain_alleles.len();
+        assert_eq!(orig_len, mock::strain_allele::get_strain_alleles().len());
+
+        let filter = &FilterGroup::<StrainAlleleFieldName> {
+            filters: vec![vec![(
+                StrainAlleleFieldName::AlleleName,
+                Filter::Equal("ed3".to_string()),
+            )]],
+            order_by: vec![],
+            limit: None,
+            offset: None,
+        };
+
+        strain_alleles = state.get_filtered_strain_alleles(filter).await?;
+        let filtered_len = strain_alleles.len();
+        assert!(filtered_len > 0);
+
+        state.delete_filtered_strain_alleles(filter).await?;
+        strain_alleles = state.get_strain_alleles().await?;
+
+        assert_eq!(strain_alleles.len(), orig_len - filtered_len);
+
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("full_db"))]
+    async fn test_delete_all_strain_alleles(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+
+        let mut strain_alleles: Vec<StrainAllele> = state.get_strain_alleles().await?;
+        assert_eq!(
+            strain_alleles.len(),
+            mock::strain_allele::get_strain_alleles().len()
+        );
+
+        let filter = &FilterGroup::<StrainAlleleFieldName> {
+            filters: vec![],
+            order_by: vec![],
+            limit: None,
+            offset: None,
+        };
+
+        state.delete_filtered_strain_alleles(filter).await?;
+        strain_alleles = state.get_strain_alleles().await?;
+
+        assert_eq!(strain_alleles.len(), 0);
+
+        Ok(())
+    }
+}

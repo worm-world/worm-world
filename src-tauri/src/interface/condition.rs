@@ -230,7 +230,6 @@ mod test {
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
 
-    /* #region get_conditions test */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_conditions(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -240,9 +239,7 @@ mod test {
         assert_eq!(conds, expected_conds);
         Ok(())
     }
-    /* #endregion */
 
-    /* #region get_filtered_conditions tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_conditions(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -322,9 +319,7 @@ mod test {
         assert_eq!(exprs, mock::condition::search_conditions_by_name());
         Ok(())
     }
-    /* endregion get_filtered_conditions tests */
 
-    /* #region get_altering_conditions test */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_altering_conditions(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -362,9 +357,7 @@ mod test {
         assert_eq!(conditions, mock::condition::get_altering_conditions());
         Ok(())
     }
-    /* #endregion get_altering_conditions tests */
 
-    /* #region insert_condition tests */
     #[sqlx::test]
     async fn test_insert_condition(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -387,9 +380,7 @@ mod test {
         assert_eq!(vec![expected], conds);
         Ok(())
     }
-    /* #endregion */
 
-    /* #region insert_conditions tests */
     #[sqlx::test]
     async fn test_insert_conditions(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -436,9 +427,7 @@ Tetracycline\t\t3\t0\t0\t0\t3"
         );
         Ok(())
     }
-    /* #endregion */
 
-    /* #region delete_conditions test */
     #[sqlx::test(fixtures("condition"))]
     async fn test_delete_single_condition(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -521,5 +510,4 @@ Tetracycline\t\t3\t0\t0\t0\t3"
 
         Ok(())
     }
-    /* #endregion */
 }

@@ -212,7 +212,6 @@ mod test {
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
 
-    /* #region get_expr_relations tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_expr_relations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -220,9 +219,7 @@ mod test {
         assert_eq!(rels, mock::expr_relation::get_expr_relations());
         Ok(())
     }
-    /* #endregion */
 
-    /* #region get_filtered_expr_relations tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_expr_relations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -338,9 +335,7 @@ mod test {
         );
         Ok(())
     }
-    /* #endregion get_filtered_expr_relations tests */
 
-    /* #region insert_filtered_expr_relations tests */
     #[sqlx::test]
     async fn test_insert_expr_relations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -427,9 +422,6 @@ oxIs644,YFP(pharynx),0,Flp,1,,0"
         Ok(())
     }
 
-    /* #endregion */
-
-    /* #region insert_filtered_expr_relation tests */
     #[sqlx::test]
     async fn test_insert_expr_relation(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -578,9 +570,7 @@ oxIs644,YFP(pharynx),0,Flp,1,,0"
 
         state.insert_expr_relation(&rel).await.unwrap();
     }
-    /* #endregion insert_filtered_expr_relation tests */
 
-    /* #region delete_expr_relations test */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_delete_single_condition(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -688,5 +678,4 @@ oxIs644,YFP(pharynx),0,Flp,1,,0"
 
         Ok(())
     }
-    /* #endregion */
 }

@@ -6,8 +6,9 @@ use ts_rs::TS;
 #[ts(export, export_to = "../src/models/db/db_StrainAllele.ts")]
 #[serde(rename = "db_StrainAllele")]
 pub struct StrainAllele {
-    pub strain: String,
-    pub allele: String,
+    pub strain_name: String,
+    pub allele_name: String,
+    pub homozygous: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, TS)]
@@ -16,15 +17,17 @@ pub struct StrainAllele {
     export_to = "../src/models/db/filter/db_StrainAlleleFieldName.ts"
 )]
 pub enum StrainAlleleFieldName {
-    Strain,
-    Allele,
+    StrainName,
+    AlleleName,
+    Homozygous,
 }
 
 impl FieldNameEnum for StrainAlleleFieldName {
     fn get_col_name(self: &StrainAlleleFieldName) -> String {
         match self {
-            StrainAlleleFieldName::Strain => "strain".to_owned(),
-            StrainAlleleFieldName::Allele => "allele".to_owned(),
+            StrainAlleleFieldName::StrainName => "strain_name".to_owned(),
+            StrainAlleleFieldName::AlleleName => "allele_name".to_owned(),
+            StrainAlleleFieldName::Homozygous => "homozygous".to_owned(),
         }
     }
 }

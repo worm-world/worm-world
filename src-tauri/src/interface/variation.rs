@@ -169,7 +169,6 @@ mod test {
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
 
-    /* #region get_variation tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_variations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -178,9 +177,7 @@ mod test {
         assert_eq!(vis, mock::variation::get_variations());
         Ok(())
     }
-    /* #endregion */
 
-    /* #region get_filtered_variation tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_variations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -239,9 +236,7 @@ mod test {
         assert_eq!(exprs, mock::variation::search_variation_by_allele_name());
         Ok(())
     }
-    /* #endregion */
 
-    /* #region insert_variation tests */
     #[sqlx::test]
     async fn test_insert_variation(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -285,9 +280,7 @@ mod test {
         assert_eq!(vec![expected], vis);
         Ok(())
     }
-    /* #endregion */
 
-    /* #region insert_variation tests */
     #[sqlx::test]
     async fn test_insert_variations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -336,9 +329,6 @@ oxIs13,X,,,,"
         Ok(())
     }
 
-    /* #endregion */
-
-    /* #region delete_alleles test */
     #[sqlx::test(fixtures("variation"))]
     async fn test_delete_single_variations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -415,5 +405,4 @@ oxIs13,X,,,,"
 
         Ok(())
     }
-    /* #endregion */
 }

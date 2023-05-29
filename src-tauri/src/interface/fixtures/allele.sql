@@ -9,6 +9,33 @@ INSERT INTO genes (
         recomb_suppressor_end
     )
 VALUES (
+        "F57H12.2",
+        "unc-24",
+        "IV",
+        7979870,
+        3.51,
+        NULL,
+        NULL
+    ),
+    (
+        "T22B3.1",
+        "dpy-20",
+        "IV",
+        11696430,
+        5.22,
+        NULL,
+        NULL
+    ),
+    (
+        "F56H11.1",
+        "fbl-1",
+        "IV",
+        9540806,
+        4.3,
+        NULL,
+        NULL
+    ),
+    (
         "M142.1",
         "unc-119",
         "III",
@@ -61,7 +88,8 @@ INSERT INTO variations (
         recomb_suppressor_start,
         recomb_suppressor_end
     )
-VALUES ("oxIs644", NULL, NULL, NULL, NULL, NULL),
+VALUES ("oxIs363", "IV", NULL, NULL, NULL, NULL),
+    ("oxIs644", NULL, NULL, NULL, NULL, NULL),
     ("oxIs12", "X", NULL, NULL, NULL, NULL),
     ("oxTi302", "I", 10166146, 4.72, NULL, NULL),
     ("oxTi75", "II", NULL, -1.46, NULL, NULL),
@@ -85,11 +113,42 @@ INSERT INTO alleles (
         variation_name,
         contents
     )
-VALUES ("ed3", "M142.1", NULL, NULL),
-    ("n765", "ZK662.4", NULL, NULL),
+VALUES ("cn64", "T14B4.7", NULL, NULL),
+    ("e128", "T14B4.7", NULL, NULL),
+    ("e1282", "T22B3.1", NULL, NULL),
+    ("e138", "F57H12.2", NULL, NULL),
+    ("eT1(III)", NULL, "eT1(III)", "[unc-36(e873)]"),
+    ("eT1(V)", NULL, "eT1(V)", NULL),
+    ("ed3", "M142.1", NULL, NULL),
+    ("hd43", "F56H11.1", NULL, NULL),
     ("md299", "F27D9.1", NULL, NULL),
-    ("cn64", "T14B4.7", NULL, NULL),
+    ("n744", "ZK662.4", NULL, NULL),
+    ("n765", "ZK662.4", NULL, NULL),
     ("ox1059", "C10C6.1", NULL, NULL),
+    (
+        "oxEx219999",
+        NULL,
+        "oxEx219999",
+        "[Primb-1::HisCl1::SL2::GFP]"
+    ),
+    (
+        "oxEx2254",
+        NULL,
+        "oxEx2254",
+        "[Psnt-1::Flp, Punc-122::GAP-43::mScarlet, cbr-unc-119(+), NeoR]"
+    ),
+    (
+        "oxIs12",
+        NULL,
+        "oxIs12",
+        "[Punc-47::GFP; lin-15(+)]"
+    ),
+    (
+        "oxIs363",
+        NULL,
+        "oxIs363",
+        "[unc-122p::GFP + unc-119(+)]"
+    ),
     (
         "oxIs644",
         NULL,
@@ -97,10 +156,10 @@ VALUES ("ed3", "M142.1", NULL, NULL),
         "[Peft-3::FRT-UTR-FRT::mYFP::unc-54UTR; lin-15(+)]"
     ),
     (
-        "oxIs12",
+        "oxSi1168",
         NULL,
-        "oxIs12",
-        "[Punc-47::GFP; lin-15(+)]"
+        "oxSi1168",
+        "[Psnt-1:Flp, *ttTi5605]"
     ),
     (
         "oxTi302",
@@ -120,25 +179,5 @@ VALUES ("ed3", "M142.1", NULL, NULL),
         NULL,
         "tmC5[F36H1.3(tmIs1220)]",
         "[Pmyo-2::YFP]"
-    ),
-    (
-        "oxEx2254",
-        NULL,
-        "oxEx2254",
-        "[Psnt-1::Flp, Punc-122::GAP-43::mScarlet, cbr-unc-119(+), NeoR]"
-    ),
-    (
-        "oxSi1168",
-        NULL,
-        "oxSi1168",
-        "[Psnt-1:Flp, *ttTi5605]"
-    ),
-    ("eT1(V)", NULL, "eT1(V)", NULL),
-    ("eT1(III)", NULL, "eT1(III)", "[unc-36(e873)]"),
-    (
-        "oxEx219999",
-        NULL,
-        "oxEx219999",
-        "[Primb-1::HisCl1::SL2::GFP]"
     );
 COMMIT TRANSACTION;

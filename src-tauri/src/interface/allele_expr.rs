@@ -164,7 +164,6 @@ mod test {
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
 
-    /* #region get_allele_expr tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_allele_expr(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -172,9 +171,7 @@ mod test {
         assert_eq!(exprs, mock::allele_expr::get_allele_exprs());
         Ok(())
     }
-    /* #endregion */
 
-    /* #region get_filtered_allele_expr tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_allele_expr(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -297,9 +294,7 @@ mod test {
         );
         Ok(())
     }
-    /* #endregion */
 
-    /* #region insert_allele_expr tests */
     #[sqlx::test]
     async fn test_insert_allele_expr(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -403,9 +398,7 @@ cn64,\"dpy-10\",0,0"
         assert_eq!(expected_exprs, exprs);
         Ok(())
     }
-    /* #endregion */
 
-    /* #region delete_allele_expr tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_delete_single_allele_expr(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -514,5 +507,4 @@ cn64,\"dpy-10\",0,0"
 
         Ok(())
     }
-    /* #endregion */
 }

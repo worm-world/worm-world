@@ -238,7 +238,6 @@ mod test {
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
 
-    /* #region get_phenotype tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_phenotypes(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -248,9 +247,7 @@ mod test {
         assert_eq!(phens, expected_phens);
         Ok(())
     }
-    /* #endregion */
 
-    /* #region get_filtered_phenotypes tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_phenotypes(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -313,9 +310,7 @@ mod test {
         assert_eq!(exprs, mock::phenotype::search_phenotypes_by_short_name());
         Ok(())
     }
-    /* #endregion */
 
-    /* #region get_altering_phenotypes tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_altering_phenotypes(pool: Pool<Sqlite>) -> Result<()> {
         let expr_relation_filter = FilterGroup::<ExpressionRelationFieldName> {
@@ -360,9 +355,7 @@ mod test {
         assert_eq!(exprs, mock::phenotype::get_altering_phenotypes());
         Ok(())
     }
-    /* #endregion */
 
-    /* #region insert_phenotype tests */
     #[sqlx::test]
     async fn test_insert_phenotype(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -387,9 +380,7 @@ mod test {
         assert_eq!(vec![expected], phens);
         Ok(())
     }
-    /* #endregion */
 
-    /* #region insert_conditions tests */
     #[sqlx::test]
     async fn test_insert_phenotypes(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -441,9 +432,7 @@ unc-5,0,unc,,0,0,0,0,4"
         assert_eq!(state.get_phenotypes().await?, expected);
         Ok(())
     }
-    /* #endregion */
 
-    /* #region delete_alleles test */
     #[sqlx::test(fixtures("phenotype"))]
     async fn test_delete_single_phenotype(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -523,5 +512,4 @@ unc-5,0,unc,,0,0,0,0,4"
 
         Ok(())
     }
-    /* #endregion */
 }

@@ -38,6 +38,13 @@ pub fn get_variations() -> Vec<Variation> {
             recomb_suppressor: None,
         },
         Variation {
+            allele_name: "oxIs363".to_string(),
+            chromosome: Some(Chromosome::Iv),
+            phys_loc: None,
+            gen_loc: None,
+            recomb_suppressor: None,
+        },
+        Variation {
             allele_name: "oxIs644".to_string(),
             chromosome: None,
             phys_loc: None,
@@ -122,6 +129,13 @@ pub fn search_variation_by_allele_name() -> Vec<Variation> {
         Variation {
             allele_name: "oxIs12".to_string(),
             chromosome: Some(Chromosome::X),
+            phys_loc: None,
+            gen_loc: None,
+            recomb_suppressor: None,
+        },
+        Variation {
+            allele_name: "oxIs363".to_string(),
+            chromosome: Some(Chromosome::Iv),
             phys_loc: None,
             gen_loc: None,
             recomb_suppressor: None,

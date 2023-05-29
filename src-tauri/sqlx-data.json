@@ -1,5 +1,35 @@
 {
   "db": "SQLite",
+  "13763c7fcfc492dce0b34a3dc732d261199d75e4fd741ef55a9a4abfa85668cb": {
+    "describe": {
+      "columns": [
+        {
+          "name": "strain_name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "allele_name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "homozygous",
+          "ordinal": 2,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT strain_name, allele_name, homozygous FROM strain_alleles ORDER BY strain_name\n            "
+  },
   "15fca42cd2ff3e0d1af3b8f6fbf4a061da0d3b94ce4cff77894692e81e9f7c75": {
     "describe": {
       "columns": [],
@@ -157,30 +187,6 @@
       }
     },
     "query": "INSERT INTO variations (allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end)\n            VALUES($1, $2, $3, $4, $5, $6)\n            "
-  },
-  "668f0772f7ebe6426fcbcc6d4ace6f4e3f790576c2f6cfa8d89c418228e143cd": {
-    "describe": {
-      "columns": [
-        {
-          "name": "strain",
-          "ordinal": 0,
-          "type_info": "Text"
-        },
-        {
-          "name": "allele",
-          "ordinal": 1,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 0
-      }
-    },
-    "query": "\n            SELECT strain, allele FROM strain_alleles ORDER BY strain\n            "
   },
   "6aa8945319721dcb31c373fa26d772ca1b5232c3f582c9397d4239e9b5a99ebc": {
     "describe": {
@@ -472,6 +478,16 @@
     },
     "query": "DELETE FROM tasks\n            WHERE tree_id = $1"
   },
+  "9eb0b99a50cce02d20f922ca2cdbedca99d7acb7e0409920d499dcdb81c33cc9": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 3
+      }
+    },
+    "query": "\n            INSERT INTO strain_alleles (strain_name, allele_name, homozygous)\n            VALUES ($1, $2, $3)\n            "
+  },
   "a141f0b236e58df5eb33b7f342543d3d10b311054bc7f5f23a3ae1025d940355": {
     "describe": {
       "columns": [],
@@ -669,16 +685,6 @@
       }
     },
     "query": "\n            SELECT id, due_date, action, strain1, strain2, result, notes, tree_id, completed FROM tasks ORDER BY id\n            "
-  },
-  "e2dfb65105bc99f79dcb72b3a3bbd271372051c04cd7ea9df1182fddb8ba9e67": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 2
-      }
-    },
-    "query": "\n            INSERT INTO strain_alleles (strain, allele)\n            VALUES ($1, $2)\n            "
   },
   "f13067dabb927b051246a195865a73d848e506d71ce434dee87f9c4e33216197": {
     "describe": {

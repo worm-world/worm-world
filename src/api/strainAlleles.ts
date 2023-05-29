@@ -31,7 +31,7 @@ export const getStrainAllele = async (
   strain: string
 ): Promise<db_StrainAllele> => {
   const filter: FilterGroup<StrainAlleleFieldName> = {
-    filters: [[['Strain', { Equal: strain }]]],
+    filters: [[['StrainName', { Equal: strain }]]],
     orderBy: [],
   };
   const res = await getFilteredStrainAlleles(filter);
@@ -66,7 +66,7 @@ export const deleteStrainAllele = async (
   strainAllele: db_StrainAllele
 ): Promise<void> => {
   const filter: FilterGroup<StrainAlleleFieldName> = {
-    filters: [[['Strain', { Equal: strainAllele.strain }]]],
+    filters: [[['StrainName', { Equal: strainAllele.strain_name }]]],
     orderBy: [],
   };
 
