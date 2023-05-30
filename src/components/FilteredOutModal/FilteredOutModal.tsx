@@ -1,6 +1,6 @@
 import CrossNode from 'components/CrossNode/CrossNode';
 import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
-import { Node } from 'reactflow';
+import { type Node } from 'reactflow';
 
 interface FilteredOutModalProps {
   nodeId: string;

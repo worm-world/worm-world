@@ -1,12 +1,14 @@
 import { CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter';
 import { FlowType } from 'components/CrossFlow/CrossFlow';
-import { MenuItem } from 'components/Menu/Menu';
+import { type MenuItem } from 'components/Menu/Menu';
 import { Sex } from 'models/enums';
-import { iCrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
-import CrossTree, { iCrossTree } from 'models/frontend/CrossTree/CrossTree';
+import { type iCrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
+import CrossTree, {
+  type iCrossTree,
+} from 'models/frontend/CrossTree/CrossTree';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
-import { XYPosition, Node, Edge } from 'reactflow';
+import { type XYPosition, type Node, type Edge } from 'reactflow';
 import { expect, test, describe } from 'vitest';
 import { ed3, n765, ox1059 } from 'models/frontend/Allele/Allele.mock';
 import moment from 'moment';
@@ -43,7 +45,7 @@ describe('cross tree', () => {
     id?: number;
     type?: FlowType;
     position?: XYPosition;
-    data?: Object;
+    data?: unknown;
     parentNode?: string;
   }): Node => {
     return {

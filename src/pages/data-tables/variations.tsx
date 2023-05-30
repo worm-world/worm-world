@@ -5,12 +5,12 @@ import {
   insertDbVariation,
   insertVariationsFromFile,
 } from 'api/variation';
-import { db_Variation } from 'models/db/db_Variation';
-import { ColumnDefinitionType } from 'components/Table/Table';
+import { type db_Variation } from 'models/db/db_Variation';
+import { type ColumnDefinitionType } from 'components/Table/Table';
 import { chromosomes } from 'models/frontend/Chromosome';
-import { VariationFieldName } from 'models/db/filter/db_VariationFieldName';
+import { type VariationFieldName } from 'models/db/filter/db_VariationFieldName';
 import DataPage from 'components/DataPage/DataPage';
-import { Field } from 'components/ColumnFilter/ColumnFilter';
+import { type Field } from 'components/ColumnFilter/ColumnFilter';
 
 export const cols: Array<ColumnDefinitionType<db_Variation>> = [
   { key: 'alleleName', header: 'Variation Name' },

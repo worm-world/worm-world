@@ -2,10 +2,10 @@ import { getFilteredAlleleExpressions } from 'api/alleleExpression';
 import { getGene } from 'api/gene';
 import { getVariation } from 'api/variation';
 import { instanceToPlain, plainToInstance, Type } from 'class-transformer';
-import { db_Allele } from 'models/db/db_Allele';
-import { AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
-import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
-import { FilterGroup } from 'models/db/filter/FilterGroup';
+import { type db_Allele } from 'models/db/db_Allele';
+import { type AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
+import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
+import { type FilterGroup } from 'models/db/filter/FilterGroup';
 import { AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
 import { Gene } from 'models/frontend/Gene/Gene';
 import { Variation } from 'models/frontend/Variation/Variation';
@@ -59,12 +59,14 @@ export class Allele {
       alleleExpressions: [],
     };
 
-    await Allele.setGeneOrVariation(newAlleleState, fields).catch((err) =>
-      console.error('error generating gene / variation', err)
-    );
+    await Allele.setGeneOrVariation(newAlleleState, fields).catch((err) => {
+      console.error('error generating gene / variation', err);
+    });
 
     await Allele.setAlleleExpressions(newAlleleState, fields.name).catch(
-      (err) => console.error('error generating allele expressions: ', err)
+      (err) => {
+        console.error('error generating allele expressions: ', err);
+      }
     );
 
     const allele = new Allele(newAlleleState);

@@ -1,10 +1,10 @@
-import { FilterGroup } from 'models/db/filter/FilterGroup';
+import { type FilterGroup } from 'models/db/filter/FilterGroup';
 import React, { useState } from 'react';
 import { getSelectedPills } from 'components/SelectedPill/SelectedPill';
-import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
-import { GeneFieldName } from 'models/db/filter/db_GeneFieldName';
-import { db_Allele } from 'models/db/db_Allele';
-import { db_Gene } from 'models/db/db_Gene';
+import { type AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
+import { type GeneFieldName } from 'models/db/filter/db_GeneFieldName';
+import { type db_Allele } from 'models/db/db_Allele';
+import { type db_Gene } from 'models/db/db_Gene';
 import { getFilteredAllelesWithGeneFilter } from 'api/allele';
 
 export interface iAlleleMultiSelect {
@@ -46,7 +46,9 @@ export const AlleleMultiSelect = (props: iAlleleMultiSelect): JSX.Element => {
         const includedResults = results.filter((res) => shouldInclude(res[0]));
         setSearchRes(includedResults);
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error(err);
+      });
   };
 
   const removeFromSelected = (value: db_Allele): void => {

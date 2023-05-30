@@ -1,5 +1,5 @@
 import CrossNode from 'components/CrossNode/CrossNode';
-import { Task, getConditionsFromTask } from 'models/frontend/Task/Task';
+import { type Task, getConditionsFromTask } from 'models/frontend/Task/Task';
 import {
   TbSnowflake as FreezeIcon,
   TbMicroscope as PCRIcon,
@@ -8,7 +8,7 @@ import {
 import { BiX as CrossIcon } from 'react-icons/bi';
 import TodoModal from './TodoModal';
 import moment from 'moment';
-import { Action } from 'models/db/task/Action';
+import { type Action } from 'models/db/task/Action';
 
 const getIconColor = (action: Action): string => {
   switch (action) {

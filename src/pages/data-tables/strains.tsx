@@ -5,11 +5,11 @@ import {
   insertDbStrain,
   insertStrainsFromFile,
 } from 'api/strain';
-import { Field } from 'components/ColumnFilter/ColumnFilter';
+import { type Field } from 'components/ColumnFilter/ColumnFilter';
 import DataPage from 'components/DataPage/DataPage';
-import { ColumnDefinitionType } from 'components/Table/Table';
-import { db_Strain } from 'models/db/db_Strain';
-import { StrainFieldName } from 'models/db/filter/db_StrainFieldName';
+import { type ColumnDefinitionType } from 'components/Table/Table';
+import { type db_Strain } from 'models/db/db_Strain';
+import { type StrainFieldName } from 'models/db/filter/db_StrainFieldName';
 
 export const cols: Array<ColumnDefinitionType<db_Strain>> = [
   { key: 'name', header: 'Name' },

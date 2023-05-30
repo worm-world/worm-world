@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import DataImportForm, {
-  FieldType,
+  type FieldType,
 } from 'components/DataImportForm/DataImportForm';
-import { db_Allele } from 'models/db/db_Allele';
+import { type db_Allele } from 'models/db/db_Allele';
 import { vi } from 'vitest';
 
 describe('DataImportForm ', () => {

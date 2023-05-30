@@ -1,4 +1,4 @@
-import { db_StrainAllele } from 'models/db/db_StrainAllele';
+import { type db_StrainAllele } from 'models/db/db_StrainAllele';
 
 interface iStrainAllele {
   strainName: string;

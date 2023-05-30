@@ -1,5 +1,5 @@
-import { db_Condition } from 'models/db/db_Condition';
-import { ColumnDefinitionType } from 'components/Table/Table';
+import { type db_Condition } from 'models/db/db_Condition';
+import { type ColumnDefinitionType } from 'components/Table/Table';
 import {
   deleteCondition,
   getCountFilteredConditions,
@@ -7,8 +7,8 @@ import {
   insertConditionsFromFile,
   insertDbCondition,
 } from 'api/condition';
-import { Field } from 'components/ColumnFilter/ColumnFilter';
-import { ConditionFieldName } from 'models/db/filter/db_ConditionFieldName';
+import { type Field } from 'components/ColumnFilter/ColumnFilter';
+import { type ConditionFieldName } from 'models/db/filter/db_ConditionFieldName';
 import DataPage from 'components/DataPage/DataPage';
 
 export const cols: Array<ColumnDefinitionType<db_Condition>> = [

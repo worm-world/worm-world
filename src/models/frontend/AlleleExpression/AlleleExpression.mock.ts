@@ -1,8 +1,8 @@
 import { Dominance } from 'models/enums';
 import { AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
-import { Condition } from 'models/frontend/Condition/Condition';
+import { type Condition } from 'models/frontend/Condition/Condition';
 import { cond25C } from 'models/frontend/Condition/Condition.mock';
-import { Phenotype } from 'models/frontend/Phenotype/Phenotype';
+import { type Phenotype } from 'models/frontend/Phenotype/Phenotype';
 import {
   phenLin15B,
   phenUnc119,

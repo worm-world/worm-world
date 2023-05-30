@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { Table, ColumnDefinitionType } from 'components/Table/Table';
+import { Table, type ColumnDefinitionType } from 'components/Table/Table';
 import DataImportForm from 'components/DataImportForm/DataImportForm';
-import { Field } from 'components/ColumnFilter/ColumnFilter';
-import { FilterGroup } from 'models/db/filter/FilterGroup';
+import { type Field } from 'components/ColumnFilter/ColumnFilter';
+import { type FilterGroup } from 'models/db/filter/FilterGroup';
 import { open } from '@tauri-apps/api/dialog';
 interface iDataPageProps<T, K> {
   title: string;
@@ -71,7 +71,9 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
   const deleteRecordCallback = (record: T): void => {
     props
       .deleteRecord(record)
-      .then((_) => refresh())
+      .then((_) => {
+        refresh();
+      })
       .catch((e: Error) => {
         toast.error(
           'An error occured when deleting a record: ' + JSON.stringify(e)
@@ -112,7 +114,9 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
               limit: rowsPerPage,
               offset: (page ?? 0) * rowsPerPage,
             })
-            .then((ds) => setData(ds))
+            .then((ds) => {
+              setData(ds);
+            })
             .catch((e) =>
               toast.error('Unable to get data: ' + JSON.stringify(e), {
                 toastId: props.dataName,
@@ -186,7 +190,9 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
             <button
               className='btn'
               onClick={() => {
-                importData().catch((error) => console.error(error));
+                importData().catch((error) => {
+                  console.error(error);
+                });
               }}
             >
               Import

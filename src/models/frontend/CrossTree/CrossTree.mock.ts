@@ -1,8 +1,8 @@
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import * as mockCrossNode from 'models/frontend/CrossNode/CrossNode.mock';
-import { Edge, Node } from 'reactflow';
+import { type Edge, type Node } from 'reactflow';
 import { FlowType } from 'components/CrossFlow/CrossFlow';
-import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
+import { type CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 
 export const emptyCrossTree = new CrossTree({
   name: 'Empty cross tree',

@@ -3,9 +3,9 @@ import {
   useCallback,
   useEffect,
   useRef,
-  MouseEvent as ReactMouseEvent,
+  type MouseEvent as ReactMouseEvent,
   Fragment,
-  TouchEvent as ReactTouchEvent,
+  type TouchEvent as ReactTouchEvent,
   createContext,
 } from 'react';
 import CrossFlow, { FlowType } from 'components/CrossFlow/CrossFlow';
@@ -15,29 +15,29 @@ import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import RightDrawer from 'components/RightDrawer/RightDrawer';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import {
-  Edge,
-  Connection,
-  Node,
+  type Edge,
+  type Connection,
+  type Node,
   applyNodeChanges,
-  NodeChange,
-  NodeRemoveChange,
-  XYPosition,
+  type NodeChange,
+  type NodeRemoveChange,
+  type XYPosition,
   useEdgesState,
-  ReactFlowInstance,
-  OnConnectStartParams,
+  type ReactFlowInstance,
+  type OnConnectStartParams,
   Position,
-  NodePositionChange,
-  NodeDimensionChange,
-  NodeAddChange,
-  NodeResetChange,
-  NodeSelectionChange,
+  type NodePositionChange,
+  type NodeDimensionChange,
+  type NodeAddChange,
+  type NodeResetChange,
+  type NodeSelectionChange,
 } from 'reactflow';
 import { insertTree, updateTree } from 'api/crossTree';
-import { Strain, StrainOption } from 'models/frontend/Strain/Strain';
+import { type Strain, type StrainOption } from 'models/frontend/Strain/Strain';
 import { Sex } from 'models/enums';
 import { FiPlusCircle as AddIcon } from 'react-icons/fi';
 import { FaRegStickyNote as NoteIcon } from 'react-icons/fa';
-import { MenuItem } from 'components/Menu/Menu';
+import { type MenuItem } from 'components/Menu/Menu';
 import { BsUiChecks as ScheduleIcon } from 'react-icons/bs';
 import { TbArrowsCross as CrossIcon } from 'react-icons/tb';
 import { ImLoop2 as SelfCrossIcon } from 'react-icons/im';
@@ -46,7 +46,7 @@ import { insertDbTasks } from 'api/task';
 import { useNavigate } from 'react-router-dom';
 import NoteForm from 'components/NoteForm/NoteForm';
 import { NoteNodeProps } from 'components/NoteNode/NoteNodeProps';
-import { AllelePair } from 'models/frontend/Strain/AllelePair';
+import { type AllelePair } from 'models/frontend/Strain/AllelePair';
 import {
   ContextMenu,
   useContextMenuState,
@@ -54,9 +54,9 @@ import {
 import { CrossFilterModal } from 'components/CrossFilterModal/CrossFilterModal';
 import {
   CrossEditorFilter,
-  CrossEditorFilterUpdate,
+  type CrossEditorFilterUpdate,
 } from 'components/CrossFilterModal/CrossEditorFilter';
-import { FilteredOutNodeProps } from 'components/FilteredOutNode/FilteredOutNode';
+import { type FilteredOutNodeProps } from 'components/FilteredOutNode/FilteredOutNode';
 import FilteredOutModal from 'components/FilteredOutModal/FilteredOutModal';
 
 export interface CrossEditorProps {
@@ -178,8 +178,12 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       parentNodes.forEach((node) => {
         node.data = copyNodeData(node, {
           isParent: false,
-          toggleNodeSex: () => toggleCrossNodeSex(node.id),
-          toggleNodeHetPair: (pair) => toggleHetPair(pair, node.id),
+          toggleNodeSex: () => {
+            toggleCrossNodeSex(node.id);
+          },
+          toggleNodeHetPair: (pair) => {
+            toggleHetPair(pair, node.id);
+          },
         });
 
         // clear parent relationship between 2 nodes crossed together
@@ -358,8 +362,12 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
                   getCrossNodeMenuItems(model, node.id, data.isParent),
                 toggleSex: data.isParent
                   ? undefined
-                  : () => toggleCrossNodeSex(node.id),
-                toggleHetPair: (pair) => toggleHetPair(pair, node.id),
+                  : () => {
+                      toggleCrossNodeSex(node.id);
+                    },
+                toggleHetPair: (pair) => {
+                  toggleHetPair(pair, node.id);
+                },
               });
             } else if (node.type === FlowType.Note) {
               node.data = new NoteNodeProps({
@@ -423,8 +431,14 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         isChild,
         getMenuItems: (node: CrossNodeModel) =>
           getCrossNodeMenuItems(node, nodeId, isParent),
-        toggleSex: isParent ? undefined : () => toggleCrossNodeSex(nodeId),
-        toggleHetPair: (pair) => toggleHetPair(pair, nodeId),
+        toggleSex: isParent
+          ? undefined
+          : () => {
+              toggleCrossNodeSex(nodeId);
+            },
+        toggleHetPair: (pair) => {
+          toggleHetPair(pair, nodeId);
+        },
       }),
       className: 'nowheel',
     };
@@ -936,7 +950,9 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     const scheduleOption: MenuItem = {
       icon: <ScheduleIcon />,
       text: 'Schedule',
-      menuCallback: () => scheduleNode(nodeId),
+      menuCallback: () => {
+        scheduleNode(nodeId);
+      },
     };
 
     if (isParent) return [scheduleOption];
@@ -963,9 +979,15 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
           .generateTasks(node)
           .map((task) => task.generateRecord());
         insertTree(clonedTree.generateRecord(clonedTree.editable))
-          .then(async () => await insertDbTasks(tasks))
-          .then(() => navigate('/scheduler/todo'))
-          .catch((error) => console.error(error));
+          .then(async () => {
+            await insertDbTasks(tasks);
+          })
+          .then(() => {
+            navigate('/scheduler/todo');
+          })
+          .catch((error) => {
+            console.error(error);
+          });
 
         return edges;
       });
@@ -1129,9 +1151,13 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
                   onConnectStart={onConnectStart}
                   onConnect={onConnect}
                   onConnectEnd={onConnectEnd}
-                  onNodeDragStop={() => saveTree()}
+                  onNodeDragStop={() => {
+                    saveTree();
+                  }}
                   reactFlowInstance={reactFlowInstance}
-                  toggleShowGenes={() => setShowGenes(!showGenes)}
+                  toggleShowGenes={() => {
+                    setShowGenes(!showGenes);
+                  }}
                   treeEditable={props.crossTree.editable}
                 />
               </div>
@@ -1141,13 +1167,17 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
             <label
               htmlFor='right-cross-drawer'
               className='drawer-overlay'
-              onClick={() => setRightDrawerOpen(false)}
+              onClick={() => {
+                setRightDrawerOpen(false);
+              }}
             ></label>
             <RightDrawer
               initialDrawerWidth={240}
               isOpen={rightDrawerOpen}
               maxWidth={400}
-              close={() => setRightDrawerOpen(false)}
+              close={() => {
+                setRightDrawerOpen(false);
+              }}
             >
               {drawerState === 'addNote' ? (
                 <NoteForm

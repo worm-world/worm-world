@@ -1,8 +1,8 @@
-import { ColumnFilter, Field } from './ColumnFilter';
-import { Filter } from 'models/db/filter/Filter';
+import { ColumnFilter, type Field } from './ColumnFilter';
+import { type Filter } from 'models/db/filter/Filter';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { db_Allele } from 'models/db/db_Allele';
+import { type db_Allele } from 'models/db/db_Allele';
 import { useState } from 'react';
 
 interface iColumnFilterWrapperProps<T> {

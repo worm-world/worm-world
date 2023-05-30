@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/tauri';
-import { TaskFieldName } from 'models/db/filter/db_TaskFieldName';
-import { FilterGroup } from 'models/db/filter/FilterGroup';
-import { db_Task } from 'models/db/task/db_Task';
+import { type TaskFieldName } from 'models/db/filter/db_TaskFieldName';
+import { type FilterGroup } from 'models/db/filter/FilterGroup';
+import { type db_Task } from 'models/db/task/db_Task';
 
 export const getTasks = async (): Promise<db_Task[]> => {
   return await invoke('get_tasks');
@@ -14,7 +14,11 @@ export const getFilteredTasks = async (
 };
 
 export const insertDbTasks = async (records: db_Task[]): Promise<void> => {
-  await Promise.all(records.map(async (record) => await insertDbTask(record)));
+  await Promise.all(
+    records.map(async (record) => {
+      await insertDbTask(record);
+    })
+  );
 };
 
 export const insertDbTask = async (record: db_Task): Promise<void> => {

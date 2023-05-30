@@ -1,10 +1,10 @@
 import CrossNode from 'components/CrossNode/CrossNode';
-import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
-import { Node } from 'reactflow';
+import { type CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
+import { type Node } from 'reactflow';
 import {
   CrossEditorFilter,
-  CrossEditorFilterUpdate,
-  iCrossEditorFilter,
+  type CrossEditorFilterUpdate,
+  type iCrossEditorFilter,
 } from 'components/CrossFilterModal/CrossEditorFilter';
 import React, { useEffect, useState } from 'react';
 export interface CrossFilterProps {
@@ -121,7 +121,9 @@ const FilterList = (props: {
           type='checkbox'
           checked={checked}
           className='checkbox mx-4'
-          onClick={() => props.updateFilter(update)}
+          onClick={() => {
+            props.updateFilter(update);
+          }}
           key={checkKey}
           readOnly
         />
@@ -210,7 +212,9 @@ const StrainList = (props: {
             type='checkbox'
             checked={isVisible(strain)}
             className='checkbox mx-4'
-            onClick={() => props.toggleVisible(strain.id)}
+            onClick={() => {
+              props.toggleVisible(strain.id);
+            }}
             key={`cross-filter-modal-${props.nodeId}-item-${idx++}-checkbox`}
             readOnly
           />

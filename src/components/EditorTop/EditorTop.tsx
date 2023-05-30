@@ -1,6 +1,6 @@
 import { updateTree } from 'api/crossTree';
 import EditableDiv from 'components/EditableDiv/EditableDiv';
-import CrossTree from 'models/frontend/CrossTree/CrossTree';
+import type CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { useState, useEffect } from 'react';
 import { BiMenu as MenuIcon } from 'react-icons/bi';
 
@@ -19,8 +19,10 @@ const EditorTop = (props: EditorTopProps): JSX.Element => {
 
   const updateTreeName = (): void => {
     props.tree.name = name.trim();
-    updateTree(props.tree.generateRecord(props.tree.editable)).catch((error) =>
-      console.error(error)
+    updateTree(props.tree.generateRecord(props.tree.editable)).catch(
+      (error) => {
+        console.error(error);
+      }
     );
     setNameEditable(false);
   };
@@ -37,7 +39,9 @@ const EditorTop = (props: EditorTopProps): JSX.Element => {
             setValue={setName}
             editable={nameEditable && props.tree.editable}
             onFinishEditing={updateTreeName}
-            onClick={() => setNameEditable(true)}
+            onClick={() => {
+              setNameEditable(true);
+            }}
             placeholder='(Untitled)'
           />
         </h1>

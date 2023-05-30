@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import * as mock from 'models/frontend/CrossNode/CrossNode.mock';
 import CrossNode, { cmpChromosomes } from 'components/CrossNode/CrossNode';
-import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
+import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 describe('CrossNode component', () => {
   test('Empty node shows "wild" label', () => {
     const emptyNode = mock.empty;

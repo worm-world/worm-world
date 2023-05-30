@@ -1,5 +1,5 @@
-import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
-import { Allele } from 'models/frontend/Allele/Allele';
+import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
+import { type Allele } from 'models/frontend/Allele/Allele';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import {
   Exclude,
@@ -7,10 +7,10 @@ import {
   instanceToPlain,
   plainToInstance,
 } from 'class-transformer';
-import { Phenotype } from 'models/frontend/Phenotype/Phenotype';
-import { AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
-import { Condition } from 'models/frontend/Condition/Condition';
-import { db_Strain } from 'models/db/db_Strain';
+import { type Phenotype } from 'models/frontend/Phenotype/Phenotype';
+import { type AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
+import { type Condition } from 'models/frontend/Condition/Condition';
+import { type db_Strain } from 'models/db/db_Strain';
 
 export interface StrainOption {
   strain: Strain;
@@ -47,7 +47,7 @@ export class Strain {
       return new Map(
         Object.keys(d).map((k) => {
           const pairs = d[k];
-          const restoredPairs = pairs.map((pair: Object) =>
+          const restoredPairs = pairs.map((pair: unknown) =>
             AllelePair.fromJSON(JSON.stringify(pair))
           );
           return [k === 'undefined' ? undefined : k, restoredPairs];
@@ -56,7 +56,7 @@ export class Strain {
     },
     { toClassOnly: true }
   )
-  public chromPairMap: Map<Chromosome | undefined, AllelePair[]> = new Map();
+  public chromPairMap = new Map<Chromosome | undefined, AllelePair[]>();
 
   public name?: string;
 
@@ -117,9 +117,9 @@ export class Strain {
    */
   public clone(): Strain {
     const allelePairs: AllelePair[] = [];
-    this.chromPairMap.forEach((pairs) =>
-      pairs.forEach((pair) => allelePairs.push(pair.clone()))
-    );
+    this.chromPairMap.forEach((pairs) => {
+      pairs.forEach((pair) => allelePairs.push(pair.clone()));
+    });
     return new Strain({
       name: this.name,
       description: this.description,
@@ -573,7 +573,9 @@ export class Strain {
    * Adds a list of AllelePairs to this strain
    */
   private addPairsToStrain(pairs: AllelePair[]): void {
-    pairs.forEach((pair) => this.addPairToStrain(pair));
+    pairs.forEach((pair) => {
+      this.addPairToStrain(pair);
+    });
   }
 
   /**

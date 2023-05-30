@@ -1,11 +1,11 @@
 import { invoke } from '@tauri-apps/api/tauri';
-import { db_StrainAllele } from 'models/db/db_StrainAllele';
-import { StrainAlleleFieldName } from 'models/db/filter/db_StrainAlleleFieldName';
+import { type db_StrainAllele } from 'models/db/db_StrainAllele';
+import { type StrainAlleleFieldName } from 'models/db/filter/db_StrainAlleleFieldName';
 import {
-  FilterGroup,
+  type FilterGroup,
   getSingleRecordOrThrow,
 } from 'models/db/filter/FilterGroup';
-import { StrainAllele } from 'models/frontend/StrainAllele/StrainAllele';
+import { type StrainAllele } from 'models/frontend/StrainAllele/StrainAllele';
 
 export const getStrainAlleles = async (): Promise<db_StrainAllele[]> => {
   return await invoke('get_strain_alleles');
@@ -47,7 +47,7 @@ export const insertStrainAllele = async (
 export const insertDbStrainAllele = async (
   record: db_StrainAllele
 ): Promise<void> => {
-  return await invoke('insert_strain_allele', { strainAllele: record });
+  await invoke('insert_strain_allele', { strainAllele: record });
 };
 
 export const insertStrainAllelesFromFile = async (
@@ -66,7 +66,10 @@ export const deleteStrainAllele = async (
   strainAllele: db_StrainAllele
 ): Promise<void> => {
   const filter: FilterGroup<StrainAlleleFieldName> = {
-    filters: [[['StrainName', { Equal: strainAllele.strain_name }]]],
+    filters: [
+      [['StrainName', { Equal: strainAllele.strain_name }]],
+      [['AlleleName', { Equal: strainAllele.allele_name }]],
+    ],
     orderBy: [],
   };
 

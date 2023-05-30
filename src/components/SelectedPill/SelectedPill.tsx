@@ -32,7 +32,9 @@ export const getSelectedPills = <U,>(
     pills.push(
       <SelectedPill
         key={`${displayVal}-${index}`}
-        removeFromSelected={() => removeFromSelected(record)}
+        removeFromSelected={() => {
+          removeFromSelected(record);
+        }}
         displayVal={displayVal}
       />
     );

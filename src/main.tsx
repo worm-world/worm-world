@@ -6,12 +6,13 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { BrowserRouter as Router, useRoutes } from 'react-router-dom';
 import routes from '~react-pages';
+import Spinner from 'components/Spinner/Spinner';
 import Layout from 'components/Layout/Layout';
 
 const App = (): JSX.Element => {
   return (
     <>
-      <Suspense fallback={<p className='text-base-content'>Loading...</p>}>
+      <Suspense fallback={<Spinner />}>
         <Layout> {useRoutes(routes)}</Layout>
       </Suspense>
       <ToastContainer

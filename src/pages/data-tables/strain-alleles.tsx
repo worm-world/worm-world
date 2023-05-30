@@ -5,11 +5,11 @@ import {
   insertStrainAllelesFromFile,
   deleteStrainAllele,
 } from 'api/strainAlleles';
-import { Field } from 'components/ColumnFilter/ColumnFilter';
+import { type Field } from 'components/ColumnFilter/ColumnFilter';
 import DataPage from 'components/DataPage/DataPage';
-import { ColumnDefinitionType } from 'components/Table/Table';
-import { db_StrainAllele } from 'models/db/db_StrainAllele';
-import { StrainAlleleFieldName } from 'models/db/filter/db_StrainAlleleFieldName';
+import { type ColumnDefinitionType } from 'components/Table/Table';
+import { type db_StrainAllele } from 'models/db/db_StrainAllele';
+import { type StrainAlleleFieldName } from 'models/db/filter/db_StrainAlleleFieldName';
 
 export const cols: Array<ColumnDefinitionType<db_StrainAllele>> = [
   { key: 'strain_name', header: 'Strain Name' },

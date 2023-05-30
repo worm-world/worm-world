@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/tauri';
-import { FilterGroup } from 'models/db/filter/FilterGroup';
-import { TaskConditionFieldName } from 'models/db/filter/db_TaskConditionFieldName';
-import { iTaskCondition } from 'models/frontend/Task/TaskCondition';
+import { type FilterGroup } from 'models/db/filter/FilterGroup';
+import { type TaskConditionFieldName } from 'models/db/filter/db_TaskConditionFieldName';
+import { type iTaskCondition } from 'models/frontend/Task/TaskCondition';
 
 export const getTaskConditions = async (): Promise<iTaskCondition[]> => {
   return await invoke('get_task_conditions');

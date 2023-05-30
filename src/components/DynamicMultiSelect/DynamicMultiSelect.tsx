@@ -1,4 +1,4 @@
-import { FilterGroup } from 'models/db/filter/FilterGroup';
+import { type FilterGroup } from 'models/db/filter/FilterGroup';
 import React, { useState } from 'react';
 import { getSelectedPills } from 'components/SelectedPill/SelectedPill';
 
@@ -52,7 +52,9 @@ export const DynamicMultiSelect = <T, U>(
         const includedResults = results.filter((res) => shouldInclude(res));
         setSearchRes(includedResults);
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error(err);
+      });
   };
 
   const removeFromSelected = (value: U): void => {

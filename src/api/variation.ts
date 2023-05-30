@@ -1,11 +1,11 @@
 import { invoke } from '@tauri-apps/api/tauri';
-import { db_Variation } from 'models/db/db_Variation';
-import { VariationFieldName } from 'models/db/filter/db_VariationFieldName';
+import { type db_Variation } from 'models/db/db_Variation';
+import { type VariationFieldName } from 'models/db/filter/db_VariationFieldName';
 import {
-  FilterGroup,
+  type FilterGroup,
   getSingleRecordOrThrow,
 } from 'models/db/filter/FilterGroup';
-import { Variation } from 'models/frontend/Variation/Variation';
+import { type Variation } from 'models/frontend/Variation/Variation';
 
 export const getVariations = async (): Promise<db_Variation[]> => {
   return await invoke('get_variation');
@@ -45,7 +45,7 @@ export const insertVariation = async (variation: Variation): Promise<void> => {
 export const insertDbVariation = async (
   record: db_Variation
 ): Promise<void> => {
-  return await invoke('insert_variation', { variation: record });
+  await invoke('insert_variation', { variation: record });
 };
 
 export const insertVariationsFromFile = async (path: string): Promise<void> => {

@@ -1,4 +1,4 @@
-import { FilterGroup } from 'models/db/filter/FilterGroup';
+import { type FilterGroup } from 'models/db/filter/FilterGroup';
 import React, { useState } from 'react';
 
 /**

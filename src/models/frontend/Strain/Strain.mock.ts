@@ -11,7 +11,7 @@ import {
   oxEx219999,
 } from 'models/frontend/Allele/Allele.mock';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
-import { Strain, StrainOption } from 'models/frontend/Strain/Strain';
+import { Strain, type StrainOption } from 'models/frontend/Strain/Strain';
 
 export const HomozygousCross: StrainOption[] = [
   {

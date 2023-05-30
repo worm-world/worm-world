@@ -2,11 +2,11 @@ import { render, screen } from '@testing-library/react';
 import CrossNodeForm from 'components/CrossNodeForm/CrossNodeForm';
 import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import user from '@testing-library/user-event';
-import { Sex } from 'models/enums';
-import { Strain } from 'models/frontend/Strain/Strain';
+import { type Sex } from 'models/enums';
+import { type Strain } from 'models/frontend/Strain/Strain';
 import { beforeEach, test, describe, expect } from 'vitest';
 import { clearMocks, mockIPC } from '@tauri-apps/api/mocks';
-import { db_Allele } from 'models/db/db_Allele';
+import { type db_Allele } from 'models/db/db_Allele';
 import { ed3 } from 'models/frontend/Allele/Allele.mock';
 import { unc119 } from 'models/frontend/Gene/Gene.mock';
 

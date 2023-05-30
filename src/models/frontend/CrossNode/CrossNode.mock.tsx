@@ -2,12 +2,12 @@ import { Strain } from 'models/frontend/Strain/Strain';
 import { Sex } from 'models/enums';
 import {
   CrossNodeModel,
-  iCrossNodeModel,
+  type iCrossNodeModel,
 } from 'models/frontend/CrossNode/CrossNode';
 import * as mockAlleles from 'models/frontend/Allele/Allele.mock';
 import { Allele } from '../Allele/Allele';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
-import { MenuItem } from 'components/Menu/Menu';
+import { type MenuItem } from 'components/Menu/Menu';
 import { ImLoop2 as SelfCrossIcon } from 'react-icons/im';
 import { TbArrowsCross as CrossIcon } from 'react-icons/tb';
 import { BsUiChecks as ScheduleIcon } from 'react-icons/bs';

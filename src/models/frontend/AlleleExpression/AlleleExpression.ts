@@ -6,8 +6,8 @@ import {
   plainToInstance,
   Type,
 } from 'class-transformer';
-import { db_AlleleExpression } from 'models/db/db_AlleleExpression';
-import { Dominance } from 'models/enums';
+import { type db_AlleleExpression } from 'models/db/db_AlleleExpression';
+import { type Dominance } from 'models/enums';
 import { Condition } from 'models/frontend/Condition/Condition';
 import { Phenotype } from 'models/frontend/Phenotype/Phenotype';
 
@@ -102,29 +102,37 @@ export class AlleleExpression {
     await AlleleExpression.setExpressingPhenotype(
       newAlleleExprState,
       fields
-    ).catch((err) => console.error('error setting expressing phenotype', err));
+    ).catch((err) => {
+      console.error('error setting expressing phenotype', err);
+    });
 
     await AlleleExpression.setRequiredPhenotypes(
       newAlleleExprState,
       fields
-    ).catch((err) => console.error('error setting required phenotypes', err));
+    ).catch((err) => {
+      console.error('error setting required phenotypes', err);
+    });
 
     await AlleleExpression.setSuppressingPhenotypes(
       newAlleleExprState,
       fields
-    ).catch((err) =>
-      console.error('error setting suppressing phenotypes', err)
-    );
+    ).catch((err) => {
+      console.error('error setting suppressing phenotypes', err);
+    });
 
     await AlleleExpression.setRequiredConditions(
       newAlleleExprState,
       fields
-    ).catch((err) => console.error('error setting required conditions', err));
+    ).catch((err) => {
+      console.error('error setting required conditions', err);
+    });
 
     await AlleleExpression.setSuppressingConditions(
       newAlleleExprState,
       fields
-    ).catch((err) => console.error('error setting suppressing phenotype', err));
+    ).catch((err) => {
+      console.error('error setting suppressing phenotype', err);
+    });
 
     return new AlleleExpression(newAlleleExprState);
   }

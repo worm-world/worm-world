@@ -1,11 +1,11 @@
 import { invoke } from '@tauri-apps/api/tauri';
-import { db_Strain } from 'models/db/db_Strain';
-import { StrainFieldName } from 'models/db/filter/db_StrainFieldName';
+import { type db_Strain } from 'models/db/db_Strain';
+import { type StrainFieldName } from 'models/db/filter/db_StrainFieldName';
 import {
-  FilterGroup,
+  type FilterGroup,
   getSingleRecordOrThrow,
 } from 'models/db/filter/FilterGroup';
-import { Strain } from 'models/frontend/Strain/Strain';
+import { type Strain } from 'models/frontend/Strain/Strain';
 
 export const getStrains = async (): Promise<db_Strain[]> => {
   return await invoke('get_strains');
@@ -41,7 +41,7 @@ export const insertStrain = async (strain: Strain): Promise<void> => {
 };
 
 export const insertDbStrain = async (record: db_Strain): Promise<void> => {
-  return await invoke('insert_strain', { strain: record });
+  await invoke('insert_strain', { strain: record });
 };
 
 export const insertStrainsFromFile = async (path: string): Promise<void> => {

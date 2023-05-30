@@ -1,12 +1,12 @@
 import { invoke } from '@tauri-apps/api/tauri';
-import { db_AlleleExpression } from 'models/db/db_AlleleExpression';
-import { AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
+import { type db_AlleleExpression } from 'models/db/db_AlleleExpression';
+import { type AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
 import {
-  FilterGroup,
+  type FilterGroup,
   getDbBoolean,
   getSingleRecordOrThrow,
 } from 'models/db/filter/FilterGroup';
-import { AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
+import { type AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
 
 export const getAlleleExpressions = async (): Promise<
   db_AlleleExpression[]

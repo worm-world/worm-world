@@ -32,7 +32,9 @@ const RightDrawer = (props: RightDrawerProps): JSX.Element => {
       setMousePosition({ x: ev.clientX, y: ev.clientY });
     };
 
-    const endDragging = (): void => setIsDragging(false);
+    const endDragging = (): void => {
+      setIsDragging(false);
+    };
 
     window.addEventListener('mousemove', calculateNewWidth);
     window.addEventListener('mouseup', endDragging);
@@ -56,12 +58,19 @@ const RightDrawer = (props: RightDrawerProps): JSX.Element => {
         className={`${styles.resizerThumb} ${
           isDragging ? styles.resizerThumbDragging : ''
         } `}
-        onMouseDown={() => setIsDragging(true)}
+        onMouseDown={() => {
+          setIsDragging(true);
+        }}
       />
       <div className='flex w-full flex-col justify-start'>
         <div className='mb-1 flex flex-row justify-between'>
           <h2 className='ml-8 mt-2 text-3xl font-bold'>{props.title ?? ''}</h2>
-          <button className='mr-2 mt-2' onClick={() => props.close()}>
+          <button
+            className='mr-2 mt-2'
+            onClick={() => {
+              props.close();
+            }}
+          >
             <CloseIcon className='text-3xl' />
           </button>
         </div>

@@ -1,11 +1,11 @@
 import React, { useContext } from 'react';
-import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
+import { type CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import { Sex } from 'models/enums';
 import { IoMale, IoFemale, IoMaleFemale } from 'react-icons/io5';
 import { RiArrowUpDownLine as SwapIcon } from 'react-icons/ri';
-import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
-import { AllelePair } from 'models/frontend/Strain/AllelePair';
-import { Strain } from 'models/frontend/Strain/Strain';
+import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
+import { type AllelePair } from 'models/frontend/Strain/AllelePair';
+import { type Strain } from 'models/frontend/Strain/Strain';
 import { Menu } from 'components/Menu/Menu';
 import { BsLightningCharge as MenuIcon } from 'react-icons/bs';
 import BreedCountProbability from 'components/BreedCountProbability/BreedCountProbability';
@@ -60,7 +60,7 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
               props.model.toggleSex
             )}
             {props.model.isChild && (
-              <div className='dropdown dropdown-top'>
+              <div className='dropdown-top dropdown'>
                 <label
                   tabIndex={0}
                   className='btn-ghost btn-xs btn m-1 mt-1 text-accent ring-0 hover:bg-base-200 hover:ring-0'
@@ -226,7 +226,9 @@ const getMutationBox = (
         {toggleEnabled && (
           <div
             className={`invisible absolute left-1/2 top-1/2  -translate-x-1/2 -translate-y-1/2 text-primary group-hover:visible `}
-            onClick={() => toggleHetPair(allelePair)}
+            onClick={() => {
+              toggleHetPair(allelePair);
+            }}
           >
             <SwapIcon />
           </div>

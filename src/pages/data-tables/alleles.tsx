@@ -5,11 +5,11 @@ import {
   insertAllelesFromFile,
   insertDbAllele,
 } from 'api/allele';
-import { db_Allele } from 'models/db/db_Allele';
-import { ColumnDefinitionType } from 'components/Table/Table';
-import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
+import { type db_Allele } from 'models/db/db_Allele';
+import { type ColumnDefinitionType } from 'components/Table/Table';
+import { type AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
 import DataPage from 'components/DataPage/DataPage';
-import { Field } from 'components/ColumnFilter/ColumnFilter';
+import { type Field } from 'components/ColumnFilter/ColumnFilter';
 
 export const cols: Array<ColumnDefinitionType<db_Allele>> = [
   { key: 'name', header: 'Name' },

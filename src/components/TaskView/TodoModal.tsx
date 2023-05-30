@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { toast } from 'react-toastify';
-import { Task, getConditionsFromTask } from 'models/frontend/Task/Task';
+import { type Task, getConditionsFromTask } from 'models/frontend/Task/Task';
 
 interface iTodoModalProps {
   task: Task;
@@ -14,7 +14,7 @@ const TodoModal = (props: iTodoModalProps): JSX.Element => {
   const navigate = useNavigate();
   const navigateToTree = useCallback((): void => {
     // the tree associated with the task is already a copy
-    navigate('/tree-view', {
+    navigate('/editor', {
       state: { treeId: props.task.treeId },
     });
   }, [props.task.treeId]);

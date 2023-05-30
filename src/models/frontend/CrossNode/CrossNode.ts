@@ -6,8 +6,8 @@ import {
   plainToInstance,
   Type,
 } from 'class-transformer';
-import { AllelePair } from 'models/frontend/Strain/AllelePair';
-import { MenuItem } from 'components/Menu/Menu';
+import { type AllelePair } from 'models/frontend/Strain/AllelePair';
+import { type MenuItem } from 'components/Menu/Menu';
 
 export interface iCrossNodeModel {
   sex: Sex;

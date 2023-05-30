@@ -1,9 +1,9 @@
-import { Action } from 'models/db/task/Action';
-import { db_Task } from 'models/db/task/db_Task';
+import { type Action } from 'models/db/task/Action';
+import { type db_Task } from 'models/db/task/db_Task';
 import { CrossNodeModel } from '../CrossNode/CrossNode';
 import { Type, plainToInstance, instanceToPlain } from 'class-transformer';
 import { empty } from 'models/frontend/CrossNode/CrossNode.mock';
-import { Condition } from '../Condition/Condition';
+import { type Condition } from '../Condition/Condition';
 
 export interface iTask {
   id: string;
@@ -101,11 +101,11 @@ export const getConditionsFromTask = (
       [
         ...allelePair.bot.alleleExpressions,
         ...allelePair.top.alleleExpressions,
-      ].forEach((ae) =>
+      ].forEach((ae) => {
         [...ae.suppressingConditions, ...ae.requiredConditions].forEach((c) =>
           conditions.set(c.name, c)
-        )
-      );
+        );
+      });
     });
   });
   return conditions;

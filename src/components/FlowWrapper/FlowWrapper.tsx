@@ -1,13 +1,13 @@
 import CrossNode from 'components/CrossNode/CrossNode';
 import { Sex } from 'models/enums';
-import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
+import { type CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
 import { Handle, Position } from 'reactflow';
-import { XNode, XNodeProps } from 'components/XNode/XNode';
-import { SelfIconProps, SelfNode } from 'components/SelfNode/SelfNode';
+import { XNode, type XNodeProps } from 'components/XNode/XNode';
+import { type SelfIconProps, SelfNode } from 'components/SelfNode/SelfNode';
 import { NoteNode } from 'components/NoteNode/NoteNode';
-import { NoteNodeProps } from 'components/NoteNode/NoteNodeProps';
+import { type NoteNodeProps } from 'components/NoteNode/NoteNodeProps';
 import FilteredOutNode, {
-  FilteredOutNodeProps,
+  type FilteredOutNodeProps,
 } from 'components/FilteredOutNode/FilteredOutNode';
 
 export interface iStrainFlowWrapper {

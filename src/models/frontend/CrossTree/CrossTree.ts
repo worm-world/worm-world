@@ -1,9 +1,9 @@
-import { db_Tree } from 'models/db/db_Tree';
+import { type db_Tree } from 'models/db/db_Tree';
 import type { Action } from 'models/db/task/Action';
 import { Sex } from 'models/enums';
-import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
-import { StrainOption } from 'models/frontend/Strain/Strain';
-import { Node, Edge, XYPosition } from 'reactflow';
+import { type CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
+import { type StrainOption } from 'models/frontend/Strain/Strain';
+import { type Node, type Edge, type XYPosition } from 'reactflow';
 import { ulid } from 'ulid';
 import {
   instanceToPlain,
@@ -330,7 +330,9 @@ export default class CrossTree {
 
   private addDatesToTasks(taskDeps: iTaskDependencyTree): void {
     const defaultMaturationDay = 3;
-    taskDeps.taskParents.forEach((parent) => this.addDatesToTasks(parent));
+    taskDeps.taskParents.forEach((parent) => {
+      this.addDatesToTasks(parent);
+    });
 
     if (taskDeps.taskParents.length === 0) {
       taskDeps.task.dueDate = moment().toDate();
@@ -379,14 +381,16 @@ export default class CrossTree {
     daysToBumpBack: number
   ): void {
     tree.task.dueDate = this.addDays(daysToBumpBack, tree.task.dueDate);
-    tree.taskParents.forEach((parent) =>
-      this.bumpDatesBack(parent, daysToBumpBack)
-    );
+    tree.taskParents.forEach((parent) => {
+      this.bumpDatesBack(parent, daysToBumpBack);
+    });
   }
 
   private makeTreeIntoArray(tree: iTaskDependencyTree, tasks: Task[]): void {
     tasks.push(tree.task);
-    tree.taskParents.forEach((parent) => this.makeTreeIntoArray(parent, tasks));
+    tree.taskParents.forEach((parent) => {
+      this.makeTreeIntoArray(parent, tasks);
+    });
   }
 
   /**

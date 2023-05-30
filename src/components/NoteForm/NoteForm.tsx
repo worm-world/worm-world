@@ -13,7 +13,9 @@ const NoteForm = (props: NoteFormProps): JSX.Element => {
       <div className='mb-2 mt-2 flex h-3/4 flex-col'>
         <textarea
           value={props.content}
-          onChange={(e) => props.setContent(e.target.value)}
+          onChange={(e) => {
+            props.setContent(e.target.value);
+          }}
           id='noteContent'
           className='input-bordered input mr-2 h-full w-full resize-none p-2'
         />

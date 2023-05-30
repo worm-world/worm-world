@@ -5,11 +5,11 @@ import {
   insertDbGene,
   insertGenesFromFile,
 } from 'api/gene';
-import { db_Gene } from 'models/db/db_Gene';
-import { ColumnDefinitionType } from 'components/Table/Table';
+import { type db_Gene } from 'models/db/db_Gene';
+import { type ColumnDefinitionType } from 'components/Table/Table';
 import { chromosomes } from 'models/frontend/Chromosome';
-import { Field } from 'components/ColumnFilter/ColumnFilter';
-import { GeneFieldName } from 'models/db/filter/db_GeneFieldName';
+import { type Field } from 'components/ColumnFilter/ColumnFilter';
+import { type GeneFieldName } from 'models/db/filter/db_GeneFieldName';
 import DataPage from 'components/DataPage/DataPage';
 
 export const cols: Array<ColumnDefinitionType<db_Gene>> = [

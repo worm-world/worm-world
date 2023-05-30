@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import * as mockCrossTrees from 'models/frontend/CrossTree/CrossTree.mock';
 import CrossEditor from 'components/CrossEditor/CrossEditor';
-import CrossTree from 'models/frontend/CrossTree/CrossTree';
+import type CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { BrowserRouter } from 'react-router-dom';
 import { ReactFlowProvider } from 'reactflow';
 

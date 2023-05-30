@@ -1,7 +1,7 @@
 import { BiDotsHorizontalRounded as MoreHorizIcon } from 'react-icons/bi';
 import { Link, useNavigate } from 'react-router-dom';
-import CrossTree from 'models/frontend/CrossTree/CrossTree';
-import { Menu, MenuItem } from 'components/Menu/Menu';
+import type CrossTree from 'models/frontend/CrossTree/CrossTree';
+import { Menu, type MenuItem } from 'components/Menu/Menu';
 import { useEffect, useState } from 'react';
 import { deleteTree, insertTree, updateTree } from 'api/crossTree';
 import { open } from '@tauri-apps/api/dialog';
@@ -30,7 +30,7 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
       {
         text: 'Open',
         menuCallback: () => {
-          navigate('/tree-view', {
+          navigate('/editor', {
             state: { treeId: props.tree.id.toString() },
           });
         },
@@ -44,7 +44,9 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
       {
         text: 'Export',
         menuCallback: () => {
-          exportTree(props.tree).catch((err) => console.error(err));
+          exportTree(props.tree).catch((err) => {
+            console.error(err);
+          });
         },
       },
       {
@@ -52,7 +54,9 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
         menuCallback: () => {
           copyTree(props.tree)
             .then(props.refreshTrees)
-            .catch((err) => console.error(err));
+            .catch((err) => {
+              console.error(err);
+            });
         },
       },
       {
@@ -69,7 +73,9 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
     props.tree.lastSaved = new Date();
     updateTree(props.tree.generateRecord(props.tree.editable))
       .then(props.refreshTrees)
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        console.error(error);
+      });
     setNameEditable(false);
   };
 
@@ -84,7 +90,7 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
           />
         </div>
         <Link
-          to={'/tree-view'}
+          to={'/editor'}
           className='card hover h-52 w-52 rounded-lg shadow-xl hover:brightness-[.97]'
           state={{ treeId: props.tree.id.toString() }}
         >
@@ -111,7 +117,9 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
         className={`modal cursor-pointer ${
           deleteModalOpen ? 'modal-open' : ''
         }`}
-        onClick={() => setDeleteModalOpen(false)}
+        onClick={() => {
+          setDeleteModalOpen(false);
+        }}
       >
         <div className='modal-box relative cursor-auto'>
           <h1 className='text-lg font-bold'>
@@ -124,7 +132,9 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
               onClick={() => {
                 deleteTree(props.tree.id)
                   .then(props.refreshTrees)
-                  .catch((error) => console.error(error));
+                  .catch((error) => {
+                    console.error(error);
+                  });
               }}
             >
               Delete

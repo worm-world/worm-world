@@ -26,7 +26,9 @@ export function TopNav(props: iTopNavInputProps): JSX.Element {
                 'tab-bordered tab ' + (tabIdx === idx ? ' tab-active' : '')
               }
               key={item.key}
-              onClick={() => setTabIdx(idx)}
+              onClick={() => {
+                setTabIdx(idx);
+              }}
               role='tab'
             >
               {item}

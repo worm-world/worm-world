@@ -20,7 +20,9 @@ export const SchedulePage = (): JSX.Element => {
 
   useEffect(() => {
     refreshTasks()
-      .then(() => setHasLoadedOnce(true)) // prevents text from flashing on screen while loading tasks from db
+      .then(() => {
+        setHasLoadedOnce(true);
+      }) // prevents text from flashing on screen while loading tasks from db
       .catch((e) => toast.error('Unable to get data: ' + JSON.stringify(e)));
 
     refreshTreeNames().catch((e) =>
@@ -41,7 +43,9 @@ export const SchedulePage = (): JSX.Element => {
   const updateTask = (task: Task): void => {
     const filteredTasks = tasks.filter((t) => t.treeId === task.treeId);
     updateDbTask(task.generateRecord())
-      .then(() => setPromptRemovalTasks(filteredTasks))
+      .then(() => {
+        setPromptRemovalTasks(filteredTasks);
+      })
       .then(refreshTasks)
       .catch((e) => toast.error('Unable to update task: ' + JSON.stringify(e)));
   };
@@ -49,12 +53,18 @@ export const SchedulePage = (): JSX.Element => {
   const handleDeleteTasks = (treeId: string): void => {
     const deleteFn =
       treeId === noFilterText
-        ? async () => await deleteAllTasks()
-        : async () => await deleteTasks(treeId);
+        ? async () => {
+            await deleteAllTasks();
+          }
+        : async () => {
+            await deleteTasks(treeId);
+          };
 
     deleteFn()
       .then(refreshTasks)
-      .then(() => setFilteredTreeId(noFilterText))
+      .then(() => {
+        setFilteredTreeId(noFilterText);
+      })
       .catch((e) =>
         toast.error('Unable to delete tasks: ' + JSON.stringify(e))
       );
@@ -102,7 +112,9 @@ export const SchedulePage = (): JSX.Element => {
             <div className='flex flex-row items-end gap-2'>
               <ShowCompletedButton
                 showCompleted={showCompleted}
-                toggleShowCompleted={() => setShowCompleted(!showCompleted)}
+                toggleShowCompleted={() => {
+                  setShowCompleted(!showCompleted);
+                }}
               />
               <TaskRemovalBtn
                 hasFilter={hasFilter}
@@ -128,7 +140,7 @@ const NoTaskPlaceholder = (): JSX.Element => {
     <div className='m-14 flex flex-col items-center justify-center'>
       <h2 className='text-2xl'>No scheduled tasks yet.</h2>
       <h3 className='my-4 text-xl'>
-        Use the Cross Designer to send cross tasks to the scheduler.
+        Tasks can be scheduled when viewing a cross design in the editor.
       </h3>
       <TreeIcon className='my-4 text-9xl text-base-300' />
     </div>
@@ -149,7 +161,9 @@ const TreeFilter = (props: TreeFilterProps): JSX.Element => {
         <span className='label-text'>Filter Tasks By Cross Tree</span>
       </label>
       <select
-        onChange={(e) => props.setFilteredTreeId(e.target.value)}
+        onChange={(e) => {
+          props.setFilteredTreeId(e.target.value);
+        }}
         className='select-primary select w-full max-w-xs'
       >
         <option>{props.noFilterText}</option>
@@ -216,7 +230,9 @@ const TaskRemovalBtn = (props: {
             <label
               htmlFor='delete-tasks-modal'
               className='btn-error btn'
-              onClick={() => props.deleteTasks(props.filteredTreeId)}
+              onClick={() => {
+                props.deleteTasks(props.filteredTreeId);
+              }}
             >
               Delete
             </label>
@@ -273,7 +289,9 @@ const TaskRemovalPrompt = (props: {
             <label
               htmlFor='prompt-delete-tasks-modal'
               className='btn'
-              onClick={() => setModalOpen(false)}
+              onClick={() => {
+                setModalOpen(false);
+              }}
             >
               No thanks
             </label>

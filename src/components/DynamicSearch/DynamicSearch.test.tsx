@@ -1,12 +1,12 @@
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
-import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
-import { db_Allele } from 'models/db/db_Allele';
+import { type AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
+import { type db_Allele } from 'models/db/db_Allele';
 import { getDbAlleles } from 'components/DynamicSearch/DynamicSearch.mock';
-import { FilterGroup } from 'models/db/filter/FilterGroup';
+import { type FilterGroup } from 'models/db/filter/FilterGroup';
 import {
   DynamicSearch,
-  iSearchProps,
+  type iSearchProps,
 } from 'components/DynamicSearch/DynamicSearch';
 
 const getAlleleApi = async (

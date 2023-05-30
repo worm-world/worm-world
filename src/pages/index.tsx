@@ -7,7 +7,7 @@ import { GiEarthWorm as WormIcon } from 'react-icons/gi';
 import { open } from '@tauri-apps/api/dialog';
 import { readTextFile } from '@tauri-apps/api/fs';
 import { toast } from 'react-toastify';
-import { CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter';
+import { type CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter';
 
 const CrossDesignerPage = (): JSX.Element => {
   const [crossTrees, setCrossTrees] = useState<CrossTree[]>([]);
@@ -24,8 +24,12 @@ const CrossDesignerPage = (): JSX.Element => {
 
   useEffect(() => {
     refreshTrees()
-      .then(() => setHasRefreshedOnce(true))
-      .catch((error) => console.error(error));
+      .then(() => {
+        setHasRefreshedOnce(true);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }, []);
 
   const newTreeButton = (
@@ -35,7 +39,9 @@ const CrossDesignerPage = (): JSX.Element => {
       onClick={() => {
         addTree()
           .then(refreshTrees)
-          .catch((err) => console.error(err));
+          .catch((err) => {
+            console.error(err);
+          });
       }}
     >
       New Tree
@@ -49,7 +55,9 @@ const CrossDesignerPage = (): JSX.Element => {
       onClick={() => {
         importTree()
           .then(refreshTrees)
-          .catch((err) => console.error(err));
+          .catch((err) => {
+            console.error(err);
+          });
       }}
     >
       Import
@@ -70,7 +78,9 @@ const CrossDesignerPage = (): JSX.Element => {
             return (
               <SavedTreeCard
                 refreshTrees={() => {
-                  refreshTrees().catch((error) => console.error(error));
+                  refreshTrees().catch((error) => {
+                    console.error(error);
+                  });
                 }}
                 key={crossTree.id}
                 tree={crossTree}
@@ -86,7 +96,7 @@ const CrossDesignerPage = (): JSX.Element => {
 const NoTreePlaceholder = (): JSX.Element => {
   return (
     <div className='m-14 flex flex-col items-center justify-center'>
-      <h2 className='text-2xl'>Welcome to the Cross Designer!</h2>
+      <h2 className='text-2xl'>Cross designs can be found here.</h2>
       <h2 className='my-4 flex flex-row text-xl'>
         Click the &quot;New Tree&quot; button to start.
       </h2>

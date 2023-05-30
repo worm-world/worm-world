@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
+import Spinner from 'components/Spinner/Spinner';
 
 const EditorPage = (): JSX.Element => {
   const [tree, setTree]: [CrossTree | null, (tree: CrossTree | null) => void] =
@@ -20,11 +21,13 @@ const EditorPage = (): JSX.Element => {
         fixTreeDeserialization(newTree);
         setTree(newTree);
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error(err);
+      });
   }, []);
 
   if (tree === null) {
-    return <>Loading</>;
+    return <Spinner />;
   } else {
     return <CrossEditor crossTree={tree} />;
   }
@@ -41,7 +44,7 @@ const fixTreeDeserialization = (tree: CrossTree): void => {
       const allelePairs: AllelePair[] = [];
       for (const key in chromPairObj) {
         allelePairs.push(
-          ...chromPairObj[key].map((pair: Object) =>
+          ...chromPairObj[key].map((pair: unknown) =>
             AllelePair.fromJSON(JSON.stringify(pair))
           )
         );

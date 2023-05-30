@@ -1,6 +1,6 @@
 import { Exclude, instanceToPlain, plainToInstance } from 'class-transformer';
-import { db_Variation } from 'models/db/db_Variation';
-import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
+import { type db_Variation } from 'models/db/db_Variation';
+import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 
 interface iVariation {
   name: string;

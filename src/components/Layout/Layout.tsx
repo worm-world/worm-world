@@ -1,7 +1,7 @@
-import { Link, To } from 'react-router-dom';
+import { Link, type To } from 'react-router-dom';
 import { BiCalendar, BiData } from 'react-icons/bi';
 import { TbBinaryTree } from 'react-icons/tb';
-import { Key, useEffect } from 'react';
+import { type Key, useEffect } from 'react';
 import { themeChange } from 'theme-change';
 
 interface LayoutProps {
@@ -9,8 +9,8 @@ interface LayoutProps {
 }
 
 interface NavItem {
-  name: String;
-  path: String;
+  name: string;
+  path: string;
   icon: JSX.Element;
 }
 

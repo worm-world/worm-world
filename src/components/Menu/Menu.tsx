@@ -14,7 +14,9 @@ export interface iMenu {
 export const Menu = (props: iMenu): JSX.Element => {
   return (
     <div
-      onClick={(e) => e.preventDefault()}
+      onClick={(e) => {
+        e.preventDefault();
+      }}
       className={`dropdown ${props.top === true ? 'dropdown-top' : ''}`}
       data-testid={'menu'}
     >

@@ -1,5 +1,5 @@
-import { db_Phenotype } from 'models/db/db_Phenotype';
-import { ColumnDefinitionType } from 'components/Table/Table';
+import { type db_Phenotype } from 'models/db/db_Phenotype';
+import { type ColumnDefinitionType } from 'components/Table/Table';
 import {
   deletePhenotype,
   getCountFilteredPhenotypes,
@@ -7,9 +7,9 @@ import {
   insertDbPhenotype,
   insertPhenotypesFromFile,
 } from 'api/phenotype';
-import { PhenotypeFieldName } from 'models/db/filter/db_PhenotypeFieldName';
+import { type PhenotypeFieldName } from 'models/db/filter/db_PhenotypeFieldName';
 import DataPage from 'components/DataPage/DataPage';
-import { Field } from 'components/ColumnFilter/ColumnFilter';
+import { type Field } from 'components/ColumnFilter/ColumnFilter';
 
 export const cols: Array<ColumnDefinitionType<db_Phenotype>> = [
   { key: 'name', header: 'Name' },

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { isEcaAlleleName, Allele } from 'models/frontend/Allele/Allele';
 import { Sex, sexToString, stringToSex } from 'models/enums';
 import { DynamicMultiSelect } from 'components/DynamicMultiSelect/DynamicMultiSelect';
-import { db_Allele } from 'models/db/db_Allele';
+import { type db_Allele } from 'models/db/db_Allele';
 import { AllelePair } from 'models/frontend/Strain/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { getFilteredAlleles } from 'api/allele';

@@ -1,10 +1,10 @@
 import { BiX as CloseIcon, BiPlus as PlusIcon } from 'react-icons/bi';
-import { ChangeEvent, HTMLInputTypeAttribute, useState } from 'react';
-import { Filter } from 'models/db/filter/Filter';
+import { type ChangeEvent, type HTMLInputTypeAttribute, useState } from 'react';
+import { type Filter } from 'models/db/filter/Filter';
 import {
-  FilterType,
+  type FilterType,
   getFilterType,
-  FormValueType,
+  type FormValueType,
   createNewFilter,
   filterValuesLengthForFilterType,
   getValuesForFilterType,

@@ -84,7 +84,9 @@ const Fields = <T,>(props: iFieldsProps<T>): JSX.Element => {
 
 const DataImportForm = <T,>(props: iDataImportFormProps<T>): JSX.Element => {
   const [isFormOpen, setFormOpen] = React.useState(false);
-  const handleOpen = (): void => setFormOpen(true);
+  const handleOpen = (): void => {
+    setFormOpen(true);
+  };
 
   const handleSubmit = (event: React.ChangeEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -116,7 +118,9 @@ const DataImportForm = <T,>(props: iDataImportFormProps<T>): JSX.Element => {
         }
       }
     }
-    props.onSubmitCallback(record, () => setFormOpen(false));
+    props.onSubmitCallback(record, () => {
+      setFormOpen(false);
+    });
   };
 
   return (
@@ -138,7 +142,9 @@ const DataImportForm = <T,>(props: iDataImportFormProps<T>): JSX.Element => {
       <div className='modal cursor-pointer'>
         <div
           className='absolute h-full w-full'
-          onClick={() => setFormOpen(false)}
+          onClick={() => {
+            setFormOpen(false);
+          }}
         />
         <div className='modal-box relative'>
           <h2 className='text-center text-3xl'>{'New ' + props.title}</h2>
