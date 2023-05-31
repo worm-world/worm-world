@@ -1,15 +1,15 @@
-import React, { useContext } from 'react';
-import { type CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
-import { Sex } from 'models/enums';
-import { IoMale, IoFemale, IoMaleFemale } from 'react-icons/io5';
-import { RiArrowUpDownLine as SwapIcon } from 'react-icons/ri';
-import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
-import { type AllelePair } from 'models/frontend/Strain/AllelePair';
-import { type Strain } from 'models/frontend/Strain/Strain';
-import { Menu } from 'components/Menu/Menu';
-import { BsLightningCharge as MenuIcon } from 'react-icons/bs';
 import BreedCountProbability from 'components/BreedCountProbability/BreedCountProbability';
 import { ShowGenesContext } from 'components/CrossEditor/CrossEditor';
+import { Menu } from 'components/Menu/Menu';
+import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
+import { Sex } from 'models/enums';
+import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
+import { type Strain } from 'models/frontend/Strain/Strain';
+import { type StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { useContext } from 'react';
+import { BsLightningCharge as MenuIcon } from 'react-icons/bs';
+import { IoFemale, IoMale, IoMaleFemale } from 'react-icons/io5';
+import { RiArrowUpDownLine as SwapIcon } from 'react-icons/ri';
 
 const getSexIcon = (
   sex: Sex,
@@ -32,11 +32,11 @@ const getSexIcon = (
   );
 };
 
-export interface iCrossNodeProps {
-  model: CrossNodeModel;
+export interface iStrainNodeProps {
+  model: StrainNodeModel;
 }
 
-const CrossNode = (props: iCrossNodeProps): JSX.Element => {
+const StrainNode = (props: iStrainNodeProps): JSX.Element => {
   const menuItems =
     props.model?.getMenuItems !== undefined
       ? props.model.getMenuItems(props.model)
@@ -50,7 +50,7 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
     <>
       {props.model !== undefined && (
         <div
-          data-testid='crossNode'
+          data-testid='strainNode'
           className='h-[7.75rem] w-64 rounded bg-base-100 shadow'
         >
           <div className='flex h-7 justify-between'>
@@ -93,7 +93,7 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
           <div className='mt-2 overflow-x-auto px-3 pb-1'>
             <div
               className='flex min-w-min justify-center text-sm'
-              data-testid='crossNodeBody'
+              data-testid='strainNodeBody'
             >
               {getMainContentArea(
                 props.model.strain,
@@ -108,7 +108,7 @@ const CrossNode = (props: iCrossNodeProps): JSX.Element => {
   );
 };
 
-// Return the main content area of the cross node, which will show genotype information
+// Return the main content area of the strain node, which will show genotype information
 const getMainContentArea = (
   strain: Strain,
   canToggleHets: boolean,
@@ -263,4 +263,4 @@ const getMutationBox = (
   }
 };
 
-export default CrossNode;
+export default StrainNode;

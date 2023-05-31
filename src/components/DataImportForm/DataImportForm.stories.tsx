@@ -1,14 +1,13 @@
-import React from 'react';
 import { Meta, StoryFn } from '@storybook/react';
 import DataImportForm, {
   FieldType,
   iDataImportFormProps,
 } from 'components/DataImportForm/DataImportForm';
 import { db_Allele } from 'models/db/db_Allele';
-import { db_Gene } from 'models/db/db_Gene';
-import { chromosomes } from 'models/frontend/Chromosome';
 import { db_Condition } from 'models/db/db_Condition';
+import { db_Gene } from 'models/db/db_Gene';
 import { db_Phenotype } from 'models/db/db_Phenotype';
+import { chromosomes } from 'models/frontend/Chromosome';
 
 export default {
   title: 'Components/DataImportForm',
@@ -50,7 +49,7 @@ export const AlleleForm = Template<db_Allele>().bind({});
 AlleleForm.args = {
   dataName: 'Allele Form',
   fields: alleleFields,
-  onSubmitCallback: (record: db_Allele, onSuccess: () => void) => {
+  onSubmit: (record: db_Allele, onSuccess: () => void) => {
     alert('submitted record');
     onSuccess();
   },
@@ -89,7 +88,7 @@ export const GeneForm = Template<db_Gene>().bind({});
 GeneForm.args = {
   dataName: 'Gene Form',
   fields: geneFields,
-  onSubmitCallback: (record: db_Gene, onSuccess: () => void) => {
+  onSubmit: (record: db_Gene, onSuccess: () => void) => {
     alert('submitted record');
     onSuccess();
   },
@@ -137,7 +136,7 @@ export const ConditionForm = Template<db_Condition>().bind({});
 ConditionForm.args = {
   dataName: 'Condition Form',
   fields: conditionFields,
-  onSubmitCallback: (record: db_Condition, onSuccess: () => void) => {
+  onSubmit: (record: db_Condition, onSuccess: () => void) => {
     alert('submitted record');
     onSuccess();
   },
@@ -195,7 +194,7 @@ export const PhenotypeForm = Template<db_Phenotype>().bind({});
 PhenotypeForm.args = {
   dataName: 'Phenotype Form',
   fields: phenotypeFields,
-  onSubmitCallback: (record: db_Phenotype, onSuccess: () => void) => {
+  onSubmit: (record: db_Phenotype, onSuccess: () => void) => {
     alert('submitted record');
     onSuccess();
   },
@@ -205,7 +204,7 @@ export const EmptyForm = Template<db_Allele>().bind({});
 EmptyForm.args = {
   dataName: 'Empty Form',
   fields: [],
-  onSubmitCallback: (record: db_Allele, onSuccess: () => void) => {
+  onSubmit: (record: db_Allele, onSuccess: () => void) => {
     alert('submitted');
     onSuccess();
   },

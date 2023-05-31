@@ -1,21 +1,21 @@
 import { render, screen } from '@testing-library/react';
-import * as mock from 'models/frontend/CrossNode/CrossNode.mock';
-import CrossNode, { cmpChromosomes } from 'components/CrossNode/CrossNode';
+import StrainNode, { cmpChromosomes } from 'components/StrainNode/StrainNode';
 import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
-describe('CrossNode component', () => {
+import * as mock from 'models/frontend/StrainNode/StrainNode.mock';
+describe('StrainNode component', () => {
   test('Empty node shows "wild" label', () => {
     const emptyNode = mock.empty;
-    render(<CrossNode model={emptyNode} />);
+    render(<StrainNode model={emptyNode} />);
 
-    const body = screen.getByTestId('crossNodeBody');
+    const body = screen.getByTestId('strainNodeBody');
     expect(body).toHaveTextContent(/wild/i);
   });
 
-  test('Wild cross node shows sections', () => {
+  test('Wild strain node shows sections', () => {
     const wildNode = mock.wild; // See wild node for details
-    render(<CrossNode model={wildNode} />);
+    render(<StrainNode model={wildNode} />);
 
-    const body = screen.getByTestId('crossNodeBody');
+    const body = screen.getByTestId('strainNodeBody');
     expect(body).not.toBeEmptyDOMElement();
     const chromosomeISection = screen.getByText(/^I$/);
     expect(chromosomeISection).toBeDefined();
@@ -69,7 +69,7 @@ describe('CrossNode component', () => {
     const wildNode = mock.wild;
     wildNode.probability = 0.25;
     wildNode.isChild = true;
-    render(<CrossNode model={wildNode} />);
+    render(<StrainNode model={wildNode} />);
     const prob1 = screen.getByTestId('progress-0.8');
     expect(prob1).not.toBeNull();
     const prob2 = screen.getByTestId('progress-0.9');

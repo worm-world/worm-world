@@ -394,7 +394,7 @@ mod test {
                 allele_name: "oxIs644".to_string(),
                 expressing_phenotype_name: "YFP(pharynx)".to_string(),
                 expressing_phenotype_wild: false,
-                dominance: Some(2),
+                dominance: 2,
             })
             .await?;
 
@@ -480,7 +480,7 @@ oxIs644,YFP(pharynx),0,Flp,1,,0"
                 allele_name: "oxIs644".to_string(),
                 expressing_phenotype_name: "YFP(pharynx)".to_string(),
                 expressing_phenotype_wild: false,
-                dominance: Some(2),
+                dominance: 2,
             })
             .await?;
 

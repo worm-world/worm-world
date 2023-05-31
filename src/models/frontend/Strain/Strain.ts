@@ -1,6 +1,6 @@
 import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 import { type Allele } from 'models/frontend/Allele/Allele';
-import { AllelePair } from 'models/frontend/Strain/AllelePair';
+import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import {
   Exclude,
   Transform,
@@ -34,6 +34,9 @@ interface iStrain {
   description?: string;
 }
 
+/**
+ * A (possibly named) genetic profile consisting of an ordered sequence of any non-wild allele pairs.
+ */
 export class Strain {
   /* #region initializers */
   @Transform(
@@ -69,6 +72,16 @@ export class Strain {
       this.addPairsToStrain(props.allelePairs);
     }
     this.chromPairMap = new Map(this.chromPairMap);
+  }
+
+  static createFromRecord(record: db_Strain): Strain {
+    const allelePairs: AllelePair[] = [];
+
+    return new Strain({
+      name: record.name ?? undefined,
+      description: record.description ?? undefined,
+      allelePairs,
+    });
   }
   /* #endregion initializers */
 

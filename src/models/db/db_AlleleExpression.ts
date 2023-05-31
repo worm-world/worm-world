@@ -4,5 +4,5 @@ export interface db_AlleleExpression {
   alleleName: string;
   expressingPhenotypeName: string;
   expressingPhenotypeWild: boolean;
-  dominance: number | null;
+  dominance: number;
 }

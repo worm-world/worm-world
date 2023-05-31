@@ -1,11 +1,11 @@
-import { type FilterGroup } from 'models/db/filter/FilterGroup';
-import React, { useState } from 'react';
+import { getFilteredAllelesWithGeneFilter } from 'api/allele';
 import { getSelectedPills } from 'components/SelectedPill/SelectedPill';
-import { type AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
-import { type GeneFieldName } from 'models/db/filter/db_GeneFieldName';
 import { type db_Allele } from 'models/db/db_Allele';
 import { type db_Gene } from 'models/db/db_Gene';
-import { getFilteredAllelesWithGeneFilter } from 'api/allele';
+import { type FilterGroup } from 'models/db/filter/FilterGroup';
+import { type AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
+import { type GeneFieldName } from 'models/db/filter/db_GeneFieldName';
+import React, { useState } from 'react';
 
 export interface iAlleleMultiSelect {
   /** provide the api call that will fetch filtered db records */

@@ -28,7 +28,7 @@ interface AlleleState {
   contents?: string;
 }
 
-// Allele should always have exactly one of (1) gene or (2) Variation
+// Allele should always have exactly one of (1) gene or (2) variation
 export class Allele {
   name: string = '';
 

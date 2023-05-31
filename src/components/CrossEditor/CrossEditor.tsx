@@ -1,63 +1,63 @@
-import {
-  useState,
-  useCallback,
-  useEffect,
-  useRef,
-  type MouseEvent as ReactMouseEvent,
-  Fragment,
-  type TouchEvent as ReactTouchEvent,
-  createContext,
-} from 'react';
-import CrossFlow, { FlowType } from 'components/CrossFlow/CrossFlow';
-import CrossNodeForm from 'components/CrossNodeForm/CrossNodeForm';
-import EditorTop from 'components/EditorTop/EditorTop';
-import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
-import RightDrawer from 'components/RightDrawer/RightDrawer';
-import CrossTree from 'models/frontend/CrossTree/CrossTree';
-import {
-  type Edge,
-  type Connection,
-  type Node,
-  applyNodeChanges,
-  type NodeChange,
-  type NodeRemoveChange,
-  type XYPosition,
-  useEdgesState,
-  type ReactFlowInstance,
-  type OnConnectStartParams,
-  Position,
-  type NodePositionChange,
-  type NodeDimensionChange,
-  type NodeAddChange,
-  type NodeResetChange,
-  type NodeSelectionChange,
-} from 'reactflow';
 import { insertTree, updateTree } from 'api/crossTree';
-import { type Strain, type StrainOption } from 'models/frontend/Strain/Strain';
-import { Sex } from 'models/enums';
-import { FiPlusCircle as AddIcon } from 'react-icons/fi';
-import { FaRegStickyNote as NoteIcon } from 'react-icons/fa';
-import { type MenuItem } from 'components/Menu/Menu';
-import { BsUiChecks as ScheduleIcon } from 'react-icons/bs';
-import { TbArrowsCross as CrossIcon } from 'react-icons/tb';
-import { ImLoop2 as SelfCrossIcon } from 'react-icons/im';
-import { toast } from 'react-toastify';
 import { insertDbTasks } from 'api/task';
-import { useNavigate } from 'react-router-dom';
-import NoteForm from 'components/NoteForm/NoteForm';
-import { NoteNodeProps } from 'components/NoteNode/NoteNodeProps';
-import { type AllelePair } from 'models/frontend/Strain/AllelePair';
 import {
   ContextMenu,
   useContextMenuState,
 } from 'components/ContextMenu/ContextMenu';
-import { CrossFilterModal } from 'components/CrossFilterModal/CrossFilterModal';
 import {
   CrossEditorFilter,
   type CrossEditorFilterUpdate,
 } from 'components/CrossFilterModal/CrossEditorFilter';
-import { type FilteredOutNodeProps } from 'components/FilteredOutNode/FilteredOutNode';
+import { CrossFilterModal } from 'components/CrossFilterModal/CrossFilterModal';
+import CrossFlow, { FlowType } from 'components/CrossFlow/CrossFlow';
+import EditorTop from 'components/EditorTop/EditorTop';
 import FilteredOutModal from 'components/FilteredOutModal/FilteredOutModal';
+import { type FilteredOutNodeProps } from 'components/FilteredOutNode/FilteredOutNode';
+import { type MenuItem } from 'components/Menu/Menu';
+import NoteForm from 'components/NoteForm/NoteForm';
+import { NoteNodeProps } from 'components/NoteNode/NoteNodeProps';
+import RightDrawer from 'components/RightDrawer/RightDrawer';
+import StrainNodeForm from 'components/StrainNodeForm/StrainNodeForm';
+import { Sex } from 'models/enums';
+import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
+import CrossTree from 'models/frontend/CrossTree/CrossTree';
+import { type Strain, type StrainOption } from 'models/frontend/Strain/Strain';
+import { StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import {
+  Fragment,
+  createContext,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+  type TouchEvent as ReactTouchEvent,
+} from 'react';
+import { BsUiChecks as ScheduleIcon } from 'react-icons/bs';
+import { FaRegStickyNote as NoteIcon } from 'react-icons/fa';
+import { FiPlusCircle as AddIcon } from 'react-icons/fi';
+import { ImLoop2 as SelfCrossIcon } from 'react-icons/im';
+import { TbArrowsCross as CrossIcon } from 'react-icons/tb';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import {
+  Position,
+  applyNodeChanges,
+  useEdgesState,
+  type Connection,
+  type Edge,
+  type Node,
+  type NodeAddChange,
+  type NodeChange,
+  type NodeDimensionChange,
+  type NodePositionChange,
+  type NodeRemoveChange,
+  type NodeResetChange,
+  type NodeSelectionChange,
+  type OnConnectStartParams,
+  type ReactFlowInstance,
+  type XYPosition,
+} from 'reactflow';
 
 export interface CrossEditorProps {
   crossTree: CrossTree;
@@ -179,7 +179,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         node.data = copyNodeData(node, {
           isParent: false,
           toggleNodeSex: () => {
-            toggleCrossNodeSex(node.id);
+            toggleStrainNodeSex(node.id);
           },
           toggleNodeHetPair: (pair) => {
             toggleHetPair(pair, node.id);
@@ -278,8 +278,8 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         return nodeMap;
       }
 
-      const lStrain: CrossNodeModel = lNode.data;
-      const rStrain: CrossNodeModel = rNode.data;
+      const lStrain: StrainNodeModel = lNode.data;
+      const rStrain: StrainNodeModel = rNode.data;
 
       if (lStrain.sex !== Sex.Male || rStrain.sex !== Sex.Hermaphrodite) {
         toast.error('Can only cross strains that are different sexes');
@@ -312,7 +312,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
 
       if (currNode === undefined) return nodeMap;
       if (currNode.type !== FlowType.Strain) return nodeMap;
-      const currStrain: CrossNodeModel = currNode.data;
+      const currStrain: StrainNodeModel = currNode.data;
 
       if (currStrain.isParent) {
         toast.error('Unable to cross a strain already involved in a cross');
@@ -351,19 +351,19 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
           const nodes = [...nodeMap.values()];
           const refreshedNodes = nodes.map((node) => {
             if (node.type === FlowType.Strain) {
-              const data: CrossNodeModel = node.data;
-              node.data = new CrossNodeModel({
+              const data: StrainNodeModel = node.data;
+              node.data = new StrainNodeModel({
                 sex: data.sex,
                 strain: data.strain,
                 probability: data.probability,
                 isParent: data.isParent,
                 isChild: data.isChild,
-                getMenuItems: (model: CrossNodeModel) =>
-                  getCrossNodeMenuItems(model, node.id, data.isParent),
+                getMenuItems: (model: StrainNodeModel) =>
+                  getStrainNodeMenuItems(model, node.id, data.isParent),
                 toggleSex: data.isParent
                   ? undefined
                   : () => {
-                      toggleCrossNodeSex(node.id);
+                      toggleStrainNodeSex(node.id);
                     },
                 toggleHetPair: (pair) => {
                   toggleHetPair(pair, node.id);
@@ -416,25 +416,25 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     parentNode?: string;
     probability?: number;
     id?: string;
-  }): Node<CrossNodeModel> => {
+  }): Node<StrainNodeModel> => {
     const nodeId = id ?? props.crossTree.createId();
     const strainNode: Node = {
       id: nodeId,
       type: FlowType.Strain,
       position,
       parentNode,
-      data: new CrossNodeModel({
+      data: new StrainNodeModel({
         sex,
         strain,
         probability,
         isParent,
         isChild,
-        getMenuItems: (node: CrossNodeModel) =>
-          getCrossNodeMenuItems(node, nodeId, isParent),
+        getMenuItems: (node: StrainNodeModel) =>
+          getStrainNodeMenuItems(node, nodeId, isParent),
         toggleSex: isParent
           ? undefined
           : () => {
-              toggleCrossNodeSex(nodeId);
+              toggleStrainNodeSex(nodeId);
             },
         toggleHetPair: (pair) => {
           toggleHetPair(pair, nodeId);
@@ -461,7 +461,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   };
 
   /** Creates a node representing the x icon */
-  const createXIcon = (parentNode: Node<CrossNodeModel>): Node => {
+  const createXIcon = (parentNode: Node<StrainNodeModel>): Node => {
     const position = CrossTree.getXIconPos(parentNode);
     const newXIcon: Node = {
       id: props.crossTree.createId(),
@@ -532,8 +532,8 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   // #endregion Flow Component Creation
 
   // #region editor interactions
-  /** Passed to cross node, determines what happens when the sex icon is clicked */
-  const toggleCrossNodeSex = (nodeId: string): void => {
+  /** Passed to strain node, determines what happens when the sex icon is clicked */
+  const toggleStrainNodeSex = (nodeId: string): void => {
     setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
       const node = nodeMap.get(nodeId);
       if (node === undefined || node.type !== FlowType.Strain) {
@@ -543,7 +543,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         return nodeMap;
       }
 
-      const data: CrossNodeModel = node.data;
+      const data: StrainNodeModel = node.data;
       if (data.sex === undefined || data.sex === null) return nodeMap;
 
       // need to create a new node with the updated data so the state knows something has changed
@@ -576,7 +576,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         return nodeMap;
       }
 
-      const data: CrossNodeModel = node.data;
+      const data: StrainNodeModel = node.data;
 
       pair.flip();
       // replace node with new node of toggled pair
@@ -656,7 +656,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       // Mark nodes as (in)visible
       setNodeMap((nodeMap) => {
         setInvisibleNodes((invisibleNodes: Set<string>): Set<string> => {
-          const childList: Array<Node<CrossNodeModel>> = [
+          const childList: Array<Node<StrainNodeModel>> = [
             ...nodeMap.values(),
           ].filter(
             (node) =>
@@ -779,8 +779,8 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   };
 
   const regularCross = (
-    lNode: Node<CrossNodeModel>,
-    rNode: Node<CrossNodeModel>
+    lNode: Node<StrainNodeModel>,
+    rNode: Node<StrainNodeModel>
   ): void => {
     // Mark as parents
     lNode.data = copyNodeData(lNode, { isParent: true });
@@ -825,7 +825,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     saveTree();
   };
 
-  /** Create a collection of cross nodes to represent children of a cross, from child strain options */
+  /** Create a collection of strain nodes to represent children of a cross, from child strain options */
   const getChildNodes = (
     parentNode: Node,
     middleNode: Node,
@@ -871,7 +871,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   };
 
   /**
-   * Params are provided by the crossNode form's onSubmit callback function
+   * Params are provided by the strainNode form's onSubmit callback function
    */
   const regularCrossWithFormData = (sex: Sex, strain: Strain): void => {
     setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
@@ -883,7 +883,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         return nodeMap;
       }
 
-      const currStrain: CrossNodeModel = startingNode.data;
+      const currStrain: StrainNodeModel = startingNode.data;
       const formNode = createStrainNode({
         sex,
         strain,
@@ -903,34 +903,34 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
 
   /** Clones the passed node's data and optionally marks as a parent/child */
   const copyNodeData = (
-    node: Node<CrossNodeModel>,
+    node: Node<StrainNodeModel>,
     {
       isChild = node.data.isChild,
       isParent = node.data.isParent,
       toggleNodeSex = node.data.toggleSex,
       toggleNodeHetPair = node.data.toggleHetPair,
     }
-  ): CrossNodeModel => {
-    const updatedParentData = new CrossNodeModel({
+  ): StrainNodeModel => {
+    const updatedParentData = new StrainNodeModel({
       sex: node.data.sex,
       strain: node.data.strain,
       isChild,
       isParent,
       probability: node.data.probability,
-      getMenuItems: () => getCrossNodeMenuItems(node.data, node.id, isParent),
+      getMenuItems: () => getStrainNodeMenuItems(node.data, node.id, isParent),
       toggleHetPair: isParent || isChild ? undefined : toggleNodeHetPair,
       toggleSex: isParent ? undefined : toggleNodeSex, // disable toggle action
     });
     return updatedParentData;
   };
 
-  const getCrossNodeMenuItems = (
-    crossNode: CrossNodeModel | null | undefined,
+  const getStrainNodeMenuItems = (
+    strainNode: StrainNodeModel | null | undefined,
     nodeId: string,
     isParent: boolean = false
   ): MenuItem[] => {
-    if (crossNode === undefined || crossNode === null) return [];
-    const canSelfCross = crossNode.sex === Sex.Hermaphrodite;
+    if (strainNode === undefined || strainNode === null) return [];
+    const canSelfCross = strainNode.sex === Sex.Hermaphrodite;
     const selfOption: MenuItem = {
       icon: <SelfCrossIcon />,
       text: 'Self-cross',
@@ -1115,7 +1115,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
                 >
                   <button className='flex flex-row' name='add-cross-node'>
                     <AddIcon className='text-xl text-base-content' />
-                    <p>Add Cross Node</p>
+                    <p>Add Strain</p>
                   </button>
                 </li>
                 <li
@@ -1196,8 +1196,8 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
                   callback={getOnSubmitForNoteForm()}
                 />
               ) : (
-                <CrossNodeForm
-                  onSubmitCallback={getOnSubmitForStrainForm()}
+                <StrainNodeForm
+                  onSubmit={getOnSubmitForStrainForm()}
                   enforcedSex={enforcedSex}
                 />
               )}

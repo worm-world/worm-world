@@ -1,14 +1,14 @@
-import { render, screen } from '@testing-library/react';
-import CrossNodeForm from 'components/CrossNodeForm/CrossNodeForm';
-import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
-import user from '@testing-library/user-event';
-import { type Sex } from 'models/enums';
-import { type Strain } from 'models/frontend/Strain/Strain';
-import { beforeEach, test, describe, expect } from 'vitest';
 import { clearMocks, mockIPC } from '@tauri-apps/api/mocks';
+import { render, screen } from '@testing-library/react';
+import user from '@testing-library/user-event';
+import StrainNodeForm from 'components/StrainNodeForm/StrainNodeForm';
 import { type db_Allele } from 'models/db/db_Allele';
+import { type Sex } from 'models/enums';
 import { ed3 } from 'models/frontend/Allele/Allele.mock';
 import { unc119 } from 'models/frontend/Gene/Gene.mock';
+import { type Strain } from 'models/frontend/Strain/Strain';
+import { StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { beforeEach, describe, expect, test } from 'vitest';
 
 describe('Cross node form', () => {
   beforeEach(() => {
@@ -31,9 +31,9 @@ describe('Cross node form', () => {
   test('Create a new node', async () => {
     user.setup();
 
-    let crossNodeModel: CrossNodeModel | undefined;
+    let strainNodeModel: StrainNodeModel | undefined;
     const addNewNodeToFlow = (sex: Sex, strain: Strain): void => {
-      crossNodeModel = new CrossNodeModel({
+      strainNodeModel = new StrainNodeModel({
         sex,
         strain,
         isChild: false,
@@ -41,7 +41,7 @@ describe('Cross node form', () => {
       });
     };
 
-    render(<CrossNodeForm onSubmitCallback={addNewNodeToFlow} />);
+    render(<StrainNodeForm onSubmit={addNewNodeToFlow} />);
 
     // Choose allele
     await user.click(screen.getByLabelText('Homozygous Alleles'));
@@ -51,9 +51,9 @@ describe('Cross node form', () => {
     await user.click(option);
 
     // Press submit
-    await user.click(screen.getByRole('button', { name: /create/i }));
+    await user.click(screen.getByRole('button', { name: /add/i }));
 
-    expect(crossNodeModel).toBeDefined();
+    expect(strainNodeModel).toBeDefined();
   });
 
   test('Keep alleles consistent with chosen genes', async () => {
@@ -79,7 +79,7 @@ describe('Cross node form', () => {
       }
     });
 
-    render(<CrossNodeForm onSubmitCallback={() => {}} />);
+    render(<StrainNodeForm onSubmit={() => {}} />);
 
     // Choose allele
     await user.click(screen.getByLabelText('Homozygous Alleles'));
@@ -95,7 +95,7 @@ describe('Cross node form', () => {
   test('Can only select allele once per select', async () => {
     user.setup();
 
-    render(<CrossNodeForm onSubmitCallback={() => {}} />);
+    render(<StrainNodeForm onSubmit={() => {}} />);
 
     // Choose allele
     await user.click(screen.getByLabelText('Homozygous Alleles'));
@@ -109,7 +109,7 @@ describe('Cross node form', () => {
   test('No input gives no options', async () => {
     user.setup();
 
-    render(<CrossNodeForm onSubmitCallback={() => {}} />);
+    render(<StrainNodeForm onSubmit={() => {}} />);
     await user.click(screen.getByLabelText('Homozygous Alleles'));
     await user.keyboard('e');
     expect(screen.getByText(/ed3/i)).toBeVisible();

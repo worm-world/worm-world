@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'vitest';
-import { CrossNodeModel } from './CrossNode';
-import { e204HetOx802Het } from './CrossNode.mock';
+import { StrainNodeModel } from './StrainNode';
+import { e204HetOx802Het } from './StrainNode.mock';
 
-describe('CrossNodeModel', () => {
+describe('StrainNodeModel', () => {
   test('should be able to (de)serialize', () => {
     const str = e204HetOx802Het.toJSON();
-    const e204HetOx802Het3Back = CrossNodeModel.fromJSON(str);
+    const e204HetOx802Het3Back = StrainNodeModel.fromJSON(str);
     expect(e204HetOx802Het3Back.toJSON()).toEqual(e204HetOx802Het.toJSON());
     expect(e204HetOx802Het3Back.strain).toEqual(e204HetOx802Het.strain);
     expect(e204HetOx802Het3Back.strain.chromPairMap).toEqual(

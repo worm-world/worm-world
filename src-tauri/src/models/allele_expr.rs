@@ -12,7 +12,7 @@ pub struct AlleleExpression {
     pub expressing_phenotype_name: String,
     #[serde(rename = "expressingPhenotypeWild")]
     pub expressing_phenotype_wild: bool,
-    pub dominance: Option<u8>,
+    pub dominance: u8,
 }
 
 impl From<AlleleExpressionDb> for AlleleExpression {
@@ -21,7 +21,7 @@ impl From<AlleleExpressionDb> for AlleleExpression {
             allele_name: item.allele_name,
             expressing_phenotype_name: item.expressing_phenotype_name,
             expressing_phenotype_wild: item.expressing_phenotype_wild == 1,
-            dominance: item.dominance.map(|v| v as u8),
+            dominance: item.dominance as u8,
         }
     }
 }
@@ -34,7 +34,7 @@ pub struct AlleleExpressionDb {
     pub expressing_phenotype_name: String,
     #[serde(rename = "expressingPhenotypeWild")]
     pub expressing_phenotype_wild: i64,
-    pub dominance: Option<i64>,
+    pub dominance: i64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, TS)]

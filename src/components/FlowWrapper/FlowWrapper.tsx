@@ -1,6 +1,6 @@
-import CrossNode from 'components/CrossNode/CrossNode';
+import StrainNode from 'components/StrainNode/StrainNode';
 import { Sex } from 'models/enums';
-import { type CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
+import { type StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
 import { Handle, Position } from 'reactflow';
 import { XNode, type XNodeProps } from 'components/XNode/XNode';
 import { type SelfIconProps, SelfNode } from 'components/SelfNode/SelfNode';
@@ -11,7 +11,7 @@ import FilteredOutNode, {
 } from 'components/FilteredOutNode/FilteredOutNode';
 
 export interface iStrainFlowWrapper {
-  data: CrossNodeModel;
+  data: StrainNodeModel;
 }
 
 export const StrainFlowWrapper = (props: iStrainFlowWrapper): JSX.Element => {
@@ -51,7 +51,7 @@ export const StrainFlowWrapper = (props: iStrainFlowWrapper): JSX.Element => {
           position={Position.Bottom}
         />
       </div>
-      <CrossNode model={props.data} />
+      <StrainNode model={props.data} />
     </div>
   );
 };

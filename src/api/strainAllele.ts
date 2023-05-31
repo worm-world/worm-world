@@ -2,8 +2,8 @@ import { invoke } from '@tauri-apps/api/tauri';
 import { type db_StrainAllele } from 'models/db/db_StrainAllele';
 import { type StrainAlleleFieldName } from 'models/db/filter/db_StrainAlleleFieldName';
 import {
-  type FilterGroup,
   getSingleRecordOrThrow,
+  type FilterGroup,
 } from 'models/db/filter/FilterGroup';
 import { type StrainAllele } from 'models/frontend/StrainAllele/StrainAllele';
 
@@ -22,7 +22,7 @@ export const getFilteredStrainAlleles = async (
 export const getCountFilteredStrainAlleles = async (
   filter: FilterGroup<StrainAlleleFieldName>
 ): Promise<number> => {
-  return await invoke('get_filtered_strain_alleles', {
+  return await invoke('get_count_filtered_strain_alleles', {
     filter,
   });
 };

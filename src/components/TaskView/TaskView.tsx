@@ -1,4 +1,4 @@
-import CrossNode from 'components/CrossNode/CrossNode';
+import StrainNode from 'components/StrainNode/StrainNode';
 import { type Task, getConditionsFromTask } from 'models/frontend/Task/Task';
 import {
   TbSnowflake as FreezeIcon,
@@ -63,7 +63,7 @@ const TaskItem = (props: iTaskProps): JSX.Element => {
         </div>
         <div className='mr-4 flex grow flex-row items-center justify-between py-8 pl-6 pr-3'>
           <div className='flex flex-row justify-center'>
-            {leftStrain !== undefined && <CrossNode model={leftStrain} />}
+            {leftStrain !== undefined && <StrainNode model={leftStrain} />}
             <div className='mx-4 flex flex-col justify-center'>
               <div className='indicator'>
                 {conditionAmount > 0 && (
@@ -90,11 +90,11 @@ const TaskItem = (props: iTaskProps): JSX.Element => {
               </div>
             </div>
             {action === 'Cross' && rightStrain !== undefined && (
-              <CrossNode model={rightStrain} />
+              <StrainNode model={rightStrain} />
             )}
             {action === 'SelfCross' && <div className='ml-4 w-60' />}
             <div className='divider lg:divider-horizontal'>To</div>
-            {result !== undefined && <CrossNode model={result} />}
+            {result !== undefined && <StrainNode model={result} />}
           </div>
           <textarea
             // value={props.task.notes ?? ""}

@@ -5,7 +5,7 @@ import CrossEditor from 'components/CrossEditor/CrossEditor';
 import { useEffect, useState } from 'react';
 import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { Strain } from 'models/frontend/Strain/Strain';
-import { AllelePair } from 'models/frontend/Strain/AllelePair';
+import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import Spinner from 'components/Spinner/Spinner';
 
 const EditorPage = (): JSX.Element => {

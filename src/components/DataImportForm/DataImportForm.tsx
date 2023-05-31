@@ -13,7 +13,7 @@ export interface iDataImportFormProps<T> {
   title: string;
   dataName: string;
   fields: Array<FieldType<T>>;
-  onSubmitCallback: (arg0: T, successCallback: () => void) => void;
+  onSubmit: (arg0: T, successCallback: () => void) => void;
 }
 
 interface iFieldsProps<T> {
@@ -118,7 +118,7 @@ const DataImportForm = <T,>(props: iDataImportFormProps<T>): JSX.Element => {
         }
       }
     }
-    props.onSubmitCallback(record, () => {
+    props.onSubmit(record, () => {
       setFormOpen(false);
     });
   };

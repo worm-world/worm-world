@@ -13,7 +13,7 @@ describe('DataImportForm ', () => {
         title='Empty Form'
         dataName={'Empty Form'}
         fields={[]}
-        onSubmitCallback={vi.fn}
+        onSubmit={vi.fn}
       />
     );
 
@@ -30,7 +30,7 @@ describe('DataImportForm ', () => {
         title='Empty Form'
         dataName={'Empty Form'}
         fields={[]}
-        onSubmitCallback={onSubmit}
+        onSubmit={onSubmit}
       />
     );
 
@@ -70,7 +70,7 @@ describe('DataImportForm ', () => {
         title='Allele Form'
         dataName={'Allele Form'}
         fields={fields}
-        onSubmitCallback={vi.fn()}
+        onSubmit={vi.fn()}
       />
     );
 

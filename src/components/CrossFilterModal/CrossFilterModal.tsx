@@ -1,5 +1,5 @@
-import CrossNode from 'components/CrossNode/CrossNode';
-import { type CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
+import StrainNode from 'components/StrainNode/StrainNode';
+import { type StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
 import { type Node } from 'reactflow';
 import {
   CrossEditorFilter,
@@ -9,7 +9,7 @@ import {
 import React, { useEffect, useState } from 'react';
 export interface CrossFilterProps {
   nodeId?: string;
-  childNodes: Array<Node<CrossNodeModel>>;
+  childNodes: Array<Node<StrainNodeModel>>;
   invisibleSet: Set<string>;
   toggleVisible: (nodeId: string) => void;
 
@@ -162,7 +162,7 @@ const FilterList = (props: {
 
 const StrainList = (props: {
   nodeId?: string;
-  childNodes: Array<Node<CrossNodeModel>>;
+  childNodes: Array<Node<StrainNodeModel>>;
   invisibleSet: Set<string>;
   toggleVisible: (nodeId: string) => void;
   filter?: CrossEditorFilter;
@@ -172,7 +172,7 @@ const StrainList = (props: {
   );
   const [allSelected, setAllSelected] = useState(true);
 
-  const isVisible = (node: Node<CrossNodeModel>): boolean =>
+  const isVisible = (node: Node<StrainNodeModel>): boolean =>
     !props.invisibleSet.has(node.id);
 
   useEffect(() => {
@@ -218,7 +218,7 @@ const StrainList = (props: {
             key={`cross-filter-modal-${props.nodeId}-item-${idx++}-checkbox`}
             readOnly
           />
-          <CrossNode model={strain.data} />
+          <StrainNode model={strain.data} />
         </div>
       </li>
     );

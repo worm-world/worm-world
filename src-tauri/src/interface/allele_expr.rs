@@ -334,7 +334,7 @@ mod test {
             allele_name: "cn64".to_string(),
             expressing_phenotype_name: "dpy-10".to_string(),
             expressing_phenotype_wild: false,
-            dominance: Some(0),
+            dominance: 0,
         };
 
         state.insert_allele_expr(&expr).await?;
@@ -392,7 +392,7 @@ cn64,\"dpy-10\",0,0"
             allele_name: "cn64".to_string(),
             expressing_phenotype_name: "dpy-10".to_string(),
             expressing_phenotype_wild: false,
-            dominance: Some(0),
+            dominance: 0,
         }];
         let exprs = state.get_allele_exprs().await?;
         assert_eq!(expected_exprs, exprs);

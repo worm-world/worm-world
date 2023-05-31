@@ -24,7 +24,7 @@ const createExpr = ({
   suppressingPhenotypes?: Phenotype[];
   requiredConditions?: Condition[];
   suppressingConditions?: Condition[];
-  dominance?: Dominance;
+  dominance: Dominance;
 }): AlleleExpression => {
   return new AlleleExpression({
     alleleName,

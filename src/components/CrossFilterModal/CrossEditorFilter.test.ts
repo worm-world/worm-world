@@ -1,6 +1,6 @@
 import { expect, test, describe } from 'vitest';
 import { ed3, n765 } from 'models/frontend/Allele/Allele.mock';
-import { AllelePair } from 'models/frontend/Strain/AllelePair';
+import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter';
 import { ed3HomoHerm } from 'models/frontend/CrossTree/CrossTree.mock';

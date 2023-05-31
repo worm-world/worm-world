@@ -4,7 +4,7 @@ import {
   insertDbStrainAllele,
   insertStrainAllelesFromFile,
   deleteStrainAllele,
-} from 'api/strainAlleles';
+} from 'api/strainAllele';
 import { type Field } from 'components/ColumnFilter/ColumnFilter';
 import DataPage from 'components/DataPage/DataPage';
 import { type ColumnDefinitionType } from 'components/Table/Table';

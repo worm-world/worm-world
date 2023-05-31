@@ -1,10 +1,10 @@
+import { open } from '@tauri-apps/api/dialog';
+import { type Field } from 'components/ColumnFilter/ColumnFilter';
+import DataImportForm from 'components/DataImportForm/DataImportForm';
+import { Table, type ColumnDefinitionType } from 'components/Table/Table';
+import { type FilterGroup } from 'models/db/filter/FilterGroup';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { Table, type ColumnDefinitionType } from 'components/Table/Table';
-import DataImportForm from 'components/DataImportForm/DataImportForm';
-import { type Field } from 'components/ColumnFilter/ColumnFilter';
-import { type FilterGroup } from 'models/db/filter/FilterGroup';
-import { open } from '@tauri-apps/api/dialog';
 interface iDataPageProps<T, K> {
   title: string;
   dataName: string;
@@ -185,7 +185,7 @@ const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
               className='justify-self-end'
               dataName={props.dataName}
               fields={props.fields}
-              onSubmitCallback={onRecordInsertionFormSubmission}
+              onSubmit={onRecordInsertionFormSubmission}
             ></DataImportForm>
             <button
               className='btn'

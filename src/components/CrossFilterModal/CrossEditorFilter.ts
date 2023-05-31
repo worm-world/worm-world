@@ -1,6 +1,6 @@
 import { instanceToPlain, plainToInstance, Transform } from 'class-transformer';
 import { Dominance } from 'models/enums';
-import { type CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
+import { type StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
 import { type Strain } from 'models/frontend/Strain/Strain';
 import { type Node } from 'reactflow';
 
@@ -99,7 +99,7 @@ export class CrossEditorFilter {
 
   /** Checks if a node can be displayed given current filter values */
   public static includedInFilter(
-    node: Node<CrossNodeModel>,
+    node: Node<StrainNodeModel>,
     filter?: CrossEditorFilter
   ): boolean {
     if (filter === undefined) return true;

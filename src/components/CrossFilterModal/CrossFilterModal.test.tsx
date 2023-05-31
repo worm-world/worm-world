@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter';
 import { CrossFilterModal } from 'components/CrossFilterModal/CrossFilterModal';
 import { ed3, n765 } from 'models/frontend/Allele/Allele.mock';
-import { type CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
+import { type StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
 import {
   ed3AsChild,
   ed3HeteroHerm,
@@ -11,13 +11,13 @@ import {
   ed3HomoHerm,
   n765AsChild,
 } from 'models/frontend/CrossTree/CrossTree.mock';
-import { AllelePair } from 'models/frontend/Strain/AllelePair';
+import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { type Node } from 'reactflow';
 import { vi, expect, test, describe } from 'vitest';
 
 const renderComponent = ({
-  childNodes = new Array<Node<CrossNodeModel>>(),
+  childNodes = new Array<Node<StrainNodeModel>>(),
   invisibleSet = new Set<string>(),
   toggleVisible = vi.fn(),
   filter = new CrossEditorFilter({

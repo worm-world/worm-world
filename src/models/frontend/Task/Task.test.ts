@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'vitest';
-import { mutated } from 'models/frontend/CrossNode/CrossNode.mock';
+import { mutated } from 'models/frontend/StrainNode/StrainNode.mock';
 import { Task } from 'models/frontend/Task/Task';
 import { TaskCondition } from './TaskCondition';
 import { TaskDependency } from './TaskDependency';

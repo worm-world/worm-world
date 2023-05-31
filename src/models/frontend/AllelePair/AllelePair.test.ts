@@ -10,7 +10,7 @@ import {
   oxEx219999,
   oxTi302,
 } from 'models/frontend/Allele/Allele.mock';
-import { AllelePair } from 'models/frontend/Strain/AllelePair';
+import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { expect, test, describe } from 'vitest';
 import { WILD_ALLELE_NAME } from 'models/frontend/Allele/Allele';
 

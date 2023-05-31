@@ -1,11 +1,11 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { vi } from 'vitest';
-import * as mockCrossTrees from 'models/frontend/CrossTree/CrossTree.mock';
 import CrossEditor from 'components/CrossEditor/CrossEditor';
 import type CrossTree from 'models/frontend/CrossTree/CrossTree';
+import * as mockCrossTrees from 'models/frontend/CrossTree/CrossTree.mock';
 import { BrowserRouter } from 'react-router-dom';
 import { ReactFlowProvider } from 'reactflow';
+import { vi } from 'vitest';
 
 const Wrapper = ({ children }: { children: JSX.Element }): JSX.Element => {
   return (
@@ -34,7 +34,7 @@ describe('CrossEditor', () => {
   test('successfully renders', () => {
     renderComponent(mockCrossTrees.simpleCrossTree);
 
-    const nodes = screen.getAllByTestId('crossNode');
+    const nodes = screen.getAllByTestId('strainNode');
     expect(nodes).toHaveLength(3);
 
     const title = screen.getByText(/ed3 Cross/i);
@@ -46,30 +46,34 @@ describe('CrossEditor', () => {
     const plusses = screen.getAllByText(/\+/i);
     expect(plusses).toHaveLength(2);
 
-    const addNewNodeButton = screen.getByText(/add cross node/i);
+    const addNewNodeButton = screen.getByRole('button', {
+      name: /add strain/i,
+    });
     expect(addNewNodeButton).toBeDefined();
   });
 
-  test('can add cross nodes', async () => {
+  test('can add strain nodes', async () => {
     const user = userEvent.setup();
 
     renderComponent(mockCrossTrees.simpleCrossTree);
 
-    let nodes = screen.getAllByTestId('crossNode');
+    let nodes = screen.getAllByTestId('strainNode');
     expect(nodes).toHaveLength(3);
 
     const addNewNodeButton = screen.getByRole('button', {
-      name: /add cross node/i,
+      name: /add strain/i,
     });
     await user.click(addNewNodeButton);
 
-    const formSubmitButton = screen.getByRole('button', { name: /create/i });
+    const formSubmitButton = screen.getByRole('button', {
+      name: /add strain/i,
+    });
     expect(formSubmitButton).toBeDefined();
     expect(formSubmitButton).toBeVisible();
 
     await user.click(formSubmitButton);
     await waitFor(() => {
-      nodes = screen.getAllByTestId('crossNode');
+      nodes = screen.getAllByTestId('strainNode');
       expect(nodes).toHaveLength(4);
     });
   });
