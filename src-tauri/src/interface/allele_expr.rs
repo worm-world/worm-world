@@ -5,6 +5,7 @@ use crate::models::{
 };
 use anyhow::Result;
 use sqlx::{QueryBuilder, Sqlite};
+
 //select allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance from allele_exprs order by allele_name, expressing_phenotype_name, expressing_phenotype_wild
 impl InnerDbState {
     pub async fn get_allele_exprs(&self) -> Result<Vec<AlleleExpression>, DbError> {
@@ -149,8 +150,8 @@ impl InnerDbState {
 mod test {
     use std::io::BufReader;
 
-    use crate::dummy::testdata;
     use crate::interface::bulk::Bulk;
+    use crate::interface::mock;
     use crate::models::allele_expr::{AlleleExpressionDb, AlleleExpressionFieldName};
     use crate::models::chromosome::Chromosome;
     use crate::models::expr_relation::ExpressionRelationFieldName;
@@ -163,17 +164,14 @@ mod test {
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
 
-    /* #region get_allele_expr tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_allele_expr(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state.get_allele_exprs().await?;
-        assert_eq!(exprs, testdata::get_allele_exprs());
+        assert_eq!(exprs, mock::allele_expr::get_allele_exprs());
         Ok(())
     }
-    /* #endregion */
 
-    /* #region get_filtered_allele_expr tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_allele_expr(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -189,7 +187,7 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::get_filtered_allele_exprs());
+        assert_eq!(exprs, mock::allele_expr::get_filtered_allele_exprs());
         Ok(())
     }
 
@@ -214,7 +212,7 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::get_wild_unc119_allele_exprs());
+        assert_eq!(exprs, mock::allele_expr::get_wild_unc119_allele_exprs());
         Ok(())
     }
 
@@ -237,7 +235,7 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::get_allele_exprs_multi_order_by());
+        assert_eq!(exprs, mock::allele_expr::get_allele_exprs_multi_order_by());
         Ok(())
     }
 
@@ -262,7 +260,10 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::search_allele_exprs_by_allele_name());
+        assert_eq!(
+            exprs,
+            mock::allele_expr::search_allele_exprs_by_allele_name()
+        );
         Ok(())
     }
 
@@ -287,12 +288,13 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::search_allele_exprs_by_phenotype_name());
+        assert_eq!(
+            exprs,
+            mock::allele_expr::search_allele_exprs_by_phenotype_name()
+        );
         Ok(())
     }
-    /* #endregion */
 
-    /* #region insert_allele_expr tests */
     #[sqlx::test]
     async fn test_insert_allele_expr(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -332,7 +334,7 @@ mod test {
             allele_name: "cn64".to_string(),
             expressing_phenotype_name: "dpy-10".to_string(),
             expressing_phenotype_wild: false,
-            dominance: Some(0),
+            dominance: 0,
         };
 
         state.insert_allele_expr(&expr).await?;
@@ -390,20 +392,21 @@ cn64,\"dpy-10\",0,0"
             allele_name: "cn64".to_string(),
             expressing_phenotype_name: "dpy-10".to_string(),
             expressing_phenotype_wild: false,
-            dominance: Some(0),
+            dominance: 0,
         }];
         let exprs = state.get_allele_exprs().await?;
         assert_eq!(expected_exprs, exprs);
         Ok(())
     }
-    /* #endregion */
 
-    /* #region delete_allele_expr tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_delete_single_allele_expr(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let mut allele_exprs: Vec<AlleleExpression> = state.get_allele_exprs().await?;
-        assert_eq!(allele_exprs.len(), testdata::get_allele_exprs().len());
+        assert_eq!(
+            allele_exprs.len(),
+            mock::allele_expr::get_allele_exprs().len()
+        );
 
         let delete_filter = &FilterGroup::<AlleleExpressionFieldName> {
             filters: vec![
@@ -428,7 +431,10 @@ cn64,\"dpy-10\",0,0"
         state.delete_filtered_allele_exprs(delete_filter).await?;
 
         allele_exprs = state.get_allele_exprs().await?;
-        assert_eq!(allele_exprs.len(), testdata::get_allele_exprs().len() - 1);
+        assert_eq!(
+            allele_exprs.len(),
+            mock::allele_expr::get_allele_exprs().len() - 1
+        );
 
         allele_exprs = state.get_filtered_allele_exprs(delete_filter).await?;
         assert_eq!(allele_exprs.len(), 0);
@@ -442,7 +448,7 @@ cn64,\"dpy-10\",0,0"
 
         let mut allele_exprs: Vec<AlleleExpression> = state.get_allele_exprs().await?;
         let orig_len = allele_exprs.len();
-        assert_eq!(orig_len, testdata::get_allele_exprs().len());
+        assert_eq!(orig_len, mock::allele_expr::get_allele_exprs().len());
 
         let filter = &FilterGroup::<AlleleExpressionFieldName> {
             filters: vec![vec![(
@@ -482,7 +488,10 @@ cn64,\"dpy-10\",0,0"
             .await?;
 
         let mut allele_exprs: Vec<AlleleExpression> = state.get_allele_exprs().await?;
-        assert_eq!(allele_exprs.len(), testdata::get_allele_exprs().len());
+        assert_eq!(
+            allele_exprs.len(),
+            mock::allele_expr::get_allele_exprs().len()
+        );
 
         let filter = &FilterGroup::<AlleleExpressionFieldName> {
             filters: vec![],
@@ -498,5 +507,4 @@ cn64,\"dpy-10\",0,0"
 
         Ok(())
     }
-    /* #endregion */
 }

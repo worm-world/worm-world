@@ -1,13 +1,13 @@
 import { invoke } from '@tauri-apps/api/tauri';
-import { db_Phenotype } from 'models/db/db_Phenotype';
-import { ExpressionRelationFieldName } from 'models/db/filter/db_ExpressionRelationFieldName';
-import { PhenotypeFieldName } from 'models/db/filter/db_PhenotypeFieldName';
+import { type db_Phenotype } from 'models/db/db_Phenotype';
+import { type ExpressionRelationFieldName } from 'models/db/filter/db_ExpressionRelationFieldName';
+import { type PhenotypeFieldName } from 'models/db/filter/db_PhenotypeFieldName';
 import {
-  FilterGroup,
+  type FilterGroup,
   getDbBoolean,
   getSingleRecordOrThrow,
 } from 'models/db/filter/FilterGroup';
-import { Phenotype } from 'models/frontend/Phenotype/Phenotype';
+import { type Phenotype } from 'models/frontend/Phenotype/Phenotype';
 
 export const getPhenotypes = async (): Promise<db_Phenotype[]> => {
   return await invoke('get_phenotypes');

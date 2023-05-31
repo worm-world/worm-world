@@ -211,32 +211,28 @@ impl InnerDbState {
 
 #[cfg(test)]
 mod test {
-    use std::io::BufReader;
-
-    use crate::dummy::testdata;
     use crate::interface::bulk::Bulk;
+    use crate::interface::mock;
     use crate::models::allele::AlleleFieldName;
     use crate::models::chromosome::Chromosome;
     use crate::models::filter::{Filter, FilterGroup, Order};
     use crate::models::gene::GeneFieldName;
-    use crate::models::{allele::Allele, gene::Gene, variation_info::VariationInfo};
+    use crate::models::{allele::Allele, gene::Gene, variation::Variation};
     use crate::InnerDbState;
     use anyhow::Result;
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
+    use std::io::BufReader;
 
-    /* #region get_alleles tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_alleles(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let alleles = state.get_alleles().await?;
-        let expected = testdata::get_alleles();
+        let expected = mock::allele::get_alleles();
         assert_eq!(alleles, expected);
         Ok(())
     }
-    /* #endregion */
 
-    /* #region insert_allele tests */
     #[sqlx::test]
     async fn test_insert_allele_with_gene(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -277,10 +273,10 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
         let alleles = state.get_alleles().await?;
         assert_eq!(alleles.len(), 0);
-        let vis = state.get_variation_info().await?;
+        let vis = state.get_variations().await?;
         assert_eq!(vis.len(), 0);
 
-        let new_vi = VariationInfo {
+        let new_vi = Variation {
             allele_name: "oxTi302".to_string(),
             chromosome: Some(Chromosome::I),
             phys_loc: Some(10166146),
@@ -288,8 +284,8 @@ mod test {
             recomb_suppressor: None,
         };
 
-        state.insert_variation_info(&new_vi).await?;
-        let vis = state.get_variation_info().await?;
+        state.insert_variation(&new_vi).await?;
+        let vis = state.get_variations().await?;
         assert_eq!(vec![new_vi], vis);
 
         let expected = Allele {
@@ -337,7 +333,6 @@ mod test {
 
         state.insert_allele(&expected).await.unwrap();
     }
-    /* #endregion insert_allele tests */
 
     #[sqlx::test]
     async fn test_insert_alleles(pool: Pool<Sqlite>) -> Result<()> {
@@ -354,7 +349,7 @@ mod test {
 
         state.insert_gene(&new_gene).await?;
 
-        let new_vi = VariationInfo {
+        let new_vi = Variation {
             allele_name: "oxTi302".to_string(),
             chromosome: Some(Chromosome::I),
             phys_loc: Some(10166146),
@@ -362,7 +357,7 @@ mod test {
             recomb_suppressor: None,
         };
 
-        state.insert_variation_info(&new_vi).await?;
+        state.insert_variation(&new_vi).await?;
 
         let csv_str = "name,contents,sysGeneName,variationName
 cn64,,T14B4.7,
@@ -393,7 +388,6 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
         Ok(())
     }
 
-    /* #region get_filtered_alleles tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_alleles(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -415,7 +409,7 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
             })
             .await?;
 
-        assert_eq!(exprs, testdata::get_filtered_alleles());
+        assert_eq!(exprs, mock::allele::get_filtered_alleles());
         Ok(())
     }
 
@@ -439,7 +433,7 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
     }
 
     #[sqlx::test(fixtures("full_db"))]
-    async fn test_get_filtered_alleles_not_null_contents(pool: Pool<Sqlite>) -> Result<()> {
+    async fn test_get_filtered_alleles_with_contents(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_alleles(&FilterGroup::<AlleleFieldName> {
@@ -450,12 +444,12 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
             })
             .await?;
 
-        assert_eq!(exprs, testdata::get_alleles_with_content());
+        assert_eq!(exprs, mock::allele::get_filtered_alleles_with_content());
         Ok(())
     }
 
     #[sqlx::test(fixtures("full_db"))]
-    async fn test_get_filtered_alleles_not_null_contents_desc(pool: Pool<Sqlite>) -> Result<()> {
+    async fn test_get_filtered_alleles_with_content_desc(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_alleles(&FilterGroup::<AlleleFieldName> {
@@ -465,14 +459,14 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
                 offset: None,
             })
             .await?;
-        let mut alleles = testdata::get_alleles_with_content();
+        let mut alleles = mock::allele::get_filtered_alleles_with_content();
         alleles.reverse();
         assert_eq!(exprs, alleles);
         Ok(())
     }
 
     #[sqlx::test(fixtures("full_db"))]
-    async fn test_get_filtered_alleles_null_contents(pool: Pool<Sqlite>) -> Result<()> {
+    async fn test_get_filtered_alleles_with_null_content(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_alleles(&FilterGroup::<AlleleFieldName> {
@@ -483,7 +477,10 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
             })
             .await?;
 
-        assert_eq!(exprs, testdata::get_alleles_with_null_content());
+        assert_eq!(
+            exprs,
+            mock::allele::get_filtered_alleles_with_null_content()
+        );
         Ok(())
     }
 
@@ -502,12 +499,10 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
             })
             .await?;
 
-        assert_eq!(exprs, testdata::search_alleles_by_name());
+        assert_eq!(exprs, mock::allele::search_alleles_by_name());
         Ok(())
     }
-    /* #endregion */
 
-    /* #region get_filtered_alleles_with_gene_filter */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_alleles_with_gene_filter(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -533,7 +528,7 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
             .get_filtered_alleles_with_gene_filter(allele_filter, gene_filter)
             .await?;
 
-        assert_eq!(exprs, testdata::get_filtered_alleles_and_filtered_genes());
+        assert_eq!(exprs, mock::allele::get_filtered_alleles_with_gene_filter());
         Ok(())
     }
 
@@ -559,7 +554,10 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
             .get_filtered_alleles_with_gene_filter(allele_filter, gene_filter)
             .await?;
 
-        assert_eq!(exprs, testdata::get_filtered_alleles_with_no_gene_filter());
+        assert_eq!(
+            exprs,
+            mock::allele::get_filtered_alleles_with_no_gene_filter()
+        );
         Ok(())
     }
 
@@ -592,7 +590,7 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
 
         assert_eq!(
             exprs,
-            testdata::get_filtered_alleles_and_filtered_genes_no_allele_filter()
+            mock::allele::get_filtered_alleles_and_filtered_genes_no_allele_filter()
         );
         Ok(())
     }
@@ -621,17 +619,15 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
             .get_filtered_alleles_with_gene_filter(allele_filter, gene_filter)
             .await?;
 
-        assert_eq!(exprs, testdata::get_alleles_with_genes());
+        assert_eq!(exprs, mock::allele::get_alleles_with_genes());
         Ok(())
     }
-    /* #endregion */
 
-    /* #region delete_alleles test */
     #[sqlx::test(fixtures("allele"))]
     async fn test_delete_single_allele(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let mut alleles: Vec<Allele> = state.get_alleles().await?;
-        assert_eq!(alleles.len(), testdata::get_alleles().len());
+        assert_eq!(alleles.len(), mock::allele::get_alleles().len());
 
         let delete_filter = &FilterGroup::<AlleleFieldName> {
             filters: vec![vec![(
@@ -646,7 +642,7 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
         state.delete_filtered_alleles(delete_filter).await?;
 
         alleles = state.get_alleles().await?;
-        assert_eq!(alleles.len(), testdata::get_alleles().len() - 1);
+        assert_eq!(alleles.len(), mock::allele::get_alleles().len() - 1);
 
         alleles = state.get_filtered_alleles(delete_filter).await?;
         assert_eq!(alleles.len(), 0);
@@ -660,7 +656,7 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
 
         let mut alleles: Vec<Allele> = state.get_alleles().await?;
         let orig_len = alleles.len();
-        assert_eq!(orig_len, testdata::get_alleles().len());
+        assert_eq!(orig_len, mock::allele::get_alleles().len());
 
         // Remove all trans-genes
         let filter = &FilterGroup::<AlleleFieldName> {
@@ -688,7 +684,7 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
         let state = InnerDbState { conn_pool: pool };
 
         let mut alleles: Vec<Allele> = state.get_alleles().await?;
-        assert_eq!(alleles.len(), testdata::get_alleles().len());
+        assert_eq!(alleles.len(), mock::allele::get_alleles().len());
 
         let filter = &FilterGroup::<AlleleFieldName> {
             filters: vec![],
@@ -704,5 +700,4 @@ oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302"
 
         Ok(())
     }
-    /* #endregion */
 }

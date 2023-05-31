@@ -1,14 +1,17 @@
-import { FilterGroup, FilterTuple } from 'models/db/filter/FilterGroup';
-import { Filter } from 'models/db/filter/Filter';
-import { Order } from 'models/db/filter/Order';
-import { ReactNode, useState } from 'react';
+import {
+  type FilterGroup,
+  type FilterTuple,
+} from 'models/db/filter/FilterGroup';
+import { type Filter } from 'models/db/filter/Filter';
+import { type Order } from 'models/db/filter/Order';
+import { type ReactNode, useState } from 'react';
 import {
   FaFilter as FilterIcon,
   FaSortDown as SortDownIcon,
   FaSortUp as SortUpIcon,
   FaRegTrashAlt as TrashIcon,
 } from 'react-icons/fa';
-import { Field, ColumnFilterModalBox } from '../ColumnFilter/ColumnFilter';
+import { type Field, ColumnFilterModalBox } from '../ColumnFilter/ColumnFilter';
 
 export interface ColumnDefinitionType<T> {
   key: keyof T;
@@ -62,8 +65,12 @@ const TableHeaderCell = <T,>(props: TableHeaderCellProps<T>): JSX.Element => {
     <th
       key={`headCell-${props.index}`}
       className='border-2 border-base-300 bg-base-200'
-      onMouseOver={() => setHovered(true)}
-      onMouseOut={() => setHovered(false)}
+      onMouseOver={() => {
+        setHovered(true);
+      }}
+      onMouseOut={() => {
+        setHovered(false);
+      }}
     >
       <div className='flex flex-row items-center justify-between'>
         <button

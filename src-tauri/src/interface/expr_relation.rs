@@ -199,30 +199,27 @@ mod test {
 
     use std::io::BufReader;
 
-    use crate::dummy::testdata;
     use crate::interface::bulk::Bulk;
+    use crate::interface::mock;
     use crate::models::expr_relation::{ExpressionRelationDb, ExpressionRelationFieldName};
     use crate::models::filter::{Filter, FilterGroup, Order};
     use crate::models::{
         allele::Allele, allele_expr::AlleleExpression, expr_relation::ExpressionRelation,
-        phenotype::Phenotype, variation_info::VariationInfo,
+        phenotype::Phenotype, variation::Variation,
     };
     use crate::InnerDbState;
     use anyhow::Result;
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
 
-    /* #region get_expr_relations tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_expr_relations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let rels = state.get_expr_relations().await?;
-        assert_eq!(rels, testdata::get_expr_relations());
+        assert_eq!(rels, mock::expr_relation::get_expr_relations());
         Ok(())
     }
-    /* #endregion */
 
-    /* #region get_filtered_expr_relations tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_expr_relations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -244,7 +241,7 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::get_filtered_expr_relations());
+        assert_eq!(exprs, mock::expr_relation::get_filtered_expr_relations());
         Ok(())
     }
 
@@ -281,7 +278,7 @@ mod test {
         };
         let exprs = state.get_filtered_expr_relations(&filter).await?;
 
-        let expected = testdata::get_filtered_expr_relations_many_and_clauses();
+        let expected = mock::expr_relation::get_filtered_expr_relations_many_and_clauses();
 
         assert_eq!(exprs, expected);
         let count = state.get_count_filtered_expr_relations(&filter).await?;
@@ -303,7 +300,10 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::search_expr_relations_by_allele_name());
+        assert_eq!(
+            exprs,
+            mock::expr_relation::search_expr_relations_by_allele_name()
+        );
         Ok(())
     }
     #[sqlx::test(fixtures("full_db"))]
@@ -331,19 +331,17 @@ mod test {
 
         assert_eq!(
             exprs,
-            testdata::search_expr_relations_by_allele_name_and_expressing_phenotype()
+            mock::expr_relation::search_expr_relations_by_allele_name_and_expressing_phenotype()
         );
         Ok(())
     }
-    /* #endregion get_filtered_expr_relations tests */
 
-    /* #region insert_filtered_expr_relations tests */
     #[sqlx::test]
     async fn test_insert_expr_relations(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         // oxIs644 Variation
         state
-            .insert_variation_info(&VariationInfo {
+            .insert_variation(&Variation {
                 allele_name: "oxIs644".to_string(), // not a foreign key
                 chromosome: None,
                 phys_loc: None,
@@ -396,7 +394,7 @@ mod test {
                 allele_name: "oxIs644".to_string(),
                 expressing_phenotype_name: "YFP(pharynx)".to_string(),
                 expressing_phenotype_wild: false,
-                dominance: Some(2),
+                dominance: 2,
             })
             .await?;
 
@@ -424,15 +422,12 @@ oxIs644,YFP(pharynx),0,Flp,1,,0"
         Ok(())
     }
 
-    /* #endregion */
-
-    /* #region insert_filtered_expr_relation tests */
     #[sqlx::test]
     async fn test_insert_expr_relation(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         // oxIs644 Variation
         state
-            .insert_variation_info(&VariationInfo {
+            .insert_variation(&Variation {
                 allele_name: "oxIs644".to_string(), // not a foreign key
                 chromosome: None,
                 phys_loc: None,
@@ -485,7 +480,7 @@ oxIs644,YFP(pharynx),0,Flp,1,,0"
                 allele_name: "oxIs644".to_string(),
                 expressing_phenotype_name: "YFP(pharynx)".to_string(),
                 expressing_phenotype_wild: false,
-                dominance: Some(2),
+                dominance: 2,
             })
             .await?;
 
@@ -510,7 +505,7 @@ oxIs644,YFP(pharynx),0,Flp,1,,0"
         let state = InnerDbState { conn_pool: pool };
         // oxIs644 Variation
         state
-            .insert_variation_info(&VariationInfo {
+            .insert_variation(&Variation {
                 allele_name: "oxIs644".to_string(), // not a foreign key
                 chromosome: None,
                 phys_loc: None,
@@ -575,14 +570,15 @@ oxIs644,YFP(pharynx),0,Flp,1,,0"
 
         state.insert_expr_relation(&rel).await.unwrap();
     }
-    /* #endregion insert_filtered_expr_relation tests */
 
-    /* #region delete_expr_relations test */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_delete_single_condition(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let mut expr_relations: Vec<ExpressionRelation> = state.get_expr_relations().await?;
-        assert_eq!(expr_relations.len(), testdata::get_expr_relations().len());
+        assert_eq!(
+            expr_relations.len(),
+            mock::expr_relation::get_expr_relations().len()
+        );
 
         let delete_filter = &FilterGroup::<ExpressionRelationFieldName> {
             filters: vec![
@@ -618,7 +614,7 @@ oxIs644,YFP(pharynx),0,Flp,1,,0"
         expr_relations = state.get_expr_relations().await?;
         assert_eq!(
             expr_relations.len(),
-            testdata::get_expr_relations().len() - 1
+            mock::expr_relation::get_expr_relations().len() - 1
         );
 
         expr_relations = state.get_filtered_expr_relations(delete_filter).await?;
@@ -633,7 +629,7 @@ oxIs644,YFP(pharynx),0,Flp,1,,0"
 
         let mut expr_relations: Vec<ExpressionRelation> = state.get_expr_relations().await?;
         let orig_len = expr_relations.len();
-        assert_eq!(orig_len, testdata::get_expr_relations().len());
+        assert_eq!(orig_len, mock::expr_relation::get_expr_relations().len());
 
         let filter = &FilterGroup::<ExpressionRelationFieldName> {
             filters: vec![vec![(
@@ -663,7 +659,10 @@ oxIs644,YFP(pharynx),0,Flp,1,,0"
         let state = InnerDbState { conn_pool: pool };
 
         let mut expr_relations: Vec<ExpressionRelation> = state.get_expr_relations().await?;
-        assert_eq!(expr_relations.len(), testdata::get_expr_relations().len());
+        assert_eq!(
+            expr_relations.len(),
+            mock::expr_relation::get_expr_relations().len()
+        );
 
         let filter = &FilterGroup::<ExpressionRelationFieldName> {
             filters: vec![],
@@ -679,5 +678,4 @@ oxIs644,YFP(pharynx),0,Flp,1,,0"
 
         Ok(())
     }
-    /* #endregion */
 }

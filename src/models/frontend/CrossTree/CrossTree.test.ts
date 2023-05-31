@@ -1,12 +1,14 @@
 import { CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter';
 import { FlowType } from 'components/CrossFlow/CrossFlow';
-import { MenuItem } from 'components/Menu/Menu';
+import { type MenuItem } from 'components/Menu/Menu';
 import { Sex } from 'models/enums';
-import { iCrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
-import CrossTree, { iCrossTree } from 'models/frontend/CrossTree/CrossTree';
-import { AllelePair } from 'models/frontend/Strain/AllelePair';
+import { type iStrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import CrossTree, {
+  type iCrossTree,
+} from 'models/frontend/CrossTree/CrossTree';
+import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
-import { XYPosition, Node, Edge } from 'reactflow';
+import { type XYPosition, type Node, type Edge } from 'reactflow';
 import { expect, test, describe } from 'vitest';
 import { ed3, n765, ox1059 } from 'models/frontend/Allele/Allele.mock';
 import moment from 'moment';
@@ -37,13 +39,13 @@ describe('cross tree', () => {
     id = 0,
     type = FlowType.Strain,
     position = { x: 0, y: 0 },
-    data = generateCrossNodeModel({}),
+    data = generateStrainNodeModel({}),
     parentNode = undefined,
   }: {
     id?: number;
     type?: FlowType;
     position?: XYPosition;
-    data?: Object;
+    data?: unknown;
     parentNode?: string;
   }): Node => {
     return {
@@ -54,28 +56,28 @@ describe('cross tree', () => {
     };
   };
 
-  const generateCrossNodeModel = ({
+  const generateStrainNodeModel = ({
     sex = Sex.Male,
     strain = generateStrain({}),
     getMenuItems = undefined,
   }: {
     sex?: Sex;
     strain?: Strain;
-    getMenuItems?: (node: iCrossNodeModel) => MenuItem[];
-  }): iCrossNodeModel => {
+    getMenuItems?: (node: iStrainNodeModel) => MenuItem[];
+  }): iStrainNodeModel => {
     return { sex, strain, getMenuItems, isChild: false, isParent: false };
   };
 
   const generateStrain = ({
     allelePairs = [],
     name = undefined,
-    notes = undefined,
+    description = undefined,
   }: {
     name?: string;
     allelePairs?: AllelePair[];
-    notes?: string;
+    description?: string;
   }): Strain => {
-    return new Strain({ name, allelePairs, notes });
+    return new Strain({ name, allelePairs, description });
   };
 
   const generateEdge = ({
@@ -149,8 +151,8 @@ describe('cross tree', () => {
   });
   test('constructs a tree with edges and nodes', () => {
     let id = 0;
-    const maleData = generateCrossNodeModel({ sex: Sex.Male });
-    const hermData = generateCrossNodeModel({ sex: Sex.Hermaphrodite });
+    const maleData = generateStrainNodeModel({ sex: Sex.Male });
+    const hermData = generateStrainNodeModel({ sex: Sex.Hermaphrodite });
 
     const maleNode = generateNode({ id: id++, data: maleData });
     const hermNode = generateNode({ id: id++, data: hermData });
@@ -180,7 +182,7 @@ describe('cross tree', () => {
     let id = 0;
     const strainNode = generateNode({
       id: id++,
-      data: generateCrossNodeModel({ sex: Sex.Hermaphrodite }),
+      data: generateStrainNodeModel({ sex: Sex.Hermaphrodite }),
     });
     const selfIcon = generateNode({ id: id++, type: FlowType.SelfIcon });
 
@@ -366,7 +368,7 @@ describe('cross tree', () => {
   });
   test('.generateTasks() returns self cross tasks', () => {
     let id = 0;
-    const strain1 = generateCrossNodeModel({ sex: Sex.Hermaphrodite });
+    const strain1 = generateStrainNodeModel({ sex: Sex.Hermaphrodite });
     const nodes = [
       generateNode({ id: id++, data: strain1 }),
       generateNode({ id: id++, type: FlowType.SelfIcon }),
@@ -393,8 +395,8 @@ describe('cross tree', () => {
   });
   test('.generateTasks() returns regular cross tasks', () => {
     let id = 0;
-    const strain1 = generateCrossNodeModel({ sex: Sex.Hermaphrodite });
-    const strain2 = generateCrossNodeModel({ sex: Sex.Male });
+    const strain1 = generateStrainNodeModel({ sex: Sex.Hermaphrodite });
+    const strain2 = generateStrainNodeModel({ sex: Sex.Male });
     const nodes = [
       generateNode({ id: id++, data: strain1 }),
       generateNode({ id: id++, data: strain2 }),
@@ -431,9 +433,9 @@ describe('cross tree', () => {
   });
   test('.generateTasks() generates multiple tasks', () => {
     let id = 0;
-    const strain1 = generateCrossNodeModel({ sex: Sex.Hermaphrodite });
-    const strain2 = generateCrossNodeModel({ sex: Sex.Male });
-    const strain3 = generateCrossNodeModel({});
+    const strain1 = generateStrainNodeModel({ sex: Sex.Hermaphrodite });
+    const strain2 = generateStrainNodeModel({ sex: Sex.Male });
+    const strain3 = generateStrainNodeModel({});
     const nodes = [
       generateNode({ id: id++, data: strain1 }),
       generateNode({ id: id++, data: strain2 }),
@@ -480,8 +482,8 @@ describe('cross tree', () => {
   });
   test('.generateTasks() correctly bumps dates', () => {
     let id = 0;
-    const strain1 = generateCrossNodeModel({ sex: Sex.Hermaphrodite });
-    const strain2 = generateCrossNodeModel({ sex: Sex.Male });
+    const strain1 = generateStrainNodeModel({ sex: Sex.Hermaphrodite });
+    const strain2 = generateStrainNodeModel({ sex: Sex.Male });
     const nodes = [
       generateNode({ id: id++, data: strain1 }),
       generateNode({ id: id++, data: strain2 }),
@@ -567,7 +569,7 @@ describe('cross tree', () => {
 
   test('should be able to serialize and deserialize', () => {
     let id = 0;
-    const strain1 = generateCrossNodeModel({
+    const strain1 = generateStrainNodeModel({
       sex: Sex.Hermaphrodite,
       strain: generateStrain({
         allelePairs: [
@@ -576,8 +578,8 @@ describe('cross tree', () => {
         ],
       }),
     });
-    const strain2 = generateCrossNodeModel({ sex: Sex.Male });
-    const strain3 = generateCrossNodeModel({
+    const strain2 = generateStrainNodeModel({ sex: Sex.Male });
+    const strain3 = generateStrainNodeModel({
       strain: generateStrain({
         allelePairs: [new AllelePair({ top: n765, bot: n765 })],
       }),

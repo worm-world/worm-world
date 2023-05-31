@@ -10,8 +10,8 @@ import {
   oxEx2254,
   oxEx219999,
 } from 'models/frontend/Allele/Allele.mock';
-import { AllelePair } from 'models/frontend/Strain/AllelePair';
-import { Strain, StrainOption } from 'models/frontend/Strain/Strain';
+import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
+import { Strain, type StrainOption } from 'models/frontend/Strain/Strain';
 
 export const HomozygousCross: StrainOption[] = [
   {

@@ -15,5 +15,6 @@ DROP TABLE variation_info;
 DROP TABLE sched_crosses;
 DROP TABLE sched_trees;
 DROP TABLE strain_alleles;
+DROP TABLE conditions;
 
 PRAGMA foreign_keys = ON;

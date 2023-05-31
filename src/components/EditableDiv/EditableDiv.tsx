@@ -1,7 +1,7 @@
 import {
-  FocusEventHandler,
-  KeyboardEventHandler,
-  MouseEventHandler,
+  type FocusEventHandler,
+  type KeyboardEventHandler,
+  type MouseEventHandler,
 } from 'react';
 
 interface EditableDivProps {
@@ -27,10 +27,14 @@ const EditableDiv = (props: EditableDivProps): JSX.Element => {
       {props.editable ? (
         <input
           className='input-ghost w-full border-2 border-base-300 bg-transparent'
-          onClick={(e) => e.preventDefault()}
+          onClick={(e) => {
+            e.preventDefault();
+          }}
           type='text'
           value={props.value}
-          onChange={(e) => props.setValue(e.target.value)}
+          onChange={(e) => {
+            props.setValue(e.target.value);
+          }}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           autoFocus

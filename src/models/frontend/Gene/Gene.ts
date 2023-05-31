@@ -1,6 +1,6 @@
 import { Exclude, instanceToPlain, plainToInstance } from 'class-transformer';
-import { db_Gene } from 'models/db/db_Gene';
-import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
+import { type db_Gene } from 'models/db/db_Gene';
+import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 
 interface iGene {
   sysName: string;

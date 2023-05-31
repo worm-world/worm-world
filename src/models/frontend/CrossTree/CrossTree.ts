@@ -1,9 +1,9 @@
-import { db_Tree } from 'models/db/db_Tree';
+import { type db_Tree } from 'models/db/db_Tree';
 import type { Action } from 'models/db/task/Action';
 import { Sex } from 'models/enums';
-import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
-import { StrainOption } from 'models/frontend/Strain/Strain';
-import { Node, Edge, XYPosition } from 'reactflow';
+import { type StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { type StrainOption } from 'models/frontend/Strain/Strain';
+import { type Node, type Edge, type XYPosition } from 'reactflow';
 import { ulid } from 'ulid';
 import {
   instanceToPlain,
@@ -32,7 +32,7 @@ export interface iTaskDependencyTree {
 }
 
 // Uses React Flow nodes and edges. The nodes contain a data property
-// which, for cross nodes, contains the model. This way,
+// which, for strain nodes, contains the model. This way,
 // the tree can be traversed and relevant data gotten from it
 export default class CrossTree {
   /** #region class vars / initialization */
@@ -330,7 +330,9 @@ export default class CrossTree {
 
   private addDatesToTasks(taskDeps: iTaskDependencyTree): void {
     const defaultMaturationDay = 3;
-    taskDeps.taskParents.forEach((parent) => this.addDatesToTasks(parent));
+    taskDeps.taskParents.forEach((parent) => {
+      this.addDatesToTasks(parent);
+    });
 
     if (taskDeps.taskParents.length === 0) {
       taskDeps.task.dueDate = moment().toDate();
@@ -379,14 +381,16 @@ export default class CrossTree {
     daysToBumpBack: number
   ): void {
     tree.task.dueDate = this.addDays(daysToBumpBack, tree.task.dueDate);
-    tree.taskParents.forEach((parent) =>
-      this.bumpDatesBack(parent, daysToBumpBack)
-    );
+    tree.taskParents.forEach((parent) => {
+      this.bumpDatesBack(parent, daysToBumpBack);
+    });
   }
 
   private makeTreeIntoArray(tree: iTaskDependencyTree, tasks: Task[]): void {
     tasks.push(tree.task);
-    tree.taskParents.forEach((parent) => this.makeTreeIntoArray(parent, tasks));
+    tree.taskParents.forEach((parent) => {
+      this.makeTreeIntoArray(parent, tasks);
+    });
   }
 
   /**
@@ -429,6 +433,6 @@ export default class CrossTree {
  * and link parents with one or more parents, etc.
  */
 interface StrainAncestry {
-  strain: CrossNodeModel;
+  strain: StrainNodeModel;
   parents: StrainAncestry[];
 }

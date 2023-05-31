@@ -1,13 +1,13 @@
 import { invoke } from '@tauri-apps/api/tauri';
-import { db_Allele } from 'models/db/db_Allele';
-import { db_Gene } from 'models/db/db_Gene';
-import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
-import { GeneFieldName } from 'models/db/filter/db_GeneFieldName';
+import { type db_Allele } from 'models/db/db_Allele';
+import { type db_Gene } from 'models/db/db_Gene';
+import { type AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
+import { type GeneFieldName } from 'models/db/filter/db_GeneFieldName';
 import {
-  FilterGroup,
+  type FilterGroup,
   getSingleRecordOrThrow,
 } from 'models/db/filter/FilterGroup';
-import { Allele } from 'models/frontend/Allele/Allele';
+import { type Allele } from 'models/frontend/Allele/Allele';
 
 export const getAlleles = async (): Promise<db_Allele[]> => {
   return await invoke('get_alleles');

@@ -1,20 +1,20 @@
 import {
   useMemo,
-  MouseEvent as ReactMouseEvent,
-  TouchEvent as ReactTouchEvent,
+  type MouseEvent as ReactMouseEvent,
+  type TouchEvent as ReactTouchEvent,
 } from 'react';
 import ReactFlow, {
   MiniMap,
   Controls,
   ControlButton,
   Background,
-  Node,
-  Edge,
-  EdgeChange,
-  NodeChange,
-  Connection,
-  ReactFlowInstance,
-  OnConnectStartParams,
+  type Node,
+  type Edge,
+  type EdgeChange,
+  type NodeChange,
+  type Connection,
+  type ReactFlowInstance,
+  type OnConnectStartParams,
   ConnectionMode,
   ReactFlowProvider,
 } from 'reactflow';
@@ -29,7 +29,7 @@ import {
   NoteFlowWrapper,
   FilteredOutFlowWrapper,
 } from 'components/FlowWrapper/FlowWrapper';
-import { Options } from 'html-to-image/lib/types';
+import { type Options } from 'html-to-image/lib/types';
 import { toast } from 'react-toastify';
 import { FaPlus, FaMinus, FaEye } from 'react-icons/fa';
 import { BsCardImage } from 'react-icons/bs';
@@ -113,11 +113,12 @@ const saveImg = (saveMethod: SaveMethod): void => {
       },
     }),
   ])
-    .then(
-      async ([dir, dataUrl]) =>
-        await downloadImage(dataUrl, saveMethod, dir as string | null)
-    )
-    .catch((e) => alert(e));
+    .then(async ([dir, dataUrl]) => {
+      await downloadImage(dataUrl, saveMethod, dir as string | null);
+    })
+    .catch((e) => {
+      alert(e);
+    });
 };
 
 interface iCrossFlowProps {
@@ -196,7 +197,11 @@ const CustomControls = (props: CustomControlsProps): JSX.Element => {
           </ul>
         </div>
       </ControlButton>
-      <ControlButton onClick={() => props.toggleShowGenes()}>
+      <ControlButton
+        onClick={() => {
+          props.toggleShowGenes();
+        }}
+      >
         <FaEye />
       </ControlButton>
     </Controls>

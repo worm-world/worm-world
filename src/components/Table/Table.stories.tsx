@@ -1,6 +1,6 @@
 import { Meta, StoryFn } from '@storybook/react';
 import { Table, TableProps } from 'components/Table/Table';
-import { cols as alleleCols } from 'pages/data-manager/allele';
+import { cols as alleleCols } from 'pages/data-tables/alleles';
 import { db_Allele } from 'models/db/db_Allele';
 import { Field } from '../ColumnFilter/ColumnFilter';
 import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
@@ -14,7 +14,7 @@ export default {
 } as Meta<typeof Table>;
 
 const Template =
-  <T,K>(): StoryFn<TableProps<T, K>> =>
+  <T, K>(): StoryFn<TableProps<T, K>> =>
   (props) =>
     <Table {...props} />;
 
@@ -70,7 +70,7 @@ const nameMapping: { [key in keyof db_Allele]: AlleleFieldName } = {
 };
 
 export const Primary = Template<db_Allele, AlleleFieldName>().bind({});
-Primary.args = { columns: alleleCols, data: alleleData, nameMapping, fields};
+Primary.args = { columns: alleleCols, data: alleleData, nameMapping, fields };
 
 export const NoRowData = Template<db_Allele, AlleleFieldName>().bind({});
 NoRowData.args = { columns: alleleCols, data: [], nameMapping, fields };

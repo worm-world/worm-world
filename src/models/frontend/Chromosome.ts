@@ -1,4 +1,4 @@
-import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
+import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 
 /**
  * Specific to C. Elegans:

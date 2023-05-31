@@ -1,8 +1,8 @@
 import { instanceToPlain, plainToInstance, Transform } from 'class-transformer';
 import { Dominance } from 'models/enums';
-import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
-import { Strain } from 'models/frontend/Strain/Strain';
-import { Node } from 'reactflow';
+import { type StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { type Strain } from 'models/frontend/Strain/Strain';
+import { type Node } from 'reactflow';
 
 export interface CrossEditorFilterUpdate {
   field: keyof iCrossEditorFilter;
@@ -19,16 +19,16 @@ export interface iCrossEditorFilter {
 
 export class CrossEditorFilter {
   @Transform((data: any) => new Set(data?.obj?.alleleNames))
-  public alleleNames: Set<string> = new Set();
+  public alleleNames = new Set<string>();
 
   @Transform((data: any) => new Set(data?.obj?.exprPhenotypes))
-  public exprPhenotypes: Set<string> = new Set();
+  public exprPhenotypes = new Set<string>();
 
   @Transform((data: any) => new Set(data?.obj?.reqConditions))
-  public reqConditions: Set<string> = new Set();
+  public reqConditions = new Set<string>();
 
   @Transform((data: any) => new Set(data?.obj?.supConditions))
-  public supConditions: Set<string> = new Set();
+  public supConditions = new Set<string>();
 
   constructor(props: iCrossEditorFilter) {
     Object.assign(this, props);
@@ -99,7 +99,7 @@ export class CrossEditorFilter {
 
   /** Checks if a node can be displayed given current filter values */
   public static includedInFilter(
-    node: Node<CrossNodeModel>,
+    node: Node<StrainNodeModel>,
     filter?: CrossEditorFilter
   ): boolean {
     if (filter === undefined) return true;

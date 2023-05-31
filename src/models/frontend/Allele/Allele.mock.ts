@@ -4,7 +4,7 @@ import {
   n765PhenLin15B,
 } from 'models/frontend/AlleleExpression/AlleleExpression.mock';
 import * as geneMock from 'models/frontend/Gene/Gene.mock';
-import * as variationMock from 'models/frontend/VariationInfo/VariationInfo.mock';
+import * as variationMock from 'models/frontend/Variation/Variation.mock';
 
 export const chrom1Gene1Allele1 = new Allele({
   name: 'chrom1Gene1Allele1',

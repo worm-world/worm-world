@@ -3,9 +3,9 @@ import { render, screen, waitFor } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import {
   AlleleMultiSelect,
-  iAlleleMultiSelect,
+  type iAlleleMultiSelect,
 } from 'components/AlleleMultiSelect/AlleleMultiSelect';
-import { db_Allele } from 'models/db/db_Allele';
+import { type db_Allele } from 'models/db/db_Allele';
 import { clearMocks, mockIPC } from '@tauri-apps/api/mocks';
 import { ed3, ox11000, ox11001 } from 'models/frontend/Allele/Allele.mock';
 import { unc119 } from 'models/frontend/Gene/Gene.mock';

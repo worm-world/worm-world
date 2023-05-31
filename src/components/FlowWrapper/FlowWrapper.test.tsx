@@ -1,14 +1,14 @@
 import { render, screen } from '@testing-library/react';
 import { StrainFlowWrapper } from 'components/FlowWrapper/FlowWrapper';
-import * as mock from 'models/frontend/CrossNode/CrossNode.mock';
+import * as mock from 'models/frontend/StrainNode/StrainNode.mock';
 import { ReactFlowProvider } from 'reactflow';
 
 describe('FlowWrapper', () => {
-  test('FlowWrapper does not obscure contents of cross node', () => {
-    const mutatedCrossNode = mock.mutated;
+  test('FlowWrapper does not obscure contents of strain node', () => {
+    const mutatedStrainNode = mock.mutated;
     const wrapperInFlow = (
       <ReactFlowProvider>
-        <StrainFlowWrapper data={mutatedCrossNode} />
+        <StrainFlowWrapper data={mutatedStrainNode} />
       </ReactFlowProvider>
     );
     render(wrapperInFlow);

@@ -1,6 +1,6 @@
 import { Exclude, instanceToPlain, plainToInstance } from 'class-transformer';
-import { db_Condition } from 'models/db/db_Condition';
-import { AffectedTraits } from 'models/frontend/Phenotype/Phenotype';
+import { type db_Condition } from 'models/db/db_Condition';
+import { type AffectedTraits } from 'models/frontend/Phenotype/Phenotype';
 
 interface ICondition extends AffectedTraits {
   name: string;

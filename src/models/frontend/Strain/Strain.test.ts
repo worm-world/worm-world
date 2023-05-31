@@ -14,8 +14,8 @@ import {
   oxEx2254,
   oxEx219999,
 } from 'models/frontend/Allele/Allele.mock';
-import { AllelePair } from 'models/frontend/Strain/AllelePair';
-import { Strain, StrainOption } from 'models/frontend/Strain/Strain';
+import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
+import { Strain, type StrainOption } from 'models/frontend/Strain/Strain';
 import {
   DifChromSimpleSelfCross,
   HeterozygousCross,
@@ -221,14 +221,6 @@ describe('strain', () => {
 });
 
 describe('cross algorithm', () => {
-  // const printCrossResults = (crossResult: StrainOption[]): void => {
-  //   crossResult.forEach((strain, idx) =>
-  //     console.log(
-  //       `Strain ${idx}  --  Prob: ${strain.prob}\n${strain.strain.toString()}\n`
-  //     )
-  //   );
-  // };
-
   const testStrainResults = (
     crossStrains: StrainOption[],
     expectedStrains: StrainOption[]

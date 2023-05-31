@@ -1,13 +1,13 @@
 import { invoke } from '@tauri-apps/api/tauri';
-import { db_Condition } from 'models/db/db_Condition';
-import { ConditionFieldName } from 'models/db/filter/db_ConditionFieldName';
-import { ExpressionRelationFieldName } from 'models/db/filter/db_ExpressionRelationFieldName';
+import { type db_Condition } from 'models/db/db_Condition';
+import { type ConditionFieldName } from 'models/db/filter/db_ConditionFieldName';
+import { type ExpressionRelationFieldName } from 'models/db/filter/db_ExpressionRelationFieldName';
 import {
-  FilterGroup,
+  type FilterGroup,
   getDbBoolean,
   getSingleRecordOrThrow,
 } from 'models/db/filter/FilterGroup';
-import { Condition } from 'models/frontend/Condition/Condition';
+import { type Condition } from 'models/frontend/Condition/Condition';
 
 export const getConditions = async (): Promise<db_Condition[]> => {
   return await invoke('get_conditions');

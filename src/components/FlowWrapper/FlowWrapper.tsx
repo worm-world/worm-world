@@ -1,17 +1,17 @@
-import CrossNode from 'components/CrossNode/CrossNode';
+import StrainNode from 'components/StrainNode/StrainNode';
 import { Sex } from 'models/enums';
-import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
+import { type StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
 import { Handle, Position } from 'reactflow';
-import { XNode, XNodeProps } from 'components/XNode/XNode';
-import { SelfIconProps, SelfNode } from 'components/SelfNode/SelfNode';
+import { XNode, type XNodeProps } from 'components/XNode/XNode';
+import { type SelfIconProps, SelfNode } from 'components/SelfNode/SelfNode';
 import { NoteNode } from 'components/NoteNode/NoteNode';
-import { NoteNodeProps } from 'components/NoteNode/NoteNodeProps';
+import { type NoteNodeProps } from 'components/NoteNode/NoteNodeProps';
 import FilteredOutNode, {
-  FilteredOutNodeProps,
+  type FilteredOutNodeProps,
 } from 'components/FilteredOutNode/FilteredOutNode';
 
 export interface iStrainFlowWrapper {
-  data: CrossNodeModel;
+  data: StrainNodeModel;
 }
 
 export const StrainFlowWrapper = (props: iStrainFlowWrapper): JSX.Element => {
@@ -51,7 +51,7 @@ export const StrainFlowWrapper = (props: iStrainFlowWrapper): JSX.Element => {
           position={Position.Bottom}
         />
       </div>
-      <CrossNode model={props.data} />
+      <StrainNode model={props.data} />
     </div>
   );
 };

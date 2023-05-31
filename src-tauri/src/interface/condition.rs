@@ -220,8 +220,8 @@ mod test {
 
     use std::io::BufReader;
 
-    use crate::dummy::testdata;
     use crate::interface::bulk::Bulk;
+    use crate::interface::mock;
     use crate::models::condition::{Condition, ConditionDb, ConditionFieldName};
     use crate::models::expr_relation::ExpressionRelationFieldName;
     use crate::models::filter::{Filter, FilterGroup, Order};
@@ -230,19 +230,16 @@ mod test {
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
 
-    /* #region get_conditions test */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_conditions(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let conds = state.get_conditions().await?;
 
-        let expected_conds = testdata::get_conditions();
+        let expected_conds = mock::condition::get_conditions();
         assert_eq!(conds, expected_conds);
         Ok(())
     }
-    /* #endregion */
 
-    /* #region get_filtered_conditions tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_conditions(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -258,7 +255,7 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::get_filtered_conditions());
+        assert_eq!(exprs, mock::condition::get_filtered_conditions());
         Ok(())
     }
 
@@ -276,7 +273,7 @@ mod test {
                 offset: None,
             })
             .await?;
-        let mut fc = testdata::get_filtered_conditions();
+        let mut fc = mock::condition::get_filtered_conditions();
         fc.reverse();
         assert_eq!(exprs, fc);
         Ok(())
@@ -299,7 +296,7 @@ mod test {
 
         assert_eq!(
             exprs,
-            testdata::get_filtered_conditions_not_3_maturation_days()
+            mock::condition::get_filtered_conditions_not_3_maturation_days()
         );
         Ok(())
     }
@@ -319,12 +316,10 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::search_conditions_by_name());
+        assert_eq!(exprs, mock::condition::search_conditions_by_name());
         Ok(())
     }
-    /* endregion get_filtered_conditions tests */
 
-    /* #region get_altering_conditions test */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_altering_conditions(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -359,12 +354,10 @@ mod test {
             .get_altering_conditions(&expr_relation_filter, &condition_filter)
             .await?;
 
-        assert_eq!(conditions, testdata::get_altering_conditions());
+        assert_eq!(conditions, mock::condition::get_altering_conditions());
         Ok(())
     }
-    /* #endregion get_altering_conditions tests */
 
-    /* #region insert_condition tests */
     #[sqlx::test]
     async fn test_insert_condition(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -387,9 +380,7 @@ mod test {
         assert_eq!(vec![expected], conds);
         Ok(())
     }
-    /* #endregion */
 
-    /* #region insert_conditions tests */
     #[sqlx::test]
     async fn test_insert_conditions(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -405,7 +396,10 @@ Tetracycline,,3,0,0,0,3"
 
         state.insert_conditions(bulk).await?;
 
-        assert_eq!(state.get_conditions().await?, testdata::get_conditions());
+        assert_eq!(
+            state.get_conditions().await?,
+            mock::condition::get_conditions()
+        );
         Ok(())
     }
     #[sqlx::test]
@@ -427,17 +421,18 @@ Tetracycline\t\t3\t0\t0\t0\t3"
 
         state.insert_conditions(bulk).await?;
 
-        assert_eq!(state.get_conditions().await?, testdata::get_conditions());
+        assert_eq!(
+            state.get_conditions().await?,
+            mock::condition::get_conditions()
+        );
         Ok(())
     }
-    /* #endregion */
 
-    /* #region delete_conditions test */
-    #[sqlx::test(fixtures("full_db"))]
+    #[sqlx::test(fixtures("condition"))]
     async fn test_delete_single_condition(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let mut conditions: Vec<Condition> = state.get_conditions().await?;
-        assert_eq!(conditions.len(), testdata::get_conditions().len());
+        assert_eq!(conditions.len(), mock::condition::get_conditions().len());
 
         let delete_filter = &FilterGroup::<ConditionFieldName> {
             filters: vec![vec![(
@@ -452,7 +447,10 @@ Tetracycline\t\t3\t0\t0\t0\t3"
         state.delete_filtered_conditions(delete_filter).await?;
 
         conditions = state.get_conditions().await?;
-        assert_eq!(conditions.len(), testdata::get_conditions().len() - 1);
+        assert_eq!(
+            conditions.len(),
+            mock::condition::get_conditions().len() - 1
+        );
 
         conditions = state.get_filtered_conditions(delete_filter).await?;
         assert_eq!(conditions.len(), 0);
@@ -466,7 +464,7 @@ Tetracycline\t\t3\t0\t0\t0\t3"
 
         let mut conditions: Vec<Condition> = state.get_conditions().await?;
         let orig_len = conditions.len();
-        assert_eq!(orig_len, testdata::get_conditions().len());
+        assert_eq!(orig_len, mock::condition::get_conditions().len());
 
         let filter = &FilterGroup::<ConditionFieldName> {
             filters: vec![vec![(
@@ -496,7 +494,7 @@ Tetracycline\t\t3\t0\t0\t0\t3"
         let state = InnerDbState { conn_pool: pool };
 
         let mut conditions: Vec<Condition> = state.get_conditions().await?;
-        assert_eq!(conditions.len(), testdata::get_conditions().len());
+        assert_eq!(conditions.len(), mock::condition::get_conditions().len());
 
         let filter = &FilterGroup::<ConditionFieldName> {
             filters: vec![],
@@ -512,5 +510,4 @@ Tetracycline\t\t3\t0\t0\t0\t3"
 
         Ok(())
     }
-    /* #endregion */
 }

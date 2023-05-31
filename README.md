@@ -1,10 +1,8 @@
-<p align="center">
-  <img alt='WormWorld' src="public/wormworld_logo.svg" width=260/>
- </p>
-<h3 align="center">
-   A genetics application to design strains of <i>C. Elegans</i> worms and schedule their breeding process
-</h3>
-<hr/>
+# WormWorld
+
+![WormWorld](public/wormworld_logo.svg)
+
+A desktop application for geneticists to design strains of _C. Elegans_ worms and schedule cross-breeding tasks.
 
 ## Getting started
 

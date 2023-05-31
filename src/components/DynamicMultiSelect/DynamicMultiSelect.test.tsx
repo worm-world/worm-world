@@ -1,8 +1,11 @@
 import { render, screen } from '@testing-library/react';
-import { DynamicMultiSelect, iDynamicMultiSelect } from './DynamicMultiSelect';
+import {
+  DynamicMultiSelect,
+  type iDynamicMultiSelect,
+} from './DynamicMultiSelect';
 import user from '@testing-library/user-event';
-import { db_Gene } from 'models/db/db_Gene';
-import { GeneFieldName } from 'models/db/filter/db_GeneFieldName';
+import { type db_Gene } from 'models/db/db_Gene';
+import { type GeneFieldName } from 'models/db/filter/db_GeneFieldName';
 import { useState } from 'react';
 import { Gene } from 'models/frontend/Gene/Gene';
 

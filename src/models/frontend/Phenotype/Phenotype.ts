@@ -1,5 +1,5 @@
 import { Exclude, instanceToPlain, plainToInstance } from 'class-transformer';
-import { db_Phenotype } from 'models/db/db_Phenotype';
+import { type db_Phenotype } from 'models/db/db_Phenotype';
 
 export interface AffectedTraits {
   /** How well the male can mate. 3 denotes max mating capabilities, 0 states worm is incabable of mating  */

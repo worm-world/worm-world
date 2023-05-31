@@ -1,4 +1,4 @@
-import { NoteNodeProps } from 'components/NoteNode/NoteNodeProps';
+import { type NoteNodeProps } from 'components/NoteNode/NoteNodeProps';
 
 export const NoteNode = (props: NoteNodeProps): JSX.Element => {
   return (

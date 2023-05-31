@@ -1,4 +1,4 @@
-import { db_Allele } from 'models/db/db_Allele';
+import { type db_Allele } from 'models/db/db_Allele';
 
 export const getDbAlleles = (): db_Allele[] => {
   return [

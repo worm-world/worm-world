@@ -1,19 +1,19 @@
-import { Action } from 'models/db/task/Action';
-import { db_Task } from 'models/db/task/db_Task';
-import { CrossNodeModel } from '../CrossNode/CrossNode';
+import { type Action } from 'models/db/task/Action';
+import { type db_Task } from 'models/db/task/db_Task';
+import { StrainNodeModel } from '../StrainNode/StrainNode';
 import { Type, plainToInstance, instanceToPlain } from 'class-transformer';
-import { empty } from 'models/frontend/CrossNode/CrossNode.mock';
-import { Condition } from '../Condition/Condition';
+import { empty } from 'models/frontend/StrainNode/StrainNode.mock';
+import { type Condition } from '../Condition/Condition';
 
 export interface iTask {
   id: string;
   dueDate?: Date;
 
   action: Action;
-  strain1: CrossNodeModel;
+  strain1: StrainNodeModel;
 
-  strain2?: CrossNodeModel;
-  result?: CrossNodeModel;
+  strain2?: StrainNodeModel;
+  result?: StrainNodeModel;
 
   notes?: string;
   completed: boolean;
@@ -26,14 +26,14 @@ export class Task {
   dueDate?: Date;
 
   action: Action;
-  @Type(() => CrossNodeModel)
-  strain1: CrossNodeModel;
+  @Type(() => StrainNodeModel)
+  strain1: StrainNodeModel;
 
-  @Type(() => CrossNodeModel)
-  strain2?: CrossNodeModel;
+  @Type(() => StrainNodeModel)
+  strain2?: StrainNodeModel;
 
-  @Type(() => CrossNodeModel)
-  result?: CrossNodeModel;
+  @Type(() => StrainNodeModel)
+  result?: StrainNodeModel;
 
   notes?: string;
   completed: boolean;
@@ -51,13 +51,15 @@ export class Task {
       this.dueDate =
         task.due_date !== null ? new Date(task.due_date) : undefined;
       this.action = task.action;
-      this.strain1 = CrossNodeModel.fromJSON(task.strain1);
+      this.strain1 = StrainNodeModel.fromJSON(task.strain1);
       this.strain2 =
         task.strain2 !== null
-          ? CrossNodeModel.fromJSON(task.strain2)
+          ? StrainNodeModel.fromJSON(task.strain2)
           : undefined;
       this.result =
-        task.result !== null ? CrossNodeModel.fromJSON(task.result) : undefined;
+        task.result !== null
+          ? StrainNodeModel.fromJSON(task.result)
+          : undefined;
       this.notes = task.notes ?? undefined;
       this.completed = task.completed;
       this.treeId = task.tree_id;
@@ -88,8 +90,8 @@ export class Task {
 }
 
 export const getConditionsFromTask = (
-  worm1: CrossNodeModel,
-  worm2?: CrossNodeModel
+  worm1: StrainNodeModel,
+  worm2?: StrainNodeModel
 ): Map<string, Condition> => {
   const conditions = new Map<string, Condition>();
 
@@ -101,11 +103,11 @@ export const getConditionsFromTask = (
       [
         ...allelePair.bot.alleleExpressions,
         ...allelePair.top.alleleExpressions,
-      ].forEach((ae) =>
+      ].forEach((ae) => {
         [...ae.suppressingConditions, ...ae.requiredConditions].forEach((c) =>
           conditions.set(c.name, c)
-        )
-      );
+        );
+      });
     });
   });
   return conditions;

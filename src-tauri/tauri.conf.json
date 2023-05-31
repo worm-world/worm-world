@@ -6,14 +6,16 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "worm-world",
+    "productName": "WormWorld",
     "version": "0.1.1"
   },
   "tauri": {
     "allowlist": {
       "all": true,
       "fs": {
-        "scope": ["**"]
+        "scope": [
+          "**"
+        ]
       }
     },
     "bundle": {
@@ -24,7 +26,11 @@
         "depends": []
       },
       "externalBin": [],
-      "icon": ["icons/icon.png", "icons/icon.icns", "icons/icon.ico"],
+      "icon": [
+        "icons/icon.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ],
       "identifier": "com.UofUBiology.WormWorld",
       "longDescription": "",
       "macOS": {
@@ -57,7 +63,7 @@
         "fullscreen": false,
         "height": 1000,
         "resizable": true,
-        "title": "worm-world",
+        "title": "WormWorld",
         "width": 1600
       }
     ]

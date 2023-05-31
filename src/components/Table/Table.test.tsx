@@ -1,11 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
-import { ColumnDefinitionType, Table } from 'components/Table/Table';
-import { cols as alleleCols } from 'pages/data-manager/allele';
-import { db_Allele } from 'models/db/db_Allele';
-import { Field } from 'components/ColumnFilter/ColumnFilter';
-import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
+import { type ColumnDefinitionType, Table } from 'components/Table/Table';
+import { cols as alleleCols } from 'pages/data-tables/alleles';
+import { type db_Allele } from 'models/db/db_Allele';
+import { type Field } from 'components/ColumnFilter/ColumnFilter';
+import { type AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
 
 const invisibleColHeaderCt = 2;
 

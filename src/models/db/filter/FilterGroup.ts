@@ -1,5 +1,5 @@
-import { Filter } from 'models/db/filter/Filter';
-import { Order } from './Order';
+import { type Filter } from 'models/db/filter/Filter';
+import { type Order } from 'models/db/filter/Order';
 
 export type FilterTuple<T> = [T, Filter];
 /**

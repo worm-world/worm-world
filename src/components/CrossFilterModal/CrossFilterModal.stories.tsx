@@ -4,7 +4,7 @@ import {
   CrossEditorFilterUpdate,
 } from 'components/CrossFilterModal/CrossEditorFilter';
 import { CrossFilterModal } from 'components/CrossFilterModal/CrossFilterModal';
-import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
+import { StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
 import {
   ed3AsChild,
   ed3HeteroHerm,
@@ -26,7 +26,7 @@ const Template: StoryFn<typeof CrossFilterModal> = ({
   filter = undefined,
   updateFilter = () => {},
 }: {
-  childNodes: Array<Node<CrossNodeModel>>;
+  childNodes: Array<Node<StrainNodeModel>>;
   invisibleSet: Set<string>;
   toggleVisible: (nodeId: string) => void;
   filter?: CrossEditorFilter;

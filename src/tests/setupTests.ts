@@ -3,21 +3,9 @@ import { expect, afterEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import matchers from '@testing-library/jest-dom/matchers';
 import { clearMocks, mockIPC, mockWindows } from '@tauri-apps/api/mocks';
-import { randomFillSync } from 'crypto';
 
 // extends Vitest's expect method with methods from react-testing-library
 expect.extend(matchers);
-
-// jsdom doesn't come with a WebCrypto implementation
-beforeAll(() => {
-  window.crypto = {
-    // @ts-expect-error
-    getRandomValues: function (buffer) {
-      // @ts-expect-error
-      return randomFillSync(buffer);
-    },
-  };
-});
 
 beforeEach(async () => {
   // attempts to suppress the following warning:

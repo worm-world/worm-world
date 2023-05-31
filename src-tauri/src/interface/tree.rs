@@ -120,14 +120,13 @@ mod test {
     use crate::models::tree::{Tree, TreeFieldName};
     use crate::InnerDbState;
     use crate::{
-        dummy::testdata,
+        interface::mock,
         models::filter::{Filter, FilterGroup},
     };
     use anyhow::Result;
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
 
-    /* #region get_trees tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_trees(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -135,12 +134,10 @@ mod test {
         let mut trees: Vec<Tree> = state.get_trees().await?;
         trees.sort_by(|a, b| (a.id.cmp(&b.id)));
 
-        assert_eq!(trees, testdata::get_trees());
+        assert_eq!(trees, mock::tree::get_trees());
         Ok(())
     }
-    /* #endregion */
 
-    /* #region get_filtered_trees tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_trees(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -153,12 +150,10 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::get_filtered_trees());
+        assert_eq!(exprs, mock::tree::get_filtered_trees());
         Ok(())
     }
-    /* #endregion */
 
-    /* #region insert_tree tests */
     #[sqlx::test]
     async fn test_insert_tree(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -180,9 +175,6 @@ mod test {
         assert_eq!(vec![expected], trees);
         Ok(())
     }
-
-    /* #endregion */
-    /* #region update_tree tests */
 
     #[sqlx::test]
     async fn test_update_tree(pool: Pool<Sqlite>) -> Result<()> {
@@ -217,8 +209,7 @@ mod test {
         assert_eq!(vec![new_expected], trees);
         Ok(())
     }
-    /* #endregion */
-    /* #region delete_tree tests */
+
     #[sqlx::test]
     pub async fn test_delete_tree(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -245,6 +236,4 @@ mod test {
 
         Ok(())
     }
-
-    /* #endregion */
 }

@@ -1,52 +1,34 @@
 {
   "db": "SQLite",
-  "05eee7fb2723b790cd406e835f02dec76e190031b1aff1bb7f280f8b0ae854c9": {
+  "13763c7fcfc492dce0b34a3dc732d261199d75e4fd741ef55a9a4abfa85668cb": {
     "describe": {
       "columns": [
         {
-          "name": "allele_name",
+          "name": "strain_name",
           "ordinal": 0,
           "type_info": "Text"
         },
         {
-          "name": "chromosome",
+          "name": "allele_name",
           "ordinal": 1,
           "type_info": "Text"
         },
         {
-          "name": "phys_loc",
+          "name": "homozygous",
           "ordinal": 2,
-          "type_info": "Int64"
-        },
-        {
-          "name": "gen_loc",
-          "ordinal": 3,
-          "type_info": "Float"
-        },
-        {
-          "name": "recomb_suppressor_start",
-          "ordinal": 4,
-          "type_info": "Int64"
-        },
-        {
-          "name": "recomb_suppressor_end",
-          "ordinal": 5,
-          "type_info": "Int64"
+          "type_info": "Bool"
         }
       ],
       "nullable": [
         false,
-        true,
-        true,
-        true,
-        true,
-        true
+        false,
+        false
       ],
       "parameters": {
         "Right": 0
       }
     },
-    "query": "\n            SELECT allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end FROM variation_info ORDER BY allele_name\n            "
+    "query": "\n            SELECT strain_name, allele_name, homozygous FROM strain_alleles ORDER BY strain_name\n            "
   },
   "15fca42cd2ff3e0d1af3b8f6fbf4a061da0d3b94ce4cff77894692e81e9f7c75": {
     "describe": {
@@ -111,16 +93,6 @@
       }
     },
     "query": "DELETE FROM trees\n            WHERE id = $1"
-  },
-  "3f2df432a60ce35b9a6f6544f8e22f050fe4463d44f0d0938c230bae211f2a7a": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 6
-      }
-    },
-    "query": "INSERT INTO variation_info (allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end)\n            VALUES($1, $2, $3, $4, $5, $6)\n            "
   },
   "472bcc21e1c9bc9ebdfc084d31c5608120b0c27dd753392ea88e9e58886f4031": {
     "describe": {
@@ -205,6 +177,16 @@
       }
     },
     "query": "INSERT INTO phenotypes (name, wild, short_name, description, male_mating, lethal, female_sterile, arrested, maturation_days)\n            VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)\n            "
+  },
+  "63b35e7a19f8a3e0b7d9b8a88daf6c128cb8f0cd821bfd4aadb018984c05d608": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 6
+      }
+    },
+    "query": "INSERT INTO variations (allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end)\n            VALUES($1, $2, $3, $4, $5, $6)\n            "
   },
   "6aa8945319721dcb31c373fa26d772ca1b5232c3f582c9397d4239e9b5a99ebc": {
     "describe": {
@@ -302,6 +284,54 @@
     },
     "query": "UPDATE tasks\n            SET due_date = $2,\n                action = $3,\n                strain1 = $4,\n                strain2 = $5,\n                result = $6,\n                notes = $7,\n                tree_id = $8,\n                completed = $9\n            WHERE\n                id = $1"
   },
+  "7e525302a65cdcfe11e7e54b16e6c5048ba96f704ff0467e26040878e7421231": {
+    "describe": {
+      "columns": [
+        {
+          "name": "allele_name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "chromosome",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "phys_loc",
+          "ordinal": 2,
+          "type_info": "Int64"
+        },
+        {
+          "name": "gen_loc",
+          "ordinal": 3,
+          "type_info": "Float"
+        },
+        {
+          "name": "recomb_suppressor_start",
+          "ordinal": 4,
+          "type_info": "Int64"
+        },
+        {
+          "name": "recomb_suppressor_end",
+          "ordinal": 5,
+          "type_info": "Int64"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end FROM variations ORDER BY allele_name\n            "
+  },
   "8441cefea899ffb8ae7a1e5cc3c5bd5d059248886ab8af8aa1b2a0da34266b30": {
     "describe": {
       "columns": [
@@ -330,7 +360,7 @@
         false,
         false,
         false,
-        true
+        false
       ],
       "parameters": {
         "Right": 0
@@ -448,6 +478,16 @@
     },
     "query": "DELETE FROM tasks\n            WHERE tree_id = $1"
   },
+  "9eb0b99a50cce02d20f922ca2cdbedca99d7acb7e0409920d499dcdb81c33cc9": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 3
+      }
+    },
+    "query": "\n            INSERT INTO strain_alleles (strain_name, allele_name, homozygous)\n            VALUES ($1, $2, $3)\n            "
+  },
   "a141f0b236e58df5eb33b7f342543d3d10b311054bc7f5f23a3ae1025d940355": {
     "describe": {
       "columns": [],
@@ -467,6 +507,30 @@
       }
     },
     "query": "INSERT INTO allele_exprs (allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance)\n            VALUES($1, $2, $3, $4)\n            "
+  },
+  "c0456f87f6cdc73265a58a3b2d3a28635f939a9a1f1d4c260bcad26a6f7b13a7": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 1,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        true
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT name, description FROM strains ORDER BY name\n            "
   },
   "c1e43fa299477f63abcf76b9c75bf94de3c769eaaa917790ffbe3829a282c32f": {
     "describe": {
@@ -631,6 +695,16 @@
       }
     },
     "query": "INSERT INTO expr_relations (\n                allele_name,\n                expressing_phenotype_name,\n                expressing_phenotype_wild,\n                altering_phenotype_name,\n                altering_phenotype_wild,\n                altering_condition,\n                is_suppressing\n            )\n            VALUES($1, $2, $3, $4, $5, $6, $7)\n            "
+  },
+  "f862afe28cad1d3c07a95915d0f39bcb2b6582d726807c03cb37d4c2459066d4": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 2
+      }
+    },
+    "query": "\n            INSERT INTO strains (name, description)\n            VALUES ($1, $2)\n            "
   },
   "f96cb531d7a4bd06ddd9fdfc008d2e6a761c04983d9a1f03301c407220db7a14": {
     "describe": {

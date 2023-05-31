@@ -1,15 +1,10 @@
 import { BiX as CloseIcon, BiPlus as PlusIcon } from 'react-icons/bi';
+import { type ChangeEvent, type HTMLInputTypeAttribute, useState } from 'react';
+import { type Filter } from 'models/db/filter/Filter';
 import {
-  ChangeEvent,
-  HTMLInputTypeAttribute,
-  useEffect,
-  useState,
-} from 'react';
-import { Filter } from 'models/db/filter/Filter';
-import {
-  FilterType,
+  type FilterType,
   getFilterType,
-  FormValueType,
+  type FormValueType,
   createNewFilter,
   filterValuesLengthForFilterType,
   getValuesForFilterType,
@@ -318,7 +313,7 @@ const FilterEntry = <T,>(props: iFilterEntryProps<T>): JSX.Element => {
       </div>
       <button
         title='delete-filter'
-        className='pt-4 pl-2 text-xl'
+        className='pl-2 pt-4 text-xl'
         onClick={() => {
           props.setFilter(null);
         }}

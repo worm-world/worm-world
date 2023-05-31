@@ -1,18 +1,19 @@
 import 'reflect-metadata';
-import React, { Suspense, FC } from 'react';
+import React, { Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import 'styles/global.css';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { BrowserRouter as Router, useRoutes } from 'react-router-dom';
 import routes from '~react-pages';
-import SideNav from 'components/SideNav/SideNav';
+import Spinner from 'components/Spinner/Spinner';
+import Layout from 'components/Layout/Layout';
 
-const App: FC = () => {
+const App = (): JSX.Element => {
   return (
     <>
-      <Suspense fallback={<p className='text-base-content'>Loading...</p>}>
-        <SideNav> {useRoutes(routes)}</SideNav>
+      <Suspense fallback={<Spinner />}>
+        <Layout> {useRoutes(routes)}</Layout>
       </Suspense>
       <ToastContainer
         autoClose={3000}

@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import DataImportForm, {
-  FieldType,
+  type FieldType,
 } from 'components/DataImportForm/DataImportForm';
-import { db_Allele } from 'models/db/db_Allele';
+import { type db_Allele } from 'models/db/db_Allele';
 import { vi } from 'vitest';
 
 describe('DataImportForm ', () => {
@@ -13,7 +13,7 @@ describe('DataImportForm ', () => {
         title='Empty Form'
         dataName={'Empty Form'}
         fields={[]}
-        onSubmitCallback={vi.fn}
+        onSubmit={vi.fn}
       />
     );
 
@@ -30,7 +30,7 @@ describe('DataImportForm ', () => {
         title='Empty Form'
         dataName={'Empty Form'}
         fields={[]}
-        onSubmitCallback={onSubmit}
+        onSubmit={onSubmit}
       />
     );
 
@@ -70,7 +70,7 @@ describe('DataImportForm ', () => {
         title='Allele Form'
         dataName={'Allele Form'}
         fields={fields}
-        onSubmitCallback={vi.fn()}
+        onSubmit={vi.fn()}
       />
     );
 

@@ -1,14 +1,14 @@
-import { getFilteredAlleleExpressions } from 'api/alleleExpressions';
+import { getFilteredAlleleExpressions } from 'api/alleleExpression';
 import { getGene } from 'api/gene';
-import { getVariation } from 'api/variationInfo';
+import { getVariation } from 'api/variation';
 import { instanceToPlain, plainToInstance, Type } from 'class-transformer';
-import { db_Allele } from 'models/db/db_Allele';
-import { AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
-import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
-import { FilterGroup } from 'models/db/filter/FilterGroup';
+import { type db_Allele } from 'models/db/db_Allele';
+import { type AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
+import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
+import { type FilterGroup } from 'models/db/filter/FilterGroup';
 import { AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
 import { Gene } from 'models/frontend/Gene/Gene';
-import { VariationInfo } from 'models/frontend/VariationInfo/VariationInfo';
+import { Variation } from 'models/frontend/Variation/Variation';
 
 export const WILD_ALLELE_NAME = '+';
 
@@ -23,20 +23,20 @@ interface IAllele {
 interface AlleleState {
   name: string;
   gene?: Gene;
-  variation?: VariationInfo;
+  variation?: Variation;
   alleleExpressions?: AlleleExpression[];
   contents?: string;
 }
 
-// Allele should always have exactly one of (1) gene or (2) variationInfo
+// Allele should always have exactly one of (1) gene or (2) variation
 export class Allele {
   name: string = '';
 
   @Type(() => Gene)
   gene?: Gene;
 
-  @Type(() => VariationInfo)
-  variation?: VariationInfo;
+  @Type(() => Variation)
+  variation?: Variation;
 
   @Type(() => AlleleExpression)
   alleleExpressions: AlleleExpression[] = [];
@@ -59,12 +59,14 @@ export class Allele {
       alleleExpressions: [],
     };
 
-    await Allele.setGeneOrVariation(newAlleleState, fields).catch((err) =>
-      console.error('error generating gene / variation', err)
-    );
+    await Allele.setGeneOrVariation(newAlleleState, fields).catch((err) => {
+      console.error('error generating gene / variation', err);
+    });
 
     await Allele.setAlleleExpressions(newAlleleState, fields.name).catch(
-      (err) => console.error('error generating allele expressions: ', err)
+      (err) => {
+        console.error('error generating allele expressions: ', err);
+      }
     );
 
     const allele = new Allele(newAlleleState);
@@ -99,7 +101,7 @@ export class Allele {
     variationName: string
   ): Promise<void> {
     const res = await getVariation(variationName);
-    partialAllele.variation = VariationInfo.createFromRecord(res);
+    partialAllele.variation = Variation.createFromRecord(res);
   }
 
   private static async setAlleleExpressions(

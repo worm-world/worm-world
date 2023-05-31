@@ -167,14 +167,13 @@ mod test {
     use crate::models::gene::{Gene, GeneDb, GeneFieldName};
     use crate::InnerDbState;
     use crate::{
-        dummy::testdata,
+        interface::mock,
         models::filter::{Filter, FilterGroup},
     };
     use anyhow::Result;
     use pretty_assertions::assert_eq;
     use sqlx::{Pool, Sqlite};
 
-    /* #region get_genes tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_genes(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -182,12 +181,10 @@ mod test {
         let mut genes: Vec<Gene> = state.get_genes().await?;
         genes.sort_by(|a, b| (a.descriptive_name.cmp(&b.descriptive_name)));
 
-        assert_eq!(genes, testdata::get_genes());
+        assert_eq!(genes, mock::gene::get_genes());
         Ok(())
     }
-    /* #endregion */
 
-    /* #region get_filtered_genes tests */
     #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_genes(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -203,7 +200,7 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::get_filtered_genes());
+        assert_eq!(exprs, mock::gene::get_filtered_genes());
         Ok(())
     }
 
@@ -222,7 +219,7 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::get_filtered_genes_alternate_ordering());
+        assert_eq!(exprs, mock::gene::get_filtered_genes_alternate_ordering());
         Ok(())
     }
 
@@ -241,11 +238,11 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::get_filtered_genes_and_clause());
+        assert_eq!(exprs, mock::gene::get_filtered_genes_and_clause());
         Ok(())
     }
     #[sqlx::test(fixtures("full_db"))]
-    async fn test_get_filtered_genes_and_with_or_clause(pool: Pool<Sqlite>) -> Result<()> {
+    async fn test_get_filtered_genes_and_or_clause(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
             .get_filtered_genes(&FilterGroup::<GeneFieldName> {
@@ -271,7 +268,7 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::get_filtered_genes_and_or_clause());
+        assert_eq!(exprs, mock::gene::get_filtered_genes_and_or_clause());
         Ok(())
     }
     #[sqlx::test(fixtures("full_db"))]
@@ -289,7 +286,7 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::search_genes_by_desc_name());
+        assert_eq!(exprs, mock::gene::search_genes_by_desc_name());
         Ok(())
     }
     #[sqlx::test(fixtures("full_db"))]
@@ -307,12 +304,10 @@ mod test {
             })
             .await?;
 
-        assert_eq!(exprs, testdata::search_genes_by_sys_or_desc_name());
+        assert_eq!(exprs, mock::gene::search_genes_by_sys_or_desc_name());
         Ok(())
     }
-    /* #endregion */
 
-    /* #region insert_gene tests */
     #[sqlx::test]
     async fn test_insert_gene(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -358,9 +353,7 @@ mod test {
         assert_eq!(vec![expected], genes);
         Ok(())
     }
-    /* #endregion */
 
-    /* #region insert_genes test */
     #[sqlx::test]
     async fn test_insert_genes(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -444,9 +437,6 @@ FAKE23.4\tunc-new\t\t10902633\t6.78\t\t"
         Ok(())
     }
 
-    /* #endregion */
-
-    /* #region delete_genes test */
     #[sqlx::test]
     async fn test_delete_single_gene(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
@@ -488,13 +478,13 @@ FAKE23.4\tunc-new\t\t10902633\t6.78\t\t"
         let state = InnerDbState { conn_pool: pool };
 
         // prep with single gene
-        for gene in testdata::get_genes().iter() {
+        for gene in mock::gene::get_genes().iter() {
             state.insert_gene(gene).await?;
         }
 
         let mut genes: Vec<Gene> = state.get_genes().await?;
         let orig_len = genes.len();
-        assert_eq!(orig_len, testdata::get_genes().len());
+        assert_eq!(orig_len, mock::gene::get_genes().len());
 
         let filter = &FilterGroup::<GeneFieldName> {
             filters: vec![vec![(
@@ -523,12 +513,12 @@ FAKE23.4\tunc-new\t\t10902633\t6.78\t\t"
         let state = InnerDbState { conn_pool: pool };
 
         // prep with single gene
-        for gene in testdata::get_genes().iter() {
+        for gene in mock::gene::get_genes().iter() {
             state.insert_gene(gene).await?;
         }
 
         let mut genes: Vec<Gene> = state.get_genes().await?;
-        assert_eq!(genes.len(), testdata::get_genes().len());
+        assert_eq!(genes.len(), mock::gene::get_genes().len());
 
         let filter = &FilterGroup::<GeneFieldName> {
             filters: vec![],
@@ -544,5 +534,4 @@ FAKE23.4\tunc-new\t\t10902633\t6.78\t\t"
 
         Ok(())
     }
-    /* #endregion */
 }

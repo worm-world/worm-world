@@ -1,10 +1,10 @@
-import CrossNode from 'components/CrossNode/CrossNode';
-import { CrossNodeModel } from 'models/frontend/CrossNode/CrossNode';
-import { Node } from 'reactflow';
+import StrainNode from 'components/StrainNode/StrainNode';
+import { StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { type Node } from 'reactflow';
 
 interface FilteredOutModalProps {
   nodeId: string;
-  excludedNodes: Array<Node<CrossNodeModel>>;
+  excludedNodes: Array<Node<StrainNodeModel>>;
 }
 
 const FilteredOutModal = (props: FilteredOutModalProps): JSX.Element => {
@@ -28,7 +28,7 @@ const FilteredOutModal = (props: FilteredOutModalProps): JSX.Element => {
             <div className='divider w-auto px-8' />
             <ul>
               {props.excludedNodes.map((node, idx) => {
-                const copiedData = new CrossNodeModel(node.data);
+                const copiedData = new StrainNodeModel(node.data);
                 copiedData.toggleHetPair = undefined;
                 copiedData.toggleSex = undefined;
                 copiedData.getMenuItems = () => [];
@@ -36,13 +36,13 @@ const FilteredOutModal = (props: FilteredOutModalProps): JSX.Element => {
                 return (
                   <li
                     key={idx}
-                    className='flex flex-row items-center py-4 pr-16 pl-8'
+                    className='flex flex-row items-center py-4 pl-8 pr-16'
                   >
                     <div className='text-content mr-8 brightness-95'>{`${
                       idx + 1
                     }.`}</div>
                     <div>
-                      <CrossNode model={copiedData} />
+                      <StrainNode model={copiedData} />
                     </div>
                   </li>
                 );

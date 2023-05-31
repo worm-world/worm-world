@@ -1,10 +1,10 @@
 import { invoke } from '@tauri-apps/api';
-import { db_Tree } from 'models/db/db_Tree';
+import { type db_Tree } from 'models/db/db_Tree';
 import {
-  FilterGroup,
+  type FilterGroup,
   getSingleRecordOrThrow,
 } from 'models/db/filter/FilterGroup';
-import { TreeFieldName } from 'models/db/filter/db_TreeFieldName';
+import { type TreeFieldName } from 'models/db/filter/db_TreeFieldName';
 
 export const getTrees = async (): Promise<db_Tree[]> => {
   return await invoke('get_trees');

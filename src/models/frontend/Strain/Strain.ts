@@ -1,10 +1,16 @@
-import { Chromosome } from 'models/db/filter/db_ChromosomeEnum';
-import { Allele } from 'models/frontend/Allele/Allele';
-import { AllelePair } from 'models/frontend/Strain/AllelePair';
-import { Transform, instanceToPlain, plainToInstance } from 'class-transformer';
-import { Phenotype } from 'models/frontend/Phenotype/Phenotype';
-import { AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
-import { Condition } from 'models/frontend/Condition/Condition';
+import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
+import { type Allele } from 'models/frontend/Allele/Allele';
+import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
+import {
+  Exclude,
+  Transform,
+  instanceToPlain,
+  plainToInstance,
+} from 'class-transformer';
+import { type Phenotype } from 'models/frontend/Phenotype/Phenotype';
+import { type AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
+import { type Condition } from 'models/frontend/Condition/Condition';
+import { type db_Strain } from 'models/db/db_Strain';
 
 export interface StrainOption {
   strain: Strain;
@@ -25,8 +31,12 @@ interface ChromosomeOption {
 interface iStrain {
   name?: string;
   allelePairs: AllelePair[];
-  notes?: string;
+  description?: string;
 }
+
+/**
+ * A (possibly named) genetic profile consisting of an ordered sequence of any non-wild allele pairs.
+ */
 export class Strain {
   /* #region initializers */
   @Transform(
@@ -40,7 +50,7 @@ export class Strain {
       return new Map(
         Object.keys(d).map((k) => {
           const pairs = d[k];
-          const restoredPairs = pairs.map((pair: Object) =>
+          const restoredPairs = pairs.map((pair: unknown) =>
             AllelePair.fromJSON(JSON.stringify(pair))
           );
           return [k === 'undefined' ? undefined : k, restoredPairs];
@@ -49,19 +59,29 @@ export class Strain {
     },
     { toClassOnly: true }
   )
-  public chromPairMap: Map<Chromosome | undefined, AllelePair[]> = new Map();
+  public chromPairMap = new Map<Chromosome | undefined, AllelePair[]>();
 
   public name?: string;
 
-  public notes?: string;
+  public description?: string;
 
   constructor(props: iStrain) {
     if (props !== undefined && props !== null) {
       this.name = props.name;
-      this.notes = props.notes;
+      this.description = props.description;
       this.addPairsToStrain(props.allelePairs);
     }
     this.chromPairMap = new Map(this.chromPairMap);
+  }
+
+  static createFromRecord(record: db_Strain): Strain {
+    const allelePairs: AllelePair[] = [];
+
+    return new Strain({
+      name: record.name ?? undefined,
+      description: record.description ?? undefined,
+      allelePairs,
+    });
   }
   /* #endregion initializers */
 
@@ -110,12 +130,12 @@ export class Strain {
    */
   public clone(): Strain {
     const allelePairs: AllelePair[] = [];
-    this.chromPairMap.forEach((pairs) =>
-      pairs.forEach((pair) => allelePairs.push(pair.clone()))
-    );
+    this.chromPairMap.forEach((pairs) => {
+      pairs.forEach((pair) => allelePairs.push(pair.clone()));
+    });
     return new Strain({
       name: this.name,
-      notes: this.notes,
+      description: this.description,
       allelePairs,
     });
   }
@@ -566,7 +586,9 @@ export class Strain {
    * Adds a list of AllelePairs to this strain
    */
   private addPairsToStrain(pairs: AllelePair[]): void {
-    pairs.forEach((pair) => this.addPairToStrain(pair));
+    pairs.forEach((pair) => {
+      this.addPairToStrain(pair);
+    });
   }
 
   /**
@@ -584,5 +606,14 @@ export class Strain {
     return [plainToInstance(Strain, JSON.parse(json))].flat()[0];
   }
 
-  /* #endregion private methods */
+  @Exclude()
+  generateRecord(): db_Strain {
+    if (this.name === undefined) {
+      throw Error('Attempted to generate a record for a strain without a name');
+    }
+    return {
+      name: this.name,
+      description: this.description ?? null,
+    };
+  }
 }
