@@ -53,7 +53,7 @@ const StrainNode = (props: StrainNodeProps): JSX.Element => {
           data-testid='strainNode'
           className='flex h-36 w-64 flex-col rounded bg-base-100 shadow'
         >
-          <div className='flex h-7 justify-between'>
+          <div className='flex h-6 justify-between'>
             {getSexIcon(
               props.model.sex,
               props.model.isParent,
@@ -102,7 +102,7 @@ const StrainNode = (props: StrainNodeProps): JSX.Element => {
               )}
             </div>
           </div>
-          <div className='h-5 text-center text-sm font-bold'>
+          <div className='h-6 text-center text-sm font-bold'>
             {props.model.strain.name}
           </div>
         </div>

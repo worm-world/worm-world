@@ -5,7 +5,7 @@ import {
   CrossEditorFilter,
   type CrossEditorFilterUpdate,
   type CrossEditorFilterProps,
-} from 'components/CrossFilterModal/CrossEditorFilter';
+} from 'components/CrossEditorFilter/CrossEditorFilter';
 import React, { useEffect, useState } from 'react';
 export interface CrossFilterProps {
   nodeId?: string;

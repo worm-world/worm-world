@@ -205,9 +205,7 @@ describe('cross algorithm', () => {
 
   test('cross between homozygous and wild strain', () => {
     const homoPairs: AllelePair[] = [mockAlleles.e204.toHomoPair()];
-    const wildPairs: AllelePair[] = [
-      mockAlleles.e204.getWild().toHomoPair(),
-    ];
+    const wildPairs: AllelePair[] = [mockAlleles.e204.getWild().toHomoPair()];
 
     const homoStrain = new Strain({ allelePairs: homoPairs });
     const wildStrain = new Strain({ allelePairs: wildPairs });

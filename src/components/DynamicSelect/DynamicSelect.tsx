@@ -29,11 +29,16 @@ export const DynamicSelect = <T, U>(
     setSearchRes([]);
   }
 
-  const onInputChange = (val: React.ChangeEvent<HTMLInputElement>): void => {
-    setUserInput(val.target.value);
+  const onInputChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    setUserInput(event.target.value);
+
+    if (event.target.value === '') {
+      setSearchRes([]);
+      return;
+    }
 
     const filter: FilterGroup<T> = {
-      filters: [[[props.searchOn, { Like: val.target.value }]]],
+      filters: [[[props.searchOn, { Like: event.target.value }]]],
       orderBy: [],
     };
 

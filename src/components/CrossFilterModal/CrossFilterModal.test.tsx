@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter';
+import { CrossEditorFilter } from 'components/CrossEditorFilter/CrossEditorFilter';
 import { CrossFilterModal } from 'components/CrossFilterModal/CrossFilterModal';
 import * as mockAlleles from 'models/frontend/Allele/Allele.mock';
 import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';

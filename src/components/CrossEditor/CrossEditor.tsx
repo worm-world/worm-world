@@ -7,7 +7,7 @@ import {
 import {
   CrossEditorFilter,
   type CrossEditorFilterUpdate,
-} from 'components/CrossFilterModal/CrossEditorFilter';
+} from 'components/CrossEditorFilter/CrossEditorFilter';
 import { CrossFilterModal } from 'components/CrossFilterModal/CrossFilterModal';
 import CrossFlow, { FlowType } from 'components/CrossFlow/CrossFlow';
 import EditorTop from 'components/EditorTop/EditorTop';
