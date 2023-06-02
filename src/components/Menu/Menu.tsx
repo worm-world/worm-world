@@ -4,14 +4,14 @@ export interface MenuItem {
   menuCallback: () => void;
 }
 
-export interface iMenu {
+export interface MenuProps {
   items: MenuItem[];
   icon: JSX.Element;
   title: string;
   top?: boolean;
 }
 
-export const Menu = (props: iMenu): JSX.Element => {
+export const Menu = (props: MenuProps): JSX.Element => {
   return (
     <div
       onClick={(e) => {

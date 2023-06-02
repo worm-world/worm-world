@@ -8,7 +8,7 @@ export interface FieldType<T> {
   selectOptions?: string[];
 }
 
-export interface iDataImportFormProps<T> {
+export interface DataImportFormProps<T> {
   className?: string;
   title: string;
   dataName: string;
@@ -16,11 +16,11 @@ export interface iDataImportFormProps<T> {
   onSubmit: (arg0: T, successCallback: () => void) => void;
 }
 
-interface iFieldsProps<T> {
+interface FieldsProps<T> {
   fieldList: Array<FieldType<T>>;
 }
 
-const Fields = <T,>(props: iFieldsProps<T>): JSX.Element => {
+const Fields = <T,>(props: FieldsProps<T>): JSX.Element => {
   const fieldList = props.fieldList;
   return (
     <div>
@@ -82,7 +82,7 @@ const Fields = <T,>(props: iFieldsProps<T>): JSX.Element => {
   );
 };
 
-const DataImportForm = <T,>(props: iDataImportFormProps<T>): JSX.Element => {
+const DataImportForm = <T,>(props: DataImportFormProps<T>): JSX.Element => {
   const [isFormOpen, setFormOpen] = React.useState(false);
   const handleOpen = (): void => {
     setFormOpen(true);

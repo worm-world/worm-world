@@ -7,7 +7,7 @@ import { type AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
 import { type GeneFieldName } from 'models/db/filter/db_GeneFieldName';
 import React, { useState } from 'react';
 
-export interface iAlleleMultiSelect {
+export interface AlleleMultiSelectProps {
   /** provide the api call that will fetch filtered db records */
   selectedRecords: Set<db_Allele>;
   setSelectedRecords: (newSelected: Set<db_Allele>) => void;
@@ -19,7 +19,9 @@ export interface iAlleleMultiSelect {
   label?: string;
 }
 
-export const AlleleMultiSelect = (props: iAlleleMultiSelect): JSX.Element => {
+export const AlleleMultiSelect = (
+  props: AlleleMultiSelectProps
+): JSX.Element => {
   const [searchRes, setSearchRes] = useState(new Array<[db_Allele, db_Gene]>());
   const [userInput, setUserInput] = useState('');
 
@@ -40,15 +42,13 @@ export const AlleleMultiSelect = (props: iAlleleMultiSelect): JSX.Element => {
     };
 
     // Query from DB and do final filtering on frontend
-    const shouldInclude = props.shouldInclude ?? ((_) => true);
+    const shouldInclude = props.shouldInclude ?? (() => true);
     getFilteredAllelesWithGeneFilter(alleleFilter, geneFilter)
       .then((results) => {
         const includedResults = results.filter((res) => shouldInclude(res[0]));
         setSearchRes(includedResults);
       })
-      .catch((err) => {
-        console.error(err);
-      });
+      .catch(console.error);
   };
 
   const removeFromSelected = (value: db_Allele): void => {
@@ -57,17 +57,16 @@ export const AlleleMultiSelect = (props: iAlleleMultiSelect): JSX.Element => {
     props.setSelectedRecords(newSelectedRecords);
   };
 
-  const showLabel = props.label !== undefined;
   return (
     <>
-      {showLabel && (
-        <label htmlFor={`dynamicSearch-${props.label}`} className='label'>
+      {props.label !== undefined && (
+        <label htmlFor={`AlleleMultiSelect-${props.label}`} className='label'>
           <span className='label-text'>{props.label}</span>
         </label>
       )}
       <div className='dropdown w-full max-w-md'>
         <input
-          id={`dynamicSearch-${props.label}`}
+          id={`AlleleMultiSelect-${props.label}`}
           type='text'
           placeholder={props.placeholder}
           className='input-bordered input w-full max-w-xs'
@@ -112,7 +111,10 @@ export const AlleleMultiSelect = (props: iAlleleMultiSelect): JSX.Element => {
           </ul>
         )}
       </div>
-      <div className='flex max-w-xs flex-wrap p-2'>
+      <div
+        data-testid='selected-pill-group'
+        className='flex max-w-xs flex-wrap'
+      >
         {getSelectedPills(props.selectedRecords, removeFromSelected, ['name'])}
       </div>
     </>

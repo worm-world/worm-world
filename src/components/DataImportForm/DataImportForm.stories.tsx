@@ -1,7 +1,7 @@
 import { Meta, StoryFn } from '@storybook/react';
 import DataImportForm, {
   FieldType,
-  iDataImportFormProps,
+  DataImportFormProps,
 } from 'components/DataImportForm/DataImportForm';
 import { db_Allele } from 'models/db/db_Allele';
 import { db_Condition } from 'models/db/db_Condition';
@@ -18,7 +18,7 @@ export default {
 } as Meta<typeof DataImportForm>;
 
 const Template =
-  <T,>(): StoryFn<iDataImportFormProps<T>> =>
+  <T,>(): StoryFn<DataImportFormProps<T>> =>
   (props) =>
     <DataImportForm {...props} />;
 

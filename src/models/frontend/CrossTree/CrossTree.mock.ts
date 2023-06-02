@@ -1,8 +1,8 @@
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
-import * as mockStrainNode from 'models/frontend/StrainNode/StrainNode.mock';
+import * as mockStrainNode from 'models/frontend/StrainNodeModel/StrainNodeModel.mock';
 import { type Edge, type Node } from 'reactflow';
 import { FlowType } from 'components/CrossFlow/CrossFlow';
-import { type StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { type StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 
 export const emptyCrossTree = new CrossTree({
   name: 'Empty cross tree',
@@ -13,8 +13,6 @@ export const emptyCrossTree = new CrossTree({
   lastSaved: new Date(),
   editable: true,
 });
-
-// Simple cross tree ///////////////////////////////////
 
 export const ed3HeteroMale: Node<StrainNodeModel> = {
   id: '0',
@@ -85,7 +83,6 @@ export const simpleCrossTree = new CrossTree({
   editable: true,
 });
 
-// Medium cross tree ////////////////////////////////////////////////
 export const node0: Node<StrainNodeModel> = {
   id: '0',
   type: FlowType.Strain,

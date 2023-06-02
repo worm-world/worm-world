@@ -2,7 +2,7 @@
 
 import { Exclude } from 'class-transformer';
 
-export interface iNoteNodeProps {
+export interface NoteNodePropsProps {
   content: string;
   onDoubleClick: () => void;
 }
@@ -13,7 +13,7 @@ export class NoteNodeProps {
   @Exclude()
   onDoubleClick: () => void;
 
-  constructor(props: iNoteNodeProps) {
+  constructor(props: NoteNodePropsProps) {
     if (props !== null && props !== undefined) {
       this.content = props.content;
       this.onDoubleClick = props.onDoubleClick;

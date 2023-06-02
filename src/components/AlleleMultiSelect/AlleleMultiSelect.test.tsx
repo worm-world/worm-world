@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import {
   AlleleMultiSelect,
-  type iAlleleMultiSelect,
+  type AlleleMultiSelectProps,
 } from 'components/AlleleMultiSelect/AlleleMultiSelect';
 import { type db_Allele } from 'models/db/db_Allele';
 import { clearMocks, mockIPC } from '@tauri-apps/api/mocks';
@@ -32,7 +32,7 @@ const MockAlleleMultiSelect = (props: {
   const [selectedRecords, setSelectedRecords] = useState<Set<db_Allele>>(
     new Set()
   );
-  const selectProps: iAlleleMultiSelect = {
+  const selectProps: AlleleMultiSelectProps = {
     selectedRecords,
     setSelectedRecords,
     shouldInclude: props.shouldInclude,

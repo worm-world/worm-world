@@ -26,7 +26,7 @@ describe('TopNav', () => {
     const user = userEvent.setup();
     renderComponent({});
 
-    const tabs = screen.getAllByRole('tab');
+    const tabs = await screen.findAllByRole('tab');
     expect(tabs[0].classList.contains('tab-active')).toBe(true);
     expect(tabs[1].classList.contains('tab-active')).toBe(false);
 

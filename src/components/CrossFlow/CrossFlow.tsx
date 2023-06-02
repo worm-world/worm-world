@@ -121,7 +121,7 @@ const saveImg = (saveMethod: SaveMethod): void => {
     });
 };
 
-interface iCrossFlowProps {
+interface CrossFlowProps {
   innerRef?: any;
   className?: string;
   nodes: Node[];
@@ -216,7 +216,7 @@ export enum FlowType {
   FilteredOut = 'filteredOut',
 }
 
-const CrossFlow = (props: iCrossFlowProps): JSX.Element => {
+const CrossFlow = (props: CrossFlowProps): JSX.Element => {
   const nodeTypes = useMemo(
     () => ({
       strain: StrainFlowWrapper,

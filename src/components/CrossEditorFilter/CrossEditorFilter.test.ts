@@ -2,7 +2,7 @@ import { expect, test, describe } from 'vitest';
 import { ed3, n765 } from 'models/frontend/Allele/Allele.mock';
 import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
-import { CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter';
+import { CrossEditorFilter } from 'components/CrossEditorFilter/CrossEditorFilter';
 import { ed3HomoHerm } from 'models/frontend/CrossTree/CrossTree.mock';
 
 describe('CrossEditorFilter', () => {
@@ -92,7 +92,7 @@ describe('CrossEditorFilter', () => {
   test('.extractCrossFilterNames() to pull info from strain', () => {
     const strain = new Strain({
       allelePairs: [
-        new AllelePair({ top: n765, bot: n765.getWildCopy() }),
+        new AllelePair({ top: n765, bot: n765.getWild() }),
         new AllelePair({ top: ed3, bot: ed3 }),
       ],
     });
@@ -106,12 +106,12 @@ describe('CrossEditorFilter', () => {
 
   test('.condenseCrossFilterNames() pulls info from multiple strains', () => {
     const strain1 = new Strain({
-      allelePairs: [new AllelePair({ top: n765, bot: n765.getWildCopy() })],
+      allelePairs: [new AllelePair({ top: n765, bot: n765.getWild() })],
     });
     const strain2 = new Strain({
       allelePairs: [
         new AllelePair({ top: ed3, bot: ed3 }),
-        new AllelePair({ top: n765, bot: n765.getWildCopy() }),
+        new AllelePair({ top: n765, bot: n765.getWild() }),
       ],
     });
     const names = CrossEditorFilter.condenseCrossFilterNames([

@@ -2,16 +2,10 @@ import { StoryFn, Meta } from '@storybook/react';
 import {
   CrossEditorFilter,
   CrossEditorFilterUpdate,
-} from 'components/CrossFilterModal/CrossEditorFilter';
+} from 'components/CrossEditorFilter/CrossEditorFilter';
 import { CrossFilterModal } from 'components/CrossFilterModal/CrossFilterModal';
-import { StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
-import {
-  ed3AsChild,
-  ed3HeteroHerm,
-  ed3HeteroMale,
-  ed3HomoHerm,
-  n765AsChild,
-} from 'models/frontend/CrossTree/CrossTree.mock';
+import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import * as mockTrees from 'models/frontend/CrossTree/CrossTree.mock';
 import { Node } from 'reactflow';
 
 export default {
@@ -52,18 +46,18 @@ export const Empty = Template.bind({});
 
 export const WithNodes = Template.bind({});
 WithNodes.args = {
-  childNodes: [ed3HeteroHerm, ed3HeteroMale, ed3HomoHerm],
+  childNodes: [mockTrees.ed3HeteroHerm, mockTrees.ed3HeteroMale, mockTrees.ed3HomoHerm],
 };
 
 export const WithNodeDeselected = Template.bind({});
 WithNodeDeselected.args = {
-  childNodes: [ed3HeteroHerm, ed3HeteroMale, ed3HomoHerm],
-  invisibleSet: new Set(ed3HeteroHerm.id),
+  childNodes: [mockTrees.ed3HeteroHerm, mockTrees.ed3HeteroMale, mockTrees.ed3HomoHerm],
+  invisibleSet: new Set(mockTrees.ed3HeteroHerm.id),
 };
 
 export const WithToggleCallback = Template.bind({});
 WithToggleCallback.args = {
-  childNodes: [ed3HeteroHerm, ed3HeteroMale, ed3HomoHerm],
+  childNodes: [mockTrees.ed3HeteroHerm, mockTrees.ed3HeteroMale, mockTrees.ed3HomoHerm],
   toggleVisible: (nodeId: string) => {
     alert('Clicked node with id: ' + nodeId);
   },
@@ -80,6 +74,6 @@ const ed3Filter = new CrossEditorFilter({
 });
 export const WithAppliedfilter = Template.bind({});
 WithAppliedfilter.args = {
-  childNodes: [ed3AsChild, n765AsChild],
+  childNodes: [mockTrees.ed3AsChild, mockTrees.n765AsChild],
   filter: ed3Filter,
 };

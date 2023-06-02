@@ -1,10 +1,10 @@
 import { TopNav } from 'components/TopNav/TopNav';
 import { Link, Outlet } from 'react-router-dom';
-import 'styles/data-manager.css';
+import 'styles/data-tables.css';
 
-const DataManager = (): JSX.Element => {
+const DataTables = (): JSX.Element => {
   return (
-    <div className='data-manager'>
+    <div className='data-tables'>
       <TopNav title={'Data Tables'} tabIndex={0}>
         <Link key='genes' to='genes' className='tab'>
           Genes
@@ -43,4 +43,4 @@ const DataManager = (): JSX.Element => {
   );
 };
 
-export default DataManager;
+export default DataTables;

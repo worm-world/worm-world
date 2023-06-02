@@ -23,13 +23,13 @@ const getIconColor = (action: Action): string => {
   }
 };
 
-interface iTaskProps {
+interface TaskItemProps {
   task: Task;
   updateTask: (task: Task) => void;
   refresh: () => Promise<void>;
 }
 
-const TaskItem = (props: iTaskProps): JSX.Element => {
+const TaskItem = (props: TaskItemProps): JSX.Element => {
   const action = props.task.action;
   const shouldSwap =
     action === 'Cross' &&
@@ -112,7 +112,7 @@ const TaskItem = (props: iTaskProps): JSX.Element => {
   );
 };
 
-interface iTaskViewProps {
+interface TaskViewProps {
   tasks: Task[];
   updateTask: (task: Task) => void;
   refresh: () => Promise<void>;
@@ -132,7 +132,7 @@ const getDateSections = (tasks: Task[]): Map<string, Set<Task>> => {
   return dates;
 };
 
-export const TaskView = (props: iTaskViewProps): JSX.Element => {
+export const TaskView = (props: TaskViewProps): JSX.Element => {
   const sections = Array.from(getDateSections(props.tasks)).sort(
     ([date1], [date2]) => (moment(date1).isAfter(moment(date2)) ? 1 : -1)
   );

@@ -2,12 +2,12 @@ import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
 import { type AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
 import { type db_Allele } from 'models/db/db_Allele';
-import { getDbAlleles } from 'components/DynamicSearch/DynamicSearch.mock';
+import { getDbAlleles } from 'components/DynamicSelect/DynamicSelect.mock';
 import { type FilterGroup } from 'models/db/filter/FilterGroup';
 import {
-  DynamicSearch,
-  type iSearchProps,
-} from 'components/DynamicSearch/DynamicSearch';
+  DynamicSelect,
+  type DynamicSelectProps,
+} from 'components/DynamicSelect/DynamicSelect';
 
 const getAlleleApi = async (
   filter: FilterGroup<AlleleFieldName>
@@ -15,15 +15,17 @@ const getAlleleApi = async (
   return getDbAlleles();
 };
 
-describe('DynamicSearch component', () => {
+describe('DynamicSelect component', () => {
   test('successfully renders', () => {
-    const searchProps: iSearchProps<AlleleFieldName, db_Allele> = {
-      getFilteredRecordApi: getAlleleApi,
+    const searchProps: DynamicSelectProps<AlleleFieldName, db_Allele> = {
+      getFilteredRecord: getAlleleApi,
       searchOn: 'Name',
       selectInputOn: 'name',
-      displayResultsOn: ['name'],
+      fieldsToDisplay: ['name'],
+      selectedRecord: undefined,
+      setSelectedRecord: function (record?: db_Allele): void {},
     };
-    render(<DynamicSearch {...searchProps} />);
+    render(<DynamicSelect {...searchProps} />);
 
     const search = screen.getByRole('textbox');
     expect(search).toBeDefined();
@@ -32,13 +34,15 @@ describe('DynamicSearch component', () => {
   test('displays search results', async () => {
     const user = userEvent.setup();
 
-    const searchProps: iSearchProps<AlleleFieldName, db_Allele> = {
-      getFilteredRecordApi: getAlleleApi,
+    const searchProps: DynamicSelectProps<AlleleFieldName, db_Allele> = {
+      getFilteredRecord: getAlleleApi,
       searchOn: 'Name',
       selectInputOn: 'name',
-      displayResultsOn: ['name'],
+      fieldsToDisplay: ['name'],
+      selectedRecord: undefined,
+      setSelectedRecord: function (record?: db_Allele): void {},
     };
-    render(<DynamicSearch {...searchProps} />);
+    render(<DynamicSelect {...searchProps} />);
 
     const search = screen.getByRole('textbox');
     await user.type(search, 'allele');
@@ -50,13 +54,15 @@ describe('DynamicSearch component', () => {
   test('tab / enter selects an option', async () => {
     const user = userEvent.setup();
 
-    const searchProps: iSearchProps<AlleleFieldName, db_Allele> = {
-      getFilteredRecordApi: getAlleleApi,
+    const searchProps: DynamicSelectProps<AlleleFieldName, db_Allele> = {
+      getFilteredRecord: getAlleleApi,
       searchOn: 'Name',
       selectInputOn: 'name',
-      displayResultsOn: ['name'],
+      fieldsToDisplay: ['name'],
+      selectedRecord: undefined,
+      setSelectedRecord: function (record?: db_Allele): void {},
     };
-    render(<DynamicSearch {...searchProps} />);
+    render(<DynamicSelect {...searchProps} />);
 
     const search = screen.getByRole('textbox');
     await user.type(search, 'allele');

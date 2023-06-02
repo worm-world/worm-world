@@ -101,6 +101,7 @@ export const dpy10 = new Gene({
   physLoc: 6710149,
   geneticLoc: 0,
 });
+
 export const dpy20 = new Gene({
   sysName: 'T22B3.1',
   descName: 'dpy-10',
@@ -108,6 +109,7 @@ export const dpy20 = new Gene({
   physLoc: 11696430,
   geneticLoc: 5.52,
 });
+
 export const kin4 = new Gene({
   sysName: 'C10C6.1',
   descName: 'kin-4',
@@ -122,4 +124,20 @@ export const him8 = new Gene({
   chromosome: 'IV',
   physLoc: 10501965,
   geneticLoc: 4.64,
+});
+
+export const fbl1 = new Gene({
+  sysName: 'F56H11.1',
+  descName: 'fbl-1',
+  chromosome: 'IV',
+  physLoc: 9540806,
+  geneticLoc: 4.3,
+});
+
+export const unc24 = new Gene({
+  sysName: 'F57H12.2',
+  descName: 'unc-24',
+  chromosome: 'IV',
+  physLoc: 7979870,
+  geneticLoc: 3.51,
 });

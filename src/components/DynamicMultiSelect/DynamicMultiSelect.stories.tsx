@@ -1,4 +1,7 @@
-import { DynamicMultiSelect, iDynamicMultiSelect } from './DynamicMultiSelect';
+import {
+  DynamicMultiSelect,
+  DynamicMultiSelectProps,
+} from './DynamicMultiSelect';
 import { useState } from 'react';
 import { Meta, StoryFn } from '@storybook/react';
 import { FilterGroup } from 'models/db/filter/FilterGroup';

@@ -1,17 +1,17 @@
-import { ColumnFilter, type Field } from './ColumnFilter';
-import { type Filter } from 'models/db/filter/Filter';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { type db_Allele } from 'models/db/db_Allele';
+import { type Filter } from 'models/db/filter/Filter';
 import { useState } from 'react';
+import { ColumnFilter, type Field } from './ColumnFilter';
 
-interface iColumnFilterWrapperProps<T> {
+interface ColumnFilterWrapperProps<T> {
   field: Field<T>;
   filterTypes?: Filter[];
 }
 
 const ColumnFilterWrapper = <T,>(
-  props: iColumnFilterWrapperProps<T>
+  props: ColumnFilterWrapperProps<T>
 ): JSX.Element => {
   const [filterTypes, setFilterTypes] = useState<Filter[]>(
     props.filterTypes ?? new Array<Filter>()

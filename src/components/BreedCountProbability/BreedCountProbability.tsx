@@ -1,12 +1,12 @@
 import React from 'react';
 import jStat from 'jstat';
 
-export interface IBreedCountProbabilityProps {
-  probability: number | undefined;
+export interface BreedCountProbabilityProps {
+  probability?: number;
 }
 
 const BreedCountProbability = (
-  props: IBreedCountProbabilityProps
+  props: BreedCountProbabilityProps
 ): JSX.Element => {
   const getNForConfidence = (confidence: number): number => {
     if (

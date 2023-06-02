@@ -76,6 +76,7 @@ export const ed3 = new Allele({
   gene: geneMock.unc119,
   alleleExpressions: [ed3PhenUnc119],
 });
+
 export const n765 = new Allele({
   name: 'n765',
   gene: geneMock.lin15B,
@@ -210,4 +211,30 @@ export const ox992 = new Allele({
   name: 'ox992',
   gene: geneMock.unc44,
   contents: '[SL2::YFP-NLS]',
+});
+
+export const n744 = new Allele({
+  name: 'n744',
+  gene: geneMock.lin15B,
+});
+
+export const e128 = new Allele({
+  name: 'e128',
+  gene: geneMock.dpy10,
+});
+
+export const e138 = new Allele({
+  name: 'e138',
+  gene: geneMock.unc24,
+});
+
+export const oxIs363 = new Allele({
+  name: 'oxIs363',
+  variation: variationMock.oxIs363,
+  contents: '[unc-122p::GFP + unc-119(+)]',
+});
+
+export const hd43 = new Allele({
+  name: 'hd43',
+  gene: geneMock.fbl1,
 });

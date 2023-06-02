@@ -1,9 +1,9 @@
 import { type Action } from 'models/db/task/Action';
 import { type db_Task } from 'models/db/task/db_Task';
-import { StrainNodeModel } from '../StrainNode/StrainNode';
+import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 import { Type, plainToInstance, instanceToPlain } from 'class-transformer';
-import { empty } from 'models/frontend/StrainNode/StrainNode.mock';
-import { type Condition } from '../Condition/Condition';
+import { hermWild } from 'models/frontend/StrainNodeModel/StrainNodeModel.mock';
+import { type Condition } from 'models/frontend/Condition/Condition';
 
 export interface iTask {
   id: string;
@@ -43,7 +43,7 @@ export class Task {
     if (task === null || task === undefined) {
       this.id = '';
       this.action = 'SelfCross';
-      this.strain1 = empty;
+      this.strain1 = hermWild;
       this.completed = false;
       this.treeId = '';
     } else {

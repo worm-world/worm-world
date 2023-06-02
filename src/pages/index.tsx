@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react';
-import CrossTree from 'models/frontend/CrossTree/CrossTree';
-import { getFilteredTrees, insertTree } from 'api/crossTree';
-import SavedTreeCard from 'components/SavedTreeCard/SavedTreeCard';
-import { TopNav } from 'components/TopNav/TopNav';
-import { GiEarthWorm as WormIcon } from 'react-icons/gi';
 import { open } from '@tauri-apps/api/dialog';
 import { readTextFile } from '@tauri-apps/api/fs';
+import { getFilteredTrees, insertTree } from 'api/crossTree';
+import { type CrossEditorFilter } from 'components/CrossEditorFilter/CrossEditorFilter';
+import SavedTreeCard from 'components/SavedTreeCard/SavedTreeCard';
+import { TopNav } from 'components/TopNav/TopNav';
+import CrossTree from 'models/frontend/CrossTree/CrossTree';
+import { useEffect, useState } from 'react';
+import { GiEarthWorm as WormIcon } from 'react-icons/gi';
 import { toast } from 'react-toastify';
-import { type CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter';
 
 const CrossDesignerPage = (): JSX.Element => {
   const [crossTrees, setCrossTrees] = useState<CrossTree[]>([]);
@@ -27,9 +27,7 @@ const CrossDesignerPage = (): JSX.Element => {
       .then(() => {
         setHasRefreshedOnce(true);
       })
-      .catch((error) => {
-        console.error(error);
-      });
+      .catch(console.error);
   }, []);
 
   const newTreeButton = (
@@ -37,14 +35,10 @@ const CrossDesignerPage = (): JSX.Element => {
       key='newTree'
       className='btn'
       onClick={() => {
-        addTree()
-          .then(refreshTrees)
-          .catch((err) => {
-            console.error(err);
-          });
+        addTree().then(refreshTrees).catch(console.error);
       }}
     >
-      New Tree
+      New Design
     </button>
   );
 
@@ -53,11 +47,7 @@ const CrossDesignerPage = (): JSX.Element => {
       key='importTree'
       className='btn'
       onClick={() => {
-        importTree()
-          .then(refreshTrees)
-          .catch((err) => {
-            console.error(err);
-          });
+        importTree().then(refreshTrees).catch(console.error);
       }}
     >
       Import
@@ -78,9 +68,7 @@ const CrossDesignerPage = (): JSX.Element => {
             return (
               <SavedTreeCard
                 refreshTrees={() => {
-                  refreshTrees().catch((error) => {
-                    console.error(error);
-                  });
+                  refreshTrees().catch(console.error);
                 }}
                 key={crossTree.id}
                 tree={crossTree}

@@ -9,6 +9,7 @@ import { type FilterGroup } from 'models/db/filter/FilterGroup';
 import { AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
 import { Gene } from 'models/frontend/Gene/Gene';
 import { Variation } from 'models/frontend/Variation/Variation';
+import { AllelePair } from '../AllelePair/AllelePair';
 
 export const WILD_ALLELE_NAME = '+';
 
@@ -134,6 +135,22 @@ export class Allele {
     });
   }
 
+  public toHomoPair(): AllelePair {
+    return new AllelePair({ top: this, bot: this });
+  }
+
+  public toTopHetPair(): AllelePair {
+    return new AllelePair({ top: this, bot: this.getWild() });
+  }
+
+  public toBotHetPair(): AllelePair {
+    return new AllelePair({ top: this.getWild(), bot: this });
+  }
+
+  public toEcaPair(): AllelePair {
+    return new AllelePair({ top: this, bot: this.getWild(), isEca: true });
+  }
+
   public generateRecord(): db_Allele {
     return {
       name: this.name,
@@ -151,7 +168,7 @@ export class Allele {
     return this.gene?.geneticLoc ?? this.variation?.geneticLoc;
   }
 
-  public getWildCopy(): Allele {
+  public getWild(): Allele {
     return new Allele({
       name: WILD_ALLELE_NAME,
       variation: this.variation,

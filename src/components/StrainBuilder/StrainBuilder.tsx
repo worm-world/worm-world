@@ -3,49 +3,58 @@ import { AlleleMultiSelect } from 'components/AlleleMultiSelect/AlleleMultiSelec
 import { DynamicMultiSelect } from 'components/DynamicMultiSelect/DynamicMultiSelect';
 import { type db_Allele } from 'models/db/db_Allele';
 import { Allele, isEcaAlleleName } from 'models/frontend/Allele/Allele';
-import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { useState } from 'react';
 
 export interface StrainBuilderProps {
   onSubmit: (strain: Strain) => void;
+  setPreview?: (strain?: Strain) => void;
 }
 
 const StrainBuilder = (props: StrainBuilderProps): JSX.Element => {
+  const [prevStrain, setPrevStrain] = useState<Strain>(
+    new Strain({ allelePairs: [] })
+  );
   const [homoAlleles, setHomoAlleles] = useState(new Set<db_Allele>());
   const [hetAlleles, setHetAlleles] = useState(new Set<db_Allele>());
   const [exAlleles, setExAlleles] = useState(new Set<db_Allele>());
 
+  const buildStrain = async (): Promise<Strain> => {
+    const homoPairs = Array.from(homoAlleles).map(async (selectedAllele) =>
+      (await Allele.createFromRecord(selectedAllele)).toHomoPair()
+    );
+    const hetPairs = Array.from(hetAlleles).map(async (selectedAllele) =>
+      (await Allele.createFromRecord(selectedAllele)).toTopHetPair()
+    );
+    const exPairs = Array.from(exAlleles).map(async (selectedAllele) =>
+      (await Allele.createFromRecord(selectedAllele)).toEcaPair()
+    );
+
+    return new Strain({
+      allelePairs: await Promise.all(
+        homoPairs.concat(hetPairs).concat(exPairs)
+      ),
+    });
+  };
+
+  buildStrain()
+    .then((strain) => {
+      if (!strain.equals(prevStrain)) {
+        setPrevStrain(strain);
+        props.setPreview?.(strain);
+      }
+    })
+    .catch(console.error);
+
   const onSubmit = (): void => {
-    const homoPairs = Array.from(homoAlleles).map(async (selectedAllele) => {
-      const allele = await Allele.createFromRecord(selectedAllele);
-      return new AllelePair({ top: allele, bot: allele });
-    });
-
-    const hetPairs = Array.from(hetAlleles).map(async (selectedAllele) => {
-      const allele = await Allele.createFromRecord(selectedAllele);
-      return new AllelePair({ top: allele, bot: allele.getWildCopy() });
-    });
-
-    const exPairs = Array.from(exAlleles).map(async (selectedAllele) => {
-      const allele = await Allele.createFromRecord(selectedAllele);
-      return new AllelePair({
-        top: allele,
-        bot: allele.getWildCopy(),
-        isECA: true,
-      });
-    });
-
-    Promise.all(homoPairs.concat(hetPairs).concat(exPairs))
-      .then((allelePairs) => {
+    buildStrain()
+      .then((strain) => {
+        props.onSubmit(strain);
         setHomoAlleles(new Set());
         setHetAlleles(new Set());
         setExAlleles(new Set());
-        props.onSubmit(new Strain({ allelePairs }));
       })
-      .catch((err) => {
-        console.error(err);
-      });
+      .catch(console.error);
   };
 
   return (

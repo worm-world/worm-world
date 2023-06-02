@@ -1,14 +1,14 @@
 import { StoryFn, Meta } from '@storybook/react';
 import { NoteNode } from 'components/NoteNode/NoteNode';
-import { iNoteNodeProps } from 'components/NoteNode/NoteNodeProps';
+import { NoteNodeProps } from 'components/NoteNode/NoteNodeProps';
 
 export default {
   title: 'Components/NoteNode',
   component: NoteNode,
 } as Meta<typeof NoteNode>;
 
-const Template: StoryFn<typeof NoteNode> = (args: iNoteNodeProps) => {
-  return <NoteNode {...args} />;
+const Template: StoryFn<typeof NoteNode> = (props: NoteNodeProps) => {
+  return <NoteNode {...props} />;
 };
 
 export const empty = Template.bind({});

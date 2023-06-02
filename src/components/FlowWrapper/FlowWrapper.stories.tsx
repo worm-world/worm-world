@@ -1,9 +1,9 @@
 import { Meta, StoryFn } from '@storybook/react';
 import {
   StrainFlowWrapper,
-  iStrainFlowWrapper,
+  StrainFlowWrapperProps,
 } from 'components/FlowWrapper/FlowWrapper';
-import * as strainNodeMock from 'models/frontend/StrainNode/StrainNode.mock';
+import * as strainNodeMock from 'models/frontend/StrainNodeModel/StrainNodeModel\.mock';
 import { ReactFlowProvider } from 'reactflow';
 
 export default {
@@ -12,14 +12,14 @@ export default {
 } as Meta<typeof StrainFlowWrapper>;
 
 const Template: StoryFn<typeof StrainFlowWrapper> = (
-  args: iStrainFlowWrapper
+  props: StrainFlowWrapperProps
 ) => {
   return (
     <ReactFlowProvider>
-      <StrainFlowWrapper {...args}></StrainFlowWrapper>
+      <StrainFlowWrapper {...props}></StrainFlowWrapper>
     </ReactFlowProvider>
   );
 };
 
 export const wrapperOfStrainNode = Template.bind({});
-wrapperOfStrainNode.args = { data: strainNodeMock.mutated };
+wrapperOfStrainNode.args = { data: strainNodeMock.maleManyPairs };

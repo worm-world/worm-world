@@ -1,16 +1,16 @@
 import { instanceToPlain, plainToInstance, Transform } from 'class-transformer';
 import { Dominance } from 'models/enums';
-import { type StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { type StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 import { type Strain } from 'models/frontend/Strain/Strain';
 import { type Node } from 'reactflow';
 
 export interface CrossEditorFilterUpdate {
-  field: keyof iCrossEditorFilter;
+  field: keyof CrossEditorFilterProps;
   action: 'add' | 'remove' | 'clear';
   name: string;
   nodeId: string;
 }
-export interface iCrossEditorFilter {
+export interface CrossEditorFilterProps {
   alleleNames: Set<string>;
   exprPhenotypes: Set<string>;
   reqConditions: Set<string>;
@@ -30,7 +30,7 @@ export class CrossEditorFilter {
   @Transform((data: any) => new Set(data?.obj?.supConditions))
   public supConditions = new Set<string>();
 
-  constructor(props: iCrossEditorFilter) {
+  constructor(props: CrossEditorFilterProps) {
     Object.assign(this, props);
   }
 
@@ -63,7 +63,9 @@ export class CrossEditorFilter {
   }
 
   /** Given a strain, extracts all information that a cross filter might use */
-  public static extractCrossFilterNames(strain: Strain): iCrossEditorFilter {
+  public static extractCrossFilterNames(
+    strain: Strain
+  ): CrossEditorFilterProps {
     return {
       alleleNames: new Set(strain.getAlleles().map((allele) => allele.name)),
       exprPhenotypes: new Set(
@@ -81,7 +83,7 @@ export class CrossEditorFilter {
   /** Combines the possible names from multiple strains into a cross filter sets */
   public static condenseCrossFilterNames(
     strains: Strain[]
-  ): iCrossEditorFilter {
+  ): CrossEditorFilterProps {
     let alleleNames = new Set<string>();
     let exprPhenotypes = new Set<string>();
     let reqConditions = new Set<string>();
@@ -111,7 +113,7 @@ export class CrossEditorFilter {
     const supConds = new Set(strain.getSupConditions().map((c) => c.name));
 
     const namesToFilter: Array<{
-      key: keyof iCrossEditorFilter;
+      key: keyof CrossEditorFilterProps;
       names: Set<string>;
     }> = [
       { key: 'alleleNames', names: alleleNames },

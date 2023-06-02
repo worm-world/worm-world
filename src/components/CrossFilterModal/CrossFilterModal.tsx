@@ -1,11 +1,11 @@
 import StrainNode from 'components/StrainNode/StrainNode';
-import { type StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 import { type Node } from 'reactflow';
 import {
   CrossEditorFilter,
   type CrossEditorFilterUpdate,
-  type iCrossEditorFilter,
-} from 'components/CrossFilterModal/CrossEditorFilter';
+  type CrossEditorFilterProps,
+} from 'components/CrossEditorFilter/CrossEditorFilter';
 import React, { useEffect, useState } from 'react';
 export interface CrossFilterProps {
   nodeId?: string;
@@ -86,7 +86,7 @@ export const CrossFilterModal = (props: CrossFilterProps): JSX.Element => {
 const FilterList = (props: {
   title: string;
   names: Set<string>;
-  field: keyof iCrossEditorFilter;
+  field: keyof CrossEditorFilterProps;
   nodeId: string;
   filter?: CrossEditorFilter;
   updateFilter: (update: CrossEditorFilterUpdate) => void;

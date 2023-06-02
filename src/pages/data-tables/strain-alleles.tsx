@@ -14,7 +14,7 @@ import { type StrainAlleleFieldName } from 'models/db/filter/db_StrainAlleleFiel
 export const cols: Array<ColumnDefinitionType<db_StrainAllele>> = [
   { key: 'strain_name', header: 'Strain Name' },
   { key: 'allele_name', header: 'Allele Name' },
-  { key: 'homozygous', header: 'Homozygous' },
+  { key: 'is_homozygous', header: 'Is Homozygous' },
 ];
 
 const fields: Array<Field<db_StrainAllele>> = [
@@ -29,8 +29,8 @@ const fields: Array<Field<db_StrainAllele>> = [
     type: 'text',
   },
   {
-    name: 'homozygous',
-    title: 'Homozygous',
+    name: 'is_homozygous',
+    title: 'Is Homozygous',
     type: 'boolean',
   },
 ];
@@ -38,7 +38,7 @@ const fields: Array<Field<db_StrainAllele>> = [
 const nameMapping: { [key in keyof db_StrainAllele]: StrainAlleleFieldName } = {
   strain_name: 'StrainName',
   allele_name: 'AlleleName',
-  homozygous: 'Homozygous',
+  is_homozygous: 'IsHomozygous',
 };
 
 export default function StrainDataPage(): JSX.Element {

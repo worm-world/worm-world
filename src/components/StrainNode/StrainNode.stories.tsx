@@ -1,10 +1,10 @@
 import { Meta, StoryFn } from '@storybook/react';
-import StrainNode, { iStrainNodeProps } from 'components/StrainNode/StrainNode';
-import * as strainNodeMock from 'models/frontend/StrainNode/StrainNode.mock';
+import StrainNode, { StrainNodeProps } from 'components/StrainNode/StrainNode';
+import * as strainNodeMock from 'models/frontend/StrainNodeModel/StrainNodeModel\.mock';
 import { ReactFlowProvider } from 'reactflow';
 
 export default {
-  title: 'Components/Cross Node',
+  title: 'Components/StrainNode',
   component: StrainNode,
   argTypes: {
     isSelected: { control: { type: 'boolean' } },
@@ -15,7 +15,7 @@ export default {
   },
 } as Meta<typeof StrainNode>;
 
-const Template: StoryFn<typeof StrainNode> = (args: iStrainNodeProps) => {
+const Template: StoryFn<typeof StrainNode> = (args: StrainNodeProps) => {
   return (
     <ReactFlowProvider>
       <StrainNode model={args.model}></StrainNode>
@@ -24,28 +24,15 @@ const Template: StoryFn<typeof StrainNode> = (args: iStrainNodeProps) => {
 };
 
 export const empty = Template.bind({});
-empty.args = { model: strainNodeMock.empty };
+empty.args = { model: strainNodeMock.maleWild };
 
-export const wild = Template.bind({});
-wild.args = { model: strainNodeMock.wild };
+export const N2 = Template.bind({});
+N2.args = { model: strainNodeMock.maleN2 };
 
-export const smallMutated = Template.bind({});
-smallMutated.args = { model: strainNodeMock.smallMutated };
+export const MT2495 = Template.bind({});
+MT2495.args = { model: strainNodeMock.maleMT2495 };
 
-export const mutated = Template.bind({});
-mutated.args = { model: strainNodeMock.mutated };
+export const BT14 = Template.bind({});
+BT14.args = { model: strainNodeMock.maleBT14 };
 
-export const badMutationLists = Template.bind({});
-badMutationLists.args = { model: strainNodeMock.badMutationLists };
 
-export const badAllele = Template.bind({});
-badAllele.args = { model: strainNodeMock.badAllele };
-
-export const monoid = Template.bind({});
-monoid.args = { model: strainNodeMock.monoid };
-
-export const diploid = Template.bind({});
-diploid.args = { model: strainNodeMock.diploid };
-
-export const extrachromArray = Template.bind({});
-extrachromArray.args = { model: strainNodeMock.ecaStrainNode };

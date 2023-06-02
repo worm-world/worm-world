@@ -5,12 +5,12 @@ import moment from 'moment';
 import { toast } from 'react-toastify';
 import { type Task, getConditionsFromTask } from 'models/frontend/Task/Task';
 
-interface iTodoModalProps {
+interface TodoModalProps {
   task: Task;
   refresh: () => Promise<void>;
 }
 
-const TodoModal = (props: iTodoModalProps): JSX.Element => {
+const TodoModal = (props: TodoModalProps): JSX.Element => {
   const navigate = useNavigate();
   const navigateToTree = useCallback((): void => {
     // the tree associated with the task is already a copy

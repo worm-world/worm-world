@@ -3,5 +3,5 @@
 export interface db_StrainAllele {
   strain_name: string;
   allele_name: string;
-  homozygous: boolean;
+  is_homozygous: boolean;
 }
