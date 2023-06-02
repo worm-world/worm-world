@@ -93,7 +93,7 @@ export class Strain {
       );
       if (strainAllele.is_homozygous)
         return new AllelePair({ top: allele, bot: allele });
-      else return new AllelePair({ top: allele, bot: allele.getWildCopy() });
+      else return new AllelePair({ top: allele, bot: allele.getWild() });
     });
 
     return new Strain({
@@ -388,8 +388,8 @@ export class Strain {
     defaultLeft: boolean
   ): void {
     const wildPair = new AllelePair({
-      top: otherPair.getAllele().getWildCopy(),
-      bot: otherPair.getAllele().getWildCopy(),
+      top: otherPair.getAllele().getWild(),
+      bot: otherPair.getAllele().getWild(),
       isEca: otherPair.isEca,
     });
 

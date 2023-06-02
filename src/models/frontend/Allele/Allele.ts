@@ -140,15 +140,15 @@ export class Allele {
   }
 
   public toTopHetPair(): AllelePair {
-    return new AllelePair({ top: this, bot: this.getWildCopy() });
+    return new AllelePair({ top: this, bot: this.getWild() });
   }
 
   public toBotHetPair(): AllelePair {
-    return new AllelePair({ top: this.getWildCopy(), bot: this });
+    return new AllelePair({ top: this.getWild(), bot: this });
   }
 
   public toEcaPair(): AllelePair {
-    return new AllelePair({ top: this, bot: this.getWildCopy(), isEca: true });
+    return new AllelePair({ top: this, bot: this.getWild(), isEca: true });
   }
 
   public generateRecord(): db_Allele {
@@ -168,7 +168,7 @@ export class Allele {
     return this.gene?.geneticLoc ?? this.variation?.geneticLoc;
   }
 
-  public getWildCopy(): Allele {
+  public getWild(): Allele {
     return new Allele({
       name: WILD_ALLELE_NAME,
       variation: this.variation,

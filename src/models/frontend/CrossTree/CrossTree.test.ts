@@ -2,7 +2,7 @@ import { CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter
 import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { type MenuItem } from 'components/Menu/Menu';
 import { Sex } from 'models/enums';
-import { type IStrainNode as IStrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import { type IStrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 import CrossTree, {
   type ICrossTree,
 } from 'models/frontend/CrossTree/CrossTree';
@@ -573,8 +573,8 @@ describe('cross tree', () => {
       sex: Sex.Hermaphrodite,
       strain: generateStrain({
         allelePairs: [
-          new AllelePair({ top: ed3, bot: ed3.getWildCopy() }),
-          new AllelePair({ top: ox1059, bot: ox1059.getWildCopy() }),
+          new AllelePair({ top: ed3, bot: ed3.getWild() }),
+          new AllelePair({ top: ox1059, bot: ox1059.getWild() }),
         ],
       }),
     });

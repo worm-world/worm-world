@@ -12,6 +12,7 @@ import { BsUiChecks as ScheduleIcon } from 'react-icons/bs';
 import { MenuItem } from 'components/Menu/Menu';
 
 export const maleWild = mockStrains.wild.toMaleModel();
+export const hermWild = mockStrains.wild.toHermModel();
 export const maleWildManyPairs = mockStrains.wildManyPairs.toMaleModel();
 export const maleN2 = mockStrains.N2.toMaleModel();
 export const maleMT2495 = mockStrains.MT2495.toMaleModel();
@@ -85,6 +86,14 @@ export const ed3HomoHerm = new StrainNodeModel({
   sex: Sex.Hermaphrodite,
   strain: new Strain({
     allelePairs: [mockAlleles.ed3.toHomoPair()],
+  }),
+  getMenuItems,
+});
+
+export const e204WildMale = new StrainNodeModel({
+  sex: Sex.Hermaphrodite,
+  strain: new Strain({
+    allelePairs: [mockAlleles.e204.getWild().toHomoPair()],
   }),
   getMenuItems,
 });

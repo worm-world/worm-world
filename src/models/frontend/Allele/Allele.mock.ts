@@ -231,7 +231,7 @@ export const e138 = new Allele({
 export const oxIs363 = new Allele({
   name: 'oxIs363',
   variation: variationMock.oxIs363,
-  content: '[unc-122p::GFP + unc-119(+)]',
+  contents: '[unc-122p::GFP + unc-119(+)]',
 });
 
 export const hd43 = new Allele({

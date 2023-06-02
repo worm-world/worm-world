@@ -92,7 +92,7 @@ describe('CrossEditorFilter', () => {
   test('.extractCrossFilterNames() to pull info from strain', () => {
     const strain = new Strain({
       allelePairs: [
-        new AllelePair({ top: n765, bot: n765.getWildCopy() }),
+        new AllelePair({ top: n765, bot: n765.getWild() }),
         new AllelePair({ top: ed3, bot: ed3 }),
       ],
     });
@@ -106,12 +106,12 @@ describe('CrossEditorFilter', () => {
 
   test('.condenseCrossFilterNames() pulls info from multiple strains', () => {
     const strain1 = new Strain({
-      allelePairs: [new AllelePair({ top: n765, bot: n765.getWildCopy() })],
+      allelePairs: [new AllelePair({ top: n765, bot: n765.getWild() })],
     });
     const strain2 = new Strain({
       allelePairs: [
         new AllelePair({ top: ed3, bot: ed3 }),
-        new AllelePair({ top: n765, bot: n765.getWildCopy() }),
+        new AllelePair({ top: n765, bot: n765.getWild() }),
       ],
     });
     const names = CrossEditorFilter.condenseCrossFilterNames([

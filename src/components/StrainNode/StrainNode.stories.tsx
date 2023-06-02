@@ -24,15 +24,15 @@ const Template: StoryFn<typeof StrainNode> = (args: StrainNodeProps) => {
 };
 
 export const empty = Template.bind({});
-empty.args = { model: strainNodeMock.empty };
+empty.args = { model: strainNodeMock.maleWild };
 
 export const N2 = Template.bind({});
-N2.args = { model: strainNodeMock.N2 };
+N2.args = { model: strainNodeMock.maleN2 };
 
 export const MT2495 = Template.bind({});
-MT2495.args = { model: strainNodeMock.MT2495 };
+MT2495.args = { model: strainNodeMock.maleMT2495 };
 
 export const BT14 = Template.bind({});
-BT14.args = { model: strainNodeMock.BT14 };
+BT14.args = { model: strainNodeMock.maleBT14 };
 
 

@@ -45,7 +45,7 @@ describe('Strain builder', () => {
 
     await user.click(homoAlleleInput);
     await user.keyboard('ed3');
-    await user.click(screen.getByRole('listitem', { value: /ed3/i }));
+    await user.click(screen.getByRole('listitem'));
 
     expect(homoAlleleInput).toHaveTextContent('');
 

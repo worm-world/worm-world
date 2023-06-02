@@ -180,7 +180,7 @@ describe('strain', () => {
     const expected = new Strain({
       allelePairs: [
         mockAlleles.ed3.toTopHetPair(),
-        mockAlleles.md299.getWildCopy().toHomoPair(),
+        mockAlleles.md299.getWild().toHomoPair(),
       ],
     });
 
@@ -206,7 +206,7 @@ describe('cross algorithm', () => {
   test('cross between homozygous and wild strain', () => {
     const homoPairs: AllelePair[] = [mockAlleles.e204.toHomoPair()];
     const wildPairs: AllelePair[] = [
-      mockAlleles.e204.getWildCopy().toHomoPair(),
+      mockAlleles.e204.getWild().toHomoPair(),
     ];
 
     const homoStrain = new Strain({ allelePairs: homoPairs });
@@ -322,19 +322,19 @@ describe('cross algorithm', () => {
     const allelePairs1: AllelePair[] = [
       new AllelePair({
         top: mockAlleles.oxEx2254,
-        bot: mockAlleles.oxEx2254.getWildCopy(),
+        bot: mockAlleles.oxEx2254.getWild(),
         isEca: true,
       }),
       new AllelePair({
         top: mockAlleles.oxEx219999,
-        bot: mockAlleles.oxEx219999.getWildCopy(),
+        bot: mockAlleles.oxEx219999.getWild(),
         isEca: true,
       }),
     ];
     const allelePairs2: AllelePair[] = [
       new AllelePair({
         top: mockAlleles.oxEx2254,
-        bot: mockAlleles.oxEx2254.getWildCopy(),
+        bot: mockAlleles.oxEx2254.getWild(),
         isEca: true,
       }),
     ];
