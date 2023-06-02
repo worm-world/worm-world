@@ -21,9 +21,7 @@ const EditorPage = (): JSX.Element => {
         fixTreeDeserialization(newTree);
         setTree(newTree);
       })
-      .catch((err) => {
-        console.error(err);
-      });
+      .catch(console.error);
   }, []);
 
   if (tree === null) {

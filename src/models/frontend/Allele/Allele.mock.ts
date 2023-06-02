@@ -214,7 +214,7 @@ export const ox992 = new Allele({
 });
 
 export const n744 = new Allele({
-  name: 'n744', 
+  name: 'n744',
   gene: geneMock.lin15B,
 });
 
@@ -225,7 +225,7 @@ export const e128 = new Allele({
 
 export const e138 = new Allele({
   name: 'e138',
-  gene: geneMock.un24,
+  gene: geneMock.unc24,
 });
 
 export const oxIs363 = new Allele({

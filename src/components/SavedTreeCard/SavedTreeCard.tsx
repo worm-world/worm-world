@@ -44,9 +44,7 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
       {
         text: 'Export',
         menuCallback: () => {
-          exportTree(props.tree).catch((err) => {
-            console.error(err);
-          });
+          exportTree(props.tree).catch(console.error);
         },
       },
       {
@@ -73,9 +71,7 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
     props.tree.lastSaved = new Date();
     updateTree(props.tree.generateRecord(props.tree.editable))
       .then(props.refreshTrees)
-      .catch((error) => {
-        console.error(error);
-      });
+      .catch(console.error);
     setNameEditable(false);
   };
 
@@ -132,9 +128,7 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
               onClick={() => {
                 deleteTree(props.tree.id)
                   .then(props.refreshTrees)
-                  .catch((error) => {
-                    console.error(error);
-                  });
+                  .catch(console.error);
               }}
             >
               Delete

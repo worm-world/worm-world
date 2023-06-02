@@ -6,7 +6,7 @@ import { Strain } from 'models/frontend/Strain/Strain';
 import { useState } from 'react';
 import StrainBuilder from 'components/StrainBuilder/StrainBuilder';
 import StrainNode from 'components/StrainNode/StrainNode';
-import { StrainNode as StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 
 export interface StrainFormProps {
   onSubmit: (sex: Sex, strain: Strain) => void;
@@ -23,17 +23,19 @@ const StrainForm = (props: StrainFormProps): JSX.Element => {
 
   return (
     <>
-      <h2 className='text-lg'>Add Strain to Design</h2>
-      <StrainNode
-        model={
-          new StrainNodeModel({
-            sex,
-            strain: previewStrain ?? new Strain({ allelePairs: [] }),
-            isParent: false,
-            isChild: false,
-          })
-        }
-      />
+      <h2 className='mb-4 text-lg'>Add Strain to Design</h2>
+      <div className='flex justify-center'>
+        <StrainNode
+          model={
+            new StrainNodeModel({
+              sex,
+              strain: previewStrain ?? new Strain({ allelePairs: [] }),
+              isParent: false,
+              isChild: false,
+            })
+          }
+        />
+      </div>
       <div className='divider' />
       <div className='form-control w-full max-w-xs'>
         <SexSelect
@@ -96,12 +98,8 @@ const StrainSelect = (props: {
           record === undefined
             ? setStrainWithPreview(undefined)
             : Strain.createFromRecord(record)
-                .then((strain) => {
-                  setStrainWithPreview(strain);
-                })
-                .catch((error) => {
-                  console.error(error);
-                });
+                .then(setStrainWithPreview)
+                .catch(console.error);
         }}
       />
       <button

@@ -3,7 +3,6 @@ import { AlleleMultiSelect } from 'components/AlleleMultiSelect/AlleleMultiSelec
 import { DynamicMultiSelect } from 'components/DynamicMultiSelect/DynamicMultiSelect';
 import { type db_Allele } from 'models/db/db_Allele';
 import { Allele, isEcaAlleleName } from 'models/frontend/Allele/Allele';
-import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { useState } from 'react';
 
@@ -21,25 +20,15 @@ const StrainBuilder = (props: StrainBuilderProps): JSX.Element => {
   const [exAlleles, setExAlleles] = useState(new Set<db_Allele>());
 
   const buildStrain = async (): Promise<Strain> => {
-    const homoPairs = Array.from(homoAlleles).map(async (selectedAllele) => {
-      const allele = await Allele.createFromRecord(selectedAllele);
-      console.log(allele);
-      return new AllelePair({ top: allele, bot: allele });
-    });
-
-    const hetPairs = Array.from(hetAlleles).map(async (selectedAllele) => {
-      const allele = await Allele.createFromRecord(selectedAllele);
-      return new AllelePair({ top: allele, bot: allele.getWildCopy() });
-    });
-
-    const exPairs = Array.from(exAlleles).map(async (selectedAllele) => {
-      const allele = await Allele.createFromRecord(selectedAllele);
-      return new AllelePair({
-        top: allele,
-        bot: allele.getWildCopy(),
-        isEca: true,
-      });
-    });
+    const homoPairs = Array.from(homoAlleles).map(async (selectedAllele) =>
+      (await Allele.createFromRecord(selectedAllele)).toHomoPair()
+    );
+    const hetPairs = Array.from(hetAlleles).map(async (selectedAllele) =>
+      (await Allele.createFromRecord(selectedAllele)).toTopHetPair()
+    );
+    const exPairs = Array.from(exAlleles).map(async (selectedAllele) =>
+      (await Allele.createFromRecord(selectedAllele)).toEcaPair()
+    );
 
     return new Strain({
       allelePairs: await Promise.all(
@@ -55,9 +44,7 @@ const StrainBuilder = (props: StrainBuilderProps): JSX.Element => {
         props.setPreview?.(strain);
       }
     })
-    .catch((error) => {
-      console.error(error);
-    });
+    .catch(console.error);
 
   const onSubmit = (): void => {
     buildStrain()
@@ -67,9 +54,7 @@ const StrainBuilder = (props: StrainBuilderProps): JSX.Element => {
         setHetAlleles(new Set());
         setExAlleles(new Set());
       })
-      .catch((err) => {
-        console.error(err);
-      });
+      .catch(console.error);
   };
 
   return (

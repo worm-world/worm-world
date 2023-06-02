@@ -142,7 +142,7 @@ const DataPage = <T, K>(props: DataPageProps<T, K>): JSX.Element => {
   }, []);
 
   return (
-    <div className='drawer-content flex h-screen flex-col'>
+    <div className='drawer-content flex flex-col'>
       <div>
         <div className='grid grid-cols-3 place-items-center items-center px-6'>
           <div className='flex select-none flex-row justify-start pt-4'>
@@ -190,9 +190,7 @@ const DataPage = <T, K>(props: DataPageProps<T, K>): JSX.Element => {
             <button
               className='btn'
               onClick={() => {
-                importData().catch((error) => {
-                  console.error(error);
-                });
+                importData().catch(console.error);
               }}
             >
               Import

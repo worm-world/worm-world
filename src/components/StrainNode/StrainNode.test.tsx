@@ -1,10 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import StrainNode, { cmpChromosomes } from 'components/StrainNode/StrainNode';
 import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
-import * as mock from 'models/frontend/StrainNode/StrainNode.mock';
+import * as mock from 'models/frontend/StrainNodeModel/StrainNodeModel.mock';
+
 describe('StrainNode component', () => {
   test('Empty node shows "wild" label', () => {
-    const emptyNode = mock.empty;
+    const emptyNode = mock.maleWild;
     render(<StrainNode model={emptyNode} />);
 
     const body = screen.getByTestId('strainNodeBody');
@@ -12,7 +13,7 @@ describe('StrainNode component', () => {
   });
 
   test('Wild strain node shows sections', () => {
-    const wildNode = mock.wild; // See wild node for details
+    const wildNode = mock.maleWildManyPairs;
     render(<StrainNode model={wildNode} />);
 
     const body = screen.getByTestId('strainNodeBody');
@@ -66,10 +67,10 @@ describe('StrainNode component', () => {
     });
   });
   test('Breed Count Probabilty Renders and shows correct data', () => {
-    const wildNode = mock.wild;
-    wildNode.probability = 0.25;
-    wildNode.isChild = true;
-    render(<StrainNode model={wildNode} />);
+    const model = mock.maleWild;
+    model.probability = 0.25;
+    model.isChild = true;
+    render(<StrainNode model={model} />);
     const prob1 = screen.getByTestId('progress-0.8');
     expect(prob1).not.toBeNull();
     const prob2 = screen.getByTestId('progress-0.9');

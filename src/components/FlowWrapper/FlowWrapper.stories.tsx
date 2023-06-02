@@ -3,7 +3,7 @@ import {
   StrainFlowWrapper,
   StrainFlowWrapperProps,
 } from 'components/FlowWrapper/FlowWrapper';
-import * as strainNodeMock from 'models/frontend/StrainNode/StrainNode.mock';
+import * as strainNodeMock from 'models/frontend/StrainNodeModel/StrainNodeModel\.mock';
 import { ReactFlowProvider } from 'reactflow';
 
 export default {
@@ -22,4 +22,4 @@ const Template: StoryFn<typeof StrainFlowWrapper> = (
 };
 
 export const wrapperOfStrainNode = Template.bind({});
-wrapperOfStrainNode.args = { data: strainNodeMock.mutated };
+wrapperOfStrainNode.args = { data: strainNodeMock.maleManyPairs };

@@ -9,18 +9,18 @@ import { Sex } from 'models/enums';
 import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
 
-export interface IStrainNode {
-  sex: Sex;
+export interface IStrainNodeModel {
+  sex?: Sex;
   strain: Strain;
-  isParent: boolean;
-  isChild: boolean;
+  isParent?: boolean;
+  isChild?: boolean;
   probability?: number;
-  getMenuItems?: (node: StrainNode) => MenuItem[];
+  getMenuItems?: (node: StrainNodeModel) => MenuItem[];
   toggleSex?: () => void;
   toggleHetPair?: (pair: AllelePair) => void;
 }
 
-export class StrainNode implements IStrainNode {
+export class StrainNodeModel implements IStrainNodeModel {
   sex: Sex;
   @Type(() => Strain)
   strain: Strain;
@@ -30,7 +30,7 @@ export class StrainNode implements IStrainNode {
   probability?: number;
 
   @Exclude()
-  getMenuItems?: (node: StrainNode) => MenuItem[];
+  getMenuItems?: (node: StrainNodeModel) => MenuItem[];
 
   @Exclude()
   toggleSex?: () => void;
@@ -38,15 +38,15 @@ export class StrainNode implements IStrainNode {
   @Exclude()
   toggleHetPair?: (pair: AllelePair) => void;
 
-  constructor(strainNodeModel: IStrainNode) {
+  constructor(strainNodeModel: IStrainNodeModel) {
     if (strainNodeModel !== null && strainNodeModel !== undefined) {
-      this.sex = strainNodeModel.sex;
+      this.sex = strainNodeModel.sex ?? Sex.Male;
       this.strain = strainNodeModel.strain;
       this.getMenuItems = strainNodeModel.getMenuItems;
       this.toggleSex = strainNodeModel.toggleSex;
       this.toggleHetPair = strainNodeModel.toggleHetPair;
-      this.isParent = strainNodeModel.isParent;
-      this.isChild = strainNodeModel.isChild;
+      this.isParent = strainNodeModel.isParent ?? false;
+      this.isChild = strainNodeModel.isChild ?? false;
       this.probability = strainNodeModel.probability;
     } else {
       this.sex = Sex.Male;
@@ -60,7 +60,7 @@ export class StrainNode implements IStrainNode {
     return JSON.stringify(instanceToPlain(this));
   }
 
-  static fromJSON(json: string): StrainNode {
-    return [plainToInstance(StrainNode, JSON.parse(json))].flat()[0];
+  static fromJSON(json: string): StrainNodeModel {
+    return [plainToInstance(StrainNodeModel, JSON.parse(json))].flat()[0];
   }
 }

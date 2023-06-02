@@ -31,10 +31,12 @@ export const DynamicSelect = <T, U>(
 
   const onInputChange = (val: React.ChangeEvent<HTMLInputElement>): void => {
     setUserInput(val.target.value);
+
     const filter: FilterGroup<T> = {
       filters: [[[props.searchOn, { Like: val.target.value }]]],
       orderBy: [],
     };
+
     props.setSelectedRecord(undefined);
     props
       .getFilteredRecord(filter)
@@ -63,7 +65,7 @@ export const DynamicSelect = <T, U>(
         {searchRes.length === 0 ? (
           <></> // Don't show list if no results
         ) : (
-          <ul className='dropdown-content menu rounded-box mb-2 mt-2 w-52  overflow-auto bg-base-100 p-2 shadow'>
+          <ul className='dropdown-content menu rounded-box mb-2 mt-2 max-h-80 w-52 overflow-auto bg-base-100 p-2 shadow'>
             {searchRes.map((record, idx) => {
               return (
                 <li

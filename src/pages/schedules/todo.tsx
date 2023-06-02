@@ -267,7 +267,7 @@ const TaskRemovalPrompt = (props: {
   if (treeName === '' || treeName === undefined) treeName = untitledName;
 
   const modalHeader = `"${treeName}" complete`;
-  const confirmationText = `Great job! It looks like you've completed all tasks for "${treeName}". Would you like to clear them out of the scheduler?`;
+  const confirmationText = `Great job! It looks like you've completed all tasks for "${treeName}". Would you like to clear them?`;
   return (
     <>
       <label htmlFor='prompt-delete-tasks-modal' className={modalClass}>

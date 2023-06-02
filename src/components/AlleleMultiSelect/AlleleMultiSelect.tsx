@@ -48,9 +48,7 @@ export const AlleleMultiSelect = (
         const includedResults = results.filter((res) => shouldInclude(res[0]));
         setSearchRes(includedResults);
       })
-      .catch((err) => {
-        console.error(err);
-      });
+      .catch(console.error);
   };
 
   const removeFromSelected = (value: db_Allele): void => {

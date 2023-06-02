@@ -1,6 +1,6 @@
 import { instanceToPlain, plainToInstance, Transform } from 'class-transformer';
 import { Dominance } from 'models/enums';
-import { type StrainNode as StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { type StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 import { type Strain } from 'models/frontend/Strain/Strain';
 import { type Node } from 'reactflow';
 

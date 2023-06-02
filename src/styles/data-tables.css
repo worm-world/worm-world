@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 @layer components {
-  .data-manager button {
+  .data-tables button {
     @apply transition-colors p-2 px-3;
   }
 }

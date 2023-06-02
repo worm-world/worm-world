@@ -2,16 +2,9 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter';
 import { CrossFilterModal } from 'components/CrossFilterModal/CrossFilterModal';
-import { ed3, n765 } from 'models/frontend/Allele/Allele.mock';
-import { type StrainNode as StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
-import {
-  ed3AsChild,
-  ed3HeteroHerm,
-  ed3HeteroMale,
-  ed3HomoHerm,
-  n765AsChild,
-} from 'models/frontend/CrossTree/CrossTree.mock';
-import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
+import * as mockAlleles from 'models/frontend/Allele/Allele.mock';
+import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import * as mockTrees from 'models/frontend/CrossTree/CrossTree.mock';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { type Node } from 'reactflow';
 import { vi, expect, test, describe } from 'vitest';
@@ -60,7 +53,11 @@ const createFilter = ({
 
 describe('CrossFilterModal', () => {
   test('modal displays all nodes in map', () => {
-    const childNodes = [ed3HeteroHerm, ed3HeteroMale, ed3HomoHerm];
+    const childNodes = [
+      mockTrees.ed3HeteroHerm,
+      mockTrees.ed3HeteroMale,
+      mockTrees.ed3HomoHerm,
+    ];
     renderComponent({ childNodes });
 
     const definedTestIds = [
@@ -99,7 +96,7 @@ describe('CrossFilterModal', () => {
   });
 
   test('modal displays limited strain options with set filters', () => {
-    const childNodes = [n765AsChild, ed3AsChild];
+    const childNodes = [mockTrees.n765AsChild, mockTrees.ed3AsChild];
     const filter = createFilter({ alleleNames: new Set(['ed3']) });
 
     renderComponent({ childNodes, filter });
@@ -132,8 +129,12 @@ describe('CrossFilterModal', () => {
   });
 
   test('modal unchecks nodes marked invisible', () => {
-    const childNodes = [ed3HeteroHerm, ed3HeteroMale, ed3HomoHerm];
-    const invisibleSet = new Set<string>(ed3HeteroHerm.id);
+    const childNodes = [
+      mockTrees.ed3HeteroHerm,
+      mockTrees.ed3HeteroMale,
+      mockTrees.ed3HomoHerm,
+    ];
+    const invisibleSet = new Set<string>(mockTrees.ed3HeteroHerm.id);
     renderComponent({ childNodes, invisibleSet });
 
     const strainSec = screen.getByTestId(
@@ -148,7 +149,11 @@ describe('CrossFilterModal', () => {
   });
 
   test('clicking a strain checkbox triggers callback function', async () => {
-    const childNodes = [ed3HeteroHerm, ed3HeteroMale, ed3HomoHerm];
+    const childNodes = [
+      mockTrees.ed3HeteroHerm,
+      mockTrees.ed3HeteroMale,
+      mockTrees.ed3HomoHerm,
+    ];
     const toggleVisible = vi.fn();
     const user = userEvent.setup();
     renderComponent({ childNodes, toggleVisible });
@@ -170,7 +175,7 @@ describe('CrossFilterModal', () => {
 
   test('clicking a filter checkbox triggers callback function', async () => {
     const user = userEvent.setup();
-    const childNodes = [n765AsChild, ed3AsChild];
+    const childNodes = [mockTrees.n765AsChild, mockTrees.ed3AsChild];
     const updateFilter = vi.fn();
     renderComponent({ childNodes, updateFilter });
 
@@ -273,8 +278,8 @@ describe('CrossEditorFilter', () => {
   test('.extractCrossFilterNames() to pull info from strain', () => {
     const strain = new Strain({
       allelePairs: [
-        new AllelePair({ top: n765, bot: n765.getWildCopy() }),
-        new AllelePair({ top: ed3, bot: ed3 }),
+        mockAlleles.n765.toTopHetPair(),
+        mockAlleles.ed3.toHomoPair(),
       ],
     });
     const names = CrossEditorFilter.extractCrossFilterNames(strain);
@@ -287,12 +292,12 @@ describe('CrossEditorFilter', () => {
 
   test('.condenseCrossFilterNames() pulls info from multiple strains', () => {
     const strain1 = new Strain({
-      allelePairs: [new AllelePair({ top: n765, bot: n765.getWildCopy() })],
+      allelePairs: [mockAlleles.n765.toTopHetPair()],
     });
     const strain2 = new Strain({
       allelePairs: [
-        new AllelePair({ top: ed3, bot: ed3 }),
-        new AllelePair({ top: n765, bot: n765.getWildCopy() }),
+        mockAlleles.ed3.toHomoPair(),
+        mockAlleles.n765.toTopHetPair(),
       ],
     });
     const names = CrossEditorFilter.condenseCrossFilterNames([
@@ -313,7 +318,9 @@ describe('CrossEditorFilter', () => {
       reqConditions: new Set(),
       supConditions: new Set(),
     });
-    expect(CrossEditorFilter.includedInFilter(ed3HomoHerm, filter)).toBe(true);
+    expect(
+      CrossEditorFilter.includedInFilter(mockTrees.ed3HomoHerm, filter)
+    ).toBe(true);
   });
   test('includedInFilter() correctly excludes a node', () => {
     const filter = new CrossEditorFilter({
@@ -322,6 +329,8 @@ describe('CrossEditorFilter', () => {
       reqConditions: new Set(['badCondition']),
       supConditions: new Set(),
     });
-    expect(CrossEditorFilter.includedInFilter(ed3HomoHerm, filter)).toBe(false);
+    expect(
+      CrossEditorFilter.includedInFilter(mockTrees.ed3HomoHerm, filter)
+    ).toBe(false);
   });
 });

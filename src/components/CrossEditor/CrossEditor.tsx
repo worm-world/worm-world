@@ -22,7 +22,7 @@ import { Sex } from 'models/enums';
 import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { type Strain, type StrainOption } from 'models/frontend/Strain/Strain';
-import { StrainNode as StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 import {
   Fragment,
   createContext,
@@ -270,11 +270,11 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       const lNode = nodeMap.get(lNodeId ?? '');
       const rNode = nodeMap.get(rNodeId ?? '');
       if (lNode === undefined || rNode === undefined) {
-        console.error('noooo - tried to cross with an undefined node');
+        console.error('Tried to cross with an undefined node');
         return nodeMap;
       }
       if (lNode.type !== FlowType.Strain || rNode.type !== FlowType.Strain) {
-        console.error('bad - tried to cross with a non-strain node');
+        console.error('Tried to cross with a non-strain node');
         return nodeMap;
       }
 
@@ -303,7 +303,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     if (params.handleType === 'target') return;
     const nodeId = params.nodeId;
     if (nodeId === null || nodeId === undefined) {
-      console.error('noooo - nodeId is null/undefined');
+      console.error('NodeId is null or undefined');
       return;
     }
 
@@ -323,7 +323,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         const refNode = nodeMap.get(nodeId);
         if (refNode === undefined || refNode.type !== FlowType.Strain) {
           console.error(
-            'uh oh - you tried to self cross a node that is undefined/not a strain'
+            'You tried to self cross a node that is undefined/not a strain'
           );
         } else {
           selfCross(refNode.id);
@@ -408,11 +408,11 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     probability,
     id,
   }: {
-    sex: Sex;
     strain: Strain;
     position: XYPosition;
     isParent: boolean;
     isChild: boolean;
+    sex: Sex;
     parentNode?: string;
     probability?: number;
     id?: string;
@@ -538,7 +538,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       const node = nodeMap.get(nodeId);
       if (node === undefined || node.type !== FlowType.Strain) {
         console.error(
-          'uh oh - you tried to toggle the sex of a node that is undefined/not a strain'
+          'You tried to toggle the sex of a node that is undefined/not a strain'
         );
         return nodeMap;
       }
@@ -571,7 +571,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       const node = nodeMap.get(nodeId);
       if (node === undefined || node.type !== FlowType.Strain) {
         console.error(
-          'yikes - tried to toggle het pair on a node that is undefined/not a strain'
+          'Tried to toggle het pair on a node that is undefined/not a strain'
         );
         return nodeMap;
       }
@@ -715,7 +715,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     const noteNode = nodeMap.get(currNodeId.current);
     if (noteNode === undefined || noteNode.type !== FlowType.Note) {
       console.error(
-        'yikes - tried to edit note with currNode is undefined/not a note type'
+        'Tried to edit note with currNode is undefined/not a note type'
       );
       return;
     }
@@ -747,7 +747,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       const parentNode = nodeMap.get(parentNodeId);
       if (parentNode === undefined || parentNode.type !== FlowType.Strain) {
         console.error(
-          'uh oh - you tried to self cross a node that is undefined/not a strain'
+          'You tried to self cross a node that is undefined/not a strain'
         );
         return nodeMap;
       }
@@ -878,7 +878,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       const startingNode = nodeMap.get(currNodeId.current);
       if (startingNode === undefined || startingNode.type !== FlowType.Strain) {
         console.error(
-          'sad day - tried crossing currNode with a form node BUT currNode is undefined/not a strain'
+          'Tried crossing currNode with a form node BUT currNode is undefined/not a strain'
         );
         return nodeMap;
       }
@@ -966,7 +966,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         const node = nodeMap.get(nodeId);
         if (node === undefined || node.type !== FlowType.Strain) {
           console.error(
-            'boooo - the node you are trying to schedule is undefined/not a strain'
+            'The node you are trying to schedule is undefined/not a strain'
           );
           return edges;
         }
@@ -983,11 +983,9 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
             await insertDbTasks(tasks);
           })
           .then(() => {
-            navigate('/scheduler/todo');
+            navigate('/schedules/todo');
           })
-          .catch((error) => {
-            console.error(error);
-          });
+          .catch(console.error);
 
         return edges;
       });
@@ -1096,7 +1094,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
           </Fragment>
         ))}
       <div>
-        <div className='drawer drawer-end'>
+        <div className='drawer drawer-end h-full'>
           <input
             id='right-cross-drawer'
             type='checkbox'

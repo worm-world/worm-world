@@ -2,7 +2,7 @@ import { CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter
 import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { type MenuItem } from 'components/Menu/Menu';
 import { Sex } from 'models/enums';
-import { type IStrainNode as IStrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { type IStrainNode as IStrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 import CrossTree, {
   type ICrossTree,
 } from 'models/frontend/CrossTree/CrossTree';

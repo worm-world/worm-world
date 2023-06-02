@@ -27,9 +27,7 @@ const CrossDesignerPage = (): JSX.Element => {
       .then(() => {
         setHasRefreshedOnce(true);
       })
-      .catch((error) => {
-        console.error(error);
-      });
+      .catch(console.error);
   }, []);
 
   const newTreeButton = (
@@ -37,11 +35,7 @@ const CrossDesignerPage = (): JSX.Element => {
       key='newTree'
       className='btn'
       onClick={() => {
-        addTree()
-          .then(refreshTrees)
-          .catch((err) => {
-            console.error(err);
-          });
+        addTree().then(refreshTrees).catch(console.error);
       }}
     >
       New Design
@@ -53,11 +47,7 @@ const CrossDesignerPage = (): JSX.Element => {
       key='importTree'
       className='btn'
       onClick={() => {
-        importTree()
-          .then(refreshTrees)
-          .catch((err) => {
-            console.error(err);
-          });
+        importTree().then(refreshTrees).catch(console.error);
       }}
     >
       Import
@@ -78,9 +68,7 @@ const CrossDesignerPage = (): JSX.Element => {
             return (
               <SavedTreeCard
                 refreshTrees={() => {
-                  refreshTrees().catch((error) => {
-                    console.error(error);
-                  });
+                  refreshTrees().catch(console.error);
                 }}
                 key={crossTree.id}
                 tree={crossTree}

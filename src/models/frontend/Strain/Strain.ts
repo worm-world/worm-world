@@ -10,11 +10,13 @@ import { type db_Strain } from 'models/db/db_Strain';
 import { type FilterGroup } from 'models/db/filter/FilterGroup';
 import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 import { type StrainAlleleFieldName } from 'models/db/filter/db_StrainAlleleFieldName';
+import { Sex } from 'models/enums';
 import { Allele } from 'models/frontend/Allele/Allele';
 import { type AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
 import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { type Condition } from 'models/frontend/Condition/Condition';
 import { type Phenotype } from 'models/frontend/Phenotype/Phenotype';
+import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 
 export interface StrainOption {
   strain: Strain;
@@ -103,6 +105,14 @@ export class Strain {
   /* #endregion initializers */
 
   /* #region public methods */
+
+  public toMaleModel(): StrainNodeModel {
+    return new StrainNodeModel({ sex: Sex.Male, strain: this });
+  }
+
+  public toHermModel(): StrainNodeModel {
+    return new StrainNodeModel({ sex: Sex.Hermaphrodite, strain: this });
+  }
 
   public getHomoAlleles(): Allele[] {
     return this.getAllelePairs()

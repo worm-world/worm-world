@@ -2,7 +2,7 @@ import React from 'react';
 import jStat from 'jstat';
 
 export interface BreedCountProbabilityProps {
-  probability: number | undefined;
+  probability?: number;
 }
 
 const BreedCountProbability = (

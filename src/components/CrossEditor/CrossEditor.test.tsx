@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CrossEditor from 'components/CrossEditor/CrossEditor';
 import type CrossTree from 'models/frontend/CrossTree/CrossTree';
-import * as mockCrossTrees from 'models/frontend/CrossTree/CrossTree.mock';
+import * as mockTrees from 'models/frontend/CrossTree/CrossTree.mock';
 import { BrowserRouter } from 'react-router-dom';
 import { ReactFlowProvider } from 'reactflow';
 import { vi } from 'vitest';
@@ -16,7 +16,6 @@ const Wrapper = ({ children }: { children: JSX.Element }): JSX.Element => {
 };
 
 describe('CrossEditor', () => {
-  test('dummy test', () => {});
   beforeEach(() => {
     window.ResizeObserver = vi.fn().mockImplementation(() => ({
       disconnect: vi.fn(),
@@ -31,8 +30,8 @@ describe('CrossEditor', () => {
     });
   };
 
-  test('successfully renders', () => {
-    renderComponent(mockCrossTrees.simpleCrossTree);
+  test('Renders', () => {
+    renderComponent(mockTrees.simpleCrossTree);
 
     const nodes = screen.getAllByTestId('strainNode');
     expect(nodes).toHaveLength(3 + 1); // Extra is preview node on right drawer
@@ -55,7 +54,7 @@ describe('CrossEditor', () => {
   test('can add strain nodes', async () => {
     const user = userEvent.setup();
 
-    renderComponent(mockCrossTrees.simpleCrossTree);
+    renderComponent(mockTrees.simpleCrossTree);
 
     let nodes = screen.getAllByTestId('strainNode');
     expect(nodes).toHaveLength(3 + 1); // Extra is preview node on right drawer
@@ -81,7 +80,7 @@ describe('CrossEditor', () => {
   test('adds notes', async () => {
     const user = userEvent.setup();
 
-    renderComponent(mockCrossTrees.emptyCrossTree);
+    renderComponent(mockTrees.emptyCrossTree);
 
     const notes = screen.queryAllByTestId('noteNode');
     expect(notes).toHaveLength(0);

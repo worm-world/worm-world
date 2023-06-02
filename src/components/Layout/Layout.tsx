@@ -86,7 +86,7 @@ const Layout = (props: LayoutProps): JSX.Element => {
   }, []);
 
   return (
-    <div className='drawer'>
+    <div className='drawer h-screen'>
       <input id='nav-drawer' type='checkbox' className='drawer-toggle' />
       <div className='drawer-content'>{props.children}</div>
 

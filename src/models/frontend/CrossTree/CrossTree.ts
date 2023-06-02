@@ -1,7 +1,7 @@
 import { type db_Tree } from 'models/db/db_Tree';
 import type { Action } from 'models/db/task/Action';
 import { Sex } from 'models/enums';
-import { type StrainNode as StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 import { type StrainOption } from 'models/frontend/Strain/Strain';
 import { type Node, type Edge, type XYPosition } from 'reactflow';
 import { ulid } from 'ulid';

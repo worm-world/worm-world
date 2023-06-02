@@ -1,5 +1,5 @@
 import { clearMocks, mockIPC } from '@tauri-apps/api/mocks';
-import { render, screen} from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { ed3 } from 'models/frontend/Allele/Allele.mock';
 import { unc119 } from 'models/frontend/Gene/Gene.mock';
@@ -43,9 +43,9 @@ describe('Strain builder', () => {
 
     const homoAlleleInput = screen.getByLabelText(/homozygous alleles/i);
 
-      await user.click(homoAlleleInput);
-      await user.keyboard('ed3');
-      await user.click(screen.getByRole('listitem', {value: /ed3/i}));
+    await user.click(homoAlleleInput);
+    await user.keyboard('ed3');
+    await user.click(screen.getByRole('listitem', { value: /ed3/i }));
 
     expect(homoAlleleInput).toHaveTextContent('');
 

@@ -1,5 +1,5 @@
 import StrainNode from 'components/StrainNode/StrainNode';
-import { type StrainNode as StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 import { type Node } from 'reactflow';
 import {
   CrossEditorFilter,

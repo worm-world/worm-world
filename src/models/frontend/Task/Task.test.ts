@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'vitest';
-import { mutated } from 'models/frontend/StrainNode/StrainNode.mock';
+import { maleManyPairs } from 'models/frontend/StrainNodeModel/StrainNodeModel.mock';
 import { Task } from 'models/frontend/Task/Task';
 import { TaskCondition } from './TaskCondition';
 import { TaskDependency } from './TaskDependency';
@@ -10,7 +10,7 @@ describe('Task', () => {
       id: '0',
       due_date: null,
       action: 'SelfCross',
-      strain1: mutated.toJSON(),
+      strain1: maleManyPairs.toJSON(),
       strain2: null,
       result: null,
       notes: null,

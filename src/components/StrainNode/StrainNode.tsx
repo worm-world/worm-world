@@ -5,7 +5,7 @@ import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 import { Sex } from 'models/enums';
 import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { type Strain } from 'models/frontend/Strain/Strain';
-import { type StrainNode as StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 import { useContext } from 'react';
 import { BsLightningCharge as MenuIcon } from 'react-icons/bs';
 import { IoFemale, IoMale, IoMaleFemale } from 'react-icons/io5';
@@ -51,7 +51,7 @@ const StrainNode = (props: StrainNodeProps): JSX.Element => {
       {props.model !== undefined && (
         <div
           data-testid='strainNode'
-          className='h-[7.75rem] w-64 rounded bg-base-100 shadow'
+          className='flex h-36 w-64 flex-col rounded bg-base-100 shadow'
         >
           <div className='flex h-7 justify-between'>
             {getSexIcon(
@@ -63,7 +63,7 @@ const StrainNode = (props: StrainNodeProps): JSX.Element => {
               <div className='dropdown dropdown-top'>
                 <label
                   tabIndex={0}
-                  className='btn-ghost btn-xs btn m-1 mt-1 text-accent ring-0 hover:bg-base-200 hover:ring-0'
+                  className='btn-ghost btn-xs btn text-accent ring-0 hover:bg-base-200 hover:ring-0'
                 >
                   {probability}
                 </label>
@@ -90,9 +90,9 @@ const StrainNode = (props: StrainNodeProps): JSX.Element => {
             )}
           </div>
 
-          <div className='mt-2 overflow-x-auto px-3 pb-1'>
+          <div className='overflow-x-auto'>
             <div
-              className='flex min-w-min justify-center text-sm'
+              className='flex h-24 min-w-min justify-center text-sm'
               data-testid='strainNodeBody'
             >
               {getMainContentArea(
@@ -101,6 +101,9 @@ const StrainNode = (props: StrainNodeProps): JSX.Element => {
                 props.model.toggleHetPair
               )}
             </div>
+          </div>
+          <div className='h-5 text-center text-sm font-bold'>
+            {props.model.strain.name}
           </div>
         </div>
       )}

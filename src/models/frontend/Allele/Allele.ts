@@ -139,11 +139,15 @@ export class Allele {
     return new AllelePair({ top: this, bot: this });
   }
 
-  public toHetPair(): AllelePair {
+  public toTopHetPair(): AllelePair {
     return new AllelePair({ top: this, bot: this.getWildCopy() });
   }
 
-  public toExPair(): AllelePair {
+  public toBotHetPair(): AllelePair {
+    return new AllelePair({ top: this.getWildCopy(), bot: this });
+  }
+
+  public toEcaPair(): AllelePair {
     return new AllelePair({ top: this, bot: this.getWildCopy(), isEca: true });
   }
 
