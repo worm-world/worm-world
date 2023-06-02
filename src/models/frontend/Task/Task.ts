@@ -1,6 +1,6 @@
 import { type Action } from 'models/db/task/Action';
 import { type db_Task } from 'models/db/task/db_Task';
-import { StrainNodeModel } from '../StrainNode/StrainNode';
+import { StrainNode as StrainNodeModel } from '../StrainNode/StrainNode';
 import { Type, plainToInstance, instanceToPlain } from 'class-transformer';
 import { empty } from 'models/frontend/StrainNode/StrainNode.mock';
 import { type Condition } from '../Condition/Condition';

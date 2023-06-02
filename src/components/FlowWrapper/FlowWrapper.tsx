@@ -1,6 +1,6 @@
 import StrainNode from 'components/StrainNode/StrainNode';
 import { Sex } from 'models/enums';
-import { type StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { type StrainNode as StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
 import { Handle, Position } from 'reactflow';
 import { XNode, type XNodeProps } from 'components/XNode/XNode';
 import { type SelfIconProps, SelfNode } from 'components/SelfNode/SelfNode';
@@ -10,11 +10,13 @@ import FilteredOutNode, {
   type FilteredOutNodeProps,
 } from 'components/FilteredOutNode/FilteredOutNode';
 
-export interface iStrainFlowWrapper {
+export interface StrainFlowWrapperProps {
   data: StrainNodeModel;
 }
 
-export const StrainFlowWrapper = (props: iStrainFlowWrapper): JSX.Element => {
+export const StrainFlowWrapper = (
+  props: StrainFlowWrapperProps
+): JSX.Element => {
   const isMale = props.data.sex === Sex.Male;
 
   const rStyling = isMale ? '' : 'invisible';

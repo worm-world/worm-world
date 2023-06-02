@@ -48,13 +48,13 @@ export const useContextMenuState = (
   return { rightClickXPos, rightClickYPos, showRightClickMenu };
 };
 
-interface iContextMenuProps {
+interface ContextMenuProps {
   children: JSX.Element | JSX.Element[];
   xPos: number;
   yPos: number;
 }
 
-export const ContextMenu = (props: iContextMenuProps): JSX.Element => {
+export const ContextMenu = (props: ContextMenuProps): JSX.Element => {
   return (
     <div
       data-testid='context-menu'

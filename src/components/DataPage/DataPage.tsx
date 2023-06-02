@@ -5,7 +5,7 @@ import { Table, type ColumnDefinitionType } from 'components/Table/Table';
 import { type FilterGroup } from 'models/db/filter/FilterGroup';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-interface iDataPageProps<T, K> {
+interface DataPageProps<T, K> {
   title: string;
   dataName: string;
   cols: Array<ColumnDefinitionType<T>>;
@@ -20,7 +20,7 @@ interface iDataPageProps<T, K> {
 
 const rowsPerPage = 50;
 
-const DataPage = <T, K>(props: iDataPageProps<T, K>): JSX.Element => {
+const DataPage = <T, K>(props: DataPageProps<T, K>): JSX.Element => {
   const [data, setData] = useState<T[]>([]);
   const [page, setPage] = useState<number | undefined>(0);
   const [rowCount, setRowCount] = useState(0);

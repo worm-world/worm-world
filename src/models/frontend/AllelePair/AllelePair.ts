@@ -1,30 +1,31 @@
 import { instanceToPlain, plainToInstance, Type } from 'class-transformer';
 import { Allele } from 'models/frontend/Allele/Allele';
 
-export interface iAllelePair {
+export interface IAllelePair {
   top: Allele;
   bot: Allele;
-  isECA?: boolean;
+  isEca?: boolean;
 }
-export class AllelePair implements iAllelePair {
+
+export class AllelePair implements IAllelePair {
   @Type(() => Allele)
   public top: Allele;
 
   @Type(() => Allele)
   public bot: Allele;
 
-  public isECA: boolean;
+  public isEca: boolean;
 
-  constructor(args: iAllelePair) {
+  constructor(args: IAllelePair) {
     if (args === undefined) {
       // Temporary case during deserialization
       this.top = undefined as any;
       this.bot = undefined as any;
-      this.isECA = false;
+      this.isEca = false;
     } else {
       this.top = args.top;
       this.bot = args.bot;
-      this.isECA = args.isECA ?? false;
+      this.isEca = args.isEca ?? false;
     }
   }
 
@@ -118,7 +119,7 @@ export class AllelePair implements iAllelePair {
    * Creates a new copy of this allele pair
    */
   public clone(): AllelePair {
-    return new AllelePair({ top: this.top, bot: this.bot, isECA: this.isECA });
+    return new AllelePair({ top: this.top, bot: this.bot, isEca: this.isEca });
   }
 
   /**
@@ -169,7 +170,7 @@ export class AllelePair implements iAllelePair {
     // Allele pair order and top/bottom-ness don't matter for ECA alleles
     // So look at canonical form for comparison
     [chromosome1Copy, chromosome2Copy].forEach((chromosome) => {
-      if (chromosome.length > 0 && chromosome[0].isECA) {
+      if (chromosome.length > 0 && chromosome[0].isEca) {
         chromosome.sort((a, b) =>
           a.getAllele().name.localeCompare(b.getAllele().name)
         );

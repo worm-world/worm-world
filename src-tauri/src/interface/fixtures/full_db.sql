@@ -475,7 +475,7 @@ VALUES ('N2', 'wild isolate'),
         'BT14',
         'Heterozygotes are WT and segregate WT, Steriles (hd43 homozygotes) and Dpy Uncs.'
     );
-INSERT INTO strain_alleles (strain_name, allele_name, homozygous)
+INSERT INTO strain_alleles (strain_name, allele_name, is_homozygous)
 VALUES ('EG6207', 'ed3', TRUE),
     ('MT2495', 'n744', TRUE),
     ('CB128', 'e128', TRUE),

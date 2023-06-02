@@ -8,7 +8,7 @@ use ts_rs::TS;
 pub struct StrainAllele {
     pub strain_name: String,
     pub allele_name: String,
-    pub homozygous: bool,
+    pub is_homozygous: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, TS)]
@@ -19,7 +19,7 @@ pub struct StrainAllele {
 pub enum StrainAlleleFieldName {
     StrainName,
     AlleleName,
-    Homozygous,
+    IsHomozygous,
 }
 
 impl FieldNameEnum for StrainAlleleFieldName {
@@ -27,7 +27,7 @@ impl FieldNameEnum for StrainAlleleFieldName {
         match self {
             StrainAlleleFieldName::StrainName => "strain_name".to_owned(),
             StrainAlleleFieldName::AlleleName => "allele_name".to_owned(),
-            StrainAlleleFieldName::Homozygous => "homozygous".to_owned(),
+            StrainAlleleFieldName::IsHomozygous => "is_homozygous".to_owned(),
         }
     }
 }

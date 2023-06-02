@@ -2,9 +2,9 @@ import { CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter
 import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { type MenuItem } from 'components/Menu/Menu';
 import { Sex } from 'models/enums';
-import { type iStrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { type IStrainNode as IStrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
 import CrossTree, {
-  type iCrossTree,
+  type ICrossTree,
 } from 'models/frontend/CrossTree/CrossTree';
 import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
@@ -23,7 +23,7 @@ describe('cross tree', () => {
     crossFilters = new Map(),
     lastSaved = new Date(),
     editable = true,
-  }: Partial<iCrossTree>): CrossTree => {
+  }: Partial<ICrossTree>): CrossTree => {
     return new CrossTree({
       name,
       nodes,
@@ -63,8 +63,8 @@ describe('cross tree', () => {
   }: {
     sex?: Sex;
     strain?: Strain;
-    getMenuItems?: (node: iStrainNodeModel) => MenuItem[];
-  }): iStrainNodeModel => {
+    getMenuItems?: (node: IStrainNodeModel) => MenuItem[];
+  }): IStrainNodeModel => {
     return { sex, strain, getMenuItems, isChild: false, isParent: false };
   };
 

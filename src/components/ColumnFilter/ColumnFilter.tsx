@@ -40,7 +40,7 @@ const fieldTypeToFilterTypes: {
   select: ['Equal', 'NotEqual', 'Null', 'NotNull'],
 };
 
-interface iFilterTextInputProps {
+interface FilterTextInputProps {
   setFilterValues: (filterValues: FormValueType[]) => void;
   filterValues: FormValueType[];
   type: HTMLInputTypeAttribute;
@@ -54,7 +54,7 @@ interface iFilterTextInputProps {
  * FilterTextInput is a generic input component that can be used for text-input filter types.
  * It calls a parent component's stateful function to update the filter value at the given index.
  */
-const FilterTextInput = (props: iFilterTextInputProps): JSX.Element => {
+const FilterTextInput = (props: FilterTextInputProps): JSX.Element => {
   return (
     <>
       {props.label !== undefined && (
@@ -77,7 +77,7 @@ const FilterTextInput = (props: iFilterTextInputProps): JSX.Element => {
   );
 };
 
-interface iFilterInputProps<T> {
+interface FilterInputProps<T> {
   filter: Filter;
   filterValues: FormValueType[];
   setFilterValues: (filterValues: FormValueType[]) => void;
@@ -88,7 +88,7 @@ interface iFilterInputProps<T> {
  * FilterInput is a generic component that renders the correct input component for a given filter type.
  * Most filter types are rendered by FilterTextInput, but Range and Boolean filters are rendered by their own components.
  */
-const FilterInput = <T,>(props: iFilterInputProps<T>): JSX.Element => {
+const FilterInput = <T,>(props: FilterInputProps<T>): JSX.Element => {
   const filterType = getFilterType(props.filter);
   switch (filterType) {
     case 'Range': {
@@ -169,7 +169,7 @@ const FilterInput = <T,>(props: iFilterInputProps<T>): JSX.Element => {
   return <div></div>;
 };
 
-export interface iColumnFilterProps<T> {
+export interface ColumnFilterProps<T> {
   className?: string;
   field: Field<T>;
   columnFilters: Filter[];
@@ -182,7 +182,7 @@ export interface iColumnFilterProps<T> {
  * It renders a list of filters (the filter type selector and corresponding data inputs), and a button to add a new filter.
  * The field prop is optional because the parent component may pass in a null field if no column is currently being filtered.
  */
-export const ColumnFilter = <T,>(props: iColumnFilterProps<T>): JSX.Element => {
+export const ColumnFilter = <T,>(props: ColumnFilterProps<T>): JSX.Element => {
   const addFilter = (): void => {
     if (props.field === undefined) {
       return;
@@ -246,7 +246,7 @@ export const ColumnFilter = <T,>(props: iColumnFilterProps<T>): JSX.Element => {
   );
 };
 
-interface iFilterEntryProps<T> {
+interface FilterEntryProps<T> {
   index: number;
   filter: Filter;
   field: Field<T>;
@@ -261,7 +261,7 @@ interface iFilterEntryProps<T> {
  * The filter is set by calling the setFilter callback in a stateful parent component.
  * It also renders a button to remove the filter.
  */
-const FilterEntry = <T,>(props: iFilterEntryProps<T>): JSX.Element => {
+const FilterEntry = <T,>(props: FilterEntryProps<T>): JSX.Element => {
   const [filterValues, setLocalFilterValues] = useState<FormValueType[]>(
     getValuesForFilterType(props.filter)
   );
@@ -324,7 +324,7 @@ const FilterEntry = <T,>(props: iFilterEntryProps<T>): JSX.Element => {
   );
 };
 
-interface iFilterModalBoxProps<T> {
+interface FilterModalBoxProps<T> {
   field: Field<T> | undefined;
   columnFilters: Filter[];
   setColumnFilters: (filters: Filter[]) => void;
@@ -336,7 +336,7 @@ interface iFilterModalBoxProps<T> {
  * Otherwise, the modal box is not rendered.
  */
 export const ColumnFilterModalBox = <T,>(
-  props: iFilterModalBoxProps<T>
+  props: FilterModalBoxProps<T>
 ): JSX.Element => {
   return (
     <>

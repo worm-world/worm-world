@@ -35,7 +35,7 @@ describe('CrossEditor', () => {
     renderComponent(mockCrossTrees.simpleCrossTree);
 
     const nodes = screen.getAllByTestId('strainNode');
-    expect(nodes).toHaveLength(3);
+    expect(nodes).toHaveLength(3 + 1); // Extra is preview node on right drawer
 
     const title = screen.getByText(/ed3 Cross/i);
     expect(title).toBeDefined();
@@ -58,7 +58,7 @@ describe('CrossEditor', () => {
     renderComponent(mockCrossTrees.simpleCrossTree);
 
     let nodes = screen.getAllByTestId('strainNode');
-    expect(nodes).toHaveLength(3);
+    expect(nodes).toHaveLength(3 + 1); // Extra is preview node on right drawer
 
     const addNewNodeButton = screen.getByRole('button', {
       name: /add strain/i,

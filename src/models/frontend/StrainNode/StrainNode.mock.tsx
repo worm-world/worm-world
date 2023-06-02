@@ -1,8 +1,8 @@
 import { Strain } from 'models/frontend/Strain/Strain';
 import { Sex } from 'models/enums';
 import {
-  StrainNodeModel,
-  type iStrainNodeModel,
+  StrainNode as StrainNodeModel,
+  type IStrainNode as IStrainNodeModel,
 } from 'models/frontend/StrainNode/StrainNode';
 import * as mockAlleles from 'models/frontend/Allele/Allele.mock';
 import { Allele } from '../Allele/Allele';
@@ -12,7 +12,7 @@ import { ImLoop2 as SelfCrossIcon } from 'react-icons/im';
 import { TbArrowsCross as CrossIcon } from 'react-icons/tb';
 import { BsUiChecks as ScheduleIcon } from 'react-icons/bs';
 
-export const getMenuItems = (node: iStrainNodeModel): MenuItem[] => {
+export const getMenuItems = (node: IStrainNodeModel): MenuItem[] => {
   const canSelfCross = node.sex === Sex.Hermaphrodite;
   const selfOption: MenuItem = {
     icon: <SelfCrossIcon />,
@@ -94,7 +94,7 @@ export const wild = new StrainNodeModel({
       new AllelePair({
         top: mockAlleles.chromExVariation1Allele1.getWildCopy(),
         bot: mockAlleles.chromExVariation1Allele1.getWildCopy(),
-        isECA: true,
+        isEca: true,
       }), // eca
     ],
   }),
@@ -129,7 +129,7 @@ const mutatedStrain: Strain = new Strain({
     new AllelePair({
       top: mockAlleles.chromExVariation1Allele1,
       bot: mockAlleles.chromExVariation1Allele1,
-      isECA: true,
+      isEca: true,
     }),
     new AllelePair({
       top: mockAlleles.chromUnknownVariation1Allele1,
@@ -178,7 +178,7 @@ export const badMutationLists = new StrainNodeModel({
       new AllelePair({
         top: mockAlleles.chromExVariation1Allele1,
         bot: mockAlleles.chromExVariation1Allele1,
-        isECA: true,
+        isEca: true,
       }),
     ],
 
@@ -220,7 +220,7 @@ export const monoid = new StrainNodeModel({
       new AllelePair({
         top: mockAlleles.chromExVariation1Allele1,
         bot: mockAlleles.chromExVariation1Allele1,
-        isECA: true,
+        isEca: true,
       }), // one copy
     ],
     description: '',
@@ -449,17 +449,17 @@ export const ecaStrainNode = new StrainNodeModel({
       new AllelePair({
         top: mockAlleles.oxEx12345,
         bot: mockAlleles.oxEx12345.getWildCopy(),
-        isECA: true,
+        isEca: true,
       }),
       new AllelePair({
         top: mockAlleles.oxEx12345,
         bot: mockAlleles.oxEx12345.getWildCopy(),
-        isECA: true,
+        isEca: true,
       }),
       new AllelePair({
         top: mockAlleles.oxEx2254,
         bot: mockAlleles.oxEx2254.getWildCopy(),
-        isECA: true,
+        isEca: true,
       }),
     ],
     description: '',

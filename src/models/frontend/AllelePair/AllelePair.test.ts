@@ -479,34 +479,34 @@ describe('allele pair', () => {
       new AllelePair({
         top: oxEx12345,
         bot: oxEx12345.getWildCopy(),
-        isECA: true,
+        isEca: true,
       }), // A
       new AllelePair({
         top: oxEx12345.getWildCopy(),
         bot: oxEx12345,
-        isECA: true,
+        isEca: true,
       }), // B
       new AllelePair({
         top: oxEx219999.getWildCopy(),
         bot: oxEx219999,
-        isECA: true,
+        isEca: true,
       }), // C
     ];
     const chrom2 = [
       new AllelePair({
         top: oxEx219999.getWildCopy(),
         bot: oxEx219999,
-        isECA: true,
+        isEca: true,
       }), // C
       new AllelePair({
         top: oxEx12345.getWildCopy(),
         bot: oxEx12345,
-        isECA: true,
+        isEca: true,
       }), // A (flipped)
       new AllelePair({
         top: oxEx12345.getWildCopy(),
         bot: oxEx12345,
-        isECA: true,
+        isEca: true,
       }), // B
     ];
     expect(AllelePair.chromosomesMatch(chrom1, chrom2)).toBe(true);

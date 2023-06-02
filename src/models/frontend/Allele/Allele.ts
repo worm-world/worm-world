@@ -9,6 +9,7 @@ import { type FilterGroup } from 'models/db/filter/FilterGroup';
 import { AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
 import { Gene } from 'models/frontend/Gene/Gene';
 import { Variation } from 'models/frontend/Variation/Variation';
+import { AllelePair } from '../AllelePair/AllelePair';
 
 export const WILD_ALLELE_NAME = '+';
 
@@ -132,6 +133,18 @@ export class Allele {
       variationName: record.variationName ?? undefined,
       contents: record.contents ?? undefined,
     });
+  }
+
+  public toHomoPair(): AllelePair {
+    return new AllelePair({ top: this, bot: this });
+  }
+
+  public toHetPair(): AllelePair {
+    return new AllelePair({ top: this, bot: this.getWildCopy() });
+  }
+
+  public toExPair(): AllelePair {
+    return new AllelePair({ top: this, bot: this.getWildCopy(), isEca: true });
   }
 
   public generateRecord(): db_Allele {

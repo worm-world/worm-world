@@ -1,6 +1,6 @@
 import { StoryFn, Meta } from '@storybook/react';
 import { BiBaseball, BiBody, BiChair } from 'react-icons/bi';
-import { Menu, iMenu } from 'components/Menu/Menu';
+import { Menu, MenuProps } from 'components/Menu/Menu';
 import { BsLightningCharge as MenuIcon } from 'react-icons/bs';
 
 export default {
@@ -8,7 +8,7 @@ export default {
   component: Menu,
 } as Meta<typeof Menu>;
 
-const Template: StoryFn<typeof Menu> = (args: iMenu) => {
+const Template: StoryFn<typeof Menu> = (args: MenuProps) => {
   return <Menu {...args}></Menu>;
 };
 

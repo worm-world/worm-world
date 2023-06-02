@@ -88,15 +88,24 @@ export const eT1V = new Variation({
   physLoc: undefined,
   geneticLoc: undefined,
 });
+
 export const eT1III = new Variation({
   name: 'eT1(III)',
   chromosome: 'III',
   physLoc: 8193843,
   geneticLoc: -0.37,
 });
+
 export const ox1111 = new Variation({
   name: 'ox1111',
   chromosome: undefined,
+  physLoc: undefined,
+  geneticLoc: undefined,
+});
+
+export const oxIs363 = new Variation({
+  name: 'oxIs363',
+  chromosome: 'IV',
   physLoc: undefined,
   geneticLoc: undefined,
 });

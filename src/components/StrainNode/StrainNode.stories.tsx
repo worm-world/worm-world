@@ -1,5 +1,5 @@
 import { Meta, StoryFn } from '@storybook/react';
-import StrainNode, { iStrainNodeProps } from 'components/StrainNode/StrainNode';
+import StrainNode, { StrainNodeProps } from 'components/StrainNode/StrainNode';
 import * as strainNodeMock from 'models/frontend/StrainNode/StrainNode.mock';
 import { ReactFlowProvider } from 'reactflow';
 
@@ -15,7 +15,7 @@ export default {
   },
 } as Meta<typeof StrainNode>;
 
-const Template: StoryFn<typeof StrainNode> = (args: iStrainNodeProps) => {
+const Template: StoryFn<typeof StrainNode> = (args: StrainNodeProps) => {
   return (
     <ReactFlowProvider>
       <StrainNode model={args.model}></StrainNode>

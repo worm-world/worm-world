@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import {
   DynamicMultiSelect,
-  type iDynamicMultiSelect,
+  type DynamicMultiSelectProps,
 } from './DynamicMultiSelect';
 import user from '@testing-library/user-event';
 import { type db_Gene } from 'models/db/db_Gene';
@@ -19,7 +19,7 @@ const MockDynamicMultiSelect = (): JSX.Element => {
   const [selectedRecords, setSelectedRecords] = useState<Set<db_Gene>>(
     new Set()
   );
-  const selectProps: iDynamicMultiSelect<GeneFieldName, db_Gene> = {
+  const selectProps: DynamicMultiSelectProps<GeneFieldName, db_Gene> = {
     getFilteredRecordApi: mockGetFilteredGenes,
     searchOn: 'SysName',
     selectInputOn: 'sysName',
@@ -37,7 +37,7 @@ const MockDynamicMultiSelectWithFilter = (): JSX.Element => {
   const [selectedRecords, setSelectedRecords] = useState<Set<db_Gene>>(
     new Set()
   );
-  const selectProps: iDynamicMultiSelect<GeneFieldName, db_Gene> = {
+  const selectProps: DynamicMultiSelectProps<GeneFieldName, db_Gene> = {
     getFilteredRecordApi: mockGetFilteredGenes,
     searchOn: 'SysName',
     selectInputOn: 'sysName',

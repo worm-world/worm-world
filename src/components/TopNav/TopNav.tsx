@@ -1,18 +1,18 @@
 import * as React from 'react';
 import { BiMenu as MenuIcon } from 'react-icons/bi';
-interface iTopNavInputProps {
+interface TopNavInputProps {
   title: string;
   children?: JSX.Element[];
   tabIndex?: number | false;
   buttons?: JSX.Element[];
 }
 
-export function TopNav(props: iTopNavInputProps): JSX.Element {
+export function TopNav(props: TopNavInputProps): JSX.Element {
   const initialTabIdx = props.tabIndex === undefined ? 0 : props.tabIndex;
   const [tabIdx, setTabIdx] = React.useState(initialTabIdx);
   return (
     <div className='justify-left flex flex-row items-center bg-base-200 py-4 shadow-md'>
-      <label htmlFor='nav-drawer' className='btn-ghost drawer-button btn ml-4'>
+      <label htmlFor='nav-drawer' className='drawer-button btn-ghost btn ml-4'>
         <MenuIcon className='text-2xl' />
       </label>
       <h1 className='ml-4 content-center text-3xl text-base-content'>

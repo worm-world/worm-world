@@ -363,19 +363,19 @@ describe('cross algorithm', () => {
       new AllelePair({
         top: oxEx2254,
         bot: oxEx2254.getWildCopy(),
-        isECA: true,
+        isEca: true,
       }),
       new AllelePair({
         top: oxEx219999,
         bot: oxEx219999.getWildCopy(),
-        isECA: true,
+        isEca: true,
       }),
     ];
     const allelePairs2: AllelePair[] = [
       new AllelePair({
         top: oxEx2254,
         bot: oxEx2254.getWildCopy(),
-        isECA: true,
+        isEca: true,
       }),
     ];
     const strain1 = new Strain({ allelePairs: allelePairs1 });

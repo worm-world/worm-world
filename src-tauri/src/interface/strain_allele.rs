@@ -12,7 +12,7 @@ impl InnerDbState {
         match sqlx::query_as!(
             StrainAllele,
             "
-            SELECT strain_name, allele_name, homozygous FROM strain_alleles ORDER BY strain_name
+            SELECT strain_name, allele_name, is_homozygous FROM strain_alleles ORDER BY strain_name
             "
         )
         .fetch_all(&self.conn_pool)
@@ -31,7 +31,7 @@ impl InnerDbState {
         filter: &FilterGroup<StrainAlleleFieldName>,
     ) -> Result<Vec<StrainAllele>, DbError> {
         let mut qb: QueryBuilder<Sqlite> =
-            QueryBuilder::new("SELECT strain_name, allele_name, homozygous from strain_alleles");
+            QueryBuilder::new("SELECT strain_name, allele_name, is_homozygous from strain_alleles");
         filter.add_filtered_query(&mut qb, true, true);
 
         match qb
@@ -71,12 +71,12 @@ impl InnerDbState {
     pub async fn insert_strain_allele(&self, strain_allele: &StrainAllele) -> Result<(), DbError> {
         match sqlx::query!(
             "
-            INSERT INTO strain_alleles (strain_name, allele_name, homozygous)
+            INSERT INTO strain_alleles (strain_name, allele_name, is_homozygous)
             VALUES ($1, $2, $3)
             ",
             strain_allele.strain_name,
             strain_allele.allele_name,
-            strain_allele.homozygous
+            strain_allele.is_homozygous
         )
         .execute(&self.conn_pool)
         .await
@@ -102,7 +102,7 @@ impl InnerDbState {
         while data.peek().is_some() {
             let chunk = data.by_ref().take(bind_limit - 1).collect::<Vec<_>>();
             let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
-                "INSERT OR IGNORE INTO strain_alleles (strain_name, allele_name, homozygous)",
+                "INSERT OR IGNORE INTO strain_alleles (strain_name, allele_name, is_homozygous)",
             );
             if chunk.len() > bind_limit {
                 return Err(DbError::BulkInsert(format!(
@@ -113,7 +113,7 @@ impl InnerDbState {
             qb.push_values(chunk, |mut b, item| {
                 b.push_bind(item.strain_name)
                     .push_bind(item.allele_name)
-                    .push_bind(item.homozygous);
+                    .push_bind(item.is_homozygous);
             });
 
             match qb.build().execute(&self.conn_pool).await {
@@ -247,7 +247,7 @@ mod test {
         let expected = StrainAllele {
             strain_name: "CB128".to_string(),
             allele_name: "e128".to_string(),
-            homozygous: true,
+            is_homozygous: true,
         };
 
         state.insert_strain_allele(&expected).await?;
@@ -262,7 +262,7 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
 
         let csv_str =
-            "strain_name,allele_name,homozygous\nEG6207,ed3,true\nMT2495,n744,true\nTN64,cn64,true"
+            "strain_name,allele_name,is_homozygous\nEG6207,ed3,true\nMT2495,n744,true\nTN64,cn64,true"
                 .as_bytes();
         let buf = BufReader::new(csv_str);
         let mut reader = csv::ReaderBuilder::new().has_headers(true).from_reader(buf);
@@ -277,17 +277,17 @@ mod test {
                 StrainAllele {
                     strain_name: "EG6207".to_string(),
                     allele_name: "ed3".to_string(),
-                    homozygous: true,
+                    is_homozygous: true,
                 },
                 StrainAllele {
                     strain_name: "MT2495".to_string(),
                     allele_name: "n744".to_string(),
-                    homozygous: true,
+                    is_homozygous: true,
                 },
                 StrainAllele {
                     strain_name: "TN64".to_string(),
                     allele_name: "cn64".to_string(),
-                    homozygous: true,
+                    is_homozygous: true,
                 },
             ]
         );
@@ -299,7 +299,7 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
 
         let tsv_str =
-            "strain_name\tallele_name\thomozygous\nEG6207\ted3\ttrue\nMT2495\tn744\ttrue\nTN64\tcn64\ttrue"
+            "strain_name\tallele_name\tis_homozygous\nEG6207\ted3\ttrue\nMT2495\tn744\ttrue\nTN64\tcn64\ttrue"
                 .as_bytes();
         let buf = BufReader::new(tsv_str);
         let mut reader = csv::ReaderBuilder::new()
@@ -317,17 +317,17 @@ mod test {
                 StrainAllele {
                     strain_name: "EG6207".to_string(),
                     allele_name: "ed3".to_string(),
-                    homozygous: true,
+                    is_homozygous: true,
                 },
                 StrainAllele {
                     strain_name: "MT2495".to_string(),
                     allele_name: "n744".to_string(),
-                    homozygous: true,
+                    is_homozygous: true,
                 },
                 StrainAllele {
                     strain_name: "TN64".to_string(),
                     allele_name: "cn64".to_string(),
-                    homozygous: true,
+                    is_homozygous: true,
                 },
             ]
         );

@@ -1,7 +1,7 @@
 import { type db_Tree } from 'models/db/db_Tree';
 import type { Action } from 'models/db/task/Action';
 import { Sex } from 'models/enums';
-import { type StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { type StrainNode as StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
 import { type StrainOption } from 'models/frontend/Strain/Strain';
 import { type Node, type Edge, type XYPosition } from 'reactflow';
 import { ulid } from 'ulid';
@@ -16,7 +16,7 @@ import { CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter
 import moment from 'moment';
 import { Task } from 'models/frontend/Task/Task';
 
-export interface iCrossTree {
+export interface ICrossTree {
   name: string;
   nodes: Node[];
   edges: Edge[];
@@ -67,7 +67,7 @@ export default class CrossTree {
   public nodes: Node[];
   public edges: Edge[];
 
-  constructor(params: iCrossTree) {
+  constructor(params: ICrossTree) {
     if (params === null || params === undefined) {
       params = {
         name: '',
@@ -218,7 +218,7 @@ export default class CrossTree {
 
   /** Creates a copy of this cross tree */
   public clone(): CrossTree {
-    const treeProps: iCrossTree = {
+    const treeProps: ICrossTree = {
       name: this.name,
       nodes: [...this.nodes],
       invisibleNodes: new Set(this.invisibleNodes),

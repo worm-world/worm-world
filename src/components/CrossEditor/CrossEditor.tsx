@@ -17,12 +17,12 @@ import { type MenuItem } from 'components/Menu/Menu';
 import NoteForm from 'components/NoteForm/NoteForm';
 import { NoteNodeProps } from 'components/NoteNode/NoteNodeProps';
 import RightDrawer from 'components/RightDrawer/RightDrawer';
-import StrainNodeForm from 'components/StrainNodeForm/StrainNodeForm';
+import StrainForm from 'components/StrainForm/StrainForm';
 import { Sex } from 'models/enums';
 import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { type Strain, type StrainOption } from 'models/frontend/Strain/Strain';
-import { StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { StrainNode as StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
 import {
   Fragment,
   createContext,
@@ -1181,7 +1181,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
             >
               {drawerState === 'addNote' ? (
                 <NoteForm
-                  header='Add a note'
+                  header='Add note'
                   buttonText='Create'
                   content={noteFormContent}
                   setContent={setNoteFormContent}
@@ -1196,7 +1196,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
                   callback={getOnSubmitForNoteForm()}
                 />
               ) : (
-                <StrainNodeForm
+                <StrainForm
                   onSubmit={getOnSubmitForStrainForm()}
                   enforcedSex={enforcedSex}
                 />

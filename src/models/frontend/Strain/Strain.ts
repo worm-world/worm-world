@@ -1,16 +1,20 @@
-import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
-import { type Allele } from 'models/frontend/Allele/Allele';
-import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
+import { getAllele } from 'api/allele';
+import { getFilteredStrainAlleles } from 'api/strainAllele';
 import {
   Exclude,
   Transform,
   instanceToPlain,
   plainToInstance,
 } from 'class-transformer';
-import { type Phenotype } from 'models/frontend/Phenotype/Phenotype';
-import { type AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
-import { type Condition } from 'models/frontend/Condition/Condition';
 import { type db_Strain } from 'models/db/db_Strain';
+import { type FilterGroup } from 'models/db/filter/FilterGroup';
+import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
+import { type StrainAlleleFieldName } from 'models/db/filter/db_StrainAlleleFieldName';
+import { Allele } from 'models/frontend/Allele/Allele';
+import { type AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
+import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
+import { type Condition } from 'models/frontend/Condition/Condition';
+import { type Phenotype } from 'models/frontend/Phenotype/Phenotype';
 
 export interface StrainOption {
   strain: Strain;
@@ -20,7 +24,7 @@ export interface StrainOption {
 interface ChromatidOption {
   alleles: Allele[];
   prob: number;
-  isECA: boolean;
+  isEca: boolean;
 }
 
 interface ChromosomeOption {
@@ -28,7 +32,7 @@ interface ChromosomeOption {
   prob: number;
 }
 
-interface iStrain {
+interface IStrain {
   name?: string;
   allelePairs: AllelePair[];
   description?: string;
@@ -65,27 +69,59 @@ export class Strain {
 
   public description?: string;
 
-  constructor(props: iStrain) {
-    if (props !== undefined && props !== null) {
-      this.name = props.name;
-      this.description = props.description;
-      this.addPairsToStrain(props.allelePairs);
+  constructor(params: IStrain) {
+    if (params !== undefined && params !== null) {
+      this.name = params.name;
+      this.description = params.description;
+      this.addPairsToStrain(params.allelePairs);
     }
     this.chromPairMap = new Map(this.chromPairMap);
   }
 
-  static createFromRecord(record: db_Strain): Strain {
-    const allelePairs: AllelePair[] = [];
+  static async createFromRecord(record: db_Strain): Promise<Strain> {
+    const strainAlleleFilter: FilterGroup<StrainAlleleFieldName> = {
+      filters: [[['StrainName', { Equal: record.name }]]],
+      orderBy: [],
+    };
+
+    const strainAlleles = await getFilteredStrainAlleles(strainAlleleFilter);
+    const allelePairs = strainAlleles.map(async (strainAllele) => {
+      const allele = await Allele.createFromRecord(
+        await getAllele(strainAllele.allele_name)
+      );
+      if (strainAllele.is_homozygous)
+        return new AllelePair({ top: allele, bot: allele });
+      else return new AllelePair({ top: allele, bot: allele.getWildCopy() });
+    });
 
     return new Strain({
       name: record.name ?? undefined,
       description: record.description ?? undefined,
-      allelePairs,
+      allelePairs: await Promise.all(allelePairs),
     });
   }
   /* #endregion initializers */
 
   /* #region public methods */
+
+  public getHomoAlleles(): Allele[] {
+    return this.getAllelePairs()
+      .filter((allelePair) => !allelePair.isEca && allelePair.isHomo())
+      .map((allelePair) => allelePair.getAllele());
+  }
+
+  public getHetAlleles(): Allele[] {
+    return this.getAllelePairs()
+      .filter((allelePair) => !allelePair.isEca && !allelePair.isHomo())
+      .map((allelePair) => allelePair.getAllele());
+  }
+
+  public getExAlleles(): Allele[] {
+    return this.getAllelePairs()
+      .filter((allelePair) => allelePair.isEca)
+      .map((allelePair) => allelePair.getAllele());
+  }
+
   /**
    * Checks if both strains contain the same chromosomal information
    * @param other strain to compare against
@@ -344,7 +380,7 @@ export class Strain {
     const wildPair = new AllelePair({
       top: otherPair.getAllele().getWildCopy(),
       bot: otherPair.getAllele().getWildCopy(),
-      isECA: otherPair.isECA,
+      isEca: otherPair.isEca,
     });
 
     chromosomePairs.push(wildPair);
@@ -373,7 +409,7 @@ export class Strain {
           pairs: this.combineChromatids(
             left.alleles,
             right.alleles,
-            left.isECA
+            left.isEca
           ),
           prob: left.prob * right.prob,
         });
@@ -525,7 +561,7 @@ export class Strain {
       chromatids.push({
         alleles: chromatid,
         prob: probability,
-        isECA: chromosome.length > 0 && chromosome[0].isECA,
+        isEca: chromosome.length > 0 && chromosome[0].isEca,
       });
     }
 
@@ -552,11 +588,11 @@ export class Strain {
   private combineChromatids(
     top: Allele[],
     bot: Allele[],
-    isECA: boolean
+    isEca: boolean
   ): AllelePair[] {
     const chromosome: AllelePair[] = [];
     for (let i = 0; i < top.length && i < bot.length; i++)
-      chromosome.push(new AllelePair({ top: top[i], bot: bot[i], isECA }));
+      chromosome.push(new AllelePair({ top: top[i], bot: bot[i], isEca }));
     return chromosome;
   }
 
@@ -564,7 +600,7 @@ export class Strain {
    * Adds a provided Allele Pair to this strain
    */
   private addPairToStrain(pairToAdd: AllelePair): void {
-    const chromName = pairToAdd.isECA
+    const chromName = pairToAdd.isEca
       ? 'Ex'
       : pairToAdd.getAllele().getChromosome();
     let chromosome = this.chromPairMap.get(chromName);

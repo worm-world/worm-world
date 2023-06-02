@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react';
-import CrossTree from 'models/frontend/CrossTree/CrossTree';
-import { getFilteredTrees, insertTree } from 'api/crossTree';
-import SavedTreeCard from 'components/SavedTreeCard/SavedTreeCard';
-import { TopNav } from 'components/TopNav/TopNav';
-import { GiEarthWorm as WormIcon } from 'react-icons/gi';
 import { open } from '@tauri-apps/api/dialog';
 import { readTextFile } from '@tauri-apps/api/fs';
-import { toast } from 'react-toastify';
+import { getFilteredTrees, insertTree } from 'api/crossTree';
 import { type CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter';
+import SavedTreeCard from 'components/SavedTreeCard/SavedTreeCard';
+import { TopNav } from 'components/TopNav/TopNav';
+import CrossTree from 'models/frontend/CrossTree/CrossTree';
+import { useEffect, useState } from 'react';
+import { GiEarthWorm as WormIcon } from 'react-icons/gi';
+import { toast } from 'react-toastify';
 
 const CrossDesignerPage = (): JSX.Element => {
   const [crossTrees, setCrossTrees] = useState<CrossTree[]>([]);
@@ -44,7 +44,7 @@ const CrossDesignerPage = (): JSX.Element => {
           });
       }}
     >
-      New Tree
+      New Design
     </button>
   );
 

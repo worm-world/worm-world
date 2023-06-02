@@ -9,9 +9,59 @@ import {
   oxTi75,
   oxEx2254,
   oxEx219999,
+  n744,
+  e128,
+  oxIs363,
+  hd43,
+  e138,
+  e1282,
 } from 'models/frontend/Allele/Allele.mock';
 import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { Strain, type StrainOption } from 'models/frontend/Strain/Strain';
+
+export const N2: Strain = new Strain({
+  name: 'N2',
+  description: 'wild isolate',
+  allelePairs: [],
+});
+
+export const EG6207: Strain = new Strain({
+  name: 'EG6207',
+  description: 'Reference: WBPaper00059962',
+  allelePairs: [ed3.toHomoPair()],
+});
+
+export const MT2495: Strain = new Strain({
+  name: 'MT2495',
+  allelePairs: [n744.toHomoPair()],
+});
+
+export const CB128: Strain = new Strain({
+  name: 'CB128',
+  description: 'Small dpy.',
+  allelePairs: [e128.toHomoPair()],
+});
+
+export const TN64: Strain = new Strain({
+  name: 'TN64',
+  description:
+    'Temperature sensitive. Dpy when grown at 15C. DpyRoller when grown at 25C. Heterozygotes are Rollers at any temperature.',
+  allelePairs: [cn64.toHomoPair()],
+});
+
+export const EG5071: Strain = new Strain({
+  name: 'EG5071',
+  description:
+    'oxIs363 [unc-122p::GFP + unc-119(+)]. Wild type. Very dim GFP expression in the coelomycytes. Only visible on compound microscope. Plasmid pBN04 inserted by MosSCI into cxTi10882 site.',
+  allelePairs: [ed3.toHomoPair(), oxIs363.toHomoPair()],
+});
+
+export const BT14: Strain = new Strain({
+  name: 'BT14',
+  description:
+    'Heterozygotes are WT and segregate WT, Steriles (hd43 homozygotes) and Dpy Uncs.',
+  allelePairs: [hd43.toHetPair(), e138.toHomoPair(), e1282.toHetPair()],
+});
 
 export const HomozygousCross: StrainOption[] = [
   {
@@ -1022,7 +1072,7 @@ export const EcaCross: StrainOption[] = [
         new AllelePair({
           top: oxEx2254,
           bot: oxEx2254.getWildCopy(),
-          isECA: true,
+          isEca: true,
         }),
       ],
     }),
@@ -1034,7 +1084,7 @@ export const EcaCross: StrainOption[] = [
         new AllelePair({
           top: oxEx219999,
           bot: oxEx219999.getWildCopy(),
-          isECA: true,
+          isEca: true,
         }),
       ],
     }),
@@ -1046,12 +1096,12 @@ export const EcaCross: StrainOption[] = [
         new AllelePair({
           top: oxEx219999,
           bot: oxEx219999.getWildCopy(),
-          isECA: true,
+          isEca: true,
         }),
         new AllelePair({
           top: oxEx2254,
           bot: oxEx2254.getWildCopy(),
-          isECA: true,
+          isEca: true,
         }),
       ],
     }),

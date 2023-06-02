@@ -4,7 +4,7 @@ import {
   CrossEditorFilterUpdate,
 } from 'components/CrossFilterModal/CrossEditorFilter';
 import { CrossFilterModal } from 'components/CrossFilterModal/CrossFilterModal';
-import { StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { StrainNode as StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
 import {
   ed3AsChild,
   ed3HeteroHerm,

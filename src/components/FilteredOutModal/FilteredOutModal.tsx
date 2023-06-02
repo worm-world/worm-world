@@ -1,5 +1,5 @@
 import StrainNode from 'components/StrainNode/StrainNode';
-import { StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { StrainNode as StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
 import { type Node } from 'reactflow';
 
 interface FilteredOutModalProps {

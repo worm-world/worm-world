@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
-import { StrainNodeModel } from './StrainNode';
-import { e204HetOx802Het } from './StrainNode.mock';
+import { StrainNode as StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { e204HetOx802Het } from 'models/frontend/StrainNode/StrainNode.mock';
 
 describe('StrainNodeModel', () => {
   test('should be able to (de)serialize', () => {

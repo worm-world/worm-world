@@ -9,16 +9,21 @@ import { useState } from 'react';
 
 export interface StrainBuilderProps {
   onSubmit: (strain: Strain) => void;
+  setPreview?: (strain?: Strain) => void;
 }
 
 const StrainBuilder = (props: StrainBuilderProps): JSX.Element => {
+  const [prevStrain, setPrevStrain] = useState<Strain>(
+    new Strain({ allelePairs: [] })
+  );
   const [homoAlleles, setHomoAlleles] = useState(new Set<db_Allele>());
   const [hetAlleles, setHetAlleles] = useState(new Set<db_Allele>());
   const [exAlleles, setExAlleles] = useState(new Set<db_Allele>());
 
-  const onSubmit = (): void => {
+  const buildStrain = async (): Promise<Strain> => {
     const homoPairs = Array.from(homoAlleles).map(async (selectedAllele) => {
       const allele = await Allele.createFromRecord(selectedAllele);
+      console.log(allele);
       return new AllelePair({ top: allele, bot: allele });
     });
 
@@ -32,16 +37,35 @@ const StrainBuilder = (props: StrainBuilderProps): JSX.Element => {
       return new AllelePair({
         top: allele,
         bot: allele.getWildCopy(),
-        isECA: true,
+        isEca: true,
       });
     });
 
-    Promise.all(homoPairs.concat(hetPairs).concat(exPairs))
-      .then((allelePairs) => {
+    return new Strain({
+      allelePairs: await Promise.all(
+        homoPairs.concat(hetPairs).concat(exPairs)
+      ),
+    });
+  };
+
+  buildStrain()
+    .then((strain) => {
+      if (!strain.equals(prevStrain)) {
+        setPrevStrain(strain);
+        props.setPreview?.(strain);
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+
+  const onSubmit = (): void => {
+    buildStrain()
+      .then((strain) => {
+        props.onSubmit(strain);
         setHomoAlleles(new Set());
         setHetAlleles(new Set());
         setExAlleles(new Set());
-        props.onSubmit(new Strain({ allelePairs }));
       })
       .catch((err) => {
         console.error(err);

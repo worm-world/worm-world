@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { CrossEditorFilter } from 'components/CrossFilterModal/CrossEditorFilter';
 import { CrossFilterModal } from 'components/CrossFilterModal/CrossFilterModal';
 import { ed3, n765 } from 'models/frontend/Allele/Allele.mock';
-import { type StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { type StrainNode as StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
 import {
   ed3AsChild,
   ed3HeteroHerm,

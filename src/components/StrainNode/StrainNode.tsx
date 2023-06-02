@@ -5,7 +5,7 @@ import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 import { Sex } from 'models/enums';
 import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { type Strain } from 'models/frontend/Strain/Strain';
-import { type StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
+import { type StrainNode as StrainNodeModel } from 'models/frontend/StrainNode/StrainNode';
 import { useContext } from 'react';
 import { BsLightningCharge as MenuIcon } from 'react-icons/bs';
 import { IoFemale, IoMale, IoMaleFemale } from 'react-icons/io5';
@@ -32,11 +32,11 @@ const getSexIcon = (
   );
 };
 
-export interface iStrainNodeProps {
+export interface StrainNodeProps {
   model: StrainNodeModel;
 }
 
-const StrainNode = (props: iStrainNodeProps): JSX.Element => {
+const StrainNode = (props: StrainNodeProps): JSX.Element => {
   const menuItems =
     props.model?.getMenuItems !== undefined
       ? props.model.getMenuItems(props.model)
@@ -60,7 +60,7 @@ const StrainNode = (props: iStrainNodeProps): JSX.Element => {
               props.model.toggleSex
             )}
             {props.model.isChild && (
-              <div className='dropdown-top dropdown'>
+              <div className='dropdown dropdown-top'>
                 <label
                   tabIndex={0}
                   className='btn-ghost btn-xs btn m-1 mt-1 text-accent ring-0 hover:bg-base-200 hover:ring-0'
@@ -203,7 +203,7 @@ const getMutationBox = (
   canToggleHets: boolean,
   toggleHetPair?: (pair: AllelePair) => void
 ): JSX.Element => {
-  if (allelePair.isECA) {
+  if (allelePair.isEca) {
     if (allelePair.isWild()) return <></>;
     return (
       <div key={key} className='text-align w-full px-2 text-center'>

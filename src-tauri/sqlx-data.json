@@ -1,35 +1,5 @@
 {
   "db": "SQLite",
-  "13763c7fcfc492dce0b34a3dc732d261199d75e4fd741ef55a9a4abfa85668cb": {
-    "describe": {
-      "columns": [
-        {
-          "name": "strain_name",
-          "ordinal": 0,
-          "type_info": "Text"
-        },
-        {
-          "name": "allele_name",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "homozygous",
-          "ordinal": 2,
-          "type_info": "Bool"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 0
-      }
-    },
-    "query": "\n            SELECT strain_name, allele_name, homozygous FROM strain_alleles ORDER BY strain_name\n            "
-  },
   "15fca42cd2ff3e0d1af3b8f6fbf4a061da0d3b94ce4cff77894692e81e9f7c75": {
     "describe": {
       "columns": [],
@@ -478,7 +448,7 @@
     },
     "query": "DELETE FROM tasks\n            WHERE tree_id = $1"
   },
-  "9eb0b99a50cce02d20f922ca2cdbedca99d7acb7e0409920d499dcdb81c33cc9": {
+  "9f6a0a6daf48f3b6e20e0d6f3f03accba47a37ad76e7bc3ba7ddfead421bf101": {
     "describe": {
       "columns": [],
       "nullable": [],
@@ -486,7 +456,7 @@
         "Right": 3
       }
     },
-    "query": "\n            INSERT INTO strain_alleles (strain_name, allele_name, homozygous)\n            VALUES ($1, $2, $3)\n            "
+    "query": "\n            INSERT INTO strain_alleles (strain_name, allele_name, is_homozygous)\n            VALUES ($1, $2, $3)\n            "
   },
   "a141f0b236e58df5eb33b7f342543d3d10b311054bc7f5f23a3ae1025d940355": {
     "describe": {
@@ -619,6 +589,36 @@
       }
     },
     "query": "INSERT INTO genes (systematic_name, descriptive_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end)\n            VALUES($1, $2, $3, $4, $5, $6, $7)\n            "
+  },
+  "d5f247723c3e731f72bed96944c19d559153927696c71b1891767310e8f8be43": {
+    "describe": {
+      "columns": [
+        {
+          "name": "strain_name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "allele_name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "is_homozygous",
+          "ordinal": 2,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT strain_name, allele_name, is_homozygous FROM strain_alleles ORDER BY strain_name\n            "
   },
   "e01ab89aed1f41b5e8dd3677e9160d15b8722928a28a06a9accbede5c71cec71": {
     "describe": {
