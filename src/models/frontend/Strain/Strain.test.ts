@@ -1,3 +1,4 @@
+import { clearMocks, mockIPC } from '@tauri-apps/api/mocks';
 import * as mockAlleles from 'models/frontend/Allele/Allele.mock';
 import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { Strain, type StrainOption } from 'models/frontend/Strain/Strain';
@@ -5,6 +6,16 @@ import * as mockStrains from 'models/frontend/Strain/Strain.mock';
 import { expect, test, describe } from 'vitest';
 
 const PRECISION = 6;
+
+beforeEach(() => {
+  mockIPC((cmd, _) => {
+    if (cmd === 'get_filtered_strain_alleles') return [];
+  });
+});
+
+afterAll(() => {
+  clearMocks();
+});
 
 describe('strain', () => {
   test('.equals() returns true for strains with homozygous pairs', () => {
@@ -37,7 +48,6 @@ describe('strain', () => {
       mockAlleles.oxSi1168.toBotHetPair(),
       // Chromosome III
       mockAlleles.ox802.toTopHetPair(),
-      mockAlleles.ox11000.toHomoPair(),
       mockAlleles.e873.toTopHetPair(),
       mockAlleles.ed3.toHomoPair(),
     ];
@@ -60,7 +70,6 @@ describe('strain', () => {
       mockAlleles.oxSi1168.toBotHetPair(),
       // Chromosome III
       mockAlleles.ox802.toTopHetPair(),
-      mockAlleles.ox11000.toHomoPair(),
       mockAlleles.e873.toTopHetPair(),
       mockAlleles.ed3.toHomoPair(),
     ];
@@ -75,7 +84,6 @@ describe('strain', () => {
       mockAlleles.oxSi1168.toTopHetPair(),
       // Chromosome III
       mockAlleles.ox802.toBotHetPair(),
-      mockAlleles.ox11000.toHomoPair(),
       mockAlleles.e873.toBotHetPair(),
       mockAlleles.ed3.toHomoPair(),
     ];
@@ -144,7 +152,6 @@ describe('strain', () => {
       mockAlleles.oxSi1168.toBotHetPair(),
       // Chromosome III
       mockAlleles.ox802.toTopHetPair(),
-      mockAlleles.ox11000.toHomoPair(),
       mockAlleles.e873.toTopHetPair(),
       mockAlleles.ed3.toHomoPair(),
     ];

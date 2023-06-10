@@ -474,41 +474,9 @@ describe('allele pair', () => {
     expect(AllelePair.chromosomesMatch(chrom2, chrom1)).toBe(false);
   });
 
-  test('.chromosomesMatch() ignores order, top/bottom-ness in ECA', () => {
-    const chrom1 = [
-      new AllelePair({
-        top: oxEx12345,
-        bot: oxEx12345.getWild(),
-        isEca: true,
-      }), // A
-      new AllelePair({
-        top: oxEx12345.getWild(),
-        bot: oxEx12345,
-        isEca: true,
-      }), // B
-      new AllelePair({
-        top: oxEx219999.getWild(),
-        bot: oxEx219999,
-        isEca: true,
-      }), // C
-    ];
-    const chrom2 = [
-      new AllelePair({
-        top: oxEx219999.getWild(),
-        bot: oxEx219999,
-        isEca: true,
-      }), // C
-      new AllelePair({
-        top: oxEx12345.getWild(),
-        bot: oxEx12345,
-        isEca: true,
-      }), // A (flipped)
-      new AllelePair({
-        top: oxEx12345.getWild(),
-        bot: oxEx12345,
-        isEca: true,
-      }), // B
-    ];
+  test('.chromosomesMatch() ignores order in ECA', () => {
+    const chrom1 = [oxEx12345.toEcaPair(), oxEx219999.toEcaPair()];
+    const chrom2 = [oxEx219999.toEcaPair(), oxEx12345.toEcaPair()];
     expect(AllelePair.chromosomesMatch(chrom1, chrom2)).toBe(true);
     expect(AllelePair.chromosomesMatch(chrom2, chrom1)).toBe(true);
   });

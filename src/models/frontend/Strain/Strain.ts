@@ -81,11 +81,11 @@ export class Strain {
       this.name = params.name;
       this.description = params.description;
       this.addPairsToStrain(params.allelePairs);
+      this.genotype = params.genotype ?? this.generateGenotype();
+      this.name = params.name;
+      return;
     }
-    this.description = params.description;
-    this.addPairsToStrain(params.allelePairs);
-    this.genotype = params.genotype ?? this.generateGenotype();
-    this.name = params.name;
+    this.genotype = '';
   }
 
   // Constructs new object, along with fetching name
@@ -721,6 +721,7 @@ export class Strain {
 
     // Don't allow duplicated genes
     if (chromosome.some((oldPair) => oldPair.isOfSameGeneOrVariation(pair))) {
+      console.error(pair);
       throw new Error(
         'Cannot add multiple allele pairs of the same gene or variation.'
       );

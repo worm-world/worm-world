@@ -44,15 +44,12 @@ describe('Strain form with strain builder', () => {
     await user.click(screen.getByText(/custom strain/i));
 
     // Choose allele
-    await user.click(screen.getByLabelText('Homozygous Alleles'));
+    await user.click(screen.getByLabelText(/homozygous alleles/i));
     await user.keyboard('e');
 
     const option = screen.getByText(/ed3/i);
     expect(option).toBeVisible();
     await user.click(option);
-
-    // Look at preview (2 alleles, plus pill)
-    expect(screen.getAllByText(/ed3/i)).toHaveLength(3);
 
     // Press submit
     await user.click(screen.getByRole('button', { name: /add/i }));

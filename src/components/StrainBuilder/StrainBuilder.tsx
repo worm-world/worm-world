@@ -83,10 +83,10 @@ const StrainBuilder = (props: StrainBuilderProps): JSX.Element => {
         selectedRecords={homoAlleles}
         setSelectedRecords={(records) => {
           buildStrain(records, hetAlleles, ecaAlleles)
-            .then(props.setPreview)
             .then(() => {
               setHomoAlleles(records);
             })
+            .then(props.setPreview)
             .catch((error: Error) => {
               toast.error(error.message);
             });
