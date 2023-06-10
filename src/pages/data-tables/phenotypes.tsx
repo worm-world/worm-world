@@ -8,7 +8,7 @@ import {
   insertPhenotypesFromFile,
 } from 'api/phenotype';
 import { type PhenotypeFieldName } from 'models/db/filter/db_PhenotypeFieldName';
-import DataPage from 'components/DataPage/DataPage';
+import DataTablePage from 'components/DataTablePage/DataTablePage';
 import { type Field } from 'components/ColumnFilter/ColumnFilter';
 
 export const cols: Array<ColumnDefinitionType<db_Phenotype>> = [
@@ -83,18 +83,18 @@ const nameMapping: { [key in keyof db_Phenotype]: PhenotypeFieldName } = {
   arrested: 'Arrested',
 };
 
-export default function PhenotypeDataPage(): JSX.Element {
+export default function PhenotypeDataTablePage(): JSX.Element {
   return (
-    <DataPage
+    <DataTablePage
       title='Phenotypes'
       dataName='phenotype'
       cols={cols}
       fields={fields}
       nameMapping={nameMapping}
-      getFilteredData={getFilteredPhenotypes}
-      getCountFilteredData={getCountFilteredPhenotypes}
-      insertDatum={insertDbPhenotype}
-      insertDataFromFile={insertPhenotypesFromFile}
+      getFilteredRecords={getFilteredPhenotypes}
+      getCountFilteredRecords={getCountFilteredPhenotypes}
+      insertRecord={insertDbPhenotype}
+      insertRecordsFromFile={insertPhenotypesFromFile}
       deleteRecord={deletePhenotype}
     />
   );

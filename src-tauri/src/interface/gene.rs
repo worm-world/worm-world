@@ -76,7 +76,7 @@ impl InnerDbState {
         let chromosome = gene.chromosome.as_ref().map(|v| v.to_string());
         match sqlx::query!(
             "INSERT INTO genes (systematic_name, descriptive_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end)
-            VALUES($1, $2, $3, $4, $5, $6, $7)
+            VALUES(?, ?, ?, ?, ?, ?, ?)
             ",
             gene.systematic_name,
             gene.descriptive_name,

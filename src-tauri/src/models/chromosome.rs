@@ -6,7 +6,7 @@ use strum_macros::EnumString;
 use ts_rs::TS;
 
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, TS, EnumString, Display)]
-#[ts(export, export_to = "../src/models/db/filter/db_ChromosomeEnum.ts")]
+#[ts(export, export_to = "../src/models/db/filter/db_Enum.ts")]
 pub enum Chromosome {
     #[strum(serialize = "I")]
     I,

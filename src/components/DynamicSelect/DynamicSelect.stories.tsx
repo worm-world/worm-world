@@ -1,4 +1,3 @@
-import React from 'react';
 import { StoryFn, Meta } from '@storybook/react';
 import {
   DynamicSelect,
@@ -38,9 +37,9 @@ const primaryProps: DynamicSelectProps<AlleleFieldName, db_Allele> = {
   fieldsToDisplay: ['name'],
   placeholder: 'search alleles',
   selectedRecord: undefined,
-  setSelectedRecord: function (record: db_Allele | undefined): void {
-    throw new Error('Function not implemented.');
-  },
+  setSelectedRecord: () => {},
+  userInput: '',
+  setUserInput: () => {},
 };
 BasicSearch.args = primaryProps;
 
@@ -51,9 +50,9 @@ const noPlaceholderProps: DynamicSelectProps<AlleleFieldName, db_Allele> = {
   selectInputOn: 'name',
   fieldsToDisplay: ['name'],
   selectedRecord: undefined,
-  setSelectedRecord: function (record: db_Allele | undefined): void {
-    throw new Error('Function not implemented.');
-  },
+  setSelectedRecord: () => {},
+  userInput: '',
+  setUserInput: () => {},
 };
 NoPlaceholder.args = noPlaceholderProps;
 
@@ -66,8 +65,8 @@ const extraResultDisplayProps: DynamicSelectProps<AlleleFieldName, db_Allele> =
     fieldsToDisplay: ['name', 'sysGeneName'],
     placeholder: 'search alleles',
     selectedRecord: undefined,
-    setSelectedRecord: function (record: db_Allele | undefined): void {
-      throw new Error('Function not implemented.');
-    },
+    setSelectedRecord: () => {},
+    userInput: '',
+    setUserInput: () => {},
   };
 ExtraDisplayOn.args = extraResultDisplayProps;

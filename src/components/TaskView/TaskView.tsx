@@ -67,7 +67,7 @@ const TaskItem = (props: TaskItemProps): JSX.Element => {
             <div className='mx-4 flex flex-col justify-center'>
               <div className='indicator'>
                 {conditionAmount > 0 && (
-                  <span className='badge-info badge indicator-item w-4'>
+                  <span className='badge badge-info indicator-item w-4'>
                     {conditionAmount}
                   </span>
                 )}

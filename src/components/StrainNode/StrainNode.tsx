@@ -1,11 +1,11 @@
 import BreedCountProbability from 'components/BreedCountProbability/BreedCountProbability';
-import { ShowGenesContext } from 'components/CrossEditor/CrossEditor';
+import { ShowGenesContext } from 'components/EditorPage/Editor';
 import { Menu } from 'components/Menu/Menu';
 import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 import { Sex } from 'models/enums';
 import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
-import { type Strain } from 'models/frontend/Strain/Strain';
-import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import { cmpChromosomes, type Strain } from 'models/frontend/Strain/Strain';
+import { type StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 import { useContext } from 'react';
 import { BsLightningCharge as MenuIcon } from 'react-icons/bs';
 import { IoFemale, IoMale, IoMaleFemale } from 'react-icons/io5';
@@ -60,7 +60,7 @@ const StrainNode = (props: StrainNodeProps): JSX.Element => {
               props.model.toggleSex
             )}
             {props.model.isChild && (
-              <div className='dropdown dropdown-top'>
+              <div className='dropdown-top dropdown'>
                 <label
                   tabIndex={0}
                   className='btn-ghost btn-xs btn text-accent ring-0 hover:bg-base-200 hover:ring-0'
@@ -69,7 +69,7 @@ const StrainNode = (props: StrainNodeProps): JSX.Element => {
                 </label>
                 <div
                   tabIndex={0}
-                  className='card dropdown-content compact rounded-box w-64 bg-base-100 shadow'
+                  className='compact card dropdown-content rounded-box w-64 bg-base-100 shadow'
                 >
                   <div className='card-body'>
                     <BreedCountProbability
@@ -160,22 +160,6 @@ const getChromosomeBoxes = (
     });
 };
 
-export const cmpChromosomes = (
-  chromA?: Chromosome,
-  chromB?: Chromosome
-): number => {
-  if (chromA === undefined) {
-    return 1;
-  } else if (chromB === undefined) {
-    return -1;
-  } else {
-    const order: Chromosome[] = ['I', 'II', 'III', 'IV', 'V', 'X', 'Ex'];
-    const posA = order.indexOf(chromA);
-    const posB = order.indexOf(chromB);
-    return posA - posB;
-  }
-};
-
 // All the 'fractions' under a single chromosome
 const getChromosomeBox = (
   canToggleHets: boolean,
@@ -237,29 +221,13 @@ const getMutationBox = (
           </div>
         )}
         <div className='text-align w-full px-2 text-center'>
-          <span>
-            {showGene && allelePair.top.gene !== undefined
-              ? (allelePair.top.gene?.descName ?? '') + '('
-              : ''}
-          </span>
-          {allelePair.top.name}
-          <span>
-            {showGene && allelePair.top.gene !== undefined ? ')' : ''}
-          </span>
+          {showGene ? allelePair.top.getQualifiedName() : allelePair.top.name}
         </div>
         <div>
           <hr className={`my-1 border-base-content ${hiddenStyling}`} />
         </div>
         <div className='text-align w-full px-2 text-center'>
-          <span>
-            {showGene && allelePair.bot.gene !== undefined
-              ? (allelePair.bot.gene?.descName ?? '') + '('
-              : ''}
-          </span>
-          {allelePair.bot.name}
-          <span>
-            {showGene && allelePair.bot.gene !== undefined ? ')' : ''}
-          </span>
+          {showGene ? allelePair.bot.getQualifiedName() : allelePair.bot.name}
         </div>
       </div>
     );

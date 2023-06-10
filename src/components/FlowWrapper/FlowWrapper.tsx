@@ -1,6 +1,6 @@
 import StrainNode from 'components/StrainNode/StrainNode';
 import { Sex } from 'models/enums';
-import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import { type StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 import { Handle, Position } from 'reactflow';
 import { XNode, type XNodeProps } from 'components/XNode/XNode';
 import { type SelfIconProps, SelfNode } from 'components/SelfNode/SelfNode';

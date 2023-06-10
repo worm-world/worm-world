@@ -5,10 +5,10 @@ import {
   useContextMenuState,
 } from 'components/ContextMenu/ContextMenu';
 import {
-  CrossEditorFilter,
-  type CrossEditorFilterUpdate,
-} from 'components/CrossEditorFilter/CrossEditorFilter';
-import { CrossFilterModal } from 'components/CrossFilterModal/CrossFilterModal';
+  OffspringFilter,
+  type OffspringFilterUpdate,
+} from 'components/OffspringFilter/OffspringFilter';
+import { OffspringFilterModal } from 'components/OffspringFilterModal/OffspringFilterModal';
 import CrossFlow, { FlowType } from 'components/CrossFlow/CrossFlow';
 import EditorTop from 'components/EditorTop/EditorTop';
 import FilteredOutModal from 'components/FilteredOutModal/FilteredOutModal';
@@ -16,7 +16,6 @@ import { type FilteredOutNodeProps } from 'components/FilteredOutNode/FilteredOu
 import { type MenuItem } from 'components/Menu/Menu';
 import NoteForm from 'components/NoteForm/NoteForm';
 import { NoteNodeProps } from 'components/NoteNode/NoteNodeProps';
-import RightDrawer from 'components/RightDrawer/RightDrawer';
 import StrainForm from 'components/StrainForm/StrainForm';
 import { Sex } from 'models/enums';
 import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
@@ -34,7 +33,10 @@ import {
   type TouchEvent as ReactTouchEvent,
 } from 'react';
 import { BsUiChecks as ScheduleIcon } from 'react-icons/bs';
-import { FaRegStickyNote as NoteIcon } from 'react-icons/fa';
+import {
+  FaRegStickyNote as NoteIcon,
+  FaSave as SaveIcon,
+} from 'react-icons/fa';
 import { FiPlusCircle as AddIcon } from 'react-icons/fi';
 import { ImLoop2 as SelfCrossIcon } from 'react-icons/im';
 import { TbArrowsCross as CrossIcon } from 'react-icons/tb';
@@ -58,8 +60,10 @@ import {
   type ReactFlowInstance,
   type XYPosition,
 } from 'reactflow';
+import { BiX as CloseIcon } from 'react-icons/bi';
+import SaveStrainModal from 'components/SaveStrainModal/SaveStrainModal';
 
-export interface CrossEditorProps {
+export interface EditorProps {
   crossTree: CrossTree;
   /*
    * This is used to determine if the context menu should be shown.
@@ -73,9 +77,9 @@ export const ShowGenesContext = createContext(true);
 
 type DrawerState = 'addStrain' | 'cross' | 'addNote' | 'editNote';
 
-const CrossEditor = (props: CrossEditorProps): JSX.Element => {
+const Editor = (props: EditorProps): JSX.Element => {
   const navigate = useNavigate();
-  const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
+  const [rightDrawerOpen, setEditorDrawerSideOpen] = useState(false);
   const [drawerState, setDrawerState] = useState<DrawerState>('addStrain');
   const [edges, setEdges] = useEdgesState(props.crossTree.edges);
   const [noteFormContent, setNoteFormContent] = useState('');
@@ -86,9 +90,10 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
   const [invisibleNodes, setInvisibleNodes] = useState<Set<string>>(
     new Set(props.crossTree.invisibleNodes)
   );
-  const [crossFilters, setCrossFilters] = useState(
+  const [crossFilters, setOffspringFilters] = useState(
     new Map(props.crossTree.crossFilters)
   );
+  const [saveStrainModalIsOpen, setSaveStrainModalIsOpen] = useState(false);
 
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance>();
@@ -130,9 +135,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         toDelete?.parentNode !== undefined &&
         toDelete.type === FlowType.Strain
       ) {
-        toast.error(
-          "Yikes! You can't remove a node that is the child of a cross"
-        );
+        toast.error("You can't remove a node that is the child of a cross");
         canDelete = false;
       }
     });
@@ -270,11 +273,11 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       const lNode = nodeMap.get(lNodeId ?? '');
       const rNode = nodeMap.get(rNodeId ?? '');
       if (lNode === undefined || rNode === undefined) {
-        console.error('Tried to cross with an undefined node');
+        console.error('Cannot cross with an undefined node');
         return nodeMap;
       }
       if (lNode.type !== FlowType.Strain || rNode.type !== FlowType.Strain) {
-        console.error('Tried to cross with a non-strain node');
+        console.error('Cannot cross with a non-strain node');
         return nodeMap;
       }
 
@@ -291,7 +294,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         return nodeMap;
       }
 
-      regularCross(lNode, rNode);
+      regularCross(lNode, rNode).catch(console.error);
       return nodeMap;
     });
   }, []);
@@ -312,10 +315,10 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
 
       if (currNode === undefined) return nodeMap;
       if (currNode.type !== FlowType.Strain) return nodeMap;
-      const currStrain: StrainNodeModel = currNode.data;
+      const currStrain = currNode.data as StrainNodeModel;
 
       if (currStrain.isParent) {
-        toast.error('Unable to cross a strain already involved in a cross');
+        toast.error('Cannot cross a strain already involved in a cross');
         return nodeMap;
       }
 
@@ -323,15 +326,15 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         const refNode = nodeMap.get(nodeId);
         if (refNode === undefined || refNode.type !== FlowType.Strain) {
           console.error(
-            'You tried to self cross a node that is undefined/not a strain'
+            'Cannot self-cross a node that is undefined/not a strain'
           );
         } else {
-          selfCross(refNode.id);
+          selfCross(refNode.id).catch(console.error);
         }
       } else {
         currNodeId.current = nodeId;
         setDrawerState('cross');
-        setRightDrawerOpen(true);
+        setEditorDrawerSideOpen(true);
       }
       return nodeMap;
     });
@@ -343,10 +346,8 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
    * functionality if we want to still be able to call/interact with them.
    */
   useEffect(() => {
-    setCrossFilters(
-      (
-        filters: Map<string, CrossEditorFilter>
-      ): Map<string, CrossEditorFilter> => {
+    setOffspringFilters(
+      (filters: Map<string, OffspringFilter>): Map<string, OffspringFilter> => {
         setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
           const nodes = [...nodeMap.values()];
           const refreshedNodes = nodes.map((node) => {
@@ -376,7 +377,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
                   currNodeId.current = node.id;
                   setNoteFormContent(node.data.content);
                   setDrawerState('editNote');
-                  setRightDrawerOpen(true);
+                  setEditorDrawerSideOpen(true);
                 },
               });
             } else if (
@@ -522,7 +523,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
           currNodeId.current = noteNode.id;
           setNoteFormContent(content);
           setDrawerState('editNote');
-          setRightDrawerOpen(true);
+          setEditorDrawerSideOpen(true);
         },
       }),
       className: 'nowheel',
@@ -538,7 +539,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       const node = nodeMap.get(nodeId);
       if (node === undefined || node.type !== FlowType.Strain) {
         console.error(
-          'You tried to toggle the sex of a node that is undefined/not a strain'
+          'Cannot toggle the sex of a node that is undefined/not a strain'
         );
         return nodeMap;
       }
@@ -571,7 +572,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       const node = nodeMap.get(nodeId);
       if (node === undefined || node.type !== FlowType.Strain) {
         console.error(
-          'Tried to toggle het pair on a node that is undefined/not a strain'
+          'Cannot toggle het pair on a node that is undefined/not a strain'
         );
         return nodeMap;
       }
@@ -624,7 +625,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       (node: Node) => node.parentNode === nodeId
     );
     if (children.length > 0) {
-      toast.error("Whoops! Can't mark a parent node as invisible");
+      toast.error("Can't mark a parent node as invisible");
       return;
     }
     setInvisibleNodes((invisibleNodes: Set<string>): Set<string> => {
@@ -638,11 +639,11 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     saveTree();
   };
 
-  const handleFilterUpdate = (update: CrossEditorFilterUpdate): void => {
-    setCrossFilters((filters): Map<string, CrossEditorFilter> => {
+  const handleFilterUpdate = (update: OffspringFilterUpdate): void => {
+    setOffspringFilters((filters): Map<string, OffspringFilter> => {
       const filter =
         filters.get(update.nodeId) ??
-        new CrossEditorFilter({
+        new OffspringFilter({
           alleleNames: new Set(),
           exprPhenotypes: new Set(),
           reqConditions: new Set(),
@@ -669,7 +670,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
           } else {
             childList.forEach((node) => {
               if (
-                !CrossEditorFilter.includedInFilter(node, filter) &&
+                !OffspringFilter.includedInFilter(node, filter) &&
                 !node.data.isParent
               )
                 invisibleNodes.add(node.id);
@@ -706,7 +707,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     const position = getNodePositionFromLastClick();
     const newNote = createNote(noteFormContent, position);
     addToOrUpdateNodeMap(newNote);
-    setRightDrawerOpen(false);
+    setEditorDrawerSideOpen(false);
     saveTree();
   };
 
@@ -715,7 +716,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     const noteNode = nodeMap.get(currNodeId.current);
     if (noteNode === undefined || noteNode.type !== FlowType.Note) {
       console.error(
-        'Tried to edit note with currNode is undefined/not a note type'
+        'Cannot edit note when currNode is undefined or is not a note type'
       );
       return;
     }
@@ -723,7 +724,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     const noteData: NoteNodeProps = noteNode.data;
     noteData.content = noteFormContent;
     addToOrUpdateNodeMap(noteNode);
-    setRightDrawerOpen(false);
+    setEditorDrawerSideOpen(false);
     saveTree();
   };
 
@@ -738,39 +739,40 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       isChild: false,
     });
     addToOrUpdateNodeMap(newStrain);
-    setRightDrawerOpen(false);
+    setEditorDrawerSideOpen(false);
     saveTree();
   };
 
-  const selfCross = (parentNodeId: string): void => {
+  const selfCross = async (parentNodeId: string): Promise<void> => {
+    let parentNode: Node | undefined;
     setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
-      const parentNode = nodeMap.get(parentNodeId);
-      if (parentNode === undefined || parentNode.type !== FlowType.Strain) {
-        console.error(
-          'You tried to self cross a node that is undefined/not a strain'
-        );
-        return nodeMap;
-      }
+      parentNode = nodeMap.get(parentNodeId);
+      return nodeMap;
+    });
+    if (parentNode === undefined || parentNode.type !== FlowType.Strain) {
+      console.error('Cannot self-cross a node that is undefined/not a strain');
+      return;
+    }
 
-      // Mark as parent
-      parentNode.data = copyNodeData(parentNode, { isParent: true });
+    // Mark as parent
+    parentNode.data = copyNodeData(parentNode, { isParent: true });
 
-      // Create nodes and edges
-      const selfNode = createSelfIcon(parentNode.id);
-      loadIconWithData(selfNode);
-      const edgeToIcon = createEdge(parentNode.id, selfNode.id, {
-        sourceHandle: 'bottom',
-      });
-      const parentStrain = parentNode.data;
-      const childStrains = parentStrain.strain.selfCross();
-      const childNodes = getChildNodes(parentNode, selfNode, childStrains);
-      const childEdges = childNodes.map((node) =>
-        createEdge(selfNode.id, node.id)
-      );
+    // Create nodes and edges
+    const selfNode = createSelfIcon(parentNode.id);
+    loadIconWithData(selfNode);
+    const edgeToIcon = createEdge(parentNode.id, selfNode.id, {
+      sourceHandle: 'bottom',
+    });
+    const parentStrain = parentNode.data as StrainNodeModel;
+    const childStrains = await parentStrain.strain.selfCross();
+    const childNodes = getChildNodes(parentNode, selfNode, childStrains);
+    const childEdges = childNodes.map((node) =>
+      createEdge(selfNode.id, node.id)
+    );
 
-      // Update state
-      [parentNode, selfNode, ...childNodes].forEach((node) =>
-        nodeMap.set(node.id, node)
+    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
+      [parentNode, selfNode, ...childNodes].forEach(
+        (node) => node !== undefined && nodeMap.set(node.id, node)
       );
       setEdges((edges) => [...edges, edgeToIcon, ...childEdges]);
       return new Map(nodeMap);
@@ -778,10 +780,10 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     saveTree();
   };
 
-  const regularCross = (
+  const regularCross = async (
     lNode: Node<StrainNodeModel>,
     rNode: Node<StrainNodeModel>
-  ): void => {
+  ): Promise<void> => {
     // Mark as parents
     lNode.data = copyNodeData(lNode, { isParent: true });
     rNode.data = copyNodeData(rNode, { isParent: true });
@@ -809,7 +811,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       targetHandle: rStrain.sex === Sex.Male ? 'left' : 'right',
       sourceHandle: rStrain.sex !== Sex.Male ? 'left' : 'right',
     });
-    const children = lStrain.strain.crossWith(rStrain.strain);
+    const children = await lStrain.strain.crossWith(rStrain.strain);
     const childNodes = getChildNodes(lNode, xNode, children);
     const childEdges = childNodes.map((node) => createEdge(xNode.id, node.id));
 
@@ -878,7 +880,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       const startingNode = nodeMap.get(currNodeId.current);
       if (startingNode === undefined || startingNode.type !== FlowType.Strain) {
         console.error(
-          'Tried crossing currNode with a form node BUT currNode is undefined/not a strain'
+          'Cannot cross currNode with a form node when currNode is undefined or not a strain'
         );
         return nodeMap;
       }
@@ -893,10 +895,10 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       });
 
       currStrain.sex === Sex.Male
-        ? regularCross(startingNode, formNode)
-        : regularCross(formNode, startingNode);
+        ? regularCross(startingNode, formNode).catch(console.error)
+        : regularCross(formNode, startingNode).catch(console.error);
 
-      setRightDrawerOpen(false);
+      setEditorDrawerSideOpen(false);
       return nodeMap;
     });
   };
@@ -930,12 +932,11 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     isParent: boolean = false
   ): MenuItem[] => {
     if (strainNode === undefined || strainNode === null) return [];
-    const canSelfCross = strainNode.sex === Sex.Hermaphrodite;
     const selfOption: MenuItem = {
       icon: <SelfCrossIcon />,
       text: 'Self-cross',
       menuCallback: () => {
-        selfCross(nodeId);
+        selfCross(nodeId).catch(console.error);
       },
     };
     const crossOption: MenuItem = {
@@ -944,7 +945,7 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
       menuCallback: () => {
         currNodeId.current = nodeId;
         setDrawerState('cross');
-        setRightDrawerOpen(true);
+        setEditorDrawerSideOpen(true);
       },
     };
     const scheduleOption: MenuItem = {
@@ -954,10 +955,22 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
         scheduleNode(nodeId);
       },
     };
+    const saveStrainOption: MenuItem = {
+      icon: <SaveIcon />,
+      text: 'Save strain',
+      menuCallback: () => {
+        currNodeId.current = nodeId;
+        setSaveStrainModalIsOpen(true);
+      },
+    };
 
-    if (isParent) return [scheduleOption];
-    if (canSelfCross) return [selfOption, crossOption, scheduleOption]; // herm strain
-    return [crossOption, scheduleOption]; // het strain
+    const menuOptions = [scheduleOption];
+    if (!isParent) menuOptions.push(crossOption);
+    if (strainNode.sex === Sex.Hermaphrodite && !isParent)
+      menuOptions.push(selfOption);
+    if (strainNode.strain.name === undefined)
+      menuOptions.push(saveStrainOption);
+    return menuOptions;
   };
 
   const scheduleNode = (nodeId: string): void => {
@@ -997,10 +1010,10 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
       setEdges((edges: Edge[]): Edge[] => {
         setInvisibleNodes((invisibleNodes: Set<string>): Set<string> => {
-          setCrossFilters(
+          setOffspringFilters(
             (
-              crossFilters: Map<string, CrossEditorFilter>
-            ): Map<string, CrossEditorFilter> => {
+              crossFilters: Map<string, OffspringFilter>
+            ): Map<string, OffspringFilter> => {
               const tree = props.crossTree;
               tree.nodes = [...nodeMap.values()];
               tree.edges = edges;
@@ -1012,9 +1025,8 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
                   if (showSuccessMessage)
                     toast.success('Successfully saved design');
                 })
-                .catch((error) => {
-                  toast.error('Error saving design');
-                  console.error(error);
+                .catch(() => {
+                  toast.error('Unable to save design');
                 });
 
               return crossFilters;
@@ -1028,9 +1040,6 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
     });
   };
 
-  // #endregion editor interacions
-
-  // #region templating
   /** Gets onSubmit callback for the strain form based on current state  */
   const getOnSubmitForStrainForm = (): ((sex: Sex, strain: Strain) => void) => {
     switch (drawerState) {
@@ -1063,149 +1072,163 @@ const CrossEditor = (props: CrossEditorProps): JSX.Element => {
 
   return (
     <ShowGenesContext.Provider value={showGenes}>
-      {[...nodeMap.values()]
-        .filter(
-          (node) =>
-            node.type === FlowType.SelfIcon || node.type === FlowType.XIcon
-        )
-        .map((iconNode, idx) => (
-          <Fragment key={idx}>
-            <CrossFilterModal
-              nodeId={iconNode.id}
-              childNodes={[...nodeMap.values()].filter(
-                (node) =>
-                  node.parentNode === iconNode.id &&
-                  node.type === FlowType.Strain
-              )}
-              invisibleSet={new Set([...invisibleNodes])}
-              toggleVisible={toggleNodeVisibility}
-              filter={crossFilters.get(iconNode.id)}
-              updateFilter={handleFilterUpdate}
-            />
-            <FilteredOutModal
-              nodeId={iconNode.id}
-              excludedNodes={[...nodeMap.values()].filter(
-                (node) =>
-                  node.parentNode === iconNode.id &&
-                  node.type === FlowType.Strain &&
-                  invisibleNodes.has(node.id)
-              )}
-            />
-          </Fragment>
-        ))}
-      <div>
-        <div className='drawer drawer-end h-full'>
-          <input
-            id='right-cross-drawer'
-            type='checkbox'
-            className='drawer-toggle'
-            readOnly
-            checked={rightDrawerOpen}
-          />
-          <div className='drawer-content flex h-screen flex-col'>
-            {showRightClickMenu && props.crossTree.editable && (
-              <ContextMenu xPos={rightClickXPos} yPos={rightClickYPos}>
-                <li
-                  onClick={() => {
-                    setRightDrawerOpen(true);
-                    setDrawerState('addStrain');
-                  }}
-                >
-                  <button className='flex flex-row' name='add-cross-node'>
-                    <AddIcon className='text-xl text-base-content' />
-                    <p>Add Strain</p>
-                  </button>
-                </li>
-                <li
-                  onClick={() => {
-                    setDrawerState('addNote');
-                    setNoteFormContent('');
-                    setRightDrawerOpen(true);
-                  }}
-                >
-                  <button className='flex flex-row' name='add-note'>
-                    <div>
-                      <NoteIcon className='fill-base-content text-xl' />
-                    </div>
-                    <p>Add Note</p>
-                  </button>
-                </li>
-              </ContextMenu>
-            )}
-            <EditorTop tree={props.crossTree} />
-            <div className='grow'>
-              <div className='h-full w-full'>
-                <CrossFlow
-                  innerRef={flowRef}
-                  onInit={(flow) => {
-                    setReactFlowInstance(flow);
-                  }}
-                  nodes={[...nodeMap.values()].filter(
-                    (node) => !invisibleNodes.has(node.id)
+      <div className='drawer drawer-end'>
+        <input
+          id='cross-editor-drawer'
+          type='checkbox'
+          className='drawer-toggle'
+        />
+        <div className='drawer-content'>
+          {[...nodeMap.values()]
+            .filter(
+              (node) =>
+                node.type === FlowType.SelfIcon || node.type === FlowType.XIcon
+            )
+            .map((iconNode, idx) => (
+              <Fragment key={idx}>
+                <OffspringFilterModal
+                  nodeId={iconNode.id}
+                  childNodes={[...nodeMap.values()].filter(
+                    (node) =>
+                      node.parentNode === iconNode.id &&
+                      node.type === FlowType.Strain
                   )}
-                  edges={edges}
-                  onNodesChange={onNodesChange}
-                  onEdgesChange={() => {}}
-                  onConnectStart={onConnectStart}
-                  onConnect={onConnect}
-                  onConnectEnd={onConnectEnd}
-                  onNodeDragStop={() => {
-                    saveTree();
-                  }}
-                  reactFlowInstance={reactFlowInstance}
-                  toggleShowGenes={() => {
-                    setShowGenes(!showGenes);
-                  }}
-                  treeEditable={props.crossTree.editable}
+                  invisibleSet={new Set([...invisibleNodes])}
+                  toggleVisible={toggleNodeVisibility}
+                  filter={crossFilters.get(iconNode.id)}
+                  updateFilter={handleFilterUpdate}
                 />
+                <FilteredOutModal
+                  nodeId={iconNode.id}
+                  excludedNodes={[...nodeMap.values()].filter(
+                    (node) =>
+                      node.parentNode === iconNode.id &&
+                      node.type === FlowType.Strain &&
+                      invisibleNodes.has(node.id)
+                  )}
+                />
+              </Fragment>
+            ))}
+          <div className='drawer drawer-end'>
+            <input
+              id='right-drawer'
+              type='checkbox'
+              className='drawer-toggle'
+              checked={rightDrawerOpen}
+              readOnly
+            />
+            <div className='drawer-content flex h-screen flex-col'>
+              {showRightClickMenu && props.crossTree.editable && (
+                <ContextMenu xPos={rightClickXPos} yPos={rightClickYPos}>
+                  <li
+                    onClick={() => {
+                      setEditorDrawerSideOpen(true);
+                      setDrawerState('addStrain');
+                    }}
+                  >
+                    <button className='flex flex-row' name='add-cross-node'>
+                      <AddIcon className='text-xl text-base-content' />
+                      <p>Add Strain</p>
+                    </button>
+                  </li>
+                  <li
+                    onClick={() => {
+                      setDrawerState('addNote');
+                      setNoteFormContent('');
+                      setEditorDrawerSideOpen(true);
+                    }}
+                  >
+                    <button className='flex flex-row' name='add-note'>
+                      <div>
+                        <NoteIcon className='fill-base-content text-xl' />
+                      </div>
+                      <p>Add Note</p>
+                    </button>
+                  </li>
+                </ContextMenu>
+              )}
+              <EditorTop tree={props.crossTree} />
+              <CrossFlow
+                innerRef={flowRef}
+                onInit={(flow) => {
+                  setReactFlowInstance(flow);
+                }}
+                nodes={[...nodeMap.values()].filter(
+                  (node) => !invisibleNodes.has(node.id)
+                )}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={() => {}}
+                onConnectStart={onConnectStart}
+                onConnect={onConnect}
+                onConnectEnd={onConnectEnd}
+                onNodeDragStop={() => {
+                  saveTree();
+                }}
+                reactFlowInstance={reactFlowInstance}
+                toggleShowGenes={() => {
+                  setShowGenes(!showGenes);
+                }}
+                treeEditable={props.crossTree.editable}
+              />
+            </div>
+            <div className={'drawer-side'}>
+              <label
+                htmlFor='cross-editor-drawer'
+                className='drawer-overlay'
+                onClick={() => {
+                  setEditorDrawerSideOpen(false);
+                }}
+              />
+              <div
+                className={
+                  'flex h-screen flex-col overflow-y-auto bg-base-100 p-4'
+                }
+                hidden={!rightDrawerOpen}
+              >
+                <label htmlFor='my-drawer-4' className='drawer-overlay' />
+                <button
+                  className='self-end'
+                  onClick={() => {
+                    setEditorDrawerSideOpen(false);
+                  }}
+                >
+                  <CloseIcon className='text-3xl' />
+                </button>
+                {drawerState === 'addNote' ? (
+                  <NoteForm
+                    header='Add note'
+                    buttonText='Create'
+                    content={noteFormContent}
+                    setContent={setNoteFormContent}
+                    callback={getOnSubmitForNoteForm()}
+                  />
+                ) : drawerState === 'editNote' ? (
+                  <NoteForm
+                    header='Edit note'
+                    buttonText='Save changes'
+                    content={noteFormContent}
+                    setContent={setNoteFormContent}
+                    callback={getOnSubmitForNoteForm()}
+                  />
+                ) : (
+                  <StrainForm
+                    onSubmit={getOnSubmitForStrainForm()}
+                    enforcedSex={enforcedSex}
+                  />
+                )}
               </div>
             </div>
           </div>
-          <div className={'drawer-end drawer-side h-full '}>
-            <label
-              htmlFor='right-cross-drawer'
-              className='drawer-overlay'
-              onClick={() => {
-                setRightDrawerOpen(false);
-              }}
-            ></label>
-            <RightDrawer
-              initialDrawerWidth={240}
-              isOpen={rightDrawerOpen}
-              maxWidth={400}
-              close={() => {
-                setRightDrawerOpen(false);
-              }}
-            >
-              {drawerState === 'addNote' ? (
-                <NoteForm
-                  header='Add note'
-                  buttonText='Create'
-                  content={noteFormContent}
-                  setContent={setNoteFormContent}
-                  callback={getOnSubmitForNoteForm()}
-                />
-              ) : drawerState === 'editNote' ? (
-                <NoteForm
-                  header='Edit note'
-                  buttonText='Save changes'
-                  content={noteFormContent}
-                  setContent={setNoteFormContent}
-                  callback={getOnSubmitForNoteForm()}
-                />
-              ) : (
-                <StrainForm
-                  onSubmit={getOnSubmitForStrainForm()}
-                  enforcedSex={enforcedSex}
-                />
-              )}
-            </RightDrawer>
-          </div>
+          <SaveStrainModal
+            isOpen={saveStrainModalIsOpen}
+            setIsOpen={setSaveStrainModalIsOpen}
+            strainNode={nodeMap.get(currNodeId.current)}
+          />
         </div>
       </div>
     </ShowGenesContext.Provider>
   );
-  // #endregion templating
 };
 
-export default CrossEditor;
+export default Editor;

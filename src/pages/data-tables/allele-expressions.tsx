@@ -8,7 +8,7 @@ import {
 import { type db_AlleleExpression } from 'models/db/db_AlleleExpression';
 import { type ColumnDefinitionType } from 'components/Table/Table';
 import { type AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
-import DataPage from 'components/DataPage/DataPage';
+import DataTablePage from 'components/DataTablePage/DataTablePage';
 import { type Field } from 'components/ColumnFilter/ColumnFilter';
 
 export const cols: Array<ColumnDefinitionType<db_AlleleExpression>> = [
@@ -51,18 +51,18 @@ const nameMapping: {
   dominance: 'Dominance',
 };
 
-export default function AlleleExpressionDataPage(): JSX.Element {
+export default function AlleleExpressionDataTablePage(): JSX.Element {
   return (
-    <DataPage
+    <DataTablePage
       title='Allele Expressions'
       dataName='alleleExpression'
       cols={cols}
       fields={fields}
       nameMapping={nameMapping}
-      getFilteredData={getFilteredAlleleExpressions}
-      getCountFilteredData={getCountFilteredAlleleExpressions}
-      insertDatum={insertDbAlleleExpression}
-      insertDataFromFile={insertAlleleExpressionsFromFile}
+      getFilteredRecords={getFilteredAlleleExpressions}
+      getCountFilteredRecords={getCountFilteredAlleleExpressions}
+      insertRecord={insertDbAlleleExpression}
+      insertRecordsFromFile={insertAlleleExpressionsFromFile}
       deleteRecord={deleteAlleleExpression}
     />
   );

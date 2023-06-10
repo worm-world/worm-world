@@ -17,6 +17,7 @@ describe('Strain builder', () => {
       }
       if (cmd === 'get_filtered_genes') return [unc119.generateRecord()];
       if (cmd === 'get_filtered_allele_exprs') return [];
+      if (cmd === 'get_filtered_strain_alleles') return [];
     });
   });
 
@@ -49,8 +50,7 @@ describe('Strain builder', () => {
 
     expect(homoAlleleInput).toHaveTextContent('');
 
-    const pillGroupsWithChildren = screen
-      .getAllByTestId('selected-pill-group')
+    const pillGroupsWithChildren = screen.getAllByTestId('selected-pill-group')
       .filter((element) => element.hasChildNodes());
     expect(pillGroupsWithChildren).toHaveLength(1);
   });

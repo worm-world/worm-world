@@ -121,14 +121,15 @@ async fn main() {
             get_filtered_strains,
             get_count_filtered_strains,
             insert_strain,
-            // insert_strains_from_file,
+            insert_strains_from_file,
+            update_strain,
             delete_filtered_strains,
             // strain_alleles,
             get_strain_alleles,
             get_filtered_strain_alleles,
             get_count_filtered_strain_alleles,
             insert_strain_allele,
-            // insert_strain_alleles_from_file,
+            insert_strain_alleles_from_file,
             delete_filtered_strain_alleles,
         ])
         .run(tauri::generate_context!())
@@ -473,9 +474,7 @@ async fn delete_filtered_allele_exprs(
     let state_guard = state.0.read().await;
     state_guard.delete_filtered_allele_exprs(&filter).await
 }
-/* #endregion allele_exprs */
 
-/* #region alleles */
 #[tauri::command]
 async fn get_alleles(state: tauri::State<'_, DbState>) -> Result<Vec<Allele>, DbError> {
     let state_guard = state.0.read().await;
@@ -538,9 +537,7 @@ async fn delete_filtered_alleles(
     let state_guard = state.0.read().await;
     state_guard.delete_filtered_alleles(&filter).await
 }
-/* #endregion alleles */
 
-/* #region expr_relations */
 #[tauri::command]
 async fn get_expr_relations(
     state: tauri::State<'_, DbState>,
@@ -595,9 +592,7 @@ async fn delete_filtered_expr_relations(
     let state_guard = state.0.read().await;
     state_guard.delete_filtered_expr_relations(&filter).await
 }
-/* #endregion expr_relations */
 
-/* #region tasks */
 #[tauri::command]
 async fn get_tasks(state: tauri::State<'_, DbState>) -> Result<Vec<Task>, DbError> {
     let state_guard = state.0.read().await;
@@ -641,9 +636,7 @@ async fn delete_all_tasks(state: tauri::State<'_, DbState>) -> Result<(), DbErro
     let state_guard = state.0.read().await;
     state_guard.delete_all_tasks().await
 }
-/* #endregion tasks */
 
-/* #region trees */
 #[tauri::command]
 async fn get_trees(state: tauri::State<'_, DbState>) -> Result<Vec<Tree>, DbError> {
     let state_guard = state.0.read().await;
@@ -675,9 +668,7 @@ async fn delete_tree(state: tauri::State<'_, DbState>, id: String) -> Result<(),
     let state_guard = state.0.read().await;
     state_guard.delete_tree(id).await
 }
-/* #endregion trees */
 
-/* #region task_conditions/dependencies */
 #[tauri::command]
 async fn get_task_conditions(
     state: tauri::State<'_, DbState>,
@@ -729,9 +720,7 @@ async fn insert_task_dependency(
     let state_guard = state.0.read().await;
     state_guard.insert_task_dependency(&task).await
 }
-/* #endregion task_conditions/dependencies */
 
-/* #region strains */
 #[tauri::command]
 async fn get_strains(state: tauri::State<'_, DbState>) -> Result<Vec<Strain>, DbError> {
     let state_guard = state.0.read().await;
@@ -760,6 +749,28 @@ async fn get_filtered_strains(
 async fn insert_strain(state: tauri::State<'_, DbState>, strain: Strain) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
     state_guard.insert_strain(&strain).await
+}
+
+#[tauri::command]
+async fn insert_strains_from_file(
+    state: tauri::State<'_, DbState>,
+    path: String,
+) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    match Bulk::<Strain>::new(Path::new(&path)) {
+        Ok(bulk) => state_guard.insert_strains(bulk).await,
+        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned())),
+    }
+}
+
+#[tauri::command]
+async fn update_strain(
+    state: tauri::State<'_, DbState>,
+    name: String,
+    new_strain: Strain,
+) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.update_strain(name, new_strain).await
 }
 
 #[tauri::command]
@@ -809,6 +820,18 @@ async fn insert_strain_allele(
 }
 
 #[tauri::command]
+async fn insert_strain_alleles_from_file(
+    state: tauri::State<'_, DbState>,
+    path: String,
+) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    match Bulk::<StrainAllele>::new(Path::new(&path)) {
+        Ok(bulk) => state_guard.insert_strain_alleles(bulk).await,
+        Err(_) => Err(DbError::BulkInsert("Unable to open file".to_owned())),
+    }
+}
+
+#[tauri::command]
 async fn delete_filtered_strain_alleles(
     state: tauri::State<'_, DbState>,
     filter: FilterGroup<StrainAlleleFieldName>,
@@ -816,4 +839,3 @@ async fn delete_filtered_strain_alleles(
     let state_guard = state.0.read().await;
     state_guard.delete_filtered_strain_alleles(&filter).await
 }
-/* #endregion strains */

@@ -52,7 +52,7 @@ impl InnerDbState {
     ) -> Result<(), DbError> {
         match sqlx::query!(
             "INSERT INTO task_conds (task_id, cond_name)
-            VALUES($1, $2)
+            VALUES(?, ?)
             ",
             task_condtions.task_id,
             task_condtions.cond_name,

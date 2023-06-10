@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
-import StrainNode, { cmpChromosomes } from 'components/StrainNode/StrainNode';
+import StrainNode from 'components/StrainNode/StrainNode';
 import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
+import { cmpChromosomes } from 'models/frontend/Strain/Strain';
 import * as mock from 'models/frontend/StrainNodeModel/StrainNodeModel.mock';
 
 describe('StrainNode component', () => {

@@ -5,22 +5,28 @@ import { Table, type ColumnDefinitionType } from 'components/Table/Table';
 import { type FilterGroup } from 'models/db/filter/FilterGroup';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-interface DataPageProps<T, K> {
+
+interface DataTablePageProps<T, K> {
   title: string;
   dataName: string;
   cols: Array<ColumnDefinitionType<T>>;
   fields: Array<Field<T>>;
   nameMapping: { [key in keyof T]: K };
-  insertDatum: (record: T) => Promise<void>;
-  getFilteredData: (filterObj: FilterGroup<K>) => Promise<T[]>;
-  getCountFilteredData: (filterObj: FilterGroup<K>) => Promise<number>;
-  insertDataFromFile: (path: string) => Promise<void>;
+  insertRecord: (record: T) => Promise<void>;
+  getFilteredRecords: (filterObj: FilterGroup<K>) => Promise<T[]>;
+  getCountFilteredRecords: (filterObj: FilterGroup<K>) => Promise<number>;
+  insertRecordsFromFile: (path: string) => Promise<void>;
   deleteRecord: (row: T) => Promise<void>;
+  updateRecord?: (
+    row: T,
+    column: ColumnDefinitionType<T>,
+    value: string
+  ) => Promise<void>;
 }
 
 const rowsPerPage = 50;
 
-const DataPage = <T, K>(props: DataPageProps<T, K>): JSX.Element => {
+const DataTablePage = <T, K>(props: DataTablePageProps<T, K>): JSX.Element => {
   const [data, setData] = useState<T[]>([]);
   const [page, setPage] = useState<number | undefined>(0);
   const [rowCount, setRowCount] = useState(0);
@@ -53,7 +59,7 @@ const DataPage = <T, K>(props: DataPageProps<T, K>): JSX.Element => {
     successCallback: () => void
   ): void => {
     props
-      .insertDatum(record)
+      .insertRecord(record)
       .then((resp) => {
         successCallback();
         refresh();
@@ -68,18 +74,17 @@ const DataPage = <T, K>(props: DataPageProps<T, K>): JSX.Element => {
       });
   };
 
-  const deleteRecordCallback = (record: T): void => {
-    props
+  const deleteRecord = async (record: T): Promise<void> => {
+    await props
       .deleteRecord(record)
-      .then((_) => {
+      .then(() => {
         refresh();
       })
       .catch((e: Error) => {
-        toast.error(
-          'An error occured when deleting a record: ' + JSON.stringify(e)
-        );
+        toast.error(`Unable to delete record: ${JSON.stringify(e)}`);
       });
   };
+
   const importData = async (): Promise<void> => {
     try {
       const filepath: string | null = (await open({
@@ -91,7 +96,7 @@ const DataPage = <T, K>(props: DataPageProps<T, K>): JSX.Element => {
         ],
       })) as string | null;
       if (filepath === null) return;
-      await props.insertDataFromFile(filepath);
+      await props.insertRecordsFromFile(filepath);
       refresh();
       toast.success('Successfully imported data');
     } catch (e) {
@@ -101,15 +106,15 @@ const DataPage = <T, K>(props: DataPageProps<T, K>): JSX.Element => {
     }
   };
 
-  const runFilters = (filterObj: FilterGroup<K>): void => {
+  const applyFilters = (filterObj: FilterGroup<K>): void => {
     setCurFilter(filterObj);
     setPage((page) => {
       props
-        .getCountFilteredData(filterObj)
+        .getCountFilteredRecords(filterObj)
         .then((c) => {
           if ((page ?? 0) > Math.ceil(c / rowsPerPage)) setPage(undefined);
           props
-            .getFilteredData({
+            .getFilteredRecords({
               ...filterObj,
               limit: rowsPerPage,
               offset: (page ?? 0) * rowsPerPage,
@@ -134,7 +139,7 @@ const DataPage = <T, K>(props: DataPageProps<T, K>): JSX.Element => {
   };
 
   const refresh = (): void => {
-    runFilters(curFilter);
+    applyFilters(curFilter);
   };
 
   useEffect(() => {
@@ -142,75 +147,81 @@ const DataPage = <T, K>(props: DataPageProps<T, K>): JSX.Element => {
   }, []);
 
   return (
-    <div className='drawer-content flex flex-col'>
-      <div>
-        <div className='grid grid-cols-3 place-items-center items-center px-6'>
-          <div className='flex select-none flex-row justify-start pt-4'>
-            <span className='mx-2 pt-1'>
-              Page
-              <input
-                value={page !== undefined && rowCount > 0 ? page + 1 : ''}
-                placeholder='1'
-                type='number'
-                className='ml-2 w-6 bg-base-200 text-right'
-                onChange={(e) => {
-                  if (e.target.value === '') {
-                    setPage(undefined);
-                    refresh();
-                    return;
-                  }
-                  const newPage = parseInt(e.target.value);
-                  if (
-                    newPage > 0 &&
-                    newPage <= Math.ceil(rowCount / rowsPerPage)
-                  ) {
-                    setPage(newPage - 1);
-                    refresh();
-                    autoSize(e.target);
-                  }
-                }}
-              />
-              <span className='opacity-60'>
-                /{Math.ceil(rowCount / rowsPerPage)}
-              </span>
-            </span>
-            <span className='ml-6 pt-2 text-sm opacity-60'>
-              {rowCount > 0 ? rowCount.toLocaleString() + ' total rows' : ''}
-            </span>
-          </div>
-          <h1 className='data-table-title col-start-2'>{props.title}</h1>
-          <div className='flex w-full flex-row justify-end gap-2'>
-            <DataImportForm
-              title={props.title}
-              className='justify-self-end'
-              dataName={props.dataName}
-              fields={props.fields}
-              onSubmit={onRecordInsertionFormSubmission}
-            ></DataImportForm>
-            <button
-              className='btn'
-              onClick={() => {
-                importData().catch(console.error);
+    <div className='flex flex-col'>
+      <div className='grid grid-cols-3 place-items-center items-center px-6'>
+        <div className='flex select-none flex-row justify-start pt-4'>
+          <span className='mx-2 pt-1'>
+            Page
+            <input
+              value={page !== undefined && rowCount > 0 ? page + 1 : ''}
+              placeholder='1'
+              type='number'
+              className='ml-2 w-6 bg-base-200 text-right'
+              onChange={(e) => {
+                if (e.target.value === '') {
+                  setPage(undefined);
+                  refresh();
+                  return;
+                }
+                const newPage = parseInt(e.target.value);
+                if (
+                  newPage > 0 &&
+                  newPage <= Math.ceil(rowCount / rowsPerPage)
+                ) {
+                  setPage(newPage - 1);
+                  refresh();
+                  autoSize(e.target);
+                }
               }}
-            >
-              Import
-            </button>
-          </div>
+            />
+            <span className='opacity-60'>
+              /{Math.ceil(rowCount / rowsPerPage)}
+            </span>
+          </span>
+          <span className='ml-6 pt-2 text-sm opacity-60'>
+            {rowCount > 0 ? rowCount.toLocaleString() + ' total rows' : ''}
+          </span>
         </div>
-        <div className='px-4 pb-12'>
-          <Table
-            runFilters={runFilters}
-            nameMapping={props.nameMapping}
-            data={data}
-            offset={(page ?? 0) * rowsPerPage}
-            columns={props.cols}
+        <h1 className='col-start-2 py-6 text-3xl font-bold'>{props.title}</h1>
+        <div className='flex w-full flex-row justify-end gap-2'>
+          <DataImportForm
+            title={props.title}
+            className='justify-self-end'
+            dataName={props.dataName}
             fields={props.fields}
-            deleteRecord={deleteRecordCallback}
+            onSubmit={onRecordInsertionFormSubmission}
           />
+          <button
+            className='btn'
+            onClick={() => {
+              importData().catch(console.error);
+            }}
+          >
+            Import
+          </button>
         </div>
+      </div>
+      <div className='px-4 pb-12'>
+        <Table
+          applyFilters={applyFilters}
+          nameMapping={props.nameMapping}
+          data={data}
+          offset={(page ?? 0) * rowsPerPage}
+          columns={props.cols}
+          fields={props.fields}
+          updateRecord={
+            props.updateRecord === undefined
+              ? undefined
+              : async (row, column, value) => {
+                  props.updateRecord?.(row, column, value).catch(console.error);
+                  refresh();
+                }
+          }
+          deleteRecord={deleteRecord}
+        />
       </div>
     </div>
   );
 };
 
-export default DataPage;
+export default DataTablePage;

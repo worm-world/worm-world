@@ -116,6 +116,13 @@ export class Allele {
     );
   }
 
+  /** For alleles of genes, return a string of the form 'genename(allelename)'; for other alleles, returns 'allelename' */
+  public getQualifiedName(excludeWilds = false): string {
+    return this.gene === undefined
+      ? this.name
+      : `${this.gene.descName}(${this.name})`;
+  }
+
   private static setAlleleExpressionsFilter(
     alleleName: string
   ): FilterGroup<AlleleExpressionFieldName> {

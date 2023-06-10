@@ -1,28 +1,28 @@
 import { StoryFn, Meta } from '@storybook/react';
-import SavedTreeCard from 'components/SavedTreeCard/SavedTreeCard';
+import TreeCard from 'components/TreeCard/TreeCard';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import * as mockCrossTree from 'models/frontend/CrossTree/CrossTree.mock';
 import { BrowserRouter } from 'react-router-dom';
 
-const MockSavedTreeCard = ({
+const MockTreeCard = ({
   tree: tree,
 }: {
   tree: CrossTree;
 }): JSX.Element => {
   return (
     <BrowserRouter>
-      <SavedTreeCard tree={tree} refreshTrees={() => {}}></SavedTreeCard>
+      <TreeCard tree={tree} refreshTrees={() => {}}></TreeCard>
     </BrowserRouter>
   );
 };
 
 export default {
-  title: 'Components/SavedTreeCard',
-  component: SavedTreeCard,
-} as Meta<typeof SavedTreeCard>;
+  title: 'Components/TreeCard',
+  component: TreeCard,
+} as Meta<typeof TreeCard>;
 
-const Template: StoryFn<typeof SavedTreeCard> = (args) => {
-  return <MockSavedTreeCard {...args}></MockSavedTreeCard>;
+const Template: StoryFn<typeof TreeCard> = (args) => {
+  return <MockTreeCard {...args}></MockTreeCard>;
 };
 
 export const Primary = Template.bind({});

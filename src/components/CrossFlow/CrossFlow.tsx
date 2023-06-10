@@ -62,14 +62,14 @@ const downloadImage = async (
           dir: dir === null ? fs.BaseDirectory.Download : undefined,
         })
           .then(() => toast.success('Exported PNG to ' + filename))
-          .catch((e) => toast.error(e));
+          .catch(toast.error);
         break;
       case 'svg':
         fs.writeTextFile(filename, await dataBlob.text(), {
           dir: dir === null ? fs.BaseDirectory.Download : undefined,
         })
           .then(() => toast.success('Exported SVG to ' + filename))
-          .catch((e) => toast.error(e));
+          .catch(toast.error);
         break;
     }
   } else {

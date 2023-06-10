@@ -30,14 +30,6 @@ export class AllelePair implements IAllelePair {
   }
 
   /**
-   * Attempt to get distinguishing (non-wild) allele from the pair.
-   * If both alleles are wild, returns wild allele
-   */
-  public getAllele(): Allele {
-    return this.top.isWild() ? this.bot : this.top;
-  }
-
-  /**
    * Checks if the other pair's top and bottom match perfectly to this pair's top/bot
    * @param other Other pair to compare against
    */
@@ -58,8 +50,8 @@ export class AllelePair implements IAllelePair {
 
   /** Checks if two allele pairs are on the same "variation" or the same gene. */
   public isOfSameGeneOrVariation(other: AllelePair): boolean {
-    const thisAllele = this.getAllele();
-    const otherAllele = other.getAllele();
+    const thisAllele = this.top;
+    const otherAllele = other.top;
     if (thisAllele.gene !== undefined && otherAllele.gene !== undefined) {
       return thisAllele.gene.sysName === otherAllele.gene.sysName;
     } else if (
@@ -78,8 +70,8 @@ export class AllelePair implements IAllelePair {
    * @param other Other pair to compare against
    */
   public hasSameGenLoc(other: AllelePair): boolean {
-    const thisPos = this.getAllele().getGenPosition();
-    const otherPos = other.getAllele().getGenPosition();
+    const thisPos = this.top.getGenPosition();
+    const otherPos = other.bot.getGenPosition();
 
     if (thisPos === undefined || otherPos === undefined) return false;
     else return thisPos === otherPos;
@@ -89,7 +81,7 @@ export class AllelePair implements IAllelePair {
    * Checks if this pair is only made up of wild alleles
    */
   public isWild(): boolean {
-    return this.getAllele().isWild();
+    return this.top.isWild() && this.bot.isWild();
   }
 
   /** Returns true if pair is homozygous (false for heterozygous) */
@@ -113,6 +105,14 @@ export class AllelePair implements IAllelePair {
     const temp = this.top;
     this.top = this.bot;
     this.bot = temp;
+  }
+
+  /**
+   * Attempt to get either distinguishing (non-wild) allele from the pair.
+   * If both alleles are wild, returns wild allele
+   */
+  public getAllele(): Allele {
+    return this.top.isWild() ? this.bot : this.top;
   }
 
   /**
@@ -168,12 +168,10 @@ export class AllelePair implements IAllelePair {
     const chromosome2Copy = chromosome2.map((allelePair) => allelePair.clone());
 
     // Allele pair order and top/bottom-ness don't matter for ECA alleles
-    // So look at canonical form for comparison
+    // So look at canonical form for comparison. It is assumed that ECA alleles are top-heterozygous
     [chromosome1Copy, chromosome2Copy].forEach((chromosome) => {
       if (chromosome.length > 0 && chromosome[0].isEca) {
-        chromosome.sort((a, b) =>
-          a.getAllele().name.localeCompare(b.getAllele().name)
-        );
+        chromosome.sort((a, b) => a.top.name.localeCompare(b.top.name));
         chromosome.forEach((allelePair) => {
           if (allelePair.top.isWild()) {
             allelePair.flip();

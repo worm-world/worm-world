@@ -7,7 +7,7 @@ export interface SelectedPillProps {
 
 const SelectedPill = (props: SelectedPillProps): JSX.Element => {
   return (
-    <div className='badge-secondary badge m-1 p-4 pr-0' key={props.displayVal}>
+    <div className='badge badge-secondary m-1 p-4 pr-0' key={props.displayVal}>
       <div className='mr-2'>{props.displayVal}</div>
       <button
         onClick={props.removeFromSelected}

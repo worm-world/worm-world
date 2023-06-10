@@ -96,7 +96,7 @@ const FilterInput = <T,>(props: FilterInputProps<T>): JSX.Element => {
       props.filterValues[1] = false;
       props.filterValues[3] = false;
       return (
-        <div className='form-control ml-5 flex flex-col'>
+        <div className='form-control ml-5'>
           <FilterTextInput
             setFilterValues={props.setFilterValues}
             filterValues={props.filterValues}
@@ -139,7 +139,7 @@ const FilterInput = <T,>(props: FilterInputProps<T>): JSX.Element => {
       }
       return props.field?.type === 'select' ? (
         // if select, render a select input
-        <div className='form-control flex flex-col'>
+        <div className='form-control'>
           <select
             className='input-bordered input select'
             onChange={(e) => {

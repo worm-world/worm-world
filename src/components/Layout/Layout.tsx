@@ -54,29 +54,6 @@ const allThemes = [
   'bumblebee',
   'emerald',
   'corporate',
-  // 'synthwave',
-  // 'retro',
-  // 'cyberpunk',
-  // 'valentine',
-  // 'halloween',
-  // 'garden',
-  // 'forest',
-  // 'aqua',
-  // 'lofi',
-  // 'pastel',
-  // 'fantasy',
-  // 'wireframe',
-  // 'black',
-  // 'luxury',
-  // 'dracula',
-  // 'cmyk',
-  // 'autumn',
-  // 'business',
-  // 'acid',
-  // 'lemonade',
-  // 'night',
-  // 'coffee',
-  // 'winter',
 ];
 
 const Layout = (props: LayoutProps): JSX.Element => {
@@ -88,11 +65,11 @@ const Layout = (props: LayoutProps): JSX.Element => {
   return (
     <div className='drawer h-screen'>
       <input id='nav-drawer' type='checkbox' className='drawer-toggle' />
-      <div className='drawer-content'>{props.children}</div>
+      <div className='drawer-content w-screen'>{props.children}</div>
 
       <div className='drawer-side' data-testid='side-drawer'>
         <label htmlFor='nav-drawer' className='drawer-overlay'></label>
-        <div className='flex h-full w-60 flex-col justify-between  bg-base-100'>
+        <div className='flex h-screen w-60 flex-col justify-between bg-base-100'>
           <ul className='menu mt-4'>
             <li key='wormworld'>
               <Link

@@ -104,7 +104,7 @@ impl InnerDbState {
                 altering_condition,
                 is_suppressing
             )
-            VALUES($1, $2, $3, $4, $5, $6, $7)
+            VALUES(?, ?, ?, ?, ?, ?, ?)
             ",
             relation.allele_name,
             relation.expressing_phenotype_name,

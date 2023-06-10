@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState } from 'react';
 import { toast } from 'react-toastify';
 
 export interface FieldType<T> {
@@ -83,7 +83,7 @@ const Fields = <T,>(props: FieldsProps<T>): JSX.Element => {
 };
 
 const DataImportForm = <T,>(props: DataImportFormProps<T>): JSX.Element => {
-  const [isFormOpen, setFormOpen] = React.useState(false);
+  const [isFormOpen, setFormOpen] = useState(false);
   const handleOpen = (): void => {
     setFormOpen(true);
   };

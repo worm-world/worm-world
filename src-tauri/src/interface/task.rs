@@ -51,7 +51,7 @@ impl InnerDbState {
         let action_val: i32 = (task.action as u8).into();
         match sqlx::query!(
             "INSERT INTO tasks (id, due_date, action, strain1, strain2, result, notes, tree_id, completed)
-            VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
             ",
             task.id,
             task.due_date,
@@ -78,17 +78,16 @@ impl InnerDbState {
         let action_val: i32 = (task.action as u8).into();
         match sqlx::query!(
             "UPDATE tasks
-            SET due_date = $2,
-                action = $3,
-                strain1 = $4,
-                strain2 = $5,
-                result = $6,
-                notes = $7,
-                tree_id = $8,
-                completed = $9
+            SET due_date = ?,
+                action = ?,
+                strain1 = ?,
+                strain2 = ?,
+                result = ?,
+                notes = ?,
+                tree_id = ?,
+                completed = ?
             WHERE
-                id = $1",
-            task.id,
+                id = ?",
             task.due_date,
             action_val,
             task.strain1,
@@ -97,6 +96,7 @@ impl InnerDbState {
             task.notes,
             task.tree_id,
             task.completed,
+            task.id,
         )
         .execute(&self.conn_pool)
         .await
@@ -111,7 +111,7 @@ impl InnerDbState {
     pub async fn delete_task(&self, id: String) -> Result<(), DbError> {
         match sqlx::query!(
             "DELETE FROM tasks
-            WHERE id = $1",
+            WHERE id = ?",
             id,
         )
         .execute(&self.conn_pool)
@@ -128,7 +128,7 @@ impl InnerDbState {
     pub async fn delete_tasks(&self, tree: String) -> Result<(), DbError> {
         match sqlx::query!(
             "DELETE FROM tasks
-            WHERE tree_id = $1",
+            WHERE tree_id = ?",
             tree,
         )
         .execute(&self.conn_pool)

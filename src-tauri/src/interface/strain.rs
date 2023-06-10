@@ -12,7 +12,7 @@ impl InnerDbState {
         match sqlx::query_as!(
             Strain,
             "
-            SELECT name, description FROM strains ORDER BY name
+            SELECT name, genotype, description FROM strains ORDER BY name
             "
         )
         .fetch_all(&self.conn_pool)
@@ -31,7 +31,7 @@ impl InnerDbState {
         filter: &FilterGroup<StrainFieldName>,
     ) -> Result<Vec<Strain>, DbError> {
         let mut qb: QueryBuilder<Sqlite> =
-            QueryBuilder::new("SELECT name, description from strains");
+            QueryBuilder::new("SELECT name, genotype, description from strains");
         filter.add_filtered_query(&mut qb, true, true);
 
         match qb
@@ -62,8 +62,27 @@ impl InnerDbState {
         {
             Ok(count) => Ok(count.count),
             Err(e) => {
-                eprint!("Get Filtered Strain Count error: {e}");
+                eprint!("Get filtered strain Count error: {e}");
                 Err(DbError::Query(e.to_string()))
+            }
+        }
+    }
+
+    pub async fn update_strain(&self, name: String, new_strain: Strain) -> Result<(), DbError> {
+        match sqlx::query!(
+            "UPDATE strains SET name = ?, genotype = ?, description = ? WHERE name = ?",
+            new_strain.name,
+            new_strain.genotype,
+            new_strain.description,
+            name
+        )
+        .execute(&self.conn_pool)
+        .await
+        {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                eprint!("Update strain error: {e}");
+                Err(DbError::Update(e.to_string()))
             }
         }
     }
@@ -71,10 +90,11 @@ impl InnerDbState {
     pub async fn insert_strain(&self, strain: &Strain) -> Result<(), DbError> {
         match sqlx::query!(
             "
-            INSERT INTO strains (name, description)
-            VALUES ($1, $2)
+            INSERT INTO strains (name, genotype, description)
+            VALUES (?, ?, ?)
             ",
             strain.name,
+            strain.genotype,
             strain.description,
         )
         .execute(&self.conn_pool)
@@ -95,13 +115,13 @@ impl InnerDbState {
                 bulk.errors.len()
             )));
         }
-        let bind_limit = SQLITE_BIND_LIMIT / 2;
+        let bind_limit = SQLITE_BIND_LIMIT / 3;
 
         let mut data = bulk.data.into_iter().peekable();
         while data.peek().is_some() {
             let chunk = data.by_ref().take(bind_limit - 1).collect::<Vec<_>>();
             let mut qb: QueryBuilder<Sqlite> =
-                QueryBuilder::new("INSERT OR IGNORE INTO strains (name, description)");
+                QueryBuilder::new("INSERT OR IGNORE INTO strains (name, genotype, description)");
             if chunk.len() > bind_limit {
                 return Err(DbError::BulkInsert(format!(
                     "Row count exceeds max: {}",
@@ -109,7 +129,9 @@ impl InnerDbState {
                 )));
             }
             qb.push_values(chunk, |mut b, item| {
-                b.push_bind(item.name).push_bind(item.description);
+                b.push_bind(item.name)
+                    .push_bind(item.genotype)
+                    .push_bind(item.description);
             });
 
             match qb.build().execute(&self.conn_pool).await {
@@ -187,10 +209,10 @@ mod test {
         let exprs = state
             .get_filtered_strains(&FilterGroup::<StrainFieldName> {
                 filters: vec![vec![
-                    (StrainFieldName::Name, Filter::Equal("N2".to_string())),
                     (StrainFieldName::Name, Filter::Equal("CB128".to_string())),
+                    (StrainFieldName::Name, Filter::Equal("N2".to_string())),
                 ]],
-                order_by: vec![(StrainFieldName::Description, Order::Asc)],
+                order_by: vec![(StrainFieldName::Genotype, Order::Asc)],
                 limit: None,
                 offset: None,
             })
@@ -212,7 +234,7 @@ mod test {
                     vec![(StrainFieldName::Name, Filter::Equal("N2".to_string()))],
                     vec![(
                         StrainFieldName::Description,
-                        Filter::Equal("wild isolate".to_string()),
+                        Filter::Equal( "C. elegans var Bristol. Generation time is about 3 days. Brood size is about 350. Also CGC reference 257. Isolated from mushroom compost near Bristol, England by L.N. Staniland.".to_string()),
                     )],
                 ],
                 order_by: vec![],
@@ -292,7 +314,8 @@ mod test {
 
         let expected = Strain {
             name: "N2".to_string(),
-            description: Some("wild isolate".to_string()),
+            genotype: "C. elegans wild isolate.".to_string(),
+            description: Some( "C. elegans var Bristol. Generation time is about 3 days. Brood size is about 350. Also CGC reference 257. Isolated from mushroom compost near Bristol, England by L.N. Staniland.".to_string()),
         };
 
         state.insert_strain(&expected).await?;
@@ -311,6 +334,7 @@ mod test {
 
         let expected = Strain {
             name: "MT2495".to_string(),
+            genotype: "lin-15B(n744) X.".to_string(),
             description: None,
         };
 
@@ -325,7 +349,7 @@ mod test {
     async fn test_insert_strains(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
 
-        let csv_str = "name,description\nN2,wild isolate\nMT2495,\nCB128,Small Dpy.".as_bytes();
+        let csv_str = "name,genotype,description\nMT2495,lin-15B(n744) X.,\nCB128,dpy-10(e128) II.,Small Dpy.".as_bytes();
         let buf = BufReader::new(csv_str);
         let mut reader = csv::ReaderBuilder::new().has_headers(true).from_reader(buf);
         let bulk: Bulk<Strain> = Bulk::from_reader(&mut reader);
@@ -338,15 +362,13 @@ mod test {
             vec![
                 Strain {
                     name: "CB128".to_string(),
+                    genotype: "dpy-10(e128) II.".to_string(),
                     description: Some("Small Dpy.".to_string()),
                 },
                 Strain {
                     name: "MT2495".to_string(),
+                    genotype: "lin-15B(n744) X.".to_string(),
                     description: None,
-                },
-                Strain {
-                    name: "N2".to_string(),
-                    description: Some("wild isolate".to_string()),
                 },
             ]
         );
@@ -357,7 +379,7 @@ mod test {
     async fn test_insert_strains_tabs(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
 
-        let tsv_str = "name\tdescription\nN2\twild isolate\nMT2495\t\nCB128\tSmall Dpy.".as_bytes();
+        let tsv_str = "name\tgenotype\tdescription\nMT2495\tlin-15B(n744) X.\t\nCB128\tdpy-10(e128) II.\tSmall Dpy.".as_bytes();
         let buf = BufReader::new(tsv_str);
         let mut reader = csv::ReaderBuilder::new()
             .has_headers(true)
@@ -373,15 +395,13 @@ mod test {
             vec![
                 Strain {
                     name: "CB128".to_string(),
+                    genotype: "dpy-10(e128) II.".to_string(),
                     description: Some("Small Dpy.".to_string()),
                 },
                 Strain {
                     name: "MT2495".to_string(),
+                    genotype: "lin-15B(n744) X.".to_string(),
                     description: None,
-                },
-                Strain {
-                    name: "N2".to_string(),
-                    description: Some("wild isolate".to_string()),
                 },
             ]
         );

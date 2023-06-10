@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 export interface MenuItem {
   icon?: JSX.Element;
   text: string;
@@ -29,7 +31,7 @@ export const Menu = (props: MenuProps): JSX.Element => {
       {props.items.length > 0 && (
         <ul
           tabIndex={0}
-          className='dropdown-content menu menu-compact w-40 rounded-md bg-base-100 p-1 drop-shadow-lg'
+          className='menu-compact dropdown-content menu w-40 rounded-md bg-base-100 p-1 drop-shadow-lg'
         >
           <li className='menu-title'>
             <span>{props.title}</span>

@@ -1,8 +1,8 @@
 import { open } from '@tauri-apps/api/dialog';
 import { readTextFile } from '@tauri-apps/api/fs';
 import { getFilteredTrees, insertTree } from 'api/crossTree';
-import { type CrossEditorFilter } from 'components/CrossEditorFilter/CrossEditorFilter';
-import SavedTreeCard from 'components/SavedTreeCard/SavedTreeCard';
+import { type OffspringFilter } from 'components/OffspringFilter/OffspringFilter';
+import TreeCard from 'components/TreeCard/TreeCard';
 import { TopNav } from 'components/TopNav/TopNav';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { useEffect, useState } from 'react';
@@ -66,7 +66,7 @@ const CrossDesignerPage = (): JSX.Element => {
         <div className='mx-36 my-8 flex flex-wrap '>
           {crossTrees?.map((crossTree) => {
             return (
-              <SavedTreeCard
+              <TreeCard
                 refreshTrees={() => {
                   refreshTrees().catch(console.error);
                 }}
@@ -121,7 +121,7 @@ const addTree = async (): Promise<void> => {
       nodes: [],
       edges: [],
       invisibleNodes: new Set<string>(),
-      crossFilters: new Map<string, CrossEditorFilter>(),
+      crossFilters: new Map<string, OffspringFilter>(),
       editable: true,
     });
     await insertTree(newTree.generateRecord(newTree.editable));

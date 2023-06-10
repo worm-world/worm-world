@@ -9,7 +9,7 @@ import { type db_ExpressionRelation } from 'models/db/db_ExpressionRelation';
 import { type ColumnDefinitionType } from 'components/Table/Table';
 import { type ExpressionRelationFieldName } from 'models/db/filter/db_ExpressionRelationFieldName';
 import { type Field } from 'components/ColumnFilter/ColumnFilter';
-import DataPage from 'components/DataPage/DataPage';
+import DataTablePage from 'components/DataTablePage/DataTablePage';
 
 export const cols: Array<ColumnDefinitionType<db_ExpressionRelation>> = [
   { key: 'alleleName', header: 'Allele Name' },
@@ -71,18 +71,18 @@ const nameMapping: {
   isSuppressing: 'IsSuppressing',
 };
 
-export default function ExpressionRelationDataPage(): JSX.Element {
+export default function ExpressionRelationDataTablePage(): JSX.Element {
   return (
-    <DataPage
+    <DataTablePage
       title='Expression Relations'
       dataName='expressionRelation'
       cols={cols}
       fields={fields}
       nameMapping={nameMapping}
-      getFilteredData={getFilteredExpressionRelations}
-      getCountFilteredData={getCountFilteredExpressionRelations}
-      insertDatum={insertDbExpressionRelation}
-      insertDataFromFile={insertExpressionRelationsFromFile}
+      getFilteredRecords={getFilteredExpressionRelations}
+      getCountFilteredRecords={getCountFilteredExpressionRelations}
+      insertRecord={insertDbExpressionRelation}
+      insertRecordsFromFile={insertExpressionRelationsFromFile}
       deleteRecord={deleteExpressionRelation}
     />
   );

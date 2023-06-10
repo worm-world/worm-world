@@ -1,5 +1,5 @@
 import { getAllele } from 'api/allele';
-import { getFilteredStrainAlleles } from 'api/strainAllele';
+import { getFilteredStrainAlleles, insertStrainAllele } from 'api/strainAllele';
 import {
   Exclude,
   Transform,
@@ -17,6 +17,8 @@ import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { type Condition } from 'models/frontend/Condition/Condition';
 import { type Phenotype } from 'models/frontend/Phenotype/Phenotype';
 import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import { getStrain, insertStrain } from 'api/strain';
+import { StrainAllele } from '../StrainAllele/StrainAllele';
 
 export interface StrainOption {
   strain: Strain;
@@ -37,6 +39,7 @@ interface ChromosomeOption {
 interface IStrain {
   name?: string;
   allelePairs: AllelePair[];
+  genotype?: string;
   description?: string;
 }
 
@@ -69,6 +72,8 @@ export class Strain {
 
   public name?: string;
 
+  public genotype: string;
+
   public description?: string;
 
   constructor(params: IStrain) {
@@ -76,8 +81,69 @@ export class Strain {
       this.name = params.name;
       this.description = params.description;
       this.addPairsToStrain(params.allelePairs);
+      this.genotype = params.genotype ?? this.generateGenotype();
+      this.name = params.name;
+      return;
     }
-    this.chromPairMap = new Map(this.chromPairMap);
+    this.genotype = '';
+  }
+
+  // Constructs new object, along with fetching name
+  public static async buildWithDynName(params: IStrain): Promise<Strain> {
+    const strain = new Strain(params);
+    if (strain.name === undefined) strain.name = await strain.fetchName();
+    return strain;
+  }
+
+  private async fetchName(): Promise<string | undefined> {
+    const allelePairs = this.getAllelePairs();
+    if (allelePairs.length === 0) return undefined;
+    const sAFilter: FilterGroup<StrainAlleleFieldName> = {
+      filters: [
+        allelePairs
+          .filter((pair) => pair.getAllele.name !== '+')
+          .map((pair) => ['AlleleName', { Equal: pair.getAllele().name }]),
+      ],
+      orderBy: [],
+    };
+    const matchCandidates = await Promise.all(
+      (
+        await getFilteredStrainAlleles(sAFilter)
+      )
+        .map((sa) => sa.strain_name) // ToDo
+        .map(async (name) => await getStrain(name))
+        .map(async (strain) => await Strain.createFromRecord(await strain))
+    );
+    for (const candidate of matchCandidates)
+      if (this.equals(candidate)) return candidate.name;
+  }
+
+  private generateGenotype(): string {
+    return (
+      Array.from(this.chromPairMap.entries())
+        .sort((a, b) => cmpChromosomes(a[0], b[0]))
+        .map(([chrom, pairs]) => {
+          if (pairs.every((pair) => pair.isHomo())) {
+            return (
+              pairs.map((pair) => pair.top.getQualifiedName()).join(' ') +
+              ' ' +
+              (chrom ?? '?')
+            );
+          }
+          const top = pairs
+            .map((pair) =>
+              pair.top.isWild() ? pair.top.name : pair.top.getQualifiedName()
+            )
+            .join(' ');
+          const bot = pairs
+            .map((pair) =>
+              pair.bot.isWild() ? pair.bot.name : pair.bot.getQualifiedName()
+            )
+            .join(' ');
+          return top + '/' + bot + ' ' + (chrom ?? '?');
+        })
+        .join('; ') + '.'
+    );
   }
 
   static async createFromRecord(record: db_Strain): Promise<Strain> {
@@ -87,24 +153,70 @@ export class Strain {
     };
 
     const strainAlleles = await getFilteredStrainAlleles(strainAlleleFilter);
-    const allelePairs = strainAlleles.map(async (strainAllele) => {
-      const allele = await Allele.createFromRecord(
-        await getAllele(strainAllele.allele_name)
-      );
-      if (strainAllele.is_homozygous)
-        return new AllelePair({ top: allele, bot: allele });
-      else return new AllelePair({ top: allele, bot: allele.getWild() });
-    });
+    const allelePairs = await Promise.all(
+      strainAlleles.map(async (strainAllele) => {
+        const allele = await Allele.createFromRecord(
+          await getAllele(strainAllele.allele_name)
+        );
+        return new AllelePair({
+          top: strainAllele.is_on_top ? allele : allele.getWild(),
+          bot: strainAllele.is_on_bot ? allele : allele.getWild(),
+        });
+      })
+    );
 
-    return new Strain({
+    return await Strain.buildWithDynName({
       name: record.name ?? undefined,
       description: record.description ?? undefined,
+      genotype: record.genotype,
       allelePairs: await Promise.all(allelePairs),
     });
   }
-  /* #endregion initializers */
 
-  /* #region public methods */
+  public async save(): Promise<void> {
+    if (this.name === undefined)
+      throw new Error('Tried to save strain without name.');
+    await insertStrain(this);
+    this.getAllelePairs().forEach((pair) => {
+      if (pair.isWild()) return;
+      if (pair.isHomo()) {
+        insertStrainAllele(
+          new StrainAllele({
+            strainName: this.name ?? '',
+            alleleName: pair.top.name,
+            isOnTop: true,
+            isOnBot: true,
+          })
+        ).catch(console.error);
+        return;
+      }
+      if (!pair.top.isWild()) {
+        insertStrainAllele(
+          new StrainAllele({
+            strainName: this.name ?? '',
+            alleleName: pair.top.name,
+            isOnTop: true,
+            isOnBot: false,
+          })
+        ).catch(console.error);
+        return;
+      }
+      if (!pair.bot.isWild()) {
+        insertStrainAllele(
+          new StrainAllele({
+            strainName: this.name ?? '',
+            alleleName: pair.bot.name,
+            isOnTop: true,
+            isOnBot: false,
+          })
+        ).catch(console.error);
+      }
+    });
+  }
+
+  static getGenotype(allelePairs: AllelePair[]): string {
+    return 'todo: getGenotype';
+  }
 
   public toMaleModel(): StrainNodeModel {
     return new StrainNodeModel({ sex: Sex.Male, strain: this });
@@ -117,19 +229,21 @@ export class Strain {
   public getHomoAlleles(): Allele[] {
     return this.getAllelePairs()
       .filter((allelePair) => !allelePair.isEca && allelePair.isHomo())
-      .map((allelePair) => allelePair.getAllele());
+      .map((allelePair) => allelePair.top);
   }
 
   public getHetAlleles(): Allele[] {
     return this.getAllelePairs()
       .filter((allelePair) => !allelePair.isEca && !allelePair.isHomo())
-      .map((allelePair) => allelePair.getAllele());
+      .map((allelePair) =>
+        allelePair.top.isWild() ? allelePair.top : allelePair.bot
+      );
   }
 
   public getExAlleles(): Allele[] {
     return this.getAllelePairs()
       .filter((allelePair) => allelePair.isEca)
-      .map((allelePair) => allelePair.getAllele());
+      .map((allelePair) => allelePair.top);
   }
 
   /**
@@ -155,23 +269,6 @@ export class Strain {
   }
 
   /**
-   * Mostly for debugging, string representation of strain
-   */
-  public toString(): string {
-    let res = '';
-    Array.from(this.chromPairMap.keys()).forEach((key) => {
-      res += (key?.toString() ?? '?') + ': ';
-      res +=
-        this.chromPairMap
-          .get(key)
-          ?.map((pair) => `${pair.top.name}/${pair.bot.name}`)
-          .join(' ') ?? '';
-      res += '\n';
-    });
-    return res;
-  }
-
-  /**
    * Returns a new strain with identical data to this
    */
   public clone(): Strain {
@@ -182,6 +279,7 @@ export class Strain {
     return new Strain({
       name: this.name,
       description: this.description,
+      genotype: this.genotype,
       allelePairs,
     });
   }
@@ -190,8 +288,8 @@ export class Strain {
    * Crosses this strain with itself
    * @returns Permuted list of all possible strains and their respective probabilities
    */
-  public selfCross(): StrainOption[] {
-    return this.crossWith(this);
+  public async selfCross(): Promise<StrainOption[]> {
+    return await this.crossWith(this);
   }
 
   /**
@@ -199,9 +297,14 @@ export class Strain {
    * @param other strain to cross against
    * @returns Permuted list of all possible strains and their respective probabilities
    */
-  public crossWith(other: Strain): StrainOption[] {
+  public async crossWith(other: Strain): Promise<StrainOption[]> {
     if (this.chromPairMap.size === 0 && other.chromPairMap.size === 0)
-      return [{ strain: new Strain({ allelePairs: [] }), prob: 1.0 }];
+      return [
+        {
+          strain: await Strain.buildWithDynName({ allelePairs: [] }),
+          prob: 1.0,
+        },
+      ];
 
     this.prepWithWilds(other);
     other.prepWithWilds(this);
@@ -223,8 +326,8 @@ export class Strain {
 
     // permute strains for each chromosome
     const strains = this.cartesianCross(multiChromOptions);
-    this.reduceStrainOptions(strains);
-    return strains;
+    this.reduceStrainOptions(await strains);
+    return await strains;
   }
 
   // Simplified cross of Ex chromosome--equal probabilities of all possible sets
@@ -291,29 +394,28 @@ export class Strain {
 
     return Math.max(...maturationDays);
   }
-  /* #endregion public methods */
-
-  /* #region private methods */
 
   /**
    * Permutes all possible strain combinations due to each chromosome
    * @param multiChromOptions Outer list represents a unique Chromosomes, inner list is the possible PairChains for that chromosome
    * @returns Complete permuted strains from all the different chromosomes
    */
-  private cartesianCross(
+  private async cartesianCross(
     multiChromOptions: ChromosomeOption[][]
-  ): StrainOption[] {
+  ): Promise<StrainOption[]> {
     if (multiChromOptions.length === 0) return [];
 
     // Set strains initially with 1st available chromosome (and its allele options)
-    let strainOptions = multiChromOptions[0].map((chromOption) => {
-      const allelePairs = chromOption.pairs;
-      const strain = new Strain({ allelePairs });
-      return {
-        strain,
-        prob: chromOption.prob,
-      };
-    });
+    let strainOptions = await Promise.all(
+      multiChromOptions[0].map(async (chromOption) => {
+        const allelePairs = chromOption.pairs;
+        const strain = await Strain.buildWithDynName({ allelePairs });
+        return {
+          strain,
+          prob: chromOption.prob,
+        };
+      })
+    );
 
     // Build out the strain permutations for each successive chromosome
     for (let i = 1; i < multiChromOptions.length; i++)
@@ -607,20 +709,26 @@ export class Strain {
   }
 
   /**
-   * Adds a provided Allele Pair to this strain
+   * Adds a provided Allele Pair to this strain. Throws an error if this fails (pair already exists).
    */
-  private addPairToStrain(pairToAdd: AllelePair): void {
-    const chromName = pairToAdd.isEca
-      ? 'Ex'
-      : pairToAdd.getAllele().getChromosome();
+  private addPairToStrain(pair: AllelePair): void {
+    const chromName = pair.isEca ? 'Ex' : pair.getAllele().getChromosome();
     let chromosome = this.chromPairMap.get(chromName);
     if (chromosome === undefined) {
       chromosome = [];
       this.chromPairMap.set(chromName, chromosome);
     }
 
-    // insert according to genetic location
-    chromosome.push(pairToAdd);
+    // Don't allow duplicated genes
+    if (chromosome.some((oldPair) => oldPair.isOfSameGeneOrVariation(pair))) {
+      console.error(pair);
+      throw new Error(
+        'Cannot add multiple allele pairs of the same gene or variation.'
+      );
+    }
+
+    // Insert according to genetic location
+    chromosome.push(pair);
     chromosome.sort((pair1, pair2) => {
       const pair1Pos = pair1.getAllele().getGenPosition() ?? 50; // gen pos never greater than 25
       const pair2Pos = pair2.getAllele().getGenPosition() ?? 50; // gen pos never greater than 25
@@ -659,7 +767,24 @@ export class Strain {
     }
     return {
       name: this.name,
+      genotype: this.genotype,
       description: this.description ?? null,
     };
   }
 }
+
+export const cmpChromosomes = (
+  chromA?: Chromosome,
+  chromB?: Chromosome
+): number => {
+  if (chromA === undefined) {
+    return 1;
+  } else if (chromB === undefined) {
+    return -1;
+  } else {
+    const order: Chromosome[] = ['I', 'II', 'III', 'IV', 'V', 'X', 'Ex'];
+    const posA = order.indexOf(chromA);
+    const posB = order.indexOf(chromB);
+    return posA - posB;
+  }
+};

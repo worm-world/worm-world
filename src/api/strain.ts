@@ -48,6 +48,13 @@ export const insertStrainsFromFile = async (path: string): Promise<void> => {
   await invoke('insert_strains_from_file', { path });
 };
 
+export const updateStrain = async (
+  name: string,
+  newStrain: db_Strain
+): Promise<void> => {
+  await invoke('update_strain', { name, newStrain });
+};
+
 export const deleteFilteredStrains = async (
   filter: FilterGroup<StrainFieldName>
 ): Promise<void> => {

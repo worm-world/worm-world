@@ -73,7 +73,7 @@ impl InnerDbState {
     pub async fn insert_allele_expr(&self, expr: &AlleleExpression) -> Result<(), DbError> {
         match sqlx::query!(
             "INSERT INTO allele_exprs (allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance)
-            VALUES($1, $2, $3, $4)
+            VALUES(?, ?, ?, ?)
             ",
             expr.allele_name,
             expr.expressing_phenotype_name,

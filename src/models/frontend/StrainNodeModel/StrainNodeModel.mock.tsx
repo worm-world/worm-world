@@ -9,7 +9,7 @@ import * as mockAlleles from 'models/frontend/Allele/Allele.mock';
 import { ImLoop2 as SelfCrossIcon } from 'react-icons/im';
 import { TbArrowsCross as CrossIcon } from 'react-icons/tb';
 import { BsUiChecks as ScheduleIcon } from 'react-icons/bs';
-import { MenuItem } from 'components/Menu/Menu';
+import { type MenuItem } from 'components/Menu/Menu';
 
 export const maleWild = mockStrains.wild.toMaleModel();
 export const hermWild = mockStrains.wild.toHermModel();
@@ -22,18 +22,20 @@ export const getMenuItems = (model: IStrainNodeModel): MenuItem[] => {
   const canSelfCross = model.sex === Sex.Hermaphrodite;
   const selfOption: MenuItem = {
     icon: <SelfCrossIcon />,
-    text: 'Self cross',
+    text: 'Self-cross',
     menuCallback: () => {
-      const strains = model.strain.selfCross();
-      const strainOutput = strains
-        .map(
-          (strain, idx) =>
-            `Strain: ${idx} -- Prob: ${
-              strain.prob
-            }\n${strain.strain.toString()}`
-        )
-        .join('\n\n');
-      alert(strainOutput);
+      model.strain
+        .selfCross()
+        .then((strains) => {
+          const strainOutput = strains
+            .map(
+              (strain, idx) =>
+                `Strain: ${idx} -- Prob: ${strain.prob}\n${strain.strain.genotype}`
+            )
+            .join('\n\n');
+          alert(strainOutput);
+        })
+        .catch(console.error);
     },
   };
 
@@ -61,7 +63,6 @@ export const maleManyPairs = new StrainNodeModel({
     allelePairs: [
       mockAlleles.chrom1Gene1Allele1.toHomoPair(),
       mockAlleles.chrom2Gene1Allele1.toHomoPair(),
-      mockAlleles.chrom2Gene1Allele2.toHomoPair(),
       mockAlleles.chrom2Gene2Allele1.toHomoPair(),
       mockAlleles.chromXGene1Allele1.toHomoPair(),
       mockAlleles.chromExVariation1Allele1.toEcaPair(),
@@ -167,7 +168,6 @@ export const exStrainNode = new StrainNodeModel({
   sex: Sex.Hermaphrodite,
   strain: new Strain({
     allelePairs: [
-      mockAlleles.oxEx12345.toEcaPair(),
       mockAlleles.oxEx12345.toEcaPair(),
       mockAlleles.oxEx2254.toEcaPair(),
     ],

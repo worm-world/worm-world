@@ -1,4 +1,3 @@
-import React from 'react';
 import jStat from 'jstat';
 
 export interface BreedCountProbabilityProps {
@@ -37,7 +36,7 @@ const BreedCountProbability = (
       </p>
       <progress
         data-testid={'progress-0.8'}
-        className='progress progress-error w-56'
+        className='progress-error progress w-56'
         value={0.8}
         max='1'
       ></progress>
@@ -46,7 +45,7 @@ const BreedCountProbability = (
       </p>
       <progress
         data-testid={'progress-0.9'}
-        className='progress progress-warning w-56'
+        className='progress-warning progress w-56'
         value={0.9}
         max='1'
       ></progress>
@@ -55,7 +54,7 @@ const BreedCountProbability = (
       </p>
       <progress
         data-testid={'progress-0.95'}
-        className='progress progress-info w-56'
+        className='progress-info progress w-56'
         value={0.95}
         max='1'
       ></progress>
@@ -64,7 +63,7 @@ const BreedCountProbability = (
       </p>
       <progress
         data-testid={'progress-0.99'}
-        className='progress progress-success w-56'
+        className='progress-success progress w-56'
         value={1}
         max='1'
       ></progress>
