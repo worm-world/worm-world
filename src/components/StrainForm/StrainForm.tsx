@@ -1,6 +1,5 @@
 import { getFilteredStrains } from 'api/strain';
 import { DynamicSelect } from 'components/DynamicSelect/DynamicSelect';
-import { type db_Strain } from 'models/db/db_Strain';
 import { Sex, sexToString, stringToSex } from 'models/enums';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { useState } from 'react';
@@ -80,6 +79,8 @@ const StrainSelect = (props: {
   onSubmit: (strain: Strain) => void;
 }): JSX.Element => {
   const [strain, setStrain] = useState<Strain>();
+  const [userInput, setUserInput] = useState('');
+
   const setStrainWithPreview = (strain?: Strain): void => {
     setStrain(strain);
     props.setPreview?.(strain);
@@ -87,7 +88,9 @@ const StrainSelect = (props: {
 
   return (
     <>
-      <DynamicSelect<'Name', db_Strain>
+      <DynamicSelect
+        userInput={userInput}
+        setUserInput={setUserInput}
         label={'Strain'}
         getFilteredRecord={getFilteredStrains}
         searchOn={'Name'}
@@ -109,6 +112,7 @@ const StrainSelect = (props: {
           if (strain !== undefined) {
             props.onSubmit(strain);
             setStrainWithPreview(undefined);
+            setUserInput('');
           }
         }}
       >

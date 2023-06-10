@@ -10,12 +10,12 @@ import { sep } from '@tauri-apps/api/path';
 import { toast } from 'react-toastify';
 import EditableDiv from 'components/EditableDiv/EditableDiv';
 
-export interface SavedTreeCardProps {
+export interface TreeCardProps {
   tree: CrossTree;
   refreshTrees: () => void;
 }
 
-const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
+const TreeCard = (props: TreeCardProps): JSX.Element => {
   const navigate = useNavigate();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [nameEditable, setNameEditable] = useState(false);
@@ -87,7 +87,7 @@ const SavedTreeCard = (props: SavedTreeCardProps): JSX.Element => {
         </div>
         <Link
           to={'/editor'}
-          className='card hover h-52 w-52 rounded-lg shadow-xl hover:brightness-[.97]'
+          className='hover card h-52 w-52 rounded-lg shadow-xl hover:brightness-[.97]'
           state={{ treeId: props.tree.id.toString() }}
         >
           <div className='flex h-1/2 justify-end rounded-t-lg bg-primary' />
@@ -170,4 +170,4 @@ const exportTree = async (tree: CrossTree): Promise<void> => {
   }
 };
 
-export default SavedTreeCard;
+export default TreeCard;

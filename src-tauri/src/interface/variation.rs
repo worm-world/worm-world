@@ -77,7 +77,7 @@ impl InnerDbState {
         };
         match sqlx::query!(
             "INSERT INTO variations (allele_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end)
-            VALUES($1, $2, $3, $4, $5, $6)
+            VALUES(?, ?, ?, ?, ?, ?)
             ",
             v.allele_name,
             chromosome,

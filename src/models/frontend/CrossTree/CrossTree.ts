@@ -1,7 +1,7 @@
 import { type db_Tree } from 'models/db/db_Tree';
 import type { Action } from 'models/db/task/Action';
 import { Sex } from 'models/enums';
-import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import { type StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 import { type StrainOption } from 'models/frontend/Strain/Strain';
 import { type Node, type Edge, type XYPosition } from 'reactflow';
 import { ulid } from 'ulid';
@@ -12,7 +12,7 @@ import {
   Type,
 } from 'class-transformer';
 import { FlowType } from 'components/CrossFlow/CrossFlow';
-import { CrossEditorFilter } from 'components/CrossEditorFilter/CrossEditorFilter';
+import { OffspringFilter } from 'components/OffspringFilter/OffspringFilter';
 import moment from 'moment';
 import { Task } from 'models/frontend/Task/Task';
 
@@ -21,7 +21,7 @@ export interface ICrossTree {
   nodes: Node[];
   edges: Edge[];
   invisibleNodes: Set<string>;
-  crossFilters: Map<string, CrossEditorFilter>;
+  crossFilters: Map<string, OffspringFilter>;
   lastSaved: Date;
   editable: boolean;
 }
@@ -48,13 +48,13 @@ export default class CrossTree {
   })
   public invisibleNodes: Set<string>;
 
-  @Type(() => CrossEditorFilter)
+  @Type(() => OffspringFilter)
   @Transform(
     (data: { obj: any }) => {
       const d = data?.obj?.crossFilters ?? {};
       const filters = new Map(
         Object.keys(d).map((key) => {
-          const filter = CrossEditorFilter.fromJSON(JSON.stringify(d[key]));
+          const filter = OffspringFilter.fromJSON(JSON.stringify(d[key]));
           return [key, filter];
         }) ?? null
       );
@@ -62,7 +62,7 @@ export default class CrossTree {
     },
     { toClassOnly: true }
   )
-  public crossFilters: Map<string, CrossEditorFilter>;
+  public crossFilters: Map<string, OffspringFilter>;
 
   public nodes: Node[];
   public edges: Edge[];
@@ -339,7 +339,7 @@ export default class CrossTree {
       return;
     }
 
-    // self cross task
+    // self-cross task
     const parent0 = taskDeps.taskParents[0].task.result;
     let maturationDays =
       parent0?.strain.getMaturationDays() ?? defaultMaturationDay;

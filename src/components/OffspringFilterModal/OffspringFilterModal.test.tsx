@@ -1,9 +1,9 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { CrossEditorFilter } from 'components/CrossEditorFilter/CrossEditorFilter';
-import { CrossFilterModal } from 'components/CrossFilterModal/CrossFilterModal';
+import { OffspringFilter } from 'components/OffspringFilter/OffspringFilter';
+import { OffspringFilterModal } from 'components/OffspringFilterModal/OffspringFilterModal';
 import * as mockAlleles from 'models/frontend/Allele/Allele.mock';
-import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import { type StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 import * as mockTrees from 'models/frontend/CrossTree/CrossTree.mock';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { type Node } from 'reactflow';
@@ -13,7 +13,7 @@ const renderComponent = ({
   childNodes = new Array<Node<StrainNodeModel>>(),
   invisibleSet = new Set<string>(),
   toggleVisible = vi.fn(),
-  filter = new CrossEditorFilter({
+  filter = new OffspringFilter({
     alleleNames: new Set(),
     exprPhenotypes: new Set(),
     reqConditions: new Set(),
@@ -22,7 +22,7 @@ const renderComponent = ({
   updateFilter = vi.fn(),
 }): void => {
   render(
-    <CrossFilterModal
+    <OffspringFilterModal
       childNodes={childNodes}
       invisibleSet={invisibleSet}
       toggleVisible={toggleVisible}
@@ -42,8 +42,8 @@ const createFilter = ({
   exprPhenotypes?: Set<string>;
   reqConditions?: Set<string>;
   supConditions?: Set<string>;
-}): CrossEditorFilter => {
-  return new CrossEditorFilter({
+}): OffspringFilter => {
+  return new OffspringFilter({
     alleleNames,
     exprPhenotypes,
     reqConditions,
@@ -51,7 +51,7 @@ const createFilter = ({
   });
 };
 
-describe('CrossFilterModal', () => {
+describe('OffspringFilterModal', () => {
   test('modal displays all nodes in map', () => {
     const childNodes = [
       mockTrees.ed3HeteroHerm,
@@ -191,9 +191,9 @@ describe('CrossFilterModal', () => {
   });
 });
 
-describe('CrossEditorFilter', () => {
+describe('OffspringFilter', () => {
   test('correctly instantiates', () => {
-    const filter = new CrossEditorFilter({
+    const filter = new OffspringFilter({
       alleleNames: new Set(['a', 'b', 'c']),
       exprPhenotypes: new Set(['1', '2']),
       reqConditions: new Set(['cond1']),
@@ -213,7 +213,7 @@ describe('CrossEditorFilter', () => {
     const exprPhenotypes = new Set(['1', '2']);
     const reqConditions = new Set(['cond1']);
     const supConditions = new Set<string>();
-    const filter = new CrossEditorFilter({
+    const filter = new OffspringFilter({
       alleleNames,
       exprPhenotypes,
       reqConditions,
@@ -229,7 +229,7 @@ describe('CrossEditorFilter', () => {
   });
 
   test('.has() returns true if the filter contains the query', () => {
-    const filter = new CrossEditorFilter({
+    const filter = new OffspringFilter({
       alleleNames: new Set(['a', 'b', 'c']),
       exprPhenotypes: new Set(['1', '2']),
       reqConditions: new Set(['cond1']),
@@ -243,7 +243,7 @@ describe('CrossEditorFilter', () => {
     expect(filter.has('cond1')).toBe(true);
   });
   test('.has() returns false if the filter does not contain the query', () => {
-    const filter = new CrossEditorFilter({
+    const filter = new OffspringFilter({
       alleleNames: new Set(['a', 'b', 'c']),
       exprPhenotypes: new Set(['1', '2']),
       reqConditions: new Set(['cond1']),
@@ -257,7 +257,7 @@ describe('CrossEditorFilter', () => {
   });
 
   test('.isEmpty() to return true on an empty filter', () => {
-    const filter = new CrossEditorFilter({
+    const filter = new OffspringFilter({
       alleleNames: new Set(),
       exprPhenotypes: new Set(),
       reqConditions: new Set(),
@@ -266,7 +266,7 @@ describe('CrossEditorFilter', () => {
     expect(filter.isEmpty()).toBe(true);
   });
   test('.isEmpty() to return false on an set filter', () => {
-    const filter = new CrossEditorFilter({
+    const filter = new OffspringFilter({
       alleleNames: new Set(),
       exprPhenotypes: new Set(),
       reqConditions: new Set(['cond1']),
@@ -275,14 +275,14 @@ describe('CrossEditorFilter', () => {
     expect(filter.isEmpty()).toBe(false);
   });
 
-  test('.extractCrossFilterNames() to pull info from strain', () => {
+  test('.extractOffspringFilterNames() to pull info from strain', () => {
     const strain = new Strain({
       allelePairs: [
         mockAlleles.n765.toTopHetPair(),
         mockAlleles.ed3.toHomoPair(),
       ],
     });
-    const names = CrossEditorFilter.extractCrossFilterNames(strain);
+    const names = OffspringFilter.extractOffspringFilterNames(strain);
 
     expect(names.alleleNames).toEqual(new Set(['n765', 'ed3']));
     expect(names.exprPhenotypes).toEqual(new Set(['unc-119', 'lin-15B']));
@@ -290,7 +290,7 @@ describe('CrossEditorFilter', () => {
     expect(names.supConditions).toEqual(new Set<string>());
   });
 
-  test('.condenseCrossFilterNames() pulls info from multiple strains', () => {
+  test('.condenseOffspringFilterNames() pulls info from multiple strains', () => {
     const strain1 = new Strain({
       allelePairs: [mockAlleles.n765.toTopHetPair()],
     });
@@ -300,7 +300,7 @@ describe('CrossEditorFilter', () => {
         mockAlleles.n765.toTopHetPair(),
       ],
     });
-    const names = CrossEditorFilter.condenseCrossFilterNames([
+    const names = OffspringFilter.condenseOffspringFilterNames([
       strain1,
       strain2,
     ]);
@@ -312,25 +312,25 @@ describe('CrossEditorFilter', () => {
   });
 
   test('includedInFilter() correctly includes a node', () => {
-    const filter = new CrossEditorFilter({
+    const filter = new OffspringFilter({
       alleleNames: new Set(['ed3']),
       exprPhenotypes: new Set(['unc-119']),
       reqConditions: new Set(),
       supConditions: new Set(),
     });
     expect(
-      CrossEditorFilter.includedInFilter(mockTrees.ed3HomoHerm, filter)
+      OffspringFilter.includedInFilter(mockTrees.ed3HomoHerm, filter)
     ).toBe(true);
   });
   test('includedInFilter() correctly excludes a node', () => {
-    const filter = new CrossEditorFilter({
+    const filter = new OffspringFilter({
       alleleNames: new Set(),
       exprPhenotypes: new Set(),
       reqConditions: new Set(['badCondition']),
       supConditions: new Set(),
     });
     expect(
-      CrossEditorFilter.includedInFilter(mockTrees.ed3HomoHerm, filter)
+      OffspringFilter.includedInFilter(mockTrees.ed3HomoHerm, filter)
     ).toBe(false);
   });
 });

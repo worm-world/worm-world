@@ -1,19 +1,19 @@
 import { StoryFn, Meta } from '@storybook/react';
 import {
-  CrossEditorFilter,
-  CrossEditorFilterUpdate,
-} from 'components/CrossEditorFilter/CrossEditorFilter';
-import { CrossFilterModal } from 'components/CrossFilterModal/CrossFilterModal';
+  OffspringFilter,
+  OffspringFilterUpdate,
+} from 'components/OffspringFilter/OffspringFilter';
+import { OffspringFilterModal } from 'components/OffspringFilterModal/OffspringFilterModal';
 import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 import * as mockTrees from 'models/frontend/CrossTree/CrossTree.mock';
 import { Node } from 'reactflow';
 
 export default {
-  title: 'Components/CrossFilterModal',
-  component: CrossFilterModal,
-} as Meta<typeof CrossFilterModal>;
+  title: 'Components/OffspringFilterModal',
+  component: OffspringFilterModal,
+} as Meta<typeof OffspringFilterModal>;
 
-const Template: StoryFn<typeof CrossFilterModal> = ({
+const Template: StoryFn<typeof OffspringFilterModal> = ({
   childNodes = [],
   invisibleSet = new Set(),
   toggleVisible = () => {},
@@ -23,21 +23,21 @@ const Template: StoryFn<typeof CrossFilterModal> = ({
   childNodes: Array<Node<StrainNodeModel>>;
   invisibleSet: Set<string>;
   toggleVisible: (nodeId: string) => void;
-  filter?: CrossEditorFilter;
-  updateFilter: (update: CrossEditorFilterUpdate) => void;
+  filter?: OffspringFilter;
+  updateFilter: (update: OffspringFilterUpdate) => void;
 }) => {
   return (
     <>
       <label htmlFor='cross-filter-modal' className='btn-primary btn'>
         Click me to show modal
       </label>
-      <CrossFilterModal
+      <OffspringFilterModal
         childNodes={childNodes}
         invisibleSet={invisibleSet}
         toggleVisible={toggleVisible}
         filter={filter}
         updateFilter={updateFilter}
-      ></CrossFilterModal>
+      ></OffspringFilterModal>
     </>
   );
 };
@@ -61,12 +61,12 @@ WithToggleCallback.args = {
   toggleVisible: (nodeId: string) => {
     alert('Clicked node with id: ' + nodeId);
   },
-  updateFilter: (_: CrossEditorFilterUpdate) => {
+  updateFilter: (_: OffspringFilterUpdate) => {
     alert('called update');
   },
 };
 
-const ed3Filter = new CrossEditorFilter({
+const ed3Filter = new OffspringFilter({
   alleleNames: new Set(['ed3']),
   exprPhenotypes: new Set(['unc-119']),
   reqConditions: new Set(),

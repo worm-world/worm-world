@@ -7,6 +7,7 @@ use ts_rs::TS;
 #[serde(rename = "db_Strain")]
 pub struct Strain {
     pub name: String,
+    pub genotype: String,
     pub description: Option<String>,
 }
 
@@ -14,6 +15,7 @@ pub struct Strain {
 #[ts(export, export_to = "../src/models/db/filter/db_StrainFieldName.ts")]
 pub enum StrainFieldName {
     Name,
+    Genotype,
     Description,
 }
 
@@ -21,6 +23,7 @@ impl FieldNameEnum for StrainFieldName {
     fn get_col_name(self: &StrainFieldName) -> String {
         match self {
             StrainFieldName::Name => "name".to_owned(),
+            StrainFieldName::Genotype => "genotype".to_owned(),
             StrainFieldName::Description => "description".to_owned(),
         }
     }

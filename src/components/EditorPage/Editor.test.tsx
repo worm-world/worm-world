@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import CrossEditor from 'components/CrossEditor/CrossEditor';
+import Editor from 'components/EditorPage/Editor';
 import type CrossTree from 'models/frontend/CrossTree/CrossTree';
 import * as mockTrees from 'models/frontend/CrossTree/CrossTree.mock';
 import { BrowserRouter } from 'react-router-dom';
@@ -15,7 +15,7 @@ const Wrapper = ({ children }: { children: JSX.Element }): JSX.Element => {
   );
 };
 
-describe('CrossEditor', () => {
+describe('Editor', () => {
   beforeEach(() => {
     window.ResizeObserver = vi.fn().mockImplementation(() => ({
       disconnect: vi.fn(),
@@ -25,7 +25,7 @@ describe('CrossEditor', () => {
   });
 
   const renderComponent = (tree: CrossTree): void => {
-    render(<CrossEditor crossTree={tree} testing={true} />, {
+    render(<Editor crossTree={tree} testing={true} />, {
       wrapper: Wrapper, // Need this wrapper since the component uses the react router
     });
   };

@@ -50,7 +50,7 @@ impl InnerDbState {
         let editable = tree.editable as i32;
         match sqlx::query!(
             "INSERT INTO trees (id, name, last_edited, data, editable)
-            VALUES($1, $2, $3, $4, $5)
+            VALUES(?, ?, ?, ?, ?)
             ",
             tree.id,
             tree.name,
@@ -73,17 +73,17 @@ impl InnerDbState {
         let editable = tree.editable as i32;
         match sqlx::query!(
             "UPDATE trees
-            SET name = $2,
-                last_edited = $3,
-                data = $4,
-                editable = $5
+            SET name = ?,
+                last_edited = ?,
+                data = ?,
+                editable = ?
             WHERE
-                id = $1",
-            tree.id,
+                id = ?",
             tree.name,
             tree.last_edited,
             tree.data,
-            editable
+            editable,
+            tree.id,
         )
         .execute(&self.conn_pool)
         .await
@@ -99,7 +99,7 @@ impl InnerDbState {
     pub async fn delete_tree(&self, id: String) -> Result<(), DbError> {
         match sqlx::query!(
             "DELETE FROM trees
-            WHERE id = $1",
+            WHERE id = ?",
             id
         )
         .execute(&self.conn_pool)

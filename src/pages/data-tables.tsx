@@ -1,6 +1,5 @@
 import { TopNav } from 'components/TopNav/TopNav';
 import { Link, Outlet } from 'react-router-dom';
-import 'styles/data-tables.css';
 
 const DataTables = (): JSX.Element => {
   return (

@@ -2,12 +2,12 @@ import { expect, test, describe } from 'vitest';
 import { ed3, n765 } from 'models/frontend/Allele/Allele.mock';
 import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
-import { CrossEditorFilter } from 'components/CrossEditorFilter/CrossEditorFilter';
+import { OffspringFilter } from 'components/OffspringFilter/OffspringFilter';
 import { ed3HomoHerm } from 'models/frontend/CrossTree/CrossTree.mock';
 
-describe('CrossEditorFilter', () => {
+describe('OffspringFilter', () => {
   test('correctly instantiates', () => {
-    const filter = new CrossEditorFilter({
+    const filter = new OffspringFilter({
       alleleNames: new Set(['a', 'b', 'c']),
       exprPhenotypes: new Set(['1', '2']),
       reqConditions: new Set(['cond1']),
@@ -27,7 +27,7 @@ describe('CrossEditorFilter', () => {
     const exprPhenotypes = new Set(['1', '2']);
     const reqConditions = new Set(['cond1']);
     const supConditions = new Set<string>();
-    const filter = new CrossEditorFilter({
+    const filter = new OffspringFilter({
       alleleNames,
       exprPhenotypes,
       reqConditions,
@@ -43,7 +43,7 @@ describe('CrossEditorFilter', () => {
   });
 
   test('.has() returns true if the filter contains the query', () => {
-    const filter = new CrossEditorFilter({
+    const filter = new OffspringFilter({
       alleleNames: new Set(['a', 'b', 'c']),
       exprPhenotypes: new Set(['1', '2']),
       reqConditions: new Set(['cond1']),
@@ -57,7 +57,7 @@ describe('CrossEditorFilter', () => {
     expect(filter.has('cond1')).toBe(true);
   });
   test('.has() returns false if the filter does not contain the query', () => {
-    const filter = new CrossEditorFilter({
+    const filter = new OffspringFilter({
       alleleNames: new Set(['a', 'b', 'c']),
       exprPhenotypes: new Set(['1', '2']),
       reqConditions: new Set(['cond1']),
@@ -71,7 +71,7 @@ describe('CrossEditorFilter', () => {
   });
 
   test('.isEmpty() to return true on an empty filter', () => {
-    const filter = new CrossEditorFilter({
+    const filter = new OffspringFilter({
       alleleNames: new Set(),
       exprPhenotypes: new Set(),
       reqConditions: new Set(),
@@ -80,7 +80,7 @@ describe('CrossEditorFilter', () => {
     expect(filter.isEmpty()).toBe(true);
   });
   test('.isEmpty() to return false on an set filter', () => {
-    const filter = new CrossEditorFilter({
+    const filter = new OffspringFilter({
       alleleNames: new Set(),
       exprPhenotypes: new Set(),
       reqConditions: new Set(['cond1']),
@@ -89,14 +89,14 @@ describe('CrossEditorFilter', () => {
     expect(filter.isEmpty()).toBe(false);
   });
 
-  test('.extractCrossFilterNames() to pull info from strain', () => {
-    const strain = new Strain({
+  test('.extractEditorFilterNames() to pull info from strain', async () => {
+    const strain = await Strain.buildWithDynName({
       allelePairs: [
         new AllelePair({ top: n765, bot: n765.getWild() }),
         new AllelePair({ top: ed3, bot: ed3 }),
       ],
     });
-    const names = CrossEditorFilter.extractCrossFilterNames(strain);
+    const names = OffspringFilter.extractOffspringFilterNames(strain);
 
     expect(names.alleleNames).toEqual(new Set(['n765', 'ed3']));
     expect(names.exprPhenotypes).toEqual(new Set(['unc-119', 'lin-15B']));
@@ -104,17 +104,17 @@ describe('CrossEditorFilter', () => {
     expect(names.supConditions).toEqual(new Set<string>());
   });
 
-  test('.condenseCrossFilterNames() pulls info from multiple strains', () => {
-    const strain1 = new Strain({
+  test('.condenseEditorFilterNames() pulls info from multiple strains', async () => {
+    const strain1 = await Strain.buildWithDynName({
       allelePairs: [new AllelePair({ top: n765, bot: n765.getWild() })],
     });
-    const strain2 = new Strain({
+    const strain2 = await Strain.buildWithDynName({
       allelePairs: [
         new AllelePair({ top: ed3, bot: ed3 }),
         new AllelePair({ top: n765, bot: n765.getWild() }),
       ],
     });
-    const names = CrossEditorFilter.condenseCrossFilterNames([
+    const names = OffspringFilter.condenseOffspringFilterNames([
       strain1,
       strain2,
     ]);
@@ -126,33 +126,33 @@ describe('CrossEditorFilter', () => {
   });
 
   test('includedInFilter() correctly includes a node', () => {
-    const filter = new CrossEditorFilter({
+    const filter = new OffspringFilter({
       alleleNames: new Set(['ed3']),
       exprPhenotypes: new Set(['unc-119']),
       reqConditions: new Set(),
       supConditions: new Set(),
     });
-    expect(CrossEditorFilter.includedInFilter(ed3HomoHerm, filter)).toBe(true);
+    expect(OffspringFilter.includedInFilter(ed3HomoHerm, filter)).toBe(true);
   });
   test('includedInFilter() correctly excludes a node', () => {
-    const filter = new CrossEditorFilter({
+    const filter = new OffspringFilter({
       alleleNames: new Set(),
       exprPhenotypes: new Set(),
       reqConditions: new Set(['badCondition']),
       supConditions: new Set(),
     });
-    expect(CrossEditorFilter.includedInFilter(ed3HomoHerm, filter)).toBe(false);
+    expect(OffspringFilter.includedInFilter(ed3HomoHerm, filter)).toBe(false);
   });
 
   test('correctly (de)serializes', () => {
-    const filter = new CrossEditorFilter({
+    const filter = new OffspringFilter({
       alleleNames: new Set(['a', 'b', 'c']),
       exprPhenotypes: new Set(['1', '2']),
       reqConditions: new Set(['cond1']),
       supConditions: new Set(),
     });
     const filterStr = filter.toJSON();
-    const filterBack = CrossEditorFilter.fromJSON(filterStr);
+    const filterBack = OffspringFilter.fromJSON(filterStr);
     expect(filterBack).toEqual(filter);
   });
 });

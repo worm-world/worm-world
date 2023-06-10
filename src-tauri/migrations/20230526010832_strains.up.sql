@@ -1,15 +1,24 @@
 
-ALTER TABLE strains
-    RENAME notes TO description;
+DROP TABLE strains;
+CREATE TABLE strains
+(
+  name  TEXT NOT NULL,
+  description TEXT NULL,
+  genotype TEXT NOT NULL,
+  PRIMARY KEY (name)
+);
+
 DROP TABLE strain_alleles;
 CREATE TABLE strain_alleles (
     strain_name TEXT NOT NULL,
     allele_name TEXT NOT NULL,
-    is_homozygous BOOLEAN NOT NULL DEFAULT TRUE,
+    is_on_top INTEGER NOT NULL,
+    is_on_bot INTEGER NOT NULL,
     PRIMARY KEY (strain_name, allele_name),
-    FOREIGN KEY (strain_name) REFERENCES strains (name),
+    FOREIGN KEY (strain_name) REFERENCES strains (name) ON UPDATE CASCADE,
     FOREIGN KEY (allele_name) REFERENCES alleles (name)
 );
+
 ALTER TABLE variation_info
     RENAME TO variations;
 DROP TABLE allele_exprs;

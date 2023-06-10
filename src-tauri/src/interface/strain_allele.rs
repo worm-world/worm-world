@@ -1,7 +1,7 @@
 use super::{bulk::Bulk, DbError, InnerDbState, SQLITE_BIND_LIMIT};
 use crate::models::{
     filter::{Count, FilterGroup, FilterQueryBuilder},
-    strain_allele::{StrainAllele, StrainAlleleFieldName},
+    strain_allele::{StrainAllele, StrainAlleleDb, StrainAlleleFieldName},
 };
 
 use anyhow::Result;
@@ -10,15 +10,15 @@ use sqlx::{QueryBuilder, Sqlite};
 impl InnerDbState {
     pub async fn get_strain_alleles(&self) -> Result<Vec<StrainAllele>, DbError> {
         match sqlx::query_as!(
-            StrainAllele,
+            StrainAlleleDb,
             "
-            SELECT strain_name, allele_name, is_homozygous FROM strain_alleles ORDER BY strain_name
+            SELECT strain_name, allele_name, is_on_top, is_on_bot FROM strain_alleles ORDER BY strain_name
             "
         )
         .fetch_all(&self.conn_pool)
         .await
         {
-            Ok(strain_alleles) => Ok(strain_alleles),
+            Ok(strain_alleles) => Ok(strain_alleles.into_iter().map(|e| e.into()).collect()),
             Err(e) => {
                 eprint!("Get strain alleles error: {e}");
                 Err(DbError::Query(e.to_string()))
@@ -30,8 +30,9 @@ impl InnerDbState {
         &self,
         filter: &FilterGroup<StrainAlleleFieldName>,
     ) -> Result<Vec<StrainAllele>, DbError> {
-        let mut qb: QueryBuilder<Sqlite> =
-            QueryBuilder::new("SELECT strain_name, allele_name, is_homozygous from strain_alleles");
+        let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "SELECT strain_name, allele_name, is_on_top, is_on_bot from strain_alleles",
+        );
         filter.add_filtered_query(&mut qb, true, true);
 
         match qb
@@ -41,7 +42,7 @@ impl InnerDbState {
         {
             Ok(exprs) => Ok(exprs.into_iter().collect()),
             Err(e) => {
-                eprint!("Get filtered strail alleles error: {e}");
+                eprint!("Get filtered strain alleles error: {e}");
                 Err(DbError::Query(e.to_string()))
             }
         }
@@ -71,12 +72,13 @@ impl InnerDbState {
     pub async fn insert_strain_allele(&self, strain_allele: &StrainAllele) -> Result<(), DbError> {
         match sqlx::query!(
             "
-            INSERT INTO strain_alleles (strain_name, allele_name, is_homozygous)
-            VALUES ($1, $2, $3)
+            INSERT INTO strain_alleles (strain_name, allele_name, is_on_top, is_on_bot)
+            VALUES (?, ?, ?, ?)
             ",
             strain_allele.strain_name,
             strain_allele.allele_name,
-            strain_allele.is_homozygous
+            strain_allele.is_on_top,
+            strain_allele.is_on_bot,
         )
         .execute(&self.conn_pool)
         .await
@@ -96,13 +98,13 @@ impl InnerDbState {
                 bulk.errors.first().unwrap().1
             )));
         }
-        let bind_limit = SQLITE_BIND_LIMIT / 3;
+        let bind_limit = SQLITE_BIND_LIMIT / 4;
 
         let mut data = bulk.data.into_iter().peekable();
         while data.peek().is_some() {
             let chunk = data.by_ref().take(bind_limit - 1).collect::<Vec<_>>();
             let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
-                "INSERT OR IGNORE INTO strain_alleles (strain_name, allele_name, is_homozygous)",
+                "INSERT OR IGNORE INTO strain_alleles (strain_name, allele_name, is_on_top, is_on_bot)",
             );
             if chunk.len() > bind_limit {
                 return Err(DbError::BulkInsert(format!(
@@ -113,7 +115,8 @@ impl InnerDbState {
             qb.push_values(chunk, |mut b, item| {
                 b.push_bind(item.strain_name)
                     .push_bind(item.allele_name)
-                    .push_bind(item.is_homozygous);
+                    .push_bind(item.is_on_top)
+                    .push_bind(item.is_on_bot);
             });
 
             match qb.build().execute(&self.conn_pool).await {
@@ -186,6 +189,42 @@ mod test {
     }
 
     #[sqlx::test(fixtures("full_db"))]
+    async fn test_get_filtered_strain_alleles_many_alleles(pool: Pool<Sqlite>) -> Result<()> {
+        let state = InnerDbState { conn_pool: pool };
+        let exprs = state
+            .get_filtered_strain_alleles(&FilterGroup::<StrainAlleleFieldName> {
+                filters: vec![vec![
+                    (
+                        StrainAlleleFieldName::AlleleName,
+                        Filter::Equal("oxTi75".to_string()),
+                    ),
+                    (
+                        StrainAlleleFieldName::AlleleName,
+                        Filter::Equal("cn64".to_string()),
+                    ),
+                    (
+                        StrainAlleleFieldName::AlleleName,
+                        Filter::Equal("ox11000".to_string()),
+                    ),
+                    (
+                        StrainAlleleFieldName::AlleleName,
+                        Filter::Equal("ed3".to_string()),
+                    ),
+                ]],
+                order_by: vec![],
+                limit: None,
+                offset: None,
+            })
+            .await?;
+
+        assert_eq!(
+            exprs,
+            mock::strain_allele::get_filtered_strain_alleles_many_alleles()
+        );
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("full_db"))]
     async fn test_get_filtered_strain_alleles_and_or_clause(pool: Pool<Sqlite>) -> Result<()> {
         let state = InnerDbState { conn_pool: pool };
         let exprs = state
@@ -206,7 +245,7 @@ mod test {
                         ),
                     ],
                 ],
-                order_by: vec![(StrainAlleleFieldName::StrainName, Order::Asc)],
+                order_by: vec![],
                 limit: None,
                 offset: None,
             })
@@ -247,7 +286,8 @@ mod test {
         let expected = StrainAllele {
             strain_name: "CB128".to_string(),
             allele_name: "e128".to_string(),
-            is_homozygous: true,
+            is_on_top: true,
+            is_on_bot: true,
         };
 
         state.insert_strain_allele(&expected).await?;
@@ -262,7 +302,7 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
 
         let csv_str =
-            "strain_name,allele_name,is_homozygous\nEG6207,ed3,true\nMT2495,n744,true\nTN64,cn64,true"
+            "strain_name,allele_name,is_on_top,is_on_bot\nEG6207,ed3,true,true\nMT2495,n744,true,true\nTN64,cn64,true,true"
                 .as_bytes();
         let buf = BufReader::new(csv_str);
         let mut reader = csv::ReaderBuilder::new().has_headers(true).from_reader(buf);
@@ -277,17 +317,20 @@ mod test {
                 StrainAllele {
                     strain_name: "EG6207".to_string(),
                     allele_name: "ed3".to_string(),
-                    is_homozygous: true,
+                    is_on_top: true,
+                    is_on_bot: true,
                 },
                 StrainAllele {
                     strain_name: "MT2495".to_string(),
                     allele_name: "n744".to_string(),
-                    is_homozygous: true,
+                    is_on_top: true,
+                    is_on_bot: true,
                 },
                 StrainAllele {
                     strain_name: "TN64".to_string(),
                     allele_name: "cn64".to_string(),
-                    is_homozygous: true,
+                    is_on_top: true,
+                    is_on_bot: true,
                 },
             ]
         );
@@ -299,7 +342,7 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
 
         let tsv_str =
-            "strain_name\tallele_name\tis_homozygous\nEG6207\ted3\ttrue\nMT2495\tn744\ttrue\nTN64\tcn64\ttrue"
+            "strain_name\tallele_name\tis_on_top\tis_on_bot\nEG6207\ted3\ttrue\ttrue\nMT2495\tn744\ttrue\ttrue\nTN64\tcn64\ttrue\ttrue"
                 .as_bytes();
         let buf = BufReader::new(tsv_str);
         let mut reader = csv::ReaderBuilder::new()
@@ -317,17 +360,20 @@ mod test {
                 StrainAllele {
                     strain_name: "EG6207".to_string(),
                     allele_name: "ed3".to_string(),
-                    is_homozygous: true,
+                    is_on_top: true,
+                    is_on_bot: true,
                 },
                 StrainAllele {
                     strain_name: "MT2495".to_string(),
                     allele_name: "n744".to_string(),
-                    is_homozygous: true,
+                    is_on_top: true,
+                    is_on_bot: true,
                 },
                 StrainAllele {
                     strain_name: "TN64".to_string(),
                     allele_name: "cn64".to_string(),
-                    is_homozygous: true,
+                    is_on_top: true,
+                    is_on_bot: true,
                 },
             ]
         );

@@ -3,5 +3,6 @@
 export interface db_StrainAllele {
   strain_name: string;
   allele_name: string;
-  is_homozygous: boolean;
+  is_on_top: boolean;
+  is_on_bot: boolean;
 }

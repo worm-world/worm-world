@@ -135,7 +135,7 @@ impl InnerDbState {
     pub async fn insert_allele(&self, allele: &Allele) -> Result<(), DbError> {
         match sqlx::query!(
             "INSERT INTO alleles (name, contents, systematic_gene_name, variation_name)
-            VALUES($1, $2, $3, $4)
+            VALUES(?, ?, ?, ?)
             ",
             allele.name,
             allele.contents,

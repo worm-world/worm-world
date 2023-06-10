@@ -61,7 +61,7 @@ export const ContextMenu = (props: ContextMenuProps): JSX.Element => {
       className='absolute z-50 shadow-md'
       style={{ top: props.yPos, left: props.xPos }}
     >
-      <ul className='menu menu-compact w-48 rounded-md bg-base-100 p-1 '>
+      <ul className='menu-compact menu w-48 rounded-md bg-base-100 p-1 '>
         {props.children}
       </ul>
     </div>

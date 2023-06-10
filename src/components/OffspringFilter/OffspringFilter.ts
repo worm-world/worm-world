@@ -4,20 +4,20 @@ import { type StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNode
 import { type Strain } from 'models/frontend/Strain/Strain';
 import { type Node } from 'reactflow';
 
-export interface CrossEditorFilterUpdate {
-  field: keyof CrossEditorFilterProps;
+export interface OffspringFilterUpdate {
+  field: keyof OffspringFilterProps;
   action: 'add' | 'remove' | 'clear';
   name: string;
   nodeId: string;
 }
-export interface CrossEditorFilterProps {
+export interface OffspringFilterProps {
   alleleNames: Set<string>;
   exprPhenotypes: Set<string>;
   reqConditions: Set<string>;
   supConditions: Set<string>;
 }
 
-export class CrossEditorFilter {
+export class OffspringFilter {
   @Transform((data: any) => new Set(data?.obj?.alleleNames))
   public alleleNames = new Set<string>();
 
@@ -30,12 +30,12 @@ export class CrossEditorFilter {
   @Transform((data: any) => new Set(data?.obj?.supConditions))
   public supConditions = new Set<string>();
 
-  constructor(props: CrossEditorFilterProps) {
+  constructor(props: OffspringFilterProps) {
     Object.assign(this, props);
   }
 
-  public clone(): CrossEditorFilter {
-    return new CrossEditorFilter({
+  public clone(): OffspringFilter {
+    return new OffspringFilter({
       alleleNames: new Set(this.alleleNames),
       exprPhenotypes: new Set(this.exprPhenotypes),
       reqConditions: new Set(this.reqConditions),
@@ -63,9 +63,9 @@ export class CrossEditorFilter {
   }
 
   /** Given a strain, extracts all information that a cross filter might use */
-  public static extractCrossFilterNames(
+  public static extractOffspringFilterNames(
     strain: Strain
-  ): CrossEditorFilterProps {
+  ): OffspringFilterProps {
     return {
       alleleNames: new Set(strain.getAlleles().map((allele) => allele.name)),
       exprPhenotypes: new Set(
@@ -81,15 +81,15 @@ export class CrossEditorFilter {
   }
 
   /** Combines the possible names from multiple strains into a cross filter sets */
-  public static condenseCrossFilterNames(
+  public static condenseOffspringFilterNames(
     strains: Strain[]
-  ): CrossEditorFilterProps {
+  ): OffspringFilterProps {
     let alleleNames = new Set<string>();
     let exprPhenotypes = new Set<string>();
     let reqConditions = new Set<string>();
     let supConditions = new Set<string>();
     strains.forEach((strain) => {
-      const names = this.extractCrossFilterNames(strain);
+      const names = this.extractOffspringFilterNames(strain);
       alleleNames = new Set([...alleleNames, ...names.alleleNames]);
       exprPhenotypes = new Set([...exprPhenotypes, ...names.exprPhenotypes]);
       reqConditions = new Set([...reqConditions, ...names.reqConditions]);
@@ -102,7 +102,7 @@ export class CrossEditorFilter {
   /** Checks if a node can be displayed given current filter values */
   public static includedInFilter(
     node: Node<StrainNodeModel>,
-    filter?: CrossEditorFilter
+    filter?: OffspringFilter
   ): boolean {
     if (filter === undefined) return true;
     const strain = node.data.strain;
@@ -113,7 +113,7 @@ export class CrossEditorFilter {
     const supConds = new Set(strain.getSupConditions().map((c) => c.name));
 
     const namesToFilter: Array<{
-      key: keyof CrossEditorFilterProps;
+      key: keyof OffspringFilterProps;
       names: Set<string>;
     }> = [
       { key: 'alleleNames', names: alleleNames },
@@ -162,7 +162,7 @@ export class CrossEditorFilter {
     return JSON.stringify(instanceToPlain(this));
   }
 
-  static fromJSON(json: string): CrossEditorFilter {
-    return [plainToInstance(CrossEditorFilter, JSON.parse(json))].flat()[0];
+  static fromJSON(json: string): OffspringFilter {
+    return [plainToInstance(OffspringFilter, JSON.parse(json))].flat()[0];
   }
 }

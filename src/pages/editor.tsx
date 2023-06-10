@@ -1,7 +1,7 @@
 import { getTree } from 'api/crossTree';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { useLocation } from 'react-router-dom';
-import CrossEditor from 'components/CrossEditor/CrossEditor';
+import Editor from 'components/EditorPage/Editor';
 import { useEffect, useState } from 'react';
 import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { Strain } from 'models/frontend/Strain/Strain';
@@ -27,7 +27,7 @@ const EditorPage = (): JSX.Element => {
   if (tree === null) {
     return <Spinner />;
   } else {
-    return <CrossEditor crossTree={tree} />;
+    return <Editor crossTree={tree} />;
   }
 };
 

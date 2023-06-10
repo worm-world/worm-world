@@ -9,7 +9,7 @@ import { type db_Variation } from 'models/db/db_Variation';
 import { type ColumnDefinitionType } from 'components/Table/Table';
 import { chromosomes } from 'models/frontend/Chromosome';
 import { type VariationFieldName } from 'models/db/filter/db_VariationFieldName';
-import DataPage from 'components/DataPage/DataPage';
+import DataTablePage from 'components/DataTablePage/DataTablePage';
 import { type Field } from 'components/ColumnFilter/ColumnFilter';
 
 export const cols: Array<ColumnDefinitionType<db_Variation>> = [
@@ -51,18 +51,18 @@ const nameMapping: { [key in keyof db_Variation]: VariationFieldName } = {
   recombSuppressor: 'RecombSuppressor',
 };
 
-export default function VariationDataPage(): JSX.Element {
+export default function VariationDataTablePage(): JSX.Element {
   return (
-    <DataPage
+    <DataTablePage
       title='Variations'
       dataName='variation'
       cols={cols}
       fields={fields}
       nameMapping={nameMapping}
-      getFilteredData={getFilteredVariations}
-      getCountFilteredData={getCountFilteredVariations}
-      insertDatum={insertDbVariation}
-      insertDataFromFile={insertVariationsFromFile}
+      getFilteredRecords={getFilteredVariations}
+      getCountFilteredRecords={getCountFilteredVariations}
+      insertRecord={insertDbVariation}
+      insertRecordsFromFile={insertVariationsFromFile}
       deleteRecord={deleteVariation}
     />
   );

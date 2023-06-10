@@ -1,25 +1,28 @@
 import StrainNode from 'components/StrainNode/StrainNode';
-import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import { type StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 import { type Node } from 'reactflow';
 import {
-  CrossEditorFilter,
-  type CrossEditorFilterUpdate,
-  type CrossEditorFilterProps,
-} from 'components/CrossEditorFilter/CrossEditorFilter';
-import React, { useEffect, useState } from 'react';
-export interface CrossFilterProps {
+  OffspringFilter,
+  type OffspringFilterUpdate,
+  type OffspringFilterProps,
+} from 'components/OffspringFilter/OffspringFilter';
+import { useEffect, useState } from 'react';
+
+export interface OffspringFilterModalProps {
   nodeId?: string;
   childNodes: Array<Node<StrainNodeModel>>;
   invisibleSet: Set<string>;
   toggleVisible: (nodeId: string) => void;
 
-  filter?: CrossEditorFilter;
-  updateFilter: (update: CrossEditorFilterUpdate) => void;
+  filter?: OffspringFilter;
+  updateFilter: (update: OffspringFilterUpdate) => void;
 }
 
-export const CrossFilterModal = (props: CrossFilterProps): JSX.Element => {
+export const OffspringFilterModal = (
+  props: OffspringFilterModalProps
+): JSX.Element => {
   const strains = props.childNodes.map((node) => node.data.strain);
-  const names = CrossEditorFilter.condenseCrossFilterNames(strains);
+  const names = OffspringFilter.condenseOffspringFilterNames(strains);
   if (props.childNodes.length === 0) return <></>;
   const nodeId = props.childNodes[0].parentNode ?? '';
 
@@ -86,16 +89,16 @@ export const CrossFilterModal = (props: CrossFilterProps): JSX.Element => {
 const FilterList = (props: {
   title: string;
   names: Set<string>;
-  field: keyof CrossEditorFilterProps;
+  field: keyof OffspringFilterProps;
   nodeId: string;
-  filter?: CrossEditorFilter;
-  updateFilter: (update: CrossEditorFilterUpdate) => void;
+  filter?: OffspringFilter;
+  updateFilter: (update: OffspringFilterUpdate) => void;
 }): JSX.Element => {
   if (props.names.size === 0) return <></>;
 
   const noFilter =
     props.filter === undefined || props.filter[props.field].size === 0;
-  const noFilterUpdate: CrossEditorFilterUpdate = {
+  const noFilterUpdate: OffspringFilterUpdate = {
     field: props.field,
     action: 'clear',
     name: '',
@@ -109,7 +112,7 @@ const FilterList = (props: {
       props.nodeId
     }-phenotype-${idx++}-checkbox`;
     const checked = props.filter?.has(name);
-    const update: CrossEditorFilterUpdate = {
+    const update: OffspringFilterUpdate = {
       field: props.field,
       action: checked === true ? 'remove' : 'add',
       name,
@@ -165,10 +168,10 @@ const StrainList = (props: {
   childNodes: Array<Node<StrainNodeModel>>;
   invisibleSet: Set<string>;
   toggleVisible: (nodeId: string) => void;
-  filter?: CrossEditorFilter;
+  filter?: OffspringFilter;
 }): JSX.Element => {
   const filteredList = props.childNodes.filter((node) =>
-    CrossEditorFilter.includedInFilter(node, props.filter)
+    OffspringFilter.includedInFilter(node, props.filter)
   );
   const [allSelected, setAllSelected] = useState(true);
 

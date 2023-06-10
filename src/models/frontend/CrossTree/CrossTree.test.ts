@@ -1,4 +1,4 @@
-import { CrossEditorFilter } from 'components/CrossEditorFilter/CrossEditorFilter';
+import { OffspringFilter } from 'components/OffspringFilter/OffspringFilter';
 import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { type MenuItem } from 'components/Menu/Menu';
 import { Sex } from 'models/enums';
@@ -366,7 +366,7 @@ describe('cross tree', () => {
     const tree = generateTree({ nodes });
     expect(tree.generateTasks(nodes[0])).toHaveLength(0);
   });
-  test('.generateTasks() returns self cross tasks', () => {
+  test('.generateTasks() returns self-cross tasks', () => {
     let id = 0;
     const strain1 = generateStrainNodeModel({ sex: Sex.Hermaphrodite });
     const nodes = [
@@ -612,10 +612,10 @@ describe('cross tree', () => {
     ];
 
     const invisibleNodes = new Set([nodes[0].id]);
-    const crossFilters = new Map<string, CrossEditorFilter>();
+    const crossFilters = new Map<string, OffspringFilter>();
     crossFilters.set(
       nodes[4].id,
-      new CrossEditorFilter({
+      new OffspringFilter({
         alleleNames: new Set(['n766']),
         exprPhenotypes: new Set(),
         supConditions: new Set(),

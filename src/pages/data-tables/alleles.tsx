@@ -8,7 +8,7 @@ import {
 import { type db_Allele } from 'models/db/db_Allele';
 import { type ColumnDefinitionType } from 'components/Table/Table';
 import { type AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
-import DataPage from 'components/DataPage/DataPage';
+import DataTablePage from 'components/DataTablePage/DataTablePage';
 import { type Field } from 'components/ColumnFilter/ColumnFilter';
 
 export const cols: Array<ColumnDefinitionType<db_Allele>> = [
@@ -17,6 +17,7 @@ export const cols: Array<ColumnDefinitionType<db_Allele>> = [
   { key: 'variationName', header: 'Variation Name' },
   { key: 'contents', header: 'Contents' },
 ];
+
 const fields: Array<Field<db_Allele>> = [
   {
     name: 'name',
@@ -47,18 +48,18 @@ const nameMapping: { [key in keyof db_Allele]: AlleleFieldName } = {
   contents: 'Contents',
 };
 
-export default function AlleleDataPage(): JSX.Element {
+export default function AlleleDataTablePage(): JSX.Element {
   return (
-    <DataPage
+    <DataTablePage
       title='Alleles'
       dataName='alleles'
       cols={cols}
       fields={fields}
       nameMapping={nameMapping}
-      getFilteredData={getFilteredAlleles}
-      getCountFilteredData={getCountFilteredAlleles}
-      insertDatum={insertDbAllele}
-      insertDataFromFile={insertAllelesFromFile}
+      getFilteredRecords={getFilteredAlleles}
+      getCountFilteredRecords={getCountFilteredAlleles}
+      insertRecord={insertDbAllele}
+      insertRecordsFromFile={insertAllelesFromFile}
       deleteRecord={deleteAllele}
     />
   );

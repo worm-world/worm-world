@@ -140,7 +140,7 @@ impl InnerDbState {
     pub async fn insert_phenotype(&self, phenotype: &Phenotype) -> Result<(), DbError> {
         match sqlx::query!(
             "INSERT INTO phenotypes (name, wild, short_name, description, male_mating, lethal, female_sterile, arrested, maturation_days)
-            VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
             ",
             phenotype.name,
             phenotype.wild,

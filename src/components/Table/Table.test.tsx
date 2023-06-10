@@ -69,15 +69,15 @@ const nameMapping: { [key in keyof db_Allele]: AlleleFieldName } = {
 
 describe('Table component', () => {
   test('successfully renders', () => {
-    const runFilters = vi.fn();
+    const applyFilters = vi.fn();
     render(
       <Table
         data={alleleData}
         columns={alleleCols}
         nameMapping={nameMapping}
         fields={fields}
-        runFilters={runFilters}
-        deleteRecord={() => {}}
+        applyFilters={applyFilters}
+        deleteRecord={async () => {}}
       />
     );
 
@@ -86,15 +86,15 @@ describe('Table component', () => {
   });
 
   test('displays listed columns', () => {
-    const runFilters = vi.fn();
+    const applyFilters = vi.fn();
     render(
       <Table
         data={alleleData}
         columns={alleleCols}
         nameMapping={nameMapping}
         fields={fields}
-        runFilters={runFilters}
-        deleteRecord={() => {}}
+        applyFilters={applyFilters}
+        deleteRecord={async () => {}}
       />
     );
     const colHeaders = screen.getAllByRole('columnheader');
@@ -111,15 +111,15 @@ describe('Table component', () => {
   });
 
   test('displays inputted row data', () => {
-    const runFilters = vi.fn();
+    const applyFilters = vi.fn();
     render(
       <Table
         data={alleleData}
         columns={alleleCols}
         nameMapping={nameMapping}
         fields={fields}
-        runFilters={runFilters}
-        deleteRecord={() => {}}
+        applyFilters={applyFilters}
+        deleteRecord={async () => {}}
       />
     );
     const rows = screen.getAllByRole('row');
@@ -137,15 +137,15 @@ describe('Table component', () => {
   });
 
   test('can handle empty row data', () => {
-    const runFilters = vi.fn();
+    const applyFilters = vi.fn();
     render(
       <Table
         data={[]}
         columns={alleleCols}
         nameMapping={nameMapping}
         fields={fields}
-        runFilters={runFilters}
-        deleteRecord={() => {}}
+        applyFilters={applyFilters}
+        deleteRecord={async () => {}}
       />
     );
     const headers = screen.getAllByRole('columnheader');
@@ -153,20 +153,20 @@ describe('Table component', () => {
 
     const rows = screen.getAllByRole('row');
     expect(rows).toHaveLength(1);
-    expect(runFilters).not.toBeCalled();
+    expect(applyFilters).not.toBeCalled();
   });
 
   test('hovering header shows filter icon', async () => {
     userEvent.setup();
-    const runFilters = vi.fn();
+    const applyFilters = vi.fn();
     render(
       <Table
         data={[]}
         columns={alleleCols}
         nameMapping={nameMapping}
         fields={fields}
-        runFilters={runFilters}
-        deleteRecord={() => {}}
+        applyFilters={applyFilters}
+        deleteRecord={async () => {}}
       />
     );
     const headers = screen.getAllByRole('columnheader');
@@ -181,17 +181,17 @@ describe('Table component', () => {
     expect(filterButtons[0].firstChild).toBeVisible();
   });
 
-  test('clicking sort calls runFilters', async () => {
+  test('clicking sort calls applyFilters', async () => {
     userEvent.setup();
-    const runFilters = vi.fn();
+    const applyFilters = vi.fn();
     render(
       <Table
         data={[]}
         columns={alleleCols}
         nameMapping={nameMapping}
         fields={fields}
-        runFilters={runFilters}
-        deleteRecord={() => {}}
+        applyFilters={applyFilters}
+        deleteRecord={async () => {}}
       />
     );
     const headers = screen.getAllByRole('columnheader');
@@ -200,8 +200,8 @@ describe('Table component', () => {
     await userEvent.hover(headers[0]);
 
     const sortButtons = screen.getAllByRole('button', { name: 'sort-icon' });
-    expect(runFilters).not.toBeCalled();
+    expect(applyFilters).not.toBeCalled();
     await userEvent.click(sortButtons[0]);
-    expect(runFilters).toBeCalled();
+    expect(applyFilters).toBeCalled();
   });
 });

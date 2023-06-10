@@ -47,6 +47,10 @@ export class Gene {
     };
   }
 
+  public equals(gene: Gene): boolean {
+    return this.sysName === gene.sysName;
+  }
+
   public toJSON(): string {
     return JSON.stringify(instanceToPlain(this));
   }

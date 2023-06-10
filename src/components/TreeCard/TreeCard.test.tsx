@@ -1,29 +1,29 @@
 import { render, screen } from '@testing-library/react';
-import SavedTreeCard from './SavedTreeCard';
+import TreeCard from './TreeCard';
 import * as mockCrossTree from 'models/frontend/CrossTree/CrossTree.mock';
 import { BrowserRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 
-const MockSavedTreeCard = (): JSX.Element => {
+const MockTreeCard = (): JSX.Element => {
   return (
     <BrowserRouter>
-      <SavedTreeCard
+      <TreeCard
         tree={mockCrossTree.simpleCrossTree}
         refreshTrees={() => {}}
-      ></SavedTreeCard>
+      ></TreeCard>
     </BrowserRouter>
   );
 };
 
-describe('SavedTreeCard', () => {
+describe('TreeCard', () => {
   test('renders', () => {
-    render(<MockSavedTreeCard />);
+    render(<MockTreeCard />);
     expect(screen.getByText(mockCrossTree.simpleCrossTree.name)).toBeVisible();
   });
 
   test('Has menu', async () => {
     const user = userEvent.setup();
-    render(<MockSavedTreeCard />);
+    render(<MockTreeCard />);
     const menuButton = screen.getByTestId('menu');
     await user.click(menuButton);
     expect(screen.getByText(/open/i)).toBeVisible();

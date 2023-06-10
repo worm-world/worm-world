@@ -3,4 +3,5 @@
 export type StrainAlleleFieldName =
   | 'StrainName'
   | 'AlleleName'
-  | 'IsHomozygous';
+  | 'IsOnTop'
+  | 'IsOnBot';

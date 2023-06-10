@@ -1,6 +1,11 @@
 
-ALTER TABLE strains
-    RENAME description TO notes;
+DROP TABLE strains;
+CREATE TABLE strains
+(
+  name TEXT NOT NULL,
+  notes TEXT NULL,
+  PRIMARY KEY (name)
+);
 DROP TABLE strain_alleles;
 CREATE TABLE strain_alleles
 (

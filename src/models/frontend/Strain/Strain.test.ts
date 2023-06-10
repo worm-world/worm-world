@@ -203,72 +203,72 @@ describe('cross algorithm', () => {
     }
   };
 
-  test('cross between homozygous and wild strain', () => {
+  test('cross between homozygous and wild strain', async () => {
     const homoPairs: AllelePair[] = [mockAlleles.e204.toHomoPair()];
     const wildPairs: AllelePair[] = [mockAlleles.e204.getWild().toHomoPair()];
 
     const homoStrain = new Strain({ allelePairs: homoPairs });
     const wildStrain = new Strain({ allelePairs: wildPairs });
-    const crossStrains = homoStrain.crossWith(wildStrain);
+    const crossStrains = await homoStrain.crossWith(wildStrain);
     testStrainResults(crossStrains, mockStrains.homoWildCross);
   });
 
-  test('cross of homozygous and heterozygous strains', () => {
+  test('cross of homozygous and heterozygous strains', async () => {
     const hetPairs: AllelePair[] = [mockAlleles.e204.toTopHetPair()];
     const homoPairs: AllelePair[] = [mockAlleles.ox802.toHomoPair()];
 
     const hetStrain = new Strain({ allelePairs: hetPairs });
     const homoStrain = new Strain({ allelePairs: homoPairs });
-    const crossStrains = homoStrain.crossWith(hetStrain);
+    const crossStrains = await homoStrain.crossWith(hetStrain);
     testStrainResults(crossStrains, mockStrains.homoHetCross);
   });
 
-  test('self cross of homozygous pair returns same child strain', () => {
+  test('self-cross of homozygous pair returns same child strain', async () => {
     const allelePairs: AllelePair[] = [mockAlleles.e204.toHomoPair()];
     const strain = new Strain({ allelePairs });
-    const crossStrains = strain.selfCross();
+    const crossStrains = await strain.selfCross();
     testStrainResults(crossStrains, mockStrains.homozygousCross);
   });
 
-  test('self cross of heterozygous pair returns correct strains', () => {
+  test('self-cross of heterozygous pair returns correct strains', async () => {
     const allelePairs: AllelePair[] = [mockAlleles.e204.toTopHetPair()];
     const strain = new Strain({ allelePairs });
-    const crossStrains = strain.selfCross();
+    const crossStrains = await strain.selfCross();
     testStrainResults(crossStrains, mockStrains.heterozygousCross);
   });
 
-  test('self cross of chromosome with homozygous and heterozygous pairs', () => {
+  test('self-cross of chromosome with homozygous and heterozygous pairs', async () => {
     const allelePairs: AllelePair[] = [
       mockAlleles.e204.toHomoPair(),
       mockAlleles.ox802.toBotHetPair(),
     ];
     const strain = new Strain({ allelePairs });
-    const crossStrains = strain.selfCross();
+    const crossStrains = await strain.selfCross();
     testStrainResults(crossStrains, mockStrains.homoHetSelfCross);
   });
 
-  test('intermediate self cross on single chromosome', () => {
+  test('intermediate self-cross on single chromosome', async () => {
     const allelePairs: AllelePair[] = [
       mockAlleles.e204.toTopHetPair(),
       mockAlleles.ox802.toBotHetPair(),
     ];
 
     const strain = new Strain({ allelePairs });
-    const crossStrains = strain.selfCross();
+    const crossStrains = await strain.selfCross();
     testStrainResults(crossStrains, mockStrains.intermediateSelfCross);
   });
 
-  test('simple self cross of het alleles on different chromosomes', () => {
+  test('simple self-cross of het alleles on different chromosomes', async () => {
     const allelePairs: AllelePair[] = [
       mockAlleles.ed3.toTopHetPair(), // chrom III
       mockAlleles.md299.toTopHetPair(), // chrom X
     ];
     const strain = new Strain({ allelePairs });
-    const crossStrains = strain.selfCross();
+    const crossStrains = await strain.selfCross();
     testStrainResults(crossStrains, mockStrains.difChromSimpleSelfCross);
   });
 
-  test('advanced self-cross on multiple chromosomes', () => {
+  test('advanced self-cross on multiple chromosomes', async () => {
     const allelePairs: AllelePair[] = [
       // chrom II
       mockAlleles.cn64.toTopHetPair(),
@@ -280,7 +280,7 @@ describe('cross algorithm', () => {
       mockAlleles.e204.toTopHetPair(),
     ];
     const strain = new Strain({ allelePairs });
-    const crossStrains = strain.selfCross();
+    const crossStrains = await strain.selfCross();
 
     expect(crossStrains.length).toBe(90);
 
@@ -294,7 +294,7 @@ describe('cross algorithm', () => {
     );
   });
 
-  test('cross on multiple chromosomes', () => {
+  test('cross on multiple chromosomes', async () => {
     const allelePairs1: AllelePair[] = [
       // chrom II
       mockAlleles.oxTi75.toTopHetPair(),
@@ -311,12 +311,12 @@ describe('cross algorithm', () => {
     ];
     const strain1 = new Strain({ allelePairs: allelePairs1 });
     const strain2 = new Strain({ allelePairs: allelePairs2 });
-    const crossStrains = strain1.crossWith(strain2);
+    const crossStrains = await strain1.crossWith(strain2);
 
     testStrainResults(crossStrains, mockStrains.intermediateCross);
   });
 
-  test('ECA cross', () => {
+  test('ECA cross', async () => {
     const allelePairs1: AllelePair[] = [
       new AllelePair({
         top: mockAlleles.oxEx2254,
@@ -338,16 +338,16 @@ describe('cross algorithm', () => {
     ];
     const strain1 = new Strain({ allelePairs: allelePairs1 });
     const strain2 = new Strain({ allelePairs: allelePairs2 });
-    const crossStrains = strain1.crossWith(strain2);
+    const crossStrains = await strain1.crossWith(strain2);
 
     testStrainResults(crossStrains, mockStrains.ecaCross);
   });
 
-  it('should output a single child for wild-wild crosses', () => {
+  it('should output a single child for wild-wild crosses', async () => {
     const wildStrain1 = new Strain({ allelePairs: [] });
     const wildStrain2 = wildStrain1.clone();
-    const selfCrossStrains = wildStrain1.selfCross();
-    const wildToWildCrossStrains = wildStrain1.crossWith(wildStrain2);
+    const selfCrossStrains = await wildStrain1.selfCross();
+    const wildToWildCrossStrains = await wildStrain1.crossWith(wildStrain2);
 
     testStrainResults(selfCrossStrains, mockStrains.wildToWildCross);
     testStrainResults(wildToWildCrossStrains, mockStrains.wildToWildCross);

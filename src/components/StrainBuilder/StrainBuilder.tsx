@@ -3,56 +3,74 @@ import { AlleleMultiSelect } from 'components/AlleleMultiSelect/AlleleMultiSelec
 import { DynamicMultiSelect } from 'components/DynamicMultiSelect/DynamicMultiSelect';
 import { type db_Allele } from 'models/db/db_Allele';
 import { Allele, isEcaAlleleName } from 'models/frontend/Allele/Allele';
+import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 export interface StrainBuilderProps {
   onSubmit: (strain: Strain) => void;
   setPreview?: (strain?: Strain) => void;
 }
 
-const StrainBuilder = (props: StrainBuilderProps): JSX.Element => {
-  const [prevStrain, setPrevStrain] = useState<Strain>(
-    new Strain({ allelePairs: [] })
+function mergePairs(pair1: AllelePair, pair2: AllelePair): AllelePair {
+  return new AllelePair({ top: pair1.getAllele(), bot: pair2.getAllele() });
+}
+
+const buildStrain = async (
+  homos: Set<db_Allele>,
+  hets: Set<db_Allele>,
+  ecas: Set<db_Allele>
+): Promise<Strain> => {
+  const homoPairs = Array.from(homos).map(async (allele) =>
+    (await Allele.createFromRecord(allele)).toHomoPair()
   );
+  const exPairs = Array.from(ecas).map(async (allele) =>
+    (await Allele.createFromRecord(allele)).toEcaPair()
+  );
+
+  // Merge het pairs
+  let hetPairs = await Promise.all(
+    Array.from(hets).map(async (allele) =>
+      (await Allele.createFromRecord(allele)).toTopHetPair()
+    )
+  );
+  const hetPairsMap = new Map<string, AllelePair[]>();
+  hetPairs.forEach((pair) => {
+    const alleleName =
+      pair.getAllele().gene?.sysName ?? pair.getAllele().variation?.name ?? '';
+    hetPairsMap.get(alleleName)?.push(pair) ??
+      hetPairsMap.set(alleleName, [pair]);
+  });
+  hetPairsMap.forEach((pairs, alleleName) => {
+    if (pairs.length > 2) {
+      throw new Error(
+        'Cannot have more than two heterozygous alleles on one gene or variation.'
+      );
+    } else if (pairs.length === 2) {
+      hetPairsMap.set(alleleName, [mergePairs(pairs[0], pairs[1])]);
+    }
+  });
+  hetPairs = Array.from(hetPairsMap.values()).flat();
+  return await Strain.buildWithDynName({
+    allelePairs: (
+      await Promise.all(homoPairs.concat(exPairs))
+    ).concat(hetPairs),
+  });
+};
+
+const StrainBuilder = (props: StrainBuilderProps): JSX.Element => {
   const [homoAlleles, setHomoAlleles] = useState(new Set<db_Allele>());
   const [hetAlleles, setHetAlleles] = useState(new Set<db_Allele>());
-  const [exAlleles, setExAlleles] = useState(new Set<db_Allele>());
-
-  const buildStrain = async (): Promise<Strain> => {
-    const homoPairs = Array.from(homoAlleles).map(async (selectedAllele) =>
-      (await Allele.createFromRecord(selectedAllele)).toHomoPair()
-    );
-    const hetPairs = Array.from(hetAlleles).map(async (selectedAllele) =>
-      (await Allele.createFromRecord(selectedAllele)).toTopHetPair()
-    );
-    const exPairs = Array.from(exAlleles).map(async (selectedAllele) =>
-      (await Allele.createFromRecord(selectedAllele)).toEcaPair()
-    );
-
-    return new Strain({
-      allelePairs: await Promise.all(
-        homoPairs.concat(hetPairs).concat(exPairs)
-      ),
-    });
-  };
-
-  buildStrain()
-    .then((strain) => {
-      if (!strain.equals(prevStrain)) {
-        setPrevStrain(strain);
-        props.setPreview?.(strain);
-      }
-    })
-    .catch(console.error);
+  const [ecaAlleles, setEcaAlleles] = useState(new Set<db_Allele>());
 
   const onSubmit = (): void => {
-    buildStrain()
+    buildStrain(homoAlleles, hetAlleles, ecaAlleles)
       .then((strain) => {
         props.onSubmit(strain);
         setHomoAlleles(new Set());
         setHetAlleles(new Set());
-        setExAlleles(new Set());
+        setEcaAlleles(new Set());
       })
       .catch(console.error);
   };
@@ -63,9 +81,18 @@ const StrainBuilder = (props: StrainBuilderProps): JSX.Element => {
         placeholder='Type allele name'
         label='Homozygous Alleles'
         selectedRecords={homoAlleles}
-        setSelectedRecords={setHomoAlleles}
+        setSelectedRecords={(records) => {
+          buildStrain(records, hetAlleles, ecaAlleles)
+            .then(props.setPreview)
+            .then(() => {
+              setHomoAlleles(records);
+            })
+            .catch((error: Error) => {
+              toast.error(error.message);
+            });
+        }}
         shouldInclude={(allele) =>
-          alleleIsUnused(homoAlleles, hetAlleles, exAlleles, allele) &&
+          alleleIsUnused(homoAlleles, hetAlleles, ecaAlleles, allele) &&
           !isEcaAlleleName(allele.name)
         }
       />
@@ -74,9 +101,18 @@ const StrainBuilder = (props: StrainBuilderProps): JSX.Element => {
         placeholder='Type allele name'
         label='Heterozygous Alleles'
         selectedRecords={hetAlleles}
-        setSelectedRecords={setHetAlleles}
+        setSelectedRecords={(records) => {
+          buildStrain(homoAlleles, records, ecaAlleles)
+            .then(props.setPreview)
+            .then(() => {
+              setHetAlleles(records);
+            })
+            .catch((error: Error) => {
+              toast.error(error.message);
+            });
+        }}
         shouldInclude={(allele) =>
-          alleleIsUnused(homoAlleles, hetAlleles, exAlleles, allele) &&
+          alleleIsUnused(homoAlleles, hetAlleles, ecaAlleles, allele) &&
           !isEcaAlleleName(allele.name)
         }
       />
@@ -88,10 +124,19 @@ const StrainBuilder = (props: StrainBuilderProps): JSX.Element => {
         selectInputOn={'name'}
         displayResultsOn={['name']}
         label='Extrachromosomal Array'
-        selectedRecords={exAlleles}
-        setSelectedRecords={setExAlleles}
+        selectedRecords={ecaAlleles}
+        setSelectedRecords={(records) => {
+          buildStrain(homoAlleles, hetAlleles, records)
+            .then(props.setPreview)
+            .then(() => {
+              setEcaAlleles(records);
+            })
+            .catch((error: Error) => {
+              toast.error(error.message);
+            });
+        }}
         shouldInclude={(allele) =>
-          alleleIsUnused(homoAlleles, hetAlleles, exAlleles, allele) &&
+          alleleIsUnused(homoAlleles, hetAlleles, ecaAlleles, allele) &&
           isEcaAlleleName(allele.name)
         }
       />
@@ -105,11 +150,11 @@ const StrainBuilder = (props: StrainBuilderProps): JSX.Element => {
 function alleleIsUnused(
   homoAlleles: Set<db_Allele>,
   hetAlleles: Set<db_Allele>,
-  exAlleles: Set<db_Allele>,
+  EcaAlleles: Set<db_Allele>,
   dbAllele: db_Allele
 ): boolean {
   const names = new Set(
-    [...homoAlleles, ...hetAlleles, ...exAlleles].map((a) => a.name)
+    [...homoAlleles, ...hetAlleles, ...EcaAlleles].map((a) => a.name)
   );
   return !names.has(dbAllele.name);
 }
