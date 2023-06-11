@@ -34,7 +34,7 @@ export class AllelePair implements IAllelePair {
    * @param other Other pair to compare against
    */
   public strictEquals(other: AllelePair): boolean {
-    return this.top.name === other.top.name && this.bot.name === other.bot.name;
+    return this.top.equals(other.top) && this.bot.equals(other.bot);
   }
 
   /**
@@ -44,7 +44,7 @@ export class AllelePair implements IAllelePair {
   public looseEquals(other: AllelePair): boolean {
     return (
       this.strictEquals(other) ||
-      (this.bot.name === other.top.name && this.top.name === other.bot.name)
+      (this.bot.equals(other.top) && this.top.equals(other.bot))
     );
   }
 
@@ -114,16 +114,12 @@ export class AllelePair implements IAllelePair {
     return new AllelePair({ top: this.top, bot: this.bot, isEca: this.isEca });
   }
 
-  /**
-   * Given a list of allele pairs, extract the top/bot chromatid
-   * @param chromosome list of allele pairs that all belong to the SAME chromosome
-   * @param side state whether you want the top or bottom chromatid
-   */
-  public static getChromatid(
-    chromosome: AllelePair[],
-    side: 'top' | 'bot'
-  ): Allele[] {
-    return chromosome.map((pair) => pair[side]);
+  public static getTopChrom(chromosome: AllelePair[]): Allele[] {
+    return chromosome.map((pair) => pair.top);
+  }
+
+  public static getBotChrom(chromosome: AllelePair[]): Allele[] {
+    return chromosome.map((pair) => pair.bot);
   }
 
   /**
@@ -133,19 +129,15 @@ export class AllelePair implements IAllelePair {
     return `${this.top.name}/${this.bot.name}`;
   }
 
-  /**
-   * Checks if the content of 2 chromatids are equal
-   * A "chromatid" is a list of alleles that all belong to the SAME chromosome number
-   */
-  private static chromatidsMatch(
-    chromatid1: Allele[],
-    chromatid2: Allele[]
-  ): boolean {
-    let chromatidsMatch = chromatid1.length === chromatid2.length;
-    chromatid1.forEach((allele, idx) => {
-      if (allele.name !== chromatid2[idx].name) chromatidsMatch = false;
-    });
-    return chromatidsMatch;
+  // Ignore explicitly represented wilds since they do not determine genetic identity
+  private static chromsEqual(chrom1: Allele[], chrom2: Allele[]): boolean {
+    const chrom1NoWilds = chrom1.filter((allele) => !allele.isWild());
+    const chrom2NoWilds = chrom2.filter((allele) => !allele.isWild());
+
+    return (
+      chrom1NoWilds.length === chrom2NoWilds.length &&
+      chrom1NoWilds.every((allele, idx) => allele.equals(chrom2NoWilds[idx]))
+    );
   }
 
   /**
@@ -159,32 +151,26 @@ export class AllelePair implements IAllelePair {
     const chromosome1Copy = chromosome1.map((allelePair) => allelePair.clone());
     const chromosome2Copy = chromosome2.map((allelePair) => allelePair.clone());
 
-    // Allele pair order and top/bottom-ness don't matter for ECA alleles
+    // Allele pair order doesn't matter for ECA alleles
     // So look at canonical form for comparison. It is assumed that ECA alleles are top-heterozygous
     [chromosome1Copy, chromosome2Copy].forEach((chromosome) => {
-      if (chromosome.length > 0 && chromosome[0].isEca) {
+      if (chromosome.length > 0 && chromosome[0].isEca)
         chromosome.sort((a, b) => a.top.name.localeCompare(b.top.name));
-        chromosome.forEach((allelePair) => {
-          if (allelePair.top.isWild()) {
-            allelePair.flip();
-          }
-        });
-      }
     });
 
     if (chromosome1Copy.length !== chromosome2Copy.length) return false;
 
-    const topTid1 = AllelePair.getChromatid(chromosome1Copy, 'top');
-    const botTid1 = AllelePair.getChromatid(chromosome1Copy, 'bot');
-    const topTid2 = AllelePair.getChromatid(chromosome2Copy, 'top');
-    const botTid2 = AllelePair.getChromatid(chromosome2Copy, 'bot');
+    const topChrom1 = AllelePair.getTopChrom(chromosome1Copy);
+    const botChrom1 = AllelePair.getBotChrom(chromosome1Copy);
+    const topChrom2 = AllelePair.getTopChrom(chromosome2Copy);
+    const botChrom2 = AllelePair.getBotChrom(chromosome2Copy);
 
-    const topTidsMatch = AllelePair.chromatidsMatch(topTid1, topTid2);
-    if (topTidsMatch) return AllelePair.chromatidsMatch(botTid1, botTid2);
+    const topChromsMatch = AllelePair.chromsEqual(topChrom1, topChrom2);
+    if (topChromsMatch) return AllelePair.chromsEqual(botChrom1, botChrom2);
 
     return (
-      AllelePair.chromatidsMatch(topTid1, botTid2) &&
-      AllelePair.chromatidsMatch(botTid1, topTid2)
+      AllelePair.chromsEqual(topChrom1, botChrom2) &&
+      AllelePair.chromsEqual(botChrom1, topChrom2)
     );
   }
 

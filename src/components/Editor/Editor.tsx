@@ -812,11 +812,10 @@ const Editor = (props: EditorProps): JSX.Element => {
       targetHandle: rStrain.sex === Sex.Male ? 'left' : 'right',
       sourceHandle: rStrain.sex !== Sex.Male ? 'left' : 'right',
     });
-    const children = await lStrain.strain.crossWith(rStrain.strain);
-    const childNodes = getChildNodes(xNode, children);
+    const childOptions = await lStrain.strain.crossWith(rStrain.strain);
+    const childNodes = getChildNodes(xNode, childOptions);
     const childEdges = childNodes.map((node) => createEdge(xNode.id, node.id));
 
-    // Update state
     setNodeMap((nodeMap) => {
       [lNode, rNode, xNode, ...childNodes].forEach((node) =>
         nodeMap.set(node.id, node)
@@ -832,7 +831,7 @@ const Editor = (props: EditorProps): JSX.Element => {
   const getChildNodes = (
     middleNode: Node,
     childOptions: StrainOption[]
-  ): Node[] => {
+  ): Array<Node<StrainNodeModel>> => {
     childOptions.sort((c1, c2) => c1.prob - c2.prob);
 
     const childPositions = CrossTree.calculateChildPositions(

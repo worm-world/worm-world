@@ -361,7 +361,7 @@ describe('allele pair', () => {
     expect(pair2).toEqual(clone2);
   });
 
-  test('.getChromatid() returns top chromatid', () => {
+  test('.getTopChrom() returns top chrom', () => {
     const chromosome = [
       new AllelePair({ top: e204, bot: e204.getWild() }),
       new AllelePair({ top: ox802, bot: ox802 }),
@@ -369,25 +369,25 @@ describe('allele pair', () => {
     ];
 
     const topChromatid = [e204, ox802, oxTi302.getWild()];
-    const chromatidResult = AllelePair.getChromatid(chromosome, 'top');
+    const chromResult = AllelePair.getTopChrom(chromosome);
 
-    expect(chromatidResult).toHaveLength(topChromatid.length);
-    for (let i = 0; i < chromatidResult.length; i++)
-      expect(chromatidResult[i].name).toBe(topChromatid[i].name);
+    expect(chromResult).toHaveLength(topChromatid.length);
+    for (let i = 0; i < chromResult.length; i++)
+      expect(chromResult[i].name).toBe(topChromatid[i].name);
   });
-  test('.getChromatid() returns bottom chromatid', () => {
+  test('.getTopChrom() returns bottom chrom', () => {
     const chromosome = [
-      new AllelePair({ top: e204, bot: e204.getWild() }),
-      new AllelePair({ top: ox802, bot: ox802 }),
-      new AllelePair({ top: oxTi302.getWild(), bot: oxTi302 }),
+      e204.toTopHetPair(),
+      ox802.toHomoPair(),
+      oxTi302.toBotHetPair(),
     ];
 
     const botChromatid = [e204.getWild(), ox802, oxTi302];
-    const chromatidResult = AllelePair.getChromatid(chromosome, 'bot');
+    const chromResult = AllelePair.getBotChrom(chromosome);
 
-    expect(chromatidResult).toHaveLength(botChromatid.length);
-    for (let i = 0; i < chromatidResult.length; i++)
-      expect(chromatidResult[i].name).toBe(botChromatid[i].name);
+    expect(chromResult).toHaveLength(botChromatid.length);
+    for (let i = 0; i < chromResult.length; i++)
+      expect(chromResult[i].name).toBe(botChromatid[i].name);
   });
 
   test('.chromosomesMatch() for duplicate chromosomes', () => {

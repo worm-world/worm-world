@@ -48,6 +48,10 @@ export class Allele {
     Object.assign(this, fields);
   }
 
+  public equals(other: Allele): boolean {
+    return this.name === other.name;
+  }
+
   /**
    * @param fields Name-based representation of allele, including geneName or variationName
    * @returns Full, rich allele with object references for a gene or variation, etc.
