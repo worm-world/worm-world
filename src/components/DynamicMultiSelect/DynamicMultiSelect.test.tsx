@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import {
   DynamicMultiSelect,
   type DynamicMultiSelectProps,
-} from './DynamicMultiSelect';
+} from 'components/DynamicMultiSelect/DynamicMultiSelect';
 import user from '@testing-library/user-event';
 import { type db_Gene } from 'models/db/db_Gene';
 import { type GeneFieldName } from 'models/db/filter/db_GeneFieldName';

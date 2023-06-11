@@ -2,7 +2,7 @@ import { Meta, StoryFn } from '@storybook/react';
 import { Table, TableProps } from 'components/Table/Table';
 import { cols as alleleCols } from 'pages/data-tables/alleles';
 import { db_Allele } from 'models/db/db_Allele';
-import { Field } from '../ColumnFilter/ColumnFilter';
+import { Field } from 'components/ColumnFilter/ColumnFilter';
 import { AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
 
 export default {

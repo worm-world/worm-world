@@ -1,7 +1,7 @@
 import { StoryFn, Meta } from '@storybook/react';
 import Editor, {
   EditorProps,
-} from 'components/EditorPage/Editor';
+} from 'components/Editor/Editor';
 import * as mockCrossTree from 'models/frontend/CrossTree/CrossTree.mock';
 import { BrowserRouter } from 'react-router-dom';
 import { ReactFlowProvider } from 'reactflow';

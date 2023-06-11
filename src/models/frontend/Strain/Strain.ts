@@ -18,7 +18,7 @@ import { type Condition } from 'models/frontend/Condition/Condition';
 import { type Phenotype } from 'models/frontend/Phenotype/Phenotype';
 import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 import { getStrain, insertStrain } from 'api/strain';
-import { StrainAllele } from '../StrainAllele/StrainAllele';
+import { StrainAllele } from 'models/frontend/StrainAllele/StrainAllele';
 
 export interface StrainOption {
   strain: Strain;
@@ -96,13 +96,14 @@ export class Strain {
   }
 
   private async fetchName(): Promise<string | undefined> {
-    const allelePairs = this.getAllelePairs();
+    const allelePairs = this.getNonWildAlleles();
     if (allelePairs.length === 0) return undefined;
     const sAFilter: FilterGroup<StrainAlleleFieldName> = {
       filters: [
-        allelePairs
-          .filter((pair) => pair.getAllele.name !== '+')
-          .map((pair) => ['AlleleName', { Equal: pair.getAllele().name }]),
+        this.getNonWildAlleles().map((allele) => [
+          'AlleleName',
+          { Equal: allele.name },
+        ]),
       ],
       orderBy: [],
     };
@@ -130,14 +131,14 @@ export class Strain {
               (chrom ?? '?')
             );
           }
-          const top = pairs
-            .map((pair) =>
-              pair.top.isWild() ? pair.top.name : pair.top.getQualifiedName()
+          const top = AllelePair.getChromatid(pairs, 'top')
+            .map((allele) =>
+              allele.isWild() ? allele.name : allele.getQualifiedName()
             )
             .join(' ');
-          const bot = pairs
-            .map((pair) =>
-              pair.bot.isWild() ? pair.bot.name : pair.bot.getQualifiedName()
+          const bot = AllelePair.getChromatid(pairs, 'bot')
+            .map((allele) =>
+              allele.isWild() ? allele.name : allele.getQualifiedName()
             )
             .join(' ');
           return top + '/' + bot + ' ' + (chrom ?? '?');
@@ -338,7 +339,7 @@ export class Strain {
     const allelePairs: AllelePair[] = [];
     for (const pair of [...rightChrom, ...leftChrom]) {
       const notYetInList = !allelePairs.some(
-        (inListPair) => pair.getAllele().name === inListPair.getAllele().name
+        (inListPair) => pair.top.name === inListPair.top.name
       );
       if (notYetInList && !pair.isWild()) allelePairs.push(pair);
     }
@@ -355,10 +356,6 @@ export class Strain {
     return chromOptions;
   }
 
-  public getAlleles(): Allele[] {
-    return this.getAllelePairs().map((pair) => pair.getAllele());
-  }
-
   public getAllelePairs(): AllelePair[] {
     return [...this.chromPairMap.values()].flat();
   }
@@ -367,7 +364,19 @@ export class Strain {
    * @returns flattened array combining all allele expressions for each allele in the strain
    */
   public getAlleleExpressions(): AlleleExpression[] {
-    return this.getAlleles().flatMap((allele) => allele.alleleExpressions);
+    return this.getNonWildAlleles().flatMap(
+      (allele) => allele.alleleExpressions
+    );
+  }
+
+  public getNonWildAlleles(): Allele[] {
+    return this.getAlleles().filter((allele) => !allele.isWild());
+  }
+
+  public getAlleles(): Allele[] {
+    return this.getAllelePairs()
+      .map((pair) => [pair.top, pair.bot])
+      .flat();
   }
 
   public getExprPhenotypes(): Phenotype[] {
@@ -490,15 +499,15 @@ export class Strain {
     defaultLeft: boolean
   ): void {
     const wildPair = new AllelePair({
-      top: otherPair.getAllele().getWild(),
-      bot: otherPair.getAllele().getWild(),
+      top: otherPair.top.getWild(),
+      bot: otherPair.top.getWild(),
       isEca: otherPair.isEca,
     });
 
     chromosomePairs.push(wildPair);
     chromosomePairs.sort((pair1, pair2) => {
-      const p1 = pair1.getAllele().getGenPosition() ?? (defaultLeft ? -50 : 50);
-      const p2 = pair2.getAllele().getGenPosition() ?? (defaultLeft ? -50 : 50);
+      const p1 = pair1.top.getGenPosition() ?? (defaultLeft ? -50 : 50);
+      const p2 = pair2.top.getGenPosition() ?? (defaultLeft ? -50 : 50);
       return p1 < p2 ? -1 : 1;
     });
   }
@@ -684,8 +693,8 @@ export class Strain {
    * @returns absolute value of the genetic difference of 2 allele pairs (or 0 if a pair doesn't have a genetic location)
    */
   private getRecombProb(pair1: AllelePair, pair2: AllelePair): number {
-    const genPos1 = pair1.getAllele().getGenPosition();
-    const genPos2 = pair2.getAllele().getGenPosition();
+    const genPos1 = pair1.top.getGenPosition();
+    const genPos2 = pair2.top.getGenPosition();
     if (genPos1 === undefined || genPos2 === undefined) return 0;
 
     const halfDistance = Math.abs(genPos1 - genPos2) / 2;
@@ -712,7 +721,7 @@ export class Strain {
    * Adds a provided Allele Pair to this strain. Throws an error if this fails (pair already exists).
    */
   private addPairToStrain(pair: AllelePair): void {
-    const chromName = pair.isEca ? 'Ex' : pair.getAllele().getChromosome();
+    const chromName = pair.isEca ? 'Ex' : pair.top.getChromosome();
     let chromosome = this.chromPairMap.get(chromName);
     if (chromosome === undefined) {
       chromosome = [];
@@ -730,8 +739,8 @@ export class Strain {
     // Insert according to genetic location
     chromosome.push(pair);
     chromosome.sort((pair1, pair2) => {
-      const pair1Pos = pair1.getAllele().getGenPosition() ?? 50; // gen pos never greater than 25
-      const pair2Pos = pair2.getAllele().getGenPosition() ?? 50; // gen pos never greater than 25
+      const pair1Pos = pair1.top.getGenPosition() ?? 50; // gen pos never greater than 25
+      const pair2Pos = pair2.top.getGenPosition() ?? 50; // gen pos never greater than 25
       return pair1Pos < pair2Pos ? -1 : 1;
     });
   }

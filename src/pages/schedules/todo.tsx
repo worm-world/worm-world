@@ -209,7 +209,7 @@ const TaskRemovalBtn = (props: {
   const modalHeader = 'Delete tasks';
   const confirmationText = props.hasFilter
     ? `Are you sure you want to remove tasks for "${props.treeName}"? This cannot be undone.`
-    : 'Are you sure you want to remove ALL tasks? This will delete every task from every cross tree.';
+    : 'Are you sure you want to remove ALL tasks? This will delete every task from every cross design.';
   return (
     <div>
       <label htmlFor='delete-tasks-modal' className='btn-error btn-outline btn'>

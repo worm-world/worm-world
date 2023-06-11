@@ -6,7 +6,7 @@ import {
   TbArrowLoopLeft as SelfCrossIcon,
 } from 'react-icons/tb';
 import { BiX as CrossIcon } from 'react-icons/bi';
-import TodoModal from './TodoModal';
+import TodoModal from 'components/TaskView/TodoModal';
 import moment from 'moment';
 import { type Action } from 'models/db/task/Action';
 

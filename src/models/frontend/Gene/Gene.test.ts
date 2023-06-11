@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
-import { Gene } from './Gene';
-import { unc119 } from './Gene.mock';
+import { Gene } from 'models/frontend/Gene/Gene';
+import { unc119 } from 'models/frontend/Gene/Gene.mock';
 
 describe('Gene', () => {
   test('should be able to serialize and deserialize', () => {

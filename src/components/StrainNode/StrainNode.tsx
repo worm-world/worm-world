@@ -1,5 +1,5 @@
 import BreedCountProbability from 'components/BreedCountProbability/BreedCountProbability';
-import { ShowGenesContext } from 'components/EditorPage/Editor';
+import { ShowGenesContext } from 'components/Editor/Editor';
 import { Menu } from 'components/Menu/Menu';
 import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 import { Sex } from 'models/enums';
@@ -10,6 +10,9 @@ import { useContext } from 'react';
 import { BsLightningCharge as MenuIcon } from 'react-icons/bs';
 import { IoFemale, IoMale, IoMaleFemale } from 'react-icons/io5';
 import { RiArrowUpDownLine as SwapIcon } from 'react-icons/ri';
+
+export const STRAIN_NODE_WIDTH = 256; // w-64
+export const STRAIN_NODE_HEIGHT = 144; // w-36
 
 const getSexIcon = (
   sex: Sex,
@@ -69,7 +72,7 @@ const StrainNode = (props: StrainNodeProps): JSX.Element => {
                 </label>
                 <div
                   tabIndex={0}
-                  className='compact card dropdown-content rounded-box w-64 bg-base-100 shadow'
+                  className='compact card dropdown-content rounded-box w-full bg-base-100 shadow'
                 >
                   <div className='card-body'>
                     <BreedCountProbability
@@ -194,7 +197,7 @@ const getMutationBox = (
     if (allelePair.isWild()) return <></>;
     return (
       <div key={key} className='text-align w-full px-2 text-center'>
-        {allelePair.getAllele().name}
+        {allelePair.top.name}
       </div>
     );
   } else {

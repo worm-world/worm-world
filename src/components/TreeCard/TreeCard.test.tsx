@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import TreeCard from './TreeCard';
+import TreeCard from 'components/TreeCard/TreeCard';
 import * as mockCrossTree from 'models/frontend/CrossTree/CrossTree.mock';
 import { BrowserRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';

@@ -13,10 +13,6 @@ export interface StrainBuilderProps {
   setPreview?: (strain?: Strain) => void;
 }
 
-function mergePairs(pair1: AllelePair, pair2: AllelePair): AllelePair {
-  return new AllelePair({ top: pair1.getAllele(), bot: pair2.getAllele() });
-}
-
 const buildStrain = async (
   homos: Set<db_Allele>,
   hets: Set<db_Allele>,
@@ -37,8 +33,7 @@ const buildStrain = async (
   );
   const hetPairsMap = new Map<string, AllelePair[]>();
   hetPairs.forEach((pair) => {
-    const alleleName =
-      pair.getAllele().gene?.sysName ?? pair.getAllele().variation?.name ?? '';
+    const alleleName = pair.top.gene?.sysName ?? pair.top.variation?.name ?? '';
     hetPairsMap.get(alleleName)?.push(pair) ??
       hetPairsMap.set(alleleName, [pair]);
   });
@@ -48,7 +43,9 @@ const buildStrain = async (
         'Cannot have more than two heterozygous alleles on one gene or variation.'
       );
     } else if (pairs.length === 2) {
-      hetPairsMap.set(alleleName, [mergePairs(pairs[0], pairs[1])]);
+      hetPairsMap.set(alleleName, [
+        new AllelePair({ top: pairs[0].top, bot: pairs[1].top }),
+      ]);
     }
   });
   hetPairs = Array.from(hetPairsMap.values()).flat();
@@ -83,10 +80,10 @@ const StrainBuilder = (props: StrainBuilderProps): JSX.Element => {
         selectedRecords={homoAlleles}
         setSelectedRecords={(records) => {
           buildStrain(records, hetAlleles, ecaAlleles)
+            .then(props.setPreview)
             .then(() => {
               setHomoAlleles(records);
             })
-            .then(props.setPreview)
             .catch((error: Error) => {
               toast.error(error.message);
             });

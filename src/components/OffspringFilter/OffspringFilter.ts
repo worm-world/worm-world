@@ -137,7 +137,7 @@ export class OffspringFilter {
         .map((expr) => [expr.expressingPhenotype.getUniqueName(), expr])
     );
     const pairs = new Map(
-      strain.getAllelePairs().map((pair) => [pair.getAllele().name, pair])
+      strain.getAllelePairs().map((pair) => [pair.top.name, pair])
     );
     filter.exprPhenotypes.forEach((phenName: string) => {
       const phenotype = phenotypes.get(phenName);

@@ -108,14 +108,6 @@ export class AllelePair implements IAllelePair {
   }
 
   /**
-   * Attempt to get either distinguishing (non-wild) allele from the pair.
-   * If both alleles are wild, returns wild allele
-   */
-  public getAllele(): Allele {
-    return this.top.isWild() ? this.bot : this.top;
-  }
-
-  /**
    * Creates a new copy of this allele pair
    */
   public clone(): AllelePair {

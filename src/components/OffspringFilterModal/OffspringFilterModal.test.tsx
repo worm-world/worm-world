@@ -87,7 +87,7 @@ describe('OffspringFilterModal', () => {
       const chromPairs = [...node.data.strain.chromPairMap.values()];
       chromPairs.forEach((pair) => {
         if (pair.length > 0) {
-          const pairText = pair[0].getAllele().name;
+          const pairText = pair[0].top.name;
           const pairElements = screen.getAllByText(pairText);
           expect(pairElements.length).toBeGreaterThan(0);
         }
@@ -284,7 +284,7 @@ describe('OffspringFilter', () => {
     });
     const names = OffspringFilter.extractOffspringFilterNames(strain);
 
-    expect(names.alleleNames).toEqual(new Set(['n765', 'ed3']));
+    expect(names.alleleNames).toEqual(new Set(['n765', '+', 'ed3']));
     expect(names.exprPhenotypes).toEqual(new Set(['unc-119', 'lin-15B']));
     expect(names.reqConditions).toEqual(new Set(['25C']));
     expect(names.supConditions).toEqual(new Set<string>());
@@ -305,7 +305,7 @@ describe('OffspringFilter', () => {
       strain2,
     ]);
 
-    expect(names.alleleNames).toEqual(new Set(['n765', 'ed3']));
+    expect(names.alleleNames).toEqual(new Set(['n765', '+', 'ed3']));
     expect(names.exprPhenotypes).toEqual(new Set(['unc-119', 'lin-15B']));
     expect(names.reqConditions).toEqual(new Set(['25C']));
     expect(names.supConditions).toEqual(new Set<string>());
