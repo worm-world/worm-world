@@ -49,7 +49,7 @@ const buildStrain = async (
     }
   });
   hetPairs = Array.from(hetPairsMap.values()).flat();
-  return await Strain.buildWithDynName({
+  return await Strain.buildWithSync({
     allelePairs: (
       await Promise.all(homoPairs.concat(exPairs))
     ).concat(hetPairs),

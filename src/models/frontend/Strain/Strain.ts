@@ -19,6 +19,7 @@ import { type Phenotype } from 'models/frontend/Phenotype/Phenotype';
 import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 import { getStrain, insertStrain } from 'api/strain';
 import { StrainAllele } from 'models/frontend/StrainAllele/StrainAllele';
+import * as Chrom from 'models/frontend/Chrom/Chrom';
 
 export interface StrainOption {
   strain: Strain;
@@ -72,7 +73,7 @@ export class Strain {
 
   public name?: string;
 
-  public genotype: string;
+  public genotype = '';
 
   public description?: string;
 
@@ -81,23 +82,20 @@ export class Strain {
       this.name = params.name;
       this.description = params.description;
       this.addPairsToStrain(params.allelePairs);
-      this.genotype = params.genotype ?? this.generateGenotype();
+      this.syncGenotype();
       this.name = params.name;
-      return;
     }
-    this.genotype = '';
   }
 
   // Constructs new object, along with fetching name
-  public static async buildWithDynName(params: IStrain): Promise<Strain> {
+  public static async buildWithSync(params: IStrain): Promise<Strain> {
     const strain = new Strain(params);
-    if (strain.name === undefined) strain.name = await strain.fetchName();
+    await strain.syncFromDb();
     return strain;
   }
 
-  private async fetchName(): Promise<string | undefined> {
-    const allelePairs = this.getNonWildAlleles();
-    if (allelePairs.length === 0) return undefined;
+  private async syncFromDb(): Promise<void> {
+    if (this.getNonWildAlleles().length === 0) return undefined;
     const sAFilter: FilterGroup<StrainAlleleFieldName> = {
       filters: [
         this.getNonWildAlleles().map((allele) => [
@@ -108,19 +106,24 @@ export class Strain {
       orderBy: [],
     };
     const matchCandidates = await Promise.all(
-      (
-        await getFilteredStrainAlleles(sAFilter)
-      )
-        .map((sa) => sa.strain_name) // ToDo
-        .map(async (name) => await getStrain(name))
+      (await getFilteredStrainAlleles(sAFilter))
+        .map(async (sa) => await getStrain(sa.strain_name))
         .map(async (strain) => await Strain.createFromRecord(await strain))
     );
-    for (const candidate of matchCandidates)
-      if (this.equals(candidate)) return candidate.name;
+    for (const candidate of matchCandidates) {
+      if (this.equals(candidate)) {
+        this.name = candidate.name;
+        this.description = candidate.description;
+        break;
+      }
+    }
   }
 
-  private generateGenotype(): string {
-    return (
+  /**
+   * Update genotype string to reflect current genetic contents
+   */
+  private syncGenotype(): void {
+    this.genotype =
       Array.from(this.chromPairMap.entries())
         .sort((a, b) => cmpChromosomes(a[0], b[0]))
         .map(([chrom, pairs]) => {
@@ -131,20 +134,19 @@ export class Strain {
               (chrom ?? '?')
             );
           }
-          const top = AllelePair.getChromatid(pairs, 'top')
+          const top = AllelePair.getTopChrom(pairs)
             .map((allele) =>
               allele.isWild() ? allele.name : allele.getQualifiedName()
             )
             .join(' ');
-          const bot = AllelePair.getChromatid(pairs, 'bot')
+          const bot = AllelePair.getBotChrom(pairs)
             .map((allele) =>
               allele.isWild() ? allele.name : allele.getQualifiedName()
             )
             .join(' ');
           return top + '/' + bot + ' ' + (chrom ?? '?');
         })
-        .join('; ') + '.'
-    );
+        .join('; ') + '.';
   }
 
   static async createFromRecord(record: db_Strain): Promise<Strain> {
@@ -166,7 +168,7 @@ export class Strain {
       })
     );
 
-    return await Strain.buildWithDynName({
+    return new Strain({
       name: record.name ?? undefined,
       description: record.description ?? undefined,
       genotype: record.genotype,
@@ -248,18 +250,20 @@ export class Strain {
   }
 
   /**
-   * Checks if both strains contain the same chromosomal information
+   * Checks if both strains represent the same genetic profile
    * @param other strain to compare against
    */
   public equals(other: Strain): boolean {
-    const thisKeys = Array.from(this.chromPairMap.keys());
-    const otherKeys = Array.from(other.chromPairMap.keys());
-    if (thisKeys.length !== otherKeys.length) return false;
+    const keys = Array.from(this.chromPairMap.entries())
+      .filter((chromPair) => !Chrom.isWild(chromPair[1]))
+      .map((chromPair) => chromPair[0]);
+    const otherKeys = Array.from(other.chromPairMap.entries())
+      .filter((chromPair) => !Chrom.isWild(chromPair[1]))
+      .map((chromPair) => chromPair[0]);
+    if (keys.length !== otherKeys.length) return false;
 
     let allPairsMatch = true;
-    thisKeys.forEach((key) => {
-      if (!other.chromPairMap.has(key)) allPairsMatch = false;
-
+    keys.forEach((key) => {
       const chromPairs = this.chromPairMap.get(key) ?? [];
       const otherChromPairs = other.chromPairMap.get(key) ?? [];
 
@@ -302,7 +306,7 @@ export class Strain {
     if (this.chromPairMap.size === 0 && other.chromPairMap.size === 0)
       return [
         {
-          strain: await Strain.buildWithDynName({ allelePairs: [] }),
+          strain: await Strain.buildWithSync({ allelePairs: [] }),
           prob: 1.0,
         },
       ];
@@ -325,24 +329,24 @@ export class Strain {
       );
     });
 
-    // permute strains for each chromosome
-    const strains = this.cartesianCross(multiChromOptions);
-    this.reduceStrainOptions(await strains);
-    return await strains;
+    // Permute strains for each chromosome
+    const strainOptions = await this.cartesianCross(multiChromOptions);
+    this.reduceStrainOptions(strainOptions);
+    return strainOptions;
   }
 
-  // Simplified cross of Ex chromosome--equal probabilities of all possible sets
+  // Assumed equal probabilities of all possible sets
   private crossExChromosome(
     leftChrom: AllelePair[],
     rightChrom: AllelePair[]
   ): ChromosomeOption[] {
     const allelePairs: AllelePair[] = [];
-    for (const pair of [...rightChrom, ...leftChrom]) {
-      const notYetInList = !allelePairs.some(
-        (inListPair) => pair.top.name === inListPair.top.name
+    [...rightChrom, ...leftChrom].forEach((pair) => {
+      const notYetInList = !allelePairs.some((inListPair) =>
+        inListPair.strictEquals(pair)
       );
       if (notYetInList && !pair.isWild()) allelePairs.push(pair);
-    }
+    });
 
     const noPairs: AllelePair[][] = [[]];
     const allSubsets = allelePairs.reduce(
@@ -399,7 +403,7 @@ export class Strain {
     const maturationDays = this.getExprPhenotypes().flatMap(
       (phen) => phen.maturationDays ?? []
     );
-    if (maturationDays.length === 0) maturationDays.push(3); // default if no phenotypes are part of strain
+    if (maturationDays.length === 0) maturationDays.push(3); // default
 
     return Math.max(...maturationDays);
   }
@@ -418,7 +422,7 @@ export class Strain {
     let strainOptions = await Promise.all(
       multiChromOptions[0].map(async (chromOption) => {
         const allelePairs = chromOption.pairs;
-        const strain = await Strain.buildWithDynName({ allelePairs });
+        const strain = new Strain({ allelePairs });
         return {
           strain,
           prob: chromOption.prob,
@@ -432,6 +436,12 @@ export class Strain {
         strainOptions,
         multiChromOptions[i]
       );
+
+    // Update strain details now that they are done changing
+    for (const so of strainOptions) {
+      await so.strain.syncFromDb().catch(console.error);
+      so.strain.syncGenotype();
+    }
 
     return strainOptions;
   }
@@ -523,15 +533,11 @@ export class Strain {
     const leftOptions = this.getRecombOptions(leftChrom);
     const rightOptions = this.getRecombOptions(rightChrom);
 
-    // Permute all possible chromatid combinations
+    // Permute all possible chrom combinations
     leftOptions.forEach((left) => {
       rightOptions.forEach((right) => {
         chromosomeOptions.push({
-          pairs: this.combineChromatids(
-            left.alleles,
-            right.alleles,
-            left.isEca
-          ),
+          pairs: this.combineChroms(left.alleles, right.alleles, left.isEca),
           prob: left.prob * right.prob,
         });
       });
@@ -541,7 +547,7 @@ export class Strain {
   }
 
   /**
-   * Permutes all of the possible chromatids due to a recombination event (or no recombination event)
+   * Permutes all of the possible chroms due to a recombination event (or no recombination event)
    * @param chromosome All allele pairs belonging to a strain's chromosomes
    */
   private getRecombOptions(chromosome: AllelePair[]): ChromatidOption[] {
@@ -574,23 +580,23 @@ export class Strain {
   }
 
   /**
-   * Combines probabilities of duplicate chromatids such that the resulting list has unique chromatids
+   * Combines probabilities of duplicate chroms such that the resulting list has unique chroms
    */
-  private reduceChromatidOptions(chromatids: ChromatidOption[]): void {
+  private reduceChromatidOptions(chroms: ChromatidOption[]): void {
     // Check each option against every other option
-    for (let i = 0; i < chromatids.length; i++) {
-      const currChromatid = chromatids[i];
+    for (let i = 0; i < chroms.length; i++) {
+      const currChromatid = chroms[i];
 
       // Check for duplicates and combine probabilities
-      for (let j = i + 1; j < chromatids.length; ) {
-        const nextChromatid = chromatids[j];
+      for (let j = i + 1; j < chroms.length; ) {
+        const nextChromatid = chroms[j];
         const duplicateChromatids: boolean =
-          this.getChromatidString(currChromatid) ===
-          this.getChromatidString(nextChromatid);
+          this.getTopChromString(currChromatid) ===
+          this.getTopChromString(nextChromatid);
 
         if (duplicateChromatids) {
           currChromatid.prob += nextChromatid.prob;
-          chromatids.splice(j, 1);
+          chroms.splice(j, 1);
         } else {
           j++;
         }
@@ -654,13 +660,13 @@ export class Strain {
     flippedChromatid: Allele[],
     chromosome: AllelePair[]
   ): ChromatidOption[] {
-    const chromatids: ChromatidOption[] = [];
+    const chroms: ChromatidOption[] = [];
 
     // first iteration accounts for NO recombination at all
     for (let i = 0; i < chromosome.length; i++) {
-      let chromatid: Allele[] = [];
+      let chrom: Allele[] = [];
       let probability = 0.5;
-      chromatid.push(startingChromatid[0]);
+      chrom.push(startingChromatid[0]);
 
       for (let j = 1; j < chromosome.length; j++) {
         const recombinationProb = this.getRecombProb(
@@ -670,23 +676,23 @@ export class Strain {
 
         // recombination event
         if (j === i) {
-          chromatid = chromatid.concat(flippedChromatid.slice(j)); // add remainder of alleles of other chromatid
+          chrom = chrom.concat(flippedChromatid.slice(j)); // add remainder of alleles of other chrom
           probability = recombinationProb;
           break;
         }
 
         // no recombination, continue along starting side
         probability -= recombinationProb;
-        chromatid.push(startingChromatid[j]);
+        chrom.push(startingChromatid[j]);
       }
-      chromatids.push({
-        alleles: chromatid,
+      chroms.push({
+        alleles: chrom,
         prob: probability,
         isEca: chromosome.length > 0 && chromosome[0].isEca,
       });
     }
 
-    return chromatids;
+    return chroms;
   }
 
   /**
@@ -702,11 +708,11 @@ export class Strain {
   }
 
   /**
-   * Combine 2 chromatids into a single chromosome of allele pairs
-   * @param top list of alleles that will be the top chromatid
-   * @param bot list of alleles that will be the bottom chromatid
+   * Combine 2 chroms into a single chromosome of allele pairs
+   * @param top list of alleles that will be the top chrom
+   * @param bot list of alleles that will be the bottom chrom
    */
-  private combineChromatids(
+  private combineChroms(
     top: Allele[],
     bot: Allele[],
     isEca: boolean
@@ -721,6 +727,10 @@ export class Strain {
    * Adds a provided Allele Pair to this strain. Throws an error if this fails (pair already exists).
    */
   private addPairToStrain(pair: AllelePair): void {
+    // Clear name and description, since these follow from strain identity
+    this.name = undefined;
+    this.description = undefined;
+
     const chromName = pair.isEca ? 'Ex' : pair.top.getChromosome();
     let chromosome = this.chromPairMap.get(chromName);
     if (chromosome === undefined) {
@@ -755,10 +765,10 @@ export class Strain {
   }
 
   /**
-   * Converts a chromatid into a string of allele names (to be used for equality checks)
+   * Converts a chrom into a string of allele names (to be used for equality checks)
    */
-  private getChromatidString(chromatid: ChromatidOption): string {
-    return chromatid.alleles.map((allele) => allele.name).join('');
+  private getTopChromString(chrom: ChromatidOption): string {
+    return chrom.alleles.map((allele) => allele.name).join('');
   }
 
   public toJSON(): string {

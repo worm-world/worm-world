@@ -14,23 +14,25 @@ import { RiArrowUpDownLine as SwapIcon } from 'react-icons/ri';
 export const STRAIN_NODE_WIDTH = 256; // w-64
 export const STRAIN_NODE_HEIGHT = 144; // w-36
 
-const getSexIcon = (
-  sex: Sex,
-  isParent: boolean,
-  toggleSex?: () => void
-): JSX.Element => {
-  const toggleStyling = 'text-base ' + (isParent ? 'opacity-50' : '');
+const SexIcon = (props: {
+  sex: Sex;
+  isParent: boolean;
+  toggleSex?: () => void;
+}): JSX.Element => {
+  const toggleStyling = 'text-base ' + (props.isParent ? 'opacity-50' : '');
   return (
     <div
       className={
         'btn-ghost btn-xs btn m-1 ring-0 hover:bg-base-200 hover:ring-0' +
-        (isParent ? ' btn-transparent hover:bg-transparent' : '')
+        (props.isParent ? ' btn-transparent hover:bg-transparent' : '')
       }
-      onClick={toggleSex}
+      onClick={props.toggleSex}
     >
-      {sex === Sex.Male && <IoMale className={toggleStyling} />}
-      {sex === Sex.Hermaphrodite && <IoMaleFemale className={toggleStyling} />}
-      {sex === Sex.Female && <IoFemale className={toggleStyling} />}
+      {props.sex === Sex.Male && <IoMale className={toggleStyling} />}
+      {props.sex === Sex.Hermaphrodite && (
+        <IoMaleFemale className={toggleStyling} />
+      )}
+      {props.sex === Sex.Female && <IoFemale className={toggleStyling} />}
     </div>
   );
 };
@@ -57,11 +59,11 @@ const StrainNode = (props: StrainNodeProps): JSX.Element => {
           className='flex h-36 w-64 flex-col rounded bg-base-100 shadow'
         >
           <div className='flex h-6 justify-between'>
-            {getSexIcon(
-              props.model.sex,
-              props.model.isParent,
-              props.model.toggleSex
-            )}
+            <SexIcon
+              sex={props.model.sex}
+              isParent={props.model.isParent}
+              toggleSex={props.model.toggleSex}
+            />
             {props.model.isChild && (
               <div className='dropdown-top dropdown'>
                 <label
@@ -82,8 +84,7 @@ const StrainNode = (props: StrainNodeProps): JSX.Element => {
                 </div>
               </div>
             )}
-
-            {props.model.getMenuItems !== undefined && (
+            {menuItems.length > 0 && (
               <Menu
                 title='Actions'
                 top={true}
@@ -92,17 +93,16 @@ const StrainNode = (props: StrainNodeProps): JSX.Element => {
               />
             )}
           </div>
-
           <div className='overflow-x-auto'>
             <div
               className='flex h-24 min-w-min justify-center text-sm'
               data-testid='strainNodeBody'
             >
-              {getMainContentArea(
-                props.model.strain,
-                canToggleHets,
-                props.model.toggleHetPair
-              )}
+              <MainContentArea
+                strain={props.model.strain}
+                canToggleHets={canToggleHets}
+                toggleHetPair={props.model.toggleHetPair}
+              />
             </div>
           </div>
           <div className='h-6 text-center text-sm font-bold'>
@@ -115,70 +115,82 @@ const StrainNode = (props: StrainNodeProps): JSX.Element => {
 };
 
 // Return the main content area of the strain node, which will show genotype information
-const getMainContentArea = (
-  strain: Strain,
-  canToggleHets: boolean,
-  toggleHetPair?: (pair: AllelePair) => void
-): JSX.Element => {
-  if (strain.getAllelePairs().length === 0) {
+const MainContentArea = (props: {
+  strain: Strain;
+  canToggleHets: boolean;
+  toggleHetPair?: (pair: AllelePair) => void;
+}): JSX.Element => {
+  if (props.strain.getAllelePairs().length === 0) {
     return <div className='flex h-12 flex-col justify-center'>(Wild)</div>;
   } else {
-    return <>{getChromosomeBoxes(strain, canToggleHets, toggleHetPair)}</>;
+    return (
+      <ChromosomeBoxes
+        strain={props.strain}
+        canToggleHets={props.canToggleHets}
+        toggleHetPair={props.toggleHetPair}
+      />
+    );
   }
 };
 
 // Returns array of chromosome boxes
-const getChromosomeBoxes = (
-  strain: Strain,
-  canToggleHets: boolean,
-  toggleHetPair?: (pair: AllelePair) => void
-): JSX.Element[] => {
+const ChromosomeBoxes = (props: {
+  strain: Strain;
+  canToggleHets: boolean;
+  toggleHetPair?: (pair: AllelePair) => void;
+}): JSX.Element => {
   let hideEcaBox = false; // default: assume no Eca Box to hide
-  if (strain.chromPairMap.has('Ex')) {
+  if (props.strain.chromPairMap.has('Ex')) {
     const nonWildEcas =
-      strain.chromPairMap.get('Ex')?.filter((pair) => !pair.isWild()) ?? [];
+      props.strain.chromPairMap.get('Ex')?.filter((pair) => !pair.isWild()) ??
+      [];
     hideEcaBox = nonWildEcas.length === 0;
   }
   const lastIndex = hideEcaBox
-    ? strain.chromPairMap.size - 2
-    : strain.chromPairMap.size - 1;
+    ? props.strain.chromPairMap.size - 2
+    : props.strain.chromPairMap.size - 1;
 
-  return Array.from(strain.chromPairMap.keys())
-    .sort(cmpChromosomes)
-    .map((chromName, idx) => {
-      if (chromName === 'Ex' && hideEcaBox) return <></>;
-      return (
-        <div key={idx} className='flex'>
-          {getChromosomeBox(
-            canToggleHets,
-            chromName,
-            strain.chromPairMap.get(chromName),
-            toggleHetPair
-          )}
-          <div className='flex flex-col justify-center pt-3 font-light text-base-content'>
-            {idx < lastIndex ? <span>;</span> : <span></span>}
-          </div>
-        </div>
-      );
-    });
+  return (
+    <>
+      {Array.from(props.strain.chromPairMap.keys())
+        .sort(cmpChromosomes)
+        .map((chromName, idx) => {
+          if (chromName === 'Ex' && hideEcaBox) return <></>;
+          return (
+            <div key={idx} className='flex'>
+              <ChromosomeBox
+                canToggleHets={props.canToggleHets}
+                chromName={chromName}
+                chromosome={props.strain.chromPairMap.get(chromName)}
+                toggleHetPair={props.toggleHetPair}
+              />
+              <div className='flex flex-col justify-center pt-3 font-light text-base-content'>
+                {idx < lastIndex ? ';' : ''}
+              </div>
+            </div>
+          );
+        })}
+    </>
+  );
 };
 
 // All the 'fractions' under a single chromosome
-const getChromosomeBox = (
-  canToggleHets: boolean,
-  chromName?: Chromosome,
-  chromosome?: AllelePair[],
-  toggleHetPair?: (pair: AllelePair) => void
-): JSX.Element => {
-  const mutationBoxes: JSX.Element[] = [];
-  let nextKey = 0;
-  chromosome?.forEach((allelePair) =>
-    mutationBoxes.push(
-      getMutationBox(allelePair, nextKey++, canToggleHets, toggleHetPair)
-    )
-  );
+const ChromosomeBox = (props: {
+  canToggleHets: boolean;
+  chromName?: Chromosome;
+  chromosome?: AllelePair[];
+  toggleHetPair?: (pair: AllelePair) => void;
+}): JSX.Element => {
+  const mutationBoxes = props.chromosome?.map((allelePair, idx) => (
+    <MutationBox
+      allelePair={allelePair}
+      key={idx}
+      canToggleHets={props.canToggleHets}
+      toggleHetPair={props.toggleHetPair}
+    />
+  ));
+  const displayChrom = props.chromName ?? '?';
 
-  const displayChrom = chromName ?? '?'; // undefined chromosomes are represented by: ?
   return (
     <div key={displayChrom} className='mx-2  flex flex-col items-center'>
       <div className='font-bold'>{displayChrom}</div>
@@ -187,50 +199,50 @@ const getChromosomeBox = (
   );
 };
 
-const getMutationBox = (
-  allelePair: AllelePair,
-  key: number,
-  canToggleHets: boolean,
-  toggleHetPair?: (pair: AllelePair) => void
-): JSX.Element => {
-  if (allelePair.isEca) {
-    if (allelePair.isWild()) return <></>;
+const MutationBox = (props: {
+  allelePair: AllelePair;
+  canToggleHets: boolean;
+  toggleHetPair?: (pair: AllelePair) => void;
+}): JSX.Element => {
+  if (props.allelePair.isEca) {
+    if (props.allelePair.isWild()) return <></>;
     return (
-      <div key={key} className='text-align w-full px-2 text-center'>
-        {allelePair.top.name}
+      <div className='text-align w-full px-2 text-center'>
+        {props.allelePair.top.name}
       </div>
     );
   } else {
     const toggleEnabled =
-      allelePair.top.name !== allelePair.bot.name &&
-      canToggleHets &&
-      toggleHetPair !== undefined;
+      props.allelePair.top.name !== props.allelePair.bot.name &&
+      props.canToggleHets &&
+      props.toggleHetPair !== undefined;
 
     const hiddenStyling = toggleEnabled ? `visible group-hover:invisible` : '';
     const showGene = useContext(ShowGenesContext);
     return (
-      <div
-        key={key}
-        className={`group relative flex flex-col whitespace-nowrap`}
-      >
+      <div className={`group relative flex flex-col whitespace-nowrap`}>
         {toggleEnabled && (
           <div
-            className={`invisible absolute left-1/2 top-1/2  -translate-x-1/2 -translate-y-1/2 text-primary group-hover:visible `}
+            className={`invisible absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-primary hover:cursor-pointer group-hover:visible `}
             onClick={() => {
-              toggleHetPair(allelePair);
+              props.toggleHetPair?.(props.allelePair);
             }}
           >
             <SwapIcon />
           </div>
         )}
         <div className='text-align w-full px-2 text-center'>
-          {showGene ? allelePair.top.getQualifiedName() : allelePair.top.name}
+          {showGene
+            ? props.allelePair.top.getQualifiedName()
+            : props.allelePair.top.name}
         </div>
         <div>
           <hr className={`my-1 border-base-content ${hiddenStyling}`} />
         </div>
         <div className='text-align w-full px-2 text-center'>
-          {showGene ? allelePair.bot.getQualifiedName() : allelePair.bot.name}
+          {showGene
+            ? props.allelePair.bot.getQualifiedName()
+            : props.allelePair.bot.name}
         </div>
       </div>
     );

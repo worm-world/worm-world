@@ -59,7 +59,7 @@ describe('strain', () => {
     expect(strain2.equals(strain1)).toBe(true);
   });
 
-  test('.equals() returns true for complex strains with flipped chromatids', () => {
+  test('.equals() returns true for complex strains with flipped chroms', () => {
     const strainPairs1: AllelePair[] = [
       // Chromosome I
       mockAlleles.oxTi302.toHomoPair(),

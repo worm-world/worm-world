@@ -101,11 +101,8 @@ describe('OffspringFilter', () => {
   });
 
   test('.extractEditorFilterNames() to pull info from strain', async () => {
-    const strain = await Strain.buildWithDynName({
-      allelePairs: [
-        new AllelePair({ top: n765, bot: n765.getWild() }),
-        new AllelePair({ top: ed3, bot: ed3 }),
-      ],
+    const strain = await Strain.buildWithSync({
+      allelePairs: [n765.toTopHetPair(), ed3.toHomoPair()],
     });
     const names = OffspringFilter.extractOffspringFilterNames(strain);
 
@@ -116,14 +113,11 @@ describe('OffspringFilter', () => {
   });
 
   test('.condenseEditorFilterNames() pulls info from multiple strains', async () => {
-    const strain1 = await Strain.buildWithDynName({
+    const strain1 = await Strain.buildWithSync({
       allelePairs: [new AllelePair({ top: n765, bot: n765.getWild() })],
     });
-    const strain2 = await Strain.buildWithDynName({
-      allelePairs: [
-        new AllelePair({ top: ed3, bot: ed3 }),
-        new AllelePair({ top: n765, bot: n765.getWild() }),
-      ],
+    const strain2 = await Strain.buildWithSync({
+      allelePairs: [ed3.toHomoPair(), n765.toTopHetPair()],
     });
     const names = OffspringFilter.condenseOffspringFilterNames([
       strain1,
