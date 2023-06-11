@@ -1,7 +1,7 @@
-import { Link, type To } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { BiCalendar, BiData } from 'react-icons/bi';
 import { TbBinaryTree } from 'react-icons/tb';
-import { type Key, useEffect } from 'react';
+import { useEffect } from 'react';
 import { themeChange } from 'theme-change';
 
 interface LayoutProps {
@@ -32,19 +32,23 @@ const navItems: NavItem[] = [
   },
 ];
 
-const getListItems = (): JSX.Element[] => {
-  return navItems.map((item) => (
-    <li key={item.name as Key}>
-      <Link
-        to={item.path as To}
-        className='pl-5'
-        onClick={() => document.getElementById('nav-drawer')?.click()}
-      >
-        {item.icon}
-        {item.name}
-      </Link>
-    </li>
-  ));
+const NavItems = (): JSX.Element => {
+  return (
+    <>
+      {navItems.map((item) => (
+        <li key={item.name}>
+          <Link
+            to={item.path}
+            className='pl-5'
+            onClick={() => document.getElementById('nav-drawer')?.click()}
+          >
+            {item.icon}
+            {item.name}
+          </Link>
+        </li>
+      ))}
+    </>
+  );
 };
 
 const allThemes = [
@@ -69,22 +73,22 @@ const Layout = (props: LayoutProps): JSX.Element => {
 
       <div className='drawer-side' data-testid='side-drawer'>
         <label htmlFor='nav-drawer' className='drawer-overlay'></label>
-        <div className='flex h-screen w-60 flex-col justify-between bg-base-100'>
+        <div className='flex h-screen flex-col justify-between bg-base-100'>
           <ul className='menu mt-4'>
             <li key='wormworld'>
               <Link
-                to={'/' as To}
+                to={'/'}
                 onClick={() => document.getElementById('nav-drawer')?.click()}
               >
                 <img
                   alt='WormWorld'
                   src='/wormworld_logo.svg'
-                  className=' w-52'
+                  className='w-56'
                 />
               </Link>
             </li>
             <div className='divider mt-0' />
-            {getListItems()}
+            <NavItems />
           </ul>
           <div className='pb-5 pl-5'>
             <label className='label'>Theme</label>

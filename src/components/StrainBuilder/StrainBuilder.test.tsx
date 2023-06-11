@@ -4,7 +4,7 @@ import user from '@testing-library/user-event';
 import { ed3 } from 'models/frontend/Allele/Allele.mock';
 import { unc119 } from 'models/frontend/Gene/Gene.mock';
 import { beforeEach, describe, expect, test } from 'vitest';
-import StrainBuilder from './StrainBuilder';
+import StrainBuilder from 'components/StrainBuilder/StrainBuilder';
 
 describe('Strain builder', () => {
   beforeEach(() => {
@@ -50,7 +50,8 @@ describe('Strain builder', () => {
 
     expect(homoAlleleInput).toHaveTextContent('');
 
-    const pillGroupsWithChildren = screen.getAllByTestId('selected-pill-group')
+    const pillGroupsWithChildren = screen
+      .getAllByTestId('selected-pill-group')
       .filter((element) => element.hasChildNodes());
     expect(pillGroupsWithChildren).toHaveLength(1);
   });

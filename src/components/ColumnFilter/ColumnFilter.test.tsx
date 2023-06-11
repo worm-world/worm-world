@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { type db_Allele } from 'models/db/db_Allele';
 import { type Filter } from 'models/db/filter/Filter';
 import { useState } from 'react';
-import { ColumnFilter, type Field } from './ColumnFilter';
+import { ColumnFilter, type Field } from 'components/ColumnFilter/ColumnFilter';
 
 interface ColumnFilterWrapperProps<T> {
   field: Field<T>;

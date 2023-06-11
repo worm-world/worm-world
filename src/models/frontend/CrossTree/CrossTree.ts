@@ -15,6 +15,15 @@ import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { OffspringFilter } from 'components/OffspringFilter/OffspringFilter';
 import moment from 'moment';
 import { Task } from 'models/frontend/Task/Task';
+import {
+  STRAIN_NODE_HEIGHT,
+  STRAIN_NODE_WIDTH,
+} from 'components/StrainNode/StrainNode';
+
+export const NODE_PADDING = 32;
+// middle nodes (X or Self)
+export const MIDDLE_NODE_HEIGHT = 64;
+export const MIDDLE_NODE_WIDTH = 64;
 
 export interface ICrossTree {
   name: string;
@@ -32,8 +41,7 @@ export interface iTaskDependencyTree {
 }
 
 // Uses React Flow nodes and edges. The nodes contain a data property
-// which, for strain nodes, contains the model. This way,
-// the tree can be traversed and relevant data gotten from it
+// which, for strain nodes, contains the model.
 export default class CrossTree {
   /** #region class vars / initialization */
   public readonly id: string;
@@ -126,8 +134,8 @@ export default class CrossTree {
    */
   public static getSelfIconPos(): XYPosition {
     return {
-      x: 96,
-      y: 137,
+      x: STRAIN_NODE_WIDTH / 2 - MIDDLE_NODE_WIDTH / 2,
+      y: STRAIN_NODE_HEIGHT + NODE_PADDING,
     };
   }
 
@@ -136,66 +144,53 @@ export default class CrossTree {
    * @returns XY coordinates of where to place the X icon in the editor
    */
   public static getXIconPos(refNode: Node): XYPosition {
-    const padding = 40;
-    const strainWidth = refNode.width ?? 256;
-    const strainHeight = refNode.height ?? 124;
-    const xSide = 64;
-    const x = // place on left/right side of refNode
-      refNode.data.sex === Sex.Male ? strainWidth + padding : -xSide - padding;
-
-    const y = strainHeight / 2 - xSide / 2;
+    const x =
+      refNode.data.sex === Sex.Male
+        ? STRAIN_NODE_WIDTH + NODE_PADDING
+        : -MIDDLE_NODE_WIDTH - NODE_PADDING;
+    const y = STRAIN_NODE_HEIGHT / 2 - MIDDLE_NODE_HEIGHT / 2;
     return { x, y };
   }
 
   /**
-   * @param refNode "floating" strain node in editor that is being crossed with strain created from form
    * @returns XY coordinates of where to place the other strain created from the form
    */
-  public static getCrossStrainPos(refNodeSex: Sex): XYPosition {
-    const posX = refNodeSex === Sex.Male ? 400 : -400; // place on left/right side of refNode
-    return { x: posX, y: 0 };
+  public static getMatedStrainPos(sex: Sex): XYPosition {
+    const x =
+      (STRAIN_NODE_WIDTH + NODE_PADDING + MIDDLE_NODE_WIDTH + NODE_PADDING) *
+      (sex === Sex.Male ? 1 : -1);
+    return { x, y: 0 };
   }
 
   /**
    *
    * @param parentIcon Self or XIcon that will be parent of all child strains
-   * @param refStrain One of the parent strains (used to determine size and placement)
-   * @param children List of all children resulting from the cross
-   * @returns List of XY coordinates where each index corresponds with the indices in the children list
+   * @returns List of XY coordinates (relative to middle node position)
+   * where each index corresponds with the indices in the children list
    */
   public static calculateChildPositions(
-    parentIcon: Node,
-    refStrain: Node,
-    children: StrainOption[]
+    middleNodeType: FlowType.XIcon | FlowType.SelfIcon,
+    childOptions: StrainOption[]
   ): XYPosition[] {
     const positions: XYPosition[] = [];
-    const nodesPerRow = 5;
-    const rowHeight = 150;
+    const maxNodesInRow = 5;
+    const xMidpoint = MIDDLE_NODE_WIDTH / 2;
+    const deltaX = STRAIN_NODE_WIDTH + NODE_PADDING;
+    const deltaY = STRAIN_NODE_HEIGHT + NODE_PADDING;
 
-    const parWidth = parentIcon.width ?? 64;
-    const parHeight = parentIcon.height ?? 64;
-    const width = refStrain.width ?? 256;
-    const startingX = parWidth / 2;
-    const nodePadding = 10;
-    const xDistance = width + nodePadding;
-
-    let currYPos = 187;
-    if (parentIcon.type === FlowType.SelfIcon) currYPos -= parHeight + 37;
-
-    // Determines grid layout of children
-    for (let i = 0; i < children.length; i += nodesPerRow) {
-      const rowNodes = children.slice(i, i + nodesPerRow);
-      const totalWidth = xDistance * rowNodes.length - nodePadding;
-      const offSet = totalWidth / 2;
-      let currXPos = startingX - offSet;
-      rowNodes.forEach(() => {
-        positions.push({
-          x: currXPos,
-          y: currYPos,
-        });
-        currXPos += xDistance;
+    let y =
+      middleNodeType === FlowType.XIcon
+        ? MIDDLE_NODE_HEIGHT / 2 + STRAIN_NODE_HEIGHT / 2 + 3 * NODE_PADDING
+        : MIDDLE_NODE_HEIGHT + NODE_PADDING;
+    for (let i = 0; i < childOptions.length; i += maxNodesInRow) {
+      const nodesInRow = childOptions.slice(i, i + maxNodesInRow);
+      const rowWidth = deltaX * nodesInRow.length - NODE_PADDING;
+      let x = xMidpoint - rowWidth / 2;
+      nodesInRow.forEach(() => {
+        positions.push({ x, y });
+        x += deltaX;
       });
-      currYPos += rowHeight;
+      y += deltaY;
     }
 
     return positions;
@@ -204,19 +199,15 @@ export default class CrossTree {
   static fromJSON(json: string): CrossTree {
     return [plainToInstance(CrossTree, JSON.parse(json))].flat()[0];
   }
-  /* #endregion public static methods */
 
-  /* #region public class methods */
   public toJSON(): string {
     return JSON.stringify(instanceToPlain(this));
   }
 
-  /** Generates a ULID */
   public createId(): string {
     return ulid();
   }
 
-  /** Creates a copy of this cross tree */
   public clone(): CrossTree {
     const treeProps: ICrossTree = {
       name: this.name,
@@ -246,7 +237,7 @@ export default class CrossTree {
   }
 
   /**
-   * Given an UP-TO-DATE cross tree, generates a list of all tasks for a given node
+   * Given a cross tree, generates a list of all tasks for a given node
    */
   public generateTasks(node: Node): Task[] {
     const ancestryChain = this.getAncestryChain(node);
@@ -259,9 +250,7 @@ export default class CrossTree {
     this.makeTreeIntoArray(taskDepTree, tasks);
     return tasks;
   }
-  /* #endregion public class methods */
 
-  /* #region private helper methods */
   private static isChildEdge(
     edgeSourceId: string,
     parentNodeId: string,

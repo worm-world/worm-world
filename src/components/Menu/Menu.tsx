@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 export interface MenuItem {
   icon?: JSX.Element;
   text: string;

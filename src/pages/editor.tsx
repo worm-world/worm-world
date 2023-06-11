@@ -1,7 +1,7 @@
 import { getTree } from 'api/crossTree';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { useLocation } from 'react-router-dom';
-import Editor from 'components/EditorPage/Editor';
+import Editor from 'components/Editor/Editor';
 import { useEffect, useState } from 'react';
 import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { Strain } from 'models/frontend/Strain/Strain';

@@ -4,6 +4,9 @@ export interface SelfIconProps {
   id: string;
 }
 
+export const MIDDLE_NODE_WIDTH = 64; // w-16
+export const MIDDLE_NODE_HEIGHT = 64; // w-16
+
 export const SelfNode = (props: SelfIconProps): JSX.Element => {
   return (
     <label key={props.id} htmlFor={`cross-filter-modal-${props.id}`}>

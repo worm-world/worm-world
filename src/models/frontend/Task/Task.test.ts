@@ -1,8 +1,8 @@
 import { expect, test, describe } from 'vitest';
 import { maleManyPairs } from 'models/frontend/StrainNodeModel/StrainNodeModel.mock';
 import { Task } from 'models/frontend/Task/Task';
-import { TaskCondition } from './TaskCondition';
-import { TaskDependency } from './TaskDependency';
+import { TaskCondition } from 'models/frontend/Task/TaskCondition';
+import { TaskDependency } from 'models/frontend/Task/TaskDependency';
 
 describe('Task', () => {
   test('should be able to serialize and deserialize', () => {

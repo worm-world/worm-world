@@ -49,7 +49,7 @@ export const useContextMenuState = (
 };
 
 interface ContextMenuProps {
-  children: JSX.Element | JSX.Element[];
+  children: React.ReactNode | React.ReactNode[];
   xPos: number;
   yPos: number;
 }

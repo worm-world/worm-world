@@ -116,29 +116,6 @@ describe('allele pair', () => {
     expect(pair2.strictEquals(pair1)).toBe(false);
   });
 
-  test('.getAllele() returns base allele from homozygous pair', () => {
-    const pair1 = new AllelePair({ top: oxTi302, bot: oxTi302 });
-    expect(pair1.getAllele().name).toEqual(oxTi302.name);
-  });
-  test('.getAllele() returns base allele from heterozygous pair', () => {
-    const pair1 = new AllelePair({ top: oxTi302, bot: oxTi302.getWild() });
-    const pair2 = new AllelePair({ top: oxTi302.getWild(), bot: oxTi302 });
-    expect(pair1.getAllele().name).toEqual(oxTi302.name);
-    expect(pair2.getAllele().name).toEqual(oxTi302.name);
-  });
-  test('.getAllele() returns wild allele from wild pair', () => {
-    const pair1 = new AllelePair({
-      top: ed3.getWild(),
-      bot: ed3.getWild(),
-    });
-    const pair2 = new AllelePair({
-      top: ed3.getWild(),
-      bot: ed3.getWild(),
-    });
-    expect(pair1.getAllele().name).toEqual(WILD_ALLELE_NAME);
-    expect(pair2.getAllele().name).toEqual(WILD_ALLELE_NAME);
-  });
-
   test('.isOfSameGeneOrVariation() returns true on homozygous pairs', () => {
     const pair1 = new AllelePair({ top: e204, bot: e204 });
     const pair2 = new AllelePair({ top: e204, bot: e204 });

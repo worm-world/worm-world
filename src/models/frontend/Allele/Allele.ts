@@ -9,7 +9,7 @@ import { type FilterGroup } from 'models/db/filter/FilterGroup';
 import { AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
 import { Gene } from 'models/frontend/Gene/Gene';
 import { Variation } from 'models/frontend/Variation/Variation';
-import { AllelePair } from '../AllelePair/AllelePair';
+import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 
 export const WILD_ALLELE_NAME = '+';
 
@@ -118,9 +118,11 @@ export class Allele {
 
   /** For alleles of genes, return a string of the form 'genename(allelename)'; for other alleles, returns 'allelename' */
   public getQualifiedName(excludeWilds = false): string {
-    return this.gene === undefined
-      ? this.name
-      : `${this.gene.descName}(${this.name})`;
+    if (this.gene === undefined)
+      return this.isWild()
+        ? `${this.variation?.name}(${this.name})`
+        : this.name;
+    else return `${this.gene.descName}(${this.name})`;
   }
 
   private static setAlleleExpressionsFilter(

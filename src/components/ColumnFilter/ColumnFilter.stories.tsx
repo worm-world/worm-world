@@ -3,7 +3,7 @@ import { Meta, StoryFn } from '@storybook/react';
 import { db_Allele } from 'models/db/db_Allele';
 import { Filter } from 'models/db/filter/Filter';
 import { useState } from 'react';
-import { ColumnFilter, Field } from './ColumnFilter';
+import { ColumnFilter, Field } from 'components/ColumnFilter/ColumnFilter';
 
 interface ColumnFilterWrapperProps<T> {
   field: Field<T>;

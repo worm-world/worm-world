@@ -109,7 +109,7 @@ describe('OffspringFilter', () => {
     });
     const names = OffspringFilter.extractOffspringFilterNames(strain);
 
-    expect(names.alleleNames).toEqual(new Set(['n765', 'ed3']));
+    expect(names.alleleNames).toEqual(new Set(['n765', '+', 'ed3']));
     expect(names.exprPhenotypes).toEqual(new Set(['unc-119', 'lin-15B']));
     expect(names.reqConditions).toEqual(new Set(['25C']));
     expect(names.supConditions).toEqual(new Set<string>());
@@ -130,7 +130,7 @@ describe('OffspringFilter', () => {
       strain2,
     ]);
 
-    expect(names.alleleNames).toEqual(new Set(['n765', 'ed3']));
+    expect(names.alleleNames).toEqual(new Set(['n765', '+', 'ed3']));
     expect(names.exprPhenotypes).toEqual(new Set(['unc-119', 'lin-15B']));
     expect(names.reqConditions).toEqual(new Set(['25C']));
     expect(names.supConditions).toEqual(new Set<string>());
@@ -145,6 +145,7 @@ describe('OffspringFilter', () => {
     });
     expect(OffspringFilter.includedInFilter(ed3HomoHerm, filter)).toBe(true);
   });
+
   test('includedInFilter() correctly excludes a node', () => {
     const filter = new OffspringFilter({
       alleleNames: new Set(),

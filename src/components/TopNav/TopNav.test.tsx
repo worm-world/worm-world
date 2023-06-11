@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { TopNav } from './TopNav';
+import { TopNav } from 'components/TopNav/TopNav';
 
 const renderComponent = ({ title = 'test', tabIndex = 0 }): void => {
   const tabNames = ['tab1', 'tab2', 'tab3'];

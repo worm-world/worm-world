@@ -1,13 +1,13 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import Editor from 'components/EditorPage/Editor';
+import Editor from 'components/Editor/Editor';
 import type CrossTree from 'models/frontend/CrossTree/CrossTree';
 import * as mockTrees from 'models/frontend/CrossTree/CrossTree.mock';
 import { BrowserRouter } from 'react-router-dom';
 import { ReactFlowProvider } from 'reactflow';
 import { vi } from 'vitest';
 
-const Wrapper = ({ children }: { children: JSX.Element }): JSX.Element => {
+const Wrapper = ({ children }: { children: React.ReactNode }): JSX.Element => {
   return (
     <BrowserRouter>
       <ReactFlowProvider>{children}</ReactFlowProvider>

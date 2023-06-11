@@ -12,14 +12,17 @@ import { OffspringFilterModal } from 'components/OffspringFilterModal/OffspringF
 import CrossFlow, { FlowType } from 'components/CrossFlow/CrossFlow';
 import EditorTop from 'components/EditorTop/EditorTop';
 import FilteredOutModal from 'components/FilteredOutModal/FilteredOutModal';
-import { type FilteredOutNodeProps } from 'components/FilteredOutNode/FilteredOutNode';
+import {
+  FILTERED_OUT_NODE_WIDTH,
+  type FilteredOutNodeProps,
+} from 'components/FilteredOutNode/FilteredOutNode';
 import { type MenuItem } from 'components/Menu/Menu';
 import NoteForm from 'components/NoteForm/NoteForm';
 import { NoteNodeProps } from 'components/NoteNode/NoteNodeProps';
 import StrainForm from 'components/StrainForm/StrainForm';
 import { Sex } from 'models/enums';
 import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
-import CrossTree from 'models/frontend/CrossTree/CrossTree';
+import CrossTree, { NODE_PADDING } from 'models/frontend/CrossTree/CrossTree';
 import { type Strain, type StrainOption } from 'models/frontend/Strain/Strain';
 import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 import {
@@ -294,7 +297,7 @@ const Editor = (props: EditorProps): JSX.Element => {
         return nodeMap;
       }
 
-      regularCross(lNode, rNode).catch(console.error);
+      matedCross(lNode, rNode).catch(console.error);
       return nodeMap;
     });
   }, []);
@@ -530,9 +533,7 @@ const Editor = (props: EditorProps): JSX.Element => {
     };
     return noteNode;
   };
-  // #endregion Flow Component Creation
 
-  // #region editor interactions
   /** Passed to strain node, determines what happens when the sex icon is clicked */
   const toggleStrainNodeSex = (nodeId: string): void => {
     setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
@@ -765,7 +766,7 @@ const Editor = (props: EditorProps): JSX.Element => {
     });
     const parentStrain = parentNode.data as StrainNodeModel;
     const childStrains = await parentStrain.strain.selfCross();
-    const childNodes = getChildNodes(parentNode, selfNode, childStrains);
+    const childNodes = getChildNodes(selfNode, childStrains);
     const childEdges = childNodes.map((node) =>
       createEdge(selfNode.id, node.id)
     );
@@ -780,7 +781,7 @@ const Editor = (props: EditorProps): JSX.Element => {
     saveTree();
   };
 
-  const regularCross = async (
+  const matedCross = async (
     lNode: Node<StrainNodeModel>,
     rNode: Node<StrainNodeModel>
   ): Promise<void> => {
@@ -792,10 +793,10 @@ const Editor = (props: EditorProps): JSX.Element => {
     const lControlsR = rNode.parentNode === undefined;
     if (lControlsR) {
       rNode.parentNode = lNode.id;
-      rNode.position = CrossTree.getCrossStrainPos(lNode.data.sex);
+      rNode.position = CrossTree.getMatedStrainPos(lNode.data.sex);
     } else {
       lNode.parentNode = rNode.id;
-      lNode.position = CrossTree.getCrossStrainPos(rNode.data.sex);
+      lNode.position = CrossTree.getMatedStrainPos(rNode.data.sex);
     }
 
     // Create new nodes and edges
@@ -812,7 +813,7 @@ const Editor = (props: EditorProps): JSX.Element => {
       sourceHandle: rStrain.sex !== Sex.Male ? 'left' : 'right',
     });
     const children = await lStrain.strain.crossWith(rStrain.strain);
-    const childNodes = getChildNodes(lNode, xNode, children);
+    const childNodes = getChildNodes(xNode, children);
     const childEdges = childNodes.map((node) => createEdge(xNode.id, node.id));
 
     // Update state
@@ -829,19 +830,17 @@ const Editor = (props: EditorProps): JSX.Element => {
 
   /** Create a collection of strain nodes to represent children of a cross, from child strain options */
   const getChildNodes = (
-    parentNode: Node,
     middleNode: Node,
-    children: StrainOption[]
+    childOptions: StrainOption[]
   ): Node[] => {
-    children.sort((c1, c2) => c1.prob - c2.prob);
+    childOptions.sort((c1, c2) => c1.prob - c2.prob);
 
     const childPositions = CrossTree.calculateChildPositions(
-      middleNode,
-      parentNode,
-      children
+      middleNode.type === FlowType.XIcon ? FlowType.XIcon : FlowType.SelfIcon,
+      childOptions
     );
 
-    const childNodes: Node[] = children.map((child, i) => {
+    const childNodes: Node[] = childOptions.map((child, i) => {
       return createStrainNode({
         sex: Sex.Hermaphrodite,
         strain: child.strain,
@@ -854,11 +853,9 @@ const Editor = (props: EditorProps): JSX.Element => {
     });
 
     if (childNodes.length > 0) {
-      const nodeWidth = 128;
-      const padding = 10;
       const filteredOutNode = createFilteredOutNode(
         {
-          x: childPositions[0].x - nodeWidth - padding,
+          x: childPositions[0].x - FILTERED_OUT_NODE_WIDTH - NODE_PADDING,
           y: childPositions[0].y,
         },
         middleNode.id
@@ -875,7 +872,7 @@ const Editor = (props: EditorProps): JSX.Element => {
   /**
    * Params are provided by the strainNode form's onSubmit callback function
    */
-  const regularCrossWithFormData = (sex: Sex, strain: Strain): void => {
+  const matedCrossWithFormData = (sex: Sex, strain: Strain): void => {
     setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
       const startingNode = nodeMap.get(currNodeId.current);
       if (startingNode === undefined || startingNode.type !== FlowType.Strain) {
@@ -889,14 +886,14 @@ const Editor = (props: EditorProps): JSX.Element => {
       const formNode = createStrainNode({
         sex,
         strain,
-        position: CrossTree.getCrossStrainPos(currStrain.sex),
+        position: CrossTree.getMatedStrainPos(currStrain.sex),
         isParent: true,
         isChild: false,
       });
 
       currStrain.sex === Sex.Male
-        ? regularCross(startingNode, formNode).catch(console.error)
-        : regularCross(formNode, startingNode).catch(console.error);
+        ? matedCross(startingNode, formNode).catch(console.error)
+        : matedCross(formNode, startingNode).catch(console.error);
 
       setEditorDrawerSideOpen(false);
       return nodeMap;
@@ -1046,7 +1043,7 @@ const Editor = (props: EditorProps): JSX.Element => {
       case 'addStrain':
         return addStrain;
       case 'cross':
-        return regularCrossWithFormData;
+        return matedCrossWithFormData;
       default:
         return () => {};
     }
