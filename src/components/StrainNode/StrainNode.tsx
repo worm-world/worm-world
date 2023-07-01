@@ -1,10 +1,10 @@
 import BreedCountProbability from 'components/BreedCountProbability/BreedCountProbability';
 import { ShowGenesContext } from 'components/Editor/Editor';
 import { Menu } from 'components/Menu/Menu';
-import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
 import { Sex } from 'models/enums';
 import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
-import { cmpChromosomes, type Strain } from 'models/frontend/Strain/Strain';
+import { type ChromosomePair } from 'models/frontend/ChromosomePair/ChromosomePair';
+import { type Strain } from 'models/frontend/Strain/Strain';
 import { type StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
 import { useContext } from 'react';
 import { BsLightningCharge as MenuIcon } from 'react-icons/bs';
@@ -124,7 +124,7 @@ const MainContentArea = (props: {
     return <div className='flex h-12 flex-col justify-center'>(Wild)</div>;
   } else {
     return (
-      <ChromosomeBoxes
+      <ChromBoxes
         strain={props.strain}
         canToggleHets={props.canToggleHets}
         toggleHetPair={props.toggleHetPair}
@@ -134,17 +134,15 @@ const MainContentArea = (props: {
 };
 
 // Returns array of chromosome boxes
-const ChromosomeBoxes = (props: {
+const ChromBoxes = (props: {
   strain: Strain;
   canToggleHets: boolean;
   toggleHetPair?: (pair: AllelePair) => void;
 }): JSX.Element => {
-  let hideEcaBox = false; // default: assume no Eca Box to hide
+  let hideEcaBox = false;
   if (props.strain.chromPairMap.has('Ex')) {
-    const nonWildEcas =
-      props.strain.chromPairMap.get('Ex')?.filter((pair) => !pair.isWild()) ??
-      [];
-    hideEcaBox = nonWildEcas.length === 0;
+    const nonWildEcas = props.strain.chromPairMap.get('Ex');
+    hideEcaBox = nonWildEcas?.allelePairs.length === 0;
   }
   const lastIndex = hideEcaBox
     ? props.strain.chromPairMap.size - 2
@@ -152,36 +150,32 @@ const ChromosomeBoxes = (props: {
 
   return (
     <>
-      {Array.from(props.strain.chromPairMap.keys())
-        .sort(cmpChromosomes)
-        .map((chromName, idx) => {
-          if (chromName === 'Ex' && hideEcaBox) return <></>;
-          return (
-            <div key={idx} className='flex'>
-              <ChromosomeBox
-                canToggleHets={props.canToggleHets}
-                chromName={chromName}
-                chromosome={props.strain.chromPairMap.get(chromName)}
-                toggleHetPair={props.toggleHetPair}
-              />
-              <div className='flex flex-col justify-center pt-3 font-light text-base-content'>
-                {idx < lastIndex ? ';' : ''}
-              </div>
+      {Array.from(props.strain.getSortedChromPairs()).map((chromPair, idx) => {
+        if (chromPair.isEca() && hideEcaBox) return <></>;
+        return (
+          <div key={idx} className='flex'>
+            <ChromBox
+              canToggleHets={props.canToggleHets}
+              chromPair={chromPair}
+              toggleHetPair={props.toggleHetPair}
+            />
+            <div className='flex flex-col justify-center pt-3 font-light text-base-content'>
+              {idx < lastIndex ? ';' : ''}
             </div>
-          );
-        })}
+          </div>
+        );
+      })}
     </>
   );
 };
 
 // All the 'fractions' under a single chromosome
-const ChromosomeBox = (props: {
+const ChromBox = (props: {
   canToggleHets: boolean;
-  chromName?: Chromosome;
-  chromosome?: AllelePair[];
+  chromPair?: ChromosomePair;
   toggleHetPair?: (pair: AllelePair) => void;
 }): JSX.Element => {
-  const mutationBoxes = props.chromosome?.map((allelePair, idx) => (
+  const mutationBoxes = props.chromPair?.allelePairs.map((allelePair, idx) => (
     <MutationBox
       allelePair={allelePair}
       key={idx}
@@ -189,11 +183,11 @@ const ChromosomeBox = (props: {
       toggleHetPair={props.toggleHetPair}
     />
   ));
-  const displayChrom = props.chromName ?? '?';
+  const chromName = props.chromPair?.getChromName() ?? '?';
 
   return (
-    <div key={displayChrom} className='mx-2  flex flex-col items-center'>
-      <div className='font-bold'>{displayChrom}</div>
+    <div key={chromName} className='mx-2  flex flex-col items-center'>
+      <div className='font-bold'>{chromName}</div>
       <div className='my-auto flex flex-row'>{mutationBoxes}</div>
     </div>
   );
@@ -204,7 +198,7 @@ const MutationBox = (props: {
   canToggleHets: boolean;
   toggleHetPair?: (pair: AllelePair) => void;
 }): JSX.Element => {
-  if (props.allelePair.isEca) {
+  if (props.allelePair.isEca()) {
     if (props.allelePair.isWild()) return <></>;
     return (
       <div className='text-align w-full px-2 text-center'>

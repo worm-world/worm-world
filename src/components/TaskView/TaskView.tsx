@@ -82,9 +82,9 @@ const TaskItem = (props: TaskItemProps): JSX.Element => {
                     {action === 'Freeze' && <FreezeIcon size='35' />}
                     {action === 'Pcr' && <PCRIcon size='35' />}
                     <label
-                      className='btn absolute z-0 w-16 opacity-0'
+                      className='btn absolute w-16 opacity-0'
                       htmlFor={props.task.id}
-                    ></label>
+                    />
                   </div>
                 </div>
               </div>
@@ -97,14 +97,13 @@ const TaskItem = (props: TaskItemProps): JSX.Element => {
             {result !== undefined && <StrainNode model={result} />}
           </div>
           <textarea
-            // value={props.task.notes ?? ""}
             className='textarea-accent textarea ml-16 h-32 w-32 justify-self-end'
             value={props.task.notes}
             onChange={(e) => {
               props.task.notes = e.target.value;
               props.updateTask(props.task);
             }}
-          ></textarea>
+          />
           <TodoModal task={props.task} refresh={props.refresh} />
         </div>
       </div>
@@ -120,13 +119,12 @@ interface TaskViewProps {
 
 const getDateSections = (tasks: Task[]): Map<string, Set<Task>> => {
   const dates = new Map<string, Set<Task>>();
+  const format = new Intl.DateTimeFormat('en-US', { dateStyle: 'full' });
   tasks.forEach((task) => {
     if (task.dueDate !== undefined) {
-      if (dates.has(task.dueDate.toLocaleDateString())) {
-        dates.get(task.dueDate.toLocaleDateString())?.add(task);
-      } else {
-        dates.set(task.dueDate.toLocaleDateString(), new Set([task]));
-      }
+      const dueDate = format.format(task.dueDate);
+      if (dates.has(dueDate)) dates.get(dueDate)?.add(task);
+      else dates.set(dueDate, new Set([task]));
     }
   });
   return dates;
@@ -151,7 +149,7 @@ export const TaskView = (props: TaskViewProps): JSX.Element => {
                 </span>
               </div>
             </div>
-            <div className='collapse-content '>
+            <div className='collapse-content'>
               {Array.from(section).map((task, i) => (
                 <div key={i} className='mb-2'>
                   <TaskItem

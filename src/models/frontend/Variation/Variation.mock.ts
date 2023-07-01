@@ -7,7 +7,7 @@ export const chromUnknownVariation1 = new Variation({
 
 export const chromExVariation1 = new Variation({
   name: 'chromExVariation1',
-  chromosome: undefined,
+  chromosome: 'Ex',
 });
 
 export const chrom1Variation1 = new Variation({
@@ -53,7 +53,7 @@ export const tmC5ALT = new Variation({
 });
 export const oxEx2254 = new Variation({
   name: 'oxEx2254',
-  chromosome: undefined,
+  chromosome: 'Ex',
   physLoc: undefined,
   geneticLoc: undefined,
 });
@@ -65,13 +65,13 @@ export const oxSi1168 = new Variation({
 });
 export const oxEx219999 = new Variation({
   name: 'oxEx219999',
-  chromosome: undefined,
+  chromosome: 'Ex',
   physLoc: undefined,
   geneticLoc: undefined,
 });
 export const oxEx12345 = new Variation({
   name: 'oxEx12345',
-  chromosome: undefined,
+  chromosome: 'Ex',
   physLoc: undefined,
   geneticLoc: undefined,
 });

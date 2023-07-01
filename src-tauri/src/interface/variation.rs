@@ -161,7 +161,7 @@ mod test {
 
     use crate::interface::bulk::Bulk;
     use crate::interface::mock;
-    use crate::models::chromosome::Chromosome;
+    use crate::models::chromosome_name::ChromosomeName;
     use crate::models::filter::{Filter, FilterGroup, Order};
     use crate::models::variation::{Variation, VariationDb, VariationFieldName};
     use crate::InnerDbState;
@@ -246,7 +246,7 @@ mod test {
 
         let expected = Variation {
             allele_name: "oxIs12".to_string(),
-            chromosome: Some(Chromosome::X),
+            chromosome: Some(ChromosomeName::X),
             phys_loc: None,
             gen_loc: None,
             recomb_suppressor: None,
@@ -298,14 +298,14 @@ mod test {
             },
             Variation {
                 allele_name: "oxIs12".to_string(),
-                chromosome: Some(Chromosome::X),
+                chromosome: Some(ChromosomeName::X),
                 phys_loc: None,
                 gen_loc: None,
                 recomb_suppressor: None,
             },
             Variation {
                 allele_name: "oxIs13".to_string(),
-                chromosome: Some(Chromosome::X),
+                chromosome: Some(ChromosomeName::X),
                 phys_loc: None,
                 gen_loc: None,
                 recomb_suppressor: None,

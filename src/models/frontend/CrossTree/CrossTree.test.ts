@@ -573,8 +573,8 @@ describe('cross tree', () => {
       sex: Sex.Hermaphrodite,
       strain: generateStrain({
         allelePairs: [
-          new AllelePair({ top: ed3, bot: ed3.getWild() }),
-          new AllelePair({ top: ox1059, bot: ox1059.getWild() }),
+          new AllelePair({ top: ed3, bot: ed3.toWild() }),
+          new AllelePair({ top: ox1059, bot: ox1059.toWild() }),
         ],
       }),
     });

@@ -12,8 +12,8 @@ describe('StrainNodeModel', () => {
       e204HetOx802Het.strain.chromPairMap
     );
     expect(
-      [...e204HetOx802Het3Back.strain.chromPairMap.values()][0][0].strictEquals(
-        [...e204HetOx802Het.strain.chromPairMap.values()][0][0]
+      [...e204HetOx802Het3Back.strain.chromPairMap.values()][0].equals(
+        [...e204HetOx802Het.strain.chromPairMap.values()][0]
       )
     ).toBe(true);
   });

@@ -3,12 +3,10 @@ import {
   ed3,
   md299,
   n765,
-  ox1059,
   ox750,
   ox802,
   oxEx12345,
   oxEx219999,
-  oxTi302,
 } from 'models/frontend/Allele/Allele.mock';
 import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { expect, test, describe } from 'vitest';
@@ -27,8 +25,8 @@ describe('allele pair', () => {
   });
 
   test('constructs heterozygous pair', () => {
-    const pair1 = new AllelePair({ top: ed3.getWild(), bot: ed3 });
-    const pair2 = new AllelePair({ top: md299, bot: md299.getWild() });
+    const pair1 = new AllelePair({ top: ed3.toWild(), bot: ed3 });
+    const pair2 = new AllelePair({ top: md299, bot: md299.toWild() });
 
     expect(pair1.top.name).toBe(WILD_ALLELE_NAME);
     expect(pair1.bot.name).toBe(ed3.name);
@@ -38,15 +36,15 @@ describe('allele pair', () => {
   });
 
   test('auto assigns empty wild to an allele', () => {
-    const pair1 = new AllelePair({ top: ed3.getWild(), bot: ed3 });
-    const pair2 = new AllelePair({ top: md299, bot: md299.getWild() });
+    const pair1 = new AllelePair({ top: ed3.toWild(), bot: ed3 });
+    const pair2 = new AllelePair({ top: md299, bot: md299.toWild() });
 
     expect(pair1.top.name).toBe(WILD_ALLELE_NAME);
-    expect(pair1.top.getChromosome()).toBe(ed3.getChromosome());
+    expect(pair1.top.getChromName()).toBe(ed3.getChromName());
     expect(pair1.top.getGenPosition()).toBe(ed3.getGenPosition());
 
     expect(pair2.bot.name).toBe(WILD_ALLELE_NAME);
-    expect(pair2.bot.getChromosome()).toBe(md299.getChromosome());
+    expect(pair2.bot.getChromName()).toBe(md299.getChromName());
     expect(pair2.bot.getGenPosition()).toBe(md299.getGenPosition());
   });
 
@@ -56,31 +54,31 @@ describe('allele pair', () => {
     expect(pair1.looseEquals(pair2)).toBe(true);
     expect(pair2.looseEquals(pair1)).toBe(true);
 
-    const pair3 = new AllelePair({ top: e204, bot: e204.getWild() });
-    const pair4 = new AllelePair({ top: e204, bot: e204.getWild() });
+    const pair3 = new AllelePair({ top: e204, bot: e204.toWild() });
+    const pair4 = new AllelePair({ top: e204, bot: e204.toWild() });
     expect(pair3.looseEquals(pair4)).toBe(true);
     expect(pair3.looseEquals(pair4)).toBe(true);
   });
   test('.looseEquals() for flipped allele pairs', () => {
-    const pair1 = new AllelePair({ top: e204, bot: e204.getWild() });
-    const pair2 = new AllelePair({ top: e204.getWild(), bot: e204 });
+    const pair1 = new AllelePair({ top: e204, bot: e204.toWild() });
+    const pair2 = new AllelePair({ top: e204.toWild(), bot: e204 });
     expect(pair1.looseEquals(pair2)).toBe(true);
     expect(pair2.looseEquals(pair1)).toBe(true);
   });
   test('.looseEquals() returns false for different allele pairs', () => {
-    const pair1 = new AllelePair({ top: e204, bot: e204.getWild() });
-    const pair2 = new AllelePair({ top: ox802, bot: ox802.getWild() });
+    const pair1 = new AllelePair({ top: e204, bot: e204.toWild() });
+    const pair2 = new AllelePair({ top: ox802, bot: ox802.toWild() });
     expect(pair1.looseEquals(pair2)).toBe(false);
     expect(pair2.looseEquals(pair1)).toBe(false);
 
-    const pair3 = new AllelePair({ top: e204.getWild(), bot: e204 });
+    const pair3 = new AllelePair({ top: e204.toWild(), bot: e204 });
     expect(pair2.looseEquals(pair3)).toBe(false);
     expect(pair3.looseEquals(pair2)).toBe(false);
   });
   test('.looseEquals() returns false for homozygous vs heterozygous pairs', () => {
     const pair1 = new AllelePair({ top: e204, bot: e204 });
-    const pair2 = new AllelePair({ top: e204, bot: e204.getWild() });
-    const pair3 = new AllelePair({ top: e204.getWild(), bot: e204 });
+    const pair2 = new AllelePair({ top: e204, bot: e204.toWild() });
+    const pair3 = new AllelePair({ top: e204.toWild(), bot: e204 });
     expect(pair1.looseEquals(pair2)).toBe(false);
     expect(pair2.looseEquals(pair1)).toBe(false);
     expect(pair1.looseEquals(pair3)).toBe(false);
@@ -92,14 +90,14 @@ describe('allele pair', () => {
     expect(pair1.strictEquals(pair2)).toBe(true);
     expect(pair2.strictEquals(pair1)).toBe(true);
 
-    const pair3 = new AllelePair({ top: e204, bot: e204.getWild() });
-    const pair4 = new AllelePair({ top: e204, bot: e204.getWild() });
+    const pair3 = new AllelePair({ top: e204, bot: e204.toWild() });
+    const pair4 = new AllelePair({ top: e204, bot: e204.toWild() });
     expect(pair3.strictEquals(pair4)).toBe(true);
     expect(pair3.strictEquals(pair4)).toBe(true);
   });
   test('.strictEquals() returns false for flipped allele pairs', () => {
-    const pair1 = new AllelePair({ top: ox802, bot: ox802.getWild() });
-    const pair2 = new AllelePair({ top: ox802.getWild(), bot: ox802 });
+    const pair1 = new AllelePair({ top: ox802, bot: ox802.toWild() });
+    const pair2 = new AllelePair({ top: ox802.toWild(), bot: ox802 });
     expect(pair1.strictEquals(pair2)).toBe(false);
     expect(pair2.strictEquals(pair1)).toBe(false);
   });
@@ -111,7 +109,7 @@ describe('allele pair', () => {
   });
   test('.strictEquals() returns false for homozygous vs heterozygous pairs', () => {
     const pair1 = new AllelePair({ top: e204, bot: e204 });
-    const pair2 = new AllelePair({ top: e204.getWild(), bot: e204 });
+    const pair2 = new AllelePair({ top: e204.toWild(), bot: e204 });
     expect(pair1.strictEquals(pair2)).toBe(false);
     expect(pair2.strictEquals(pair1)).toBe(false);
   });
@@ -123,9 +121,9 @@ describe('allele pair', () => {
     expect(pair2.isOfSameGeneOrVariation(pair1)).toBe(true);
   });
   test('.isOfSameGeneOrVariation() returns true on heterozygous pairs', () => {
-    const pair1 = new AllelePair({ top: e204, bot: e204.getWild() });
-    const pair2 = new AllelePair({ top: e204, bot: e204.getWild() });
-    const pair3 = new AllelePair({ top: e204.getWild(), bot: e204 });
+    const pair1 = new AllelePair({ top: e204, bot: e204.toWild() });
+    const pair2 = new AllelePair({ top: e204, bot: e204.toWild() });
+    const pair3 = new AllelePair({ top: e204.toWild(), bot: e204 });
     expect(pair1.isOfSameGeneOrVariation(pair2)).toBe(true);
     expect(pair2.isOfSameGeneOrVariation(pair1)).toBe(true);
     expect(pair1.isOfSameGeneOrVariation(pair3)).toBe(true);
@@ -133,8 +131,8 @@ describe('allele pair', () => {
   });
   test('.isOfSameGeneOrVariation() returns true on homo <--> het pairs', () => {
     const pair1 = new AllelePair({ top: e204, bot: e204 });
-    const pair2 = new AllelePair({ top: e204, bot: e204.getWild() });
-    const pair3 = new AllelePair({ top: e204.getWild(), bot: e204 });
+    const pair2 = new AllelePair({ top: e204, bot: e204.toWild() });
+    const pair3 = new AllelePair({ top: e204.toWild(), bot: e204 });
     expect(pair1.isOfSameGeneOrVariation(pair2)).toBe(true);
     expect(pair2.isOfSameGeneOrVariation(pair1)).toBe(true);
     expect(pair1.isOfSameGeneOrVariation(pair3)).toBe(true);
@@ -147,9 +145,9 @@ describe('allele pair', () => {
     expect(pair2.isOfSameGeneOrVariation(pair1)).toBe(false);
   });
   test('.isOfSameGeneOrVariation() returns false on differing heterozygous pairs', () => {
-    const pair1 = new AllelePair({ top: e204, bot: e204.getWild() });
-    const pair2 = new AllelePair({ top: ox802, bot: ox802.getWild() });
-    const pair3 = new AllelePair({ top: ox802.getWild(), bot: ox802 });
+    const pair1 = new AllelePair({ top: e204, bot: e204.toWild() });
+    const pair2 = new AllelePair({ top: ox802, bot: ox802.toWild() });
+    const pair3 = new AllelePair({ top: ox802.toWild(), bot: ox802 });
     expect(pair1.isOfSameGeneOrVariation(pair2)).toBe(false);
     expect(pair2.isOfSameGeneOrVariation(pair1)).toBe(false);
     expect(pair1.isOfSameGeneOrVariation(pair3)).toBe(false);
@@ -158,8 +156,8 @@ describe('allele pair', () => {
   test('.isOfSameGeneOrVariation() returns false on differing homo <--> het pairs', () => {
     const homoE204 = new AllelePair({ top: e204, bot: e204 });
     const homoOx802 = new AllelePair({ top: ox802, bot: ox802 });
-    const hetE204 = new AllelePair({ top: e204.getWild(), bot: e204 });
-    const hetOx802 = new AllelePair({ top: ox802, bot: ox802.getWild() });
+    const hetE204 = new AllelePair({ top: e204.toWild(), bot: e204 });
+    const hetOx802 = new AllelePair({ top: ox802, bot: ox802.toWild() });
     expect(homoE204.isOfSameGeneOrVariation(hetOx802)).toBe(false);
     expect(hetOx802.isOfSameGeneOrVariation(homoE204)).toBe(false);
     expect(homoOx802.isOfSameGeneOrVariation(hetE204)).toBe(false);
@@ -179,15 +177,15 @@ describe('allele pair', () => {
   test('.hasSameGenLoc() returns true on homo <--> het pairs', () => {
     // both alleles belong to unc-44 gene --> same gen loc
     const homoOx750 = new AllelePair({ top: ox750, bot: ox750 });
-    const hetOx802 = new AllelePair({ top: ox802, bot: ox802.getWild() });
+    const hetOx802 = new AllelePair({ top: ox802, bot: ox802.toWild() });
 
     expect(homoOx750.hasSameGenLoc(hetOx802)).toBe(true);
     expect(hetOx802.hasSameGenLoc(homoOx750)).toBe(true);
   });
   test('.hasSameGenLoc() returns true on het <--> het pairs', () => {
     // both alleles belong to unc-44 gene --> same gen loc
-    const hetOx750 = new AllelePair({ top: ox750, bot: ox750.getWild() });
-    const hetOx802 = new AllelePair({ top: ox802.getWild(), bot: ox802 });
+    const hetOx750 = new AllelePair({ top: ox750, bot: ox750.toWild() });
+    const hetOx802 = new AllelePair({ top: ox802.toWild(), bot: ox802 });
 
     expect(hetOx750.hasSameGenLoc(hetOx802)).toBe(true);
     expect(hetOx802.hasSameGenLoc(hetOx750)).toBe(true);
@@ -196,8 +194,8 @@ describe('allele pair', () => {
     // both alleles belong to unc-44 gene --> same gen loc
     const homoOx750 = new AllelePair({ top: ox750, bot: ox750 });
     const wildOx750 = new AllelePair({
-      top: ox750.getWild(),
-      bot: ox750.getWild(),
+      top: ox750.toWild(),
+      bot: ox750.toWild(),
     });
 
     expect(homoOx750.hasSameGenLoc(wildOx750)).toBe(true);
@@ -205,10 +203,10 @@ describe('allele pair', () => {
   });
   test('.hasSameGenLoc() returns true on het <--> wild pairs', () => {
     // both alleles belong to unc-44 gene --> same gen loc
-    const hetOx750 = new AllelePair({ top: ox750, bot: ox750.getWild() });
+    const hetOx750 = new AllelePair({ top: ox750, bot: ox750.toWild() });
     const wildOx750 = new AllelePair({
-      top: ox750.getWild(),
-      bot: ox750.getWild(),
+      top: ox750.toWild(),
+      bot: ox750.toWild(),
     });
 
     expect(hetOx750.hasSameGenLoc(wildOx750)).toBe(true);
@@ -217,17 +215,17 @@ describe('allele pair', () => {
   test('.hasSameGenLoc() returns false on pairs with different locations', () => {
     // both alleles are variations with unknown genetic locations
     const homoEd3 = new AllelePair({ top: ed3, bot: ed3 });
-    const hetEd3 = new AllelePair({ top: ed3, bot: ed3.getWild() });
+    const hetEd3 = new AllelePair({ top: ed3, bot: ed3.toWild() });
     const wildEd3 = new AllelePair({
-      top: ed3.getWild(),
-      bot: ed3.getWild(),
+      top: ed3.toWild(),
+      bot: ed3.toWild(),
     });
 
     const homoN765 = new AllelePair({ top: n765, bot: n765 });
-    const hetN765 = new AllelePair({ top: n765, bot: n765.getWild() });
+    const hetN765 = new AllelePair({ top: n765, bot: n765.toWild() });
     const wildn765 = new AllelePair({
-      top: n765.getWild(),
-      bot: n765.getWild(),
+      top: n765.toWild(),
+      bot: n765.toWild(),
     });
 
     expect(homoEd3.hasSameGenLoc(homoN765)).toBe(false);
@@ -242,21 +240,21 @@ describe('allele pair', () => {
     const homoOxEx12345 = new AllelePair({ top: oxEx12345, bot: oxEx12345 });
     const hetOxEx12345 = new AllelePair({
       top: oxEx12345,
-      bot: oxEx12345.getWild(),
+      bot: oxEx12345.toWild(),
     });
     const wildOxEx12345 = new AllelePair({
-      top: oxEx12345.getWild(),
-      bot: oxEx12345.getWild(),
+      top: oxEx12345.toWild(),
+      bot: oxEx12345.toWild(),
     });
 
     const homoOxEx219999 = new AllelePair({ top: oxEx219999, bot: oxEx219999 });
     const hetOxEx219999 = new AllelePair({
       top: oxEx219999,
-      bot: oxEx219999.getWild(),
+      bot: oxEx219999.toWild(),
     });
     const wildOxEx219999 = new AllelePair({
-      top: oxEx219999.getWild(),
-      bot: oxEx219999.getWild(),
+      top: oxEx219999.toWild(),
+      bot: oxEx219999.toWild(),
     });
 
     expect(homoOxEx12345.hasSameGenLoc(homoOxEx12345)).toBe(false);
@@ -270,19 +268,19 @@ describe('allele pair', () => {
 
   test('.isWild() returns true on wild pairs', () => {
     const wildEd3 = new AllelePair({
-      top: ed3.getWild(),
-      bot: ed3.getWild(),
+      top: ed3.toWild(),
+      bot: ed3.toWild(),
     });
     const wildStrain = new AllelePair({
-      top: md299.getWild(),
-      bot: md299.getWild(),
+      top: md299.toWild(),
+      bot: md299.toWild(),
     });
     expect(wildEd3.isWild()).toBe(true);
     expect(wildStrain.isWild()).toBe(true);
   });
   test('.isWild() returns false on wild het pairs', () => {
-    const hetEd3 = new AllelePair({ top: ed3.getWild(), bot: ed3 });
-    const hetOx750 = new AllelePair({ top: ox750, bot: ox750.getWild() });
+    const hetEd3 = new AllelePair({ top: ed3.toWild(), bot: ed3 });
+    const hetOx750 = new AllelePair({ top: ox750, bot: ox750.toWild() });
     expect(hetEd3.isWild()).toBe(false);
     expect(hetOx750.isWild()).toBe(false);
   });
@@ -292,8 +290,8 @@ describe('allele pair', () => {
   });
 
   test('.isHomo() returns false on het pairs', () => {
-    const hetEd3 = new AllelePair({ top: ed3, bot: ed3.getWild() });
-    const hetOx802 = new AllelePair({ top: ox802.getWild(), bot: ox802 });
+    const hetEd3 = new AllelePair({ top: ed3, bot: ed3.toWild() });
+    const hetOx802 = new AllelePair({ top: ox802.toWild(), bot: ox802 });
     expect(hetEd3.isHomo()).toBe(false);
     expect(hetOx802.isHomo()).toBe(false);
   });
@@ -310,8 +308,8 @@ describe('allele pair', () => {
     expect(pair.bot.name).toEqual(flipped.top.name);
   });
   test('.getFlippedPair() on heterozygous pair', () => {
-    const pair1 = new AllelePair({ top: e204, bot: e204.getWild() });
-    const pair2 = new AllelePair({ top: e204.getWild(), bot: e204 });
+    const pair1 = new AllelePair({ top: e204, bot: e204.toWild() });
+    const pair2 = new AllelePair({ top: e204.toWild(), bot: e204 });
     const flipped1 = pair1.getFlippedPair();
     const flipped2 = pair2.getFlippedPair();
 
@@ -324,7 +322,7 @@ describe('allele pair', () => {
   });
 
   test('.flip() mutates current pair', () => {
-    const pair = new AllelePair({ top: e204, bot: e204.getWild() });
+    const pair = new AllelePair({ top: e204, bot: e204.toWild() });
     const oldTop = pair.top;
     const oldBot = pair.bot;
 
@@ -346,8 +344,8 @@ describe('allele pair', () => {
     expect(pair).toEqual(clone);
   });
   test('.clone() on heterozygous pair', () => {
-    const pair1 = new AllelePair({ top: e204, bot: e204.getWild() });
-    const pair2 = new AllelePair({ top: e204.getWild(), bot: e204 });
+    const pair1 = new AllelePair({ top: e204, bot: e204.toWild() });
+    const pair2 = new AllelePair({ top: e204.toWild(), bot: e204 });
     const clone1 = pair1.clone();
     const clone2 = pair2.clone();
 
@@ -361,105 +359,8 @@ describe('allele pair', () => {
     expect(pair2).toEqual(clone2);
   });
 
-  test('.getTopChrom() returns top chrom', () => {
-    const chromosome = [
-      new AllelePair({ top: e204, bot: e204.getWild() }),
-      new AllelePair({ top: ox802, bot: ox802 }),
-      new AllelePair({ top: oxTi302.getWild(), bot: oxTi302 }),
-    ];
-
-    const topChromatid = [e204, ox802, oxTi302.getWild()];
-    const chromResult = AllelePair.getTopChrom(chromosome);
-
-    expect(chromResult).toHaveLength(topChromatid.length);
-    for (let i = 0; i < chromResult.length; i++)
-      expect(chromResult[i].name).toBe(topChromatid[i].name);
-  });
-  test('.getTopChrom() returns bottom chrom', () => {
-    const chromosome = [
-      e204.toTopHetPair(),
-      ox802.toHomoPair(),
-      oxTi302.toBotHetPair(),
-    ];
-
-    const botChromatid = [e204.getWild(), ox802, oxTi302];
-    const chromResult = AllelePair.getBotChrom(chromosome);
-
-    expect(chromResult).toHaveLength(botChromatid.length);
-    for (let i = 0; i < chromResult.length; i++)
-      expect(chromResult[i].name).toBe(botChromatid[i].name);
-  });
-
-  test('.chromosomesMatch() for duplicate chromosomes', () => {
-    const chrom1 = [
-      new AllelePair({ top: e204, bot: e204.getWild() }),
-      new AllelePair({ top: ox802, bot: ox802 }),
-      new AllelePair({ top: oxTi302.getWild(), bot: oxTi302 }),
-    ];
-    const chrom2 = [
-      new AllelePair({ top: e204, bot: e204.getWild() }),
-      new AllelePair({ top: ox802, bot: ox802 }),
-      new AllelePair({ top: oxTi302.getWild(), bot: oxTi302 }),
-    ];
-    expect(AllelePair.chromosomesMatch(chrom1, chrom2)).toBe(true);
-    expect(AllelePair.chromosomesMatch(chrom2, chrom1)).toBe(true);
-  });
-  test('.chromosomesMatch() for flipped chromosomes', () => {
-    const chrom1 = [
-      new AllelePair({ top: e204, bot: e204.getWild() }),
-      new AllelePair({ top: ox802, bot: ox802 }),
-      new AllelePair({ top: oxTi302.getWild(), bot: oxTi302 }),
-    ];
-    const chrom2 = [
-      new AllelePair({ top: e204.getWild(), bot: e204 }),
-      new AllelePair({ top: ox802, bot: ox802 }),
-      new AllelePair({ top: oxTi302, bot: oxTi302.getWild() }),
-    ];
-    expect(AllelePair.chromosomesMatch(chrom1, chrom2)).toBe(true);
-    expect(AllelePair.chromosomesMatch(chrom2, chrom1)).toBe(true);
-  });
-  test('.chromosomesMatch() returns false for different chromosomes', () => {
-    const chrom1 = [
-      new AllelePair({ top: e204, bot: e204.getWild() }),
-      new AllelePair({ top: ox802, bot: ox802 }),
-      new AllelePair({ top: oxTi302.getWild(), bot: oxTi302 }),
-    ];
-    const chrom2 = [
-      new AllelePair({ top: e204, bot: e204.getWild() }),
-      new AllelePair({ top: ox802, bot: ox802 }),
-      new AllelePair({ top: ox1059.getWild(), bot: ox1059 }),
-    ];
-    expect(AllelePair.chromosomesMatch(chrom1, chrom2)).toBe(false);
-    expect(AllelePair.chromosomesMatch(chrom2, chrom1)).toBe(false);
-  });
-
-  test('.chromosomesMatch() returns false for different chromosome with wild allele', () => {
-    const chrom1 = [
-      new AllelePair({ top: e204, bot: e204.getWild() }),
-      new AllelePair({ top: ox802, bot: ox802 }),
-      new AllelePair({ top: oxTi302.getWild(), bot: oxTi302 }),
-    ];
-    const chrom2 = [
-      new AllelePair({ top: e204, bot: e204.getWild() }),
-      new AllelePair({ top: ox802, bot: ox802 }),
-      new AllelePair({
-        top: oxTi302.getWild(),
-        bot: oxTi302.getWild(),
-      }),
-    ];
-    expect(AllelePair.chromosomesMatch(chrom1, chrom2)).toBe(false);
-    expect(AllelePair.chromosomesMatch(chrom2, chrom1)).toBe(false);
-  });
-
-  test('.chromosomesMatch() ignores order in ECA', () => {
-    const chrom1 = [oxEx12345.toEcaPair(), oxEx219999.toEcaPair()];
-    const chrom2 = [oxEx219999.toEcaPair(), oxEx12345.toEcaPair()];
-    expect(AllelePair.chromosomesMatch(chrom1, chrom2)).toBe(true);
-    expect(AllelePair.chromosomesMatch(chrom2, chrom1)).toBe(true);
-  });
-
-  it('should be able to serialize and deserialize', () => {
-    const pair = new AllelePair({ top: e204, bot: e204.getWild() });
+  test('should be able to serialize and deserialize', () => {
+    const pair = new AllelePair({ top: e204, bot: e204.toWild() });
     const str = pair.toJSON();
     const pairBack = AllelePair.fromJSON(str);
     expect(pair.strictEquals(pairBack)).toBe(true);

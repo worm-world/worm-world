@@ -1,13 +1,12 @@
-use std::str::FromStr;
-
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 use strum_macros::Display;
 use strum_macros::EnumString;
 use ts_rs::TS;
 
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, TS, EnumString, Display)]
-#[ts(export, export_to = "../src/models/db/filter/db_Enum.ts")]
-pub enum Chromosome {
+#[ts(export, export_to = "../src/models/db/filter/db_ChromosomeName.ts")]
+pub enum ChromosomeName {
     #[strum(serialize = "I")]
     I,
     #[serde(rename = "II")]
@@ -29,8 +28,8 @@ pub enum Chromosome {
     Ex,
 }
 
-impl From<String> for Chromosome {
+impl From<String> for ChromosomeName {
     fn from(to_convert: String) -> Self {
-        Chromosome::from_str(to_convert.as_str()).unwrap()
+        ChromosomeName::from_str(to_convert.as_str()).unwrap()
     }
 }

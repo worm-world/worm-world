@@ -1,10 +1,10 @@
 import { instanceToPlain, plainToInstance, Type } from 'class-transformer';
+import { type ChromosomeName } from 'models/db/filter/db_ChromosomeName';
 import { Allele } from 'models/frontend/Allele/Allele';
 
 export interface IAllelePair {
   top: Allele;
   bot: Allele;
-  isEca?: boolean;
 }
 
 export class AllelePair implements IAllelePair {
@@ -14,18 +14,14 @@ export class AllelePair implements IAllelePair {
   @Type(() => Allele)
   public bot: Allele;
 
-  public isEca: boolean;
-
   constructor(args: IAllelePair) {
     if (args === undefined) {
       // Temporary case during deserialization
       this.top = undefined as any;
       this.bot = undefined as any;
-      this.isEca = false;
     } else {
       this.top = args.top;
       this.bot = args.bot;
-      this.isEca = args.isEca ?? false;
     }
   }
 
@@ -46,6 +42,14 @@ export class AllelePair implements IAllelePair {
       this.strictEquals(other) ||
       (this.bot.equals(other.top) && this.top.equals(other.bot))
     );
+  }
+
+  public static sortByPos(allelePairs: AllelePair[]): void {
+    allelePairs.sort((pair1, pair2) => {
+      const pair1Pos = pair1.top.getGenPosition() ?? 50; // gen pos never greater than 25
+      const pair2Pos = pair2.top.getGenPosition() ?? 50; // gen pos never greater than 25
+      return pair1Pos < pair2Pos ? -1 : 1;
+    });
   }
 
   /** Checks if two allele pairs are on the same "variation" or the same gene. */
@@ -77,6 +81,10 @@ export class AllelePair implements IAllelePair {
     else return thisPos === otherPos;
   }
 
+  public getChromName(): ChromosomeName | undefined {
+    return this.top.getChromName();
+  }
+
   /**
    * Checks if this pair is only made up of wild alleles
    */
@@ -87,6 +95,10 @@ export class AllelePair implements IAllelePair {
   /** Returns true if pair is homozygous (false for heterozygous) */
   public isHomo(): boolean {
     return this.top.name === this.bot.name;
+  }
+
+  public isEca(): boolean {
+    return this.top.getChromName() === 'Ex';
   }
 
   /**
@@ -111,15 +123,7 @@ export class AllelePair implements IAllelePair {
    * Creates a new copy of this allele pair
    */
   public clone(): AllelePair {
-    return new AllelePair({ top: this.top, bot: this.bot, isEca: this.isEca });
-  }
-
-  public static getTopChrom(chromosome: AllelePair[]): Allele[] {
-    return chromosome.map((pair) => pair.top);
-  }
-
-  public static getBotChrom(chromosome: AllelePair[]): Allele[] {
-    return chromosome.map((pair) => pair.bot);
+    return new AllelePair({ top: this.top, bot: this.bot });
   }
 
   /**
@@ -127,51 +131,6 @@ export class AllelePair implements IAllelePair {
    */
   public toString(): string {
     return `${this.top.name}/${this.bot.name}`;
-  }
-
-  // Ignore explicitly represented wilds since they do not determine genetic identity
-  private static chromsEqual(chrom1: Allele[], chrom2: Allele[]): boolean {
-    const chrom1NoWilds = chrom1.filter((allele) => !allele.isWild());
-    const chrom2NoWilds = chrom2.filter((allele) => !allele.isWild());
-
-    return (
-      chrom1NoWilds.length === chrom2NoWilds.length &&
-      chrom1NoWilds.every((allele, idx) => allele.equals(chrom2NoWilds[idx]))
-    );
-  }
-
-  /**
-   * Checks if the content of 2 chromosomes match
-   * A "chromosome" is a list of allele pairs that all belong to the SAME chromosome number
-   */
-  public static chromosomesMatch(
-    chromosome1: AllelePair[],
-    chromosome2: AllelePair[]
-  ): boolean {
-    const chromosome1Copy = chromosome1.map((allelePair) => allelePair.clone());
-    const chromosome2Copy = chromosome2.map((allelePair) => allelePair.clone());
-
-    // Allele pair order doesn't matter for ECA alleles
-    // So look at canonical form for comparison. It is assumed that ECA alleles are top-heterozygous
-    [chromosome1Copy, chromosome2Copy].forEach((chromosome) => {
-      if (chromosome.length > 0 && chromosome[0].isEca)
-        chromosome.sort((a, b) => a.top.name.localeCompare(b.top.name));
-    });
-
-    if (chromosome1Copy.length !== chromosome2Copy.length) return false;
-
-    const topChrom1 = AllelePair.getTopChrom(chromosome1Copy);
-    const botChrom1 = AllelePair.getBotChrom(chromosome1Copy);
-    const topChrom2 = AllelePair.getTopChrom(chromosome2Copy);
-    const botChrom2 = AllelePair.getBotChrom(chromosome2Copy);
-
-    const topChromsMatch = AllelePair.chromsEqual(topChrom1, topChrom2);
-    if (topChromsMatch) return AllelePair.chromsEqual(botChrom1, botChrom2);
-
-    return (
-      AllelePair.chromsEqual(topChrom1, botChrom2) &&
-      AllelePair.chromsEqual(botChrom1, topChrom2)
-    );
   }
 
   public toJSON(): string {

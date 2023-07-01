@@ -67,14 +67,14 @@ const Layout = (props: LayoutProps): JSX.Element => {
   }, []);
 
   return (
-    <div className='drawer h-screen'>
+    <div className='drawer'>
       <input id='nav-drawer' type='checkbox' className='drawer-toggle' />
-      <div className='drawer-content w-screen'>{props.children}</div>
+      <div className='drawer-content'>{props.children}</div>
 
-      <div className='drawer-side' data-testid='side-drawer'>
-        <label htmlFor='nav-drawer' className='drawer-overlay'></label>
+      <div className='drawer-side z-50' data-testid='side-drawer'>
+        <label htmlFor='nav-drawer' className='drawer-overlay' />
         <div className='flex h-screen flex-col justify-between bg-base-100'>
-          <ul className='menu mt-4'>
+          <ul className='menu p-4'>
             <li key='wormworld'>
               <Link
                 to={'/'}
@@ -87,10 +87,10 @@ const Layout = (props: LayoutProps): JSX.Element => {
                 />
               </Link>
             </li>
-            <div className='divider mt-0' />
+            <div className='divider' />
             <NavItems />
           </ul>
-          <div className='pb-5 pl-5'>
+          <div className='p-4'>
             <label className='label'>Theme</label>
             <select className='select-bordered select' data-choose-theme>
               {allThemes.map((theme) => (

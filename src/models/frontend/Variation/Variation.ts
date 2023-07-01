@@ -1,10 +1,10 @@
 import { Exclude, instanceToPlain, plainToInstance } from 'class-transformer';
 import { type db_Variation } from 'models/db/db_Variation';
-import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
+import { type ChromosomeName } from 'models/db/filter/db_ChromosomeName';
 
 interface iVariation {
   name: string;
-  chromosome?: Chromosome;
+  chromosome?: ChromosomeName;
   physLoc?: number; // Physical location of the gene on a chromosome
   geneticLoc?: number; // Gene's genetic distance from the middle of a chromosome
   recombination?: [number, number];
@@ -12,7 +12,7 @@ interface iVariation {
 
 export class Variation {
   name: string = ''; // Will be, by convention, same as allele name
-  chromosome?: Chromosome;
+  chromosome?: ChromosomeName;
   physLoc?: number; // Physical location of the gene on a chromosome
   geneticLoc?: number; // Gene's genetic distance from the middle of a chromosome
   recombination?: [number, number];

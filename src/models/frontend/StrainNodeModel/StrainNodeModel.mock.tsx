@@ -11,8 +11,8 @@ import { TbArrowsCross as CrossIcon } from 'react-icons/tb';
 import { BsUiChecks as ScheduleIcon } from 'react-icons/bs';
 import { type MenuItem } from 'components/Menu/Menu';
 
-export const maleWild = mockStrains.wild.toMaleModel();
-export const hermWild = mockStrains.wild.toHermModel();
+export const maleWild = mockStrains.emptyWild.toMaleModel();
+export const hermWild = mockStrains.emptyWild.toHermModel();
 export const maleWildManyPairs = mockStrains.wildManyPairs.toMaleModel();
 export const maleN2 = mockStrains.N2.toMaleModel();
 export const maleMT2495 = mockStrains.MT2495.toMaleModel();
@@ -94,7 +94,7 @@ export const ed3HomoHerm = new StrainNodeModel({
 export const e204WildMale = new StrainNodeModel({
   sex: Sex.Hermaphrodite,
   strain: new Strain({
-    allelePairs: [mockAlleles.e204.getWild().toHomoPair()],
+    allelePairs: [mockAlleles.e204.toWild().toHomoPair()],
   }),
   getMenuItems,
 });
