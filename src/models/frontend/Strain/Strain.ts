@@ -47,6 +47,9 @@ interface IStrain {
  * A genetic profile consisting of an ordered sequence allele pairs.
  */
 export class Strain {
+  public name?: string;
+  public description?: string;
+
   // Make sure that chromosome pairs in map are correctly deserialized
   @Transform(
     ({ value }) =>
@@ -61,18 +64,18 @@ export class Strain {
   @Type(() => Map<ChromosomeName | undefined, ChromosomePair>)
   public chromPairMap = new Map<ChromosomeName | undefined, ChromosomePair>();
 
-  public name?: string;
-  public genotype = '';
-  public description?: string;
+  public genotype: string = '.';
 
   constructor(params: IStrain) {
-    if (params !== undefined && params !== null) {
-      this.name = params.name;
-      this.description = params.description;
-      this.addPairsToStrain(params.allelePairs);
-      this.genotype = this.toString({ excludeWild: true, excludeEca: false });
-      this.name = params.name;
-    }
+    // Serialization issue
+    if (params === undefined || params === null) return;
+
+    this.name = params.name;
+    this.description = params.description;
+    this.addPairsToStrain(params.allelePairs);
+    this.genotype =
+      params.genotype ?? this.toString({ simplify: true, excludeEca: false });
+    this.name = params.name;
   }
 
   // Constructs new object, along with fetching name
@@ -95,13 +98,13 @@ export class Strain {
     return this.chromPairMap.size === 0;
   }
 
-  /** Return a new, equivalent chromosome pair without any wild allele pairs */
-  public async toSimplified(): Promise<Strain> {
-    return await Strain.build({
-      allelePairs: this.getAllelePairs().filter(
-        (allelePair) => !allelePair.isWild()
-      ),
-    });
+  /** Returns clone with leading het alleles on to and no wild chromosome pairs */
+  public simplify(): Strain {
+    const clone = this.clone();
+    this.chromPairMap.forEach((chromPair, chromName) =>
+      clone.chromPairMap.set(chromName, chromPair.simplify())
+    );
+    return clone;
   }
 
   private async syncFromDb(): Promise<void> {
@@ -140,7 +143,7 @@ export class Strain {
    */
   public toString(
     options = {
-      excludeWild: true,
+      simplify: true,
       excludeEca: false,
     }
   ): string {
@@ -149,7 +152,7 @@ export class Strain {
         .filter(
           (chromPair) =>
             !(
-              (options.excludeWild && chromPair.isWild()) ||
+              (options.simplify && chromPair.isWild()) ||
               (options.excludeEca && chromPair.isEca())
             )
         )
@@ -189,8 +192,8 @@ export class Strain {
     if (this.name === undefined)
       throw new Error('Tried to save strain without name.');
     await insertStrain(this);
-    this.getAllelePairs().forEach((pair) => {
-      if (pair.isWild()) return;
+    const simplified = this.simplify();
+    simplified.getAllelePairs().forEach((pair) => {
       if (pair.isHomo()) {
         insertStrainAllele(
           new StrainAllele({
@@ -200,27 +203,27 @@ export class Strain {
             isOnBot: true,
           })
         ).catch(console.error);
-        return;
-      }
-      if (!pair.top.isWild()) {
-        insertStrainAllele(
-          new StrainAllele({
-            strainName: this.name ?? '',
-            alleleName: pair.top.name,
-            isOnTop: true,
-            isOnBot: false,
-          })
-        ).catch(console.error);
-      }
-      if (!pair.bot.isWild()) {
-        insertStrainAllele(
-          new StrainAllele({
-            strainName: this.name ?? '',
-            alleleName: pair.bot.name,
-            isOnTop: false,
-            isOnBot: true,
-          })
-        ).catch(console.error);
+      } else {
+        if (!pair.top.isWild()) {
+          insertStrainAllele(
+            new StrainAllele({
+              strainName: this.name ?? '',
+              alleleName: pair.top.name,
+              isOnTop: true,
+              isOnBot: false,
+            })
+          ).catch(console.error);
+        }
+        if (!pair.bot.isWild()) {
+          insertStrainAllele(
+            new StrainAllele({
+              strainName: this.name ?? '',
+              alleleName: pair.bot.name,
+              isOnTop: false,
+              isOnBot: true,
+            })
+          ).catch(console.error);
+        }
       }
     });
   }
@@ -290,16 +293,14 @@ export class Strain {
    * Returns a new strain with identical data to this
    */
   public clone(): Strain {
-    let allelePairs: AllelePair[] = [];
-    this.chromPairMap.forEach((chromPair) => {
-      allelePairs = allelePairs.concat(chromPair.clone().allelePairs);
-    });
-    return new Strain({
+    const clone = new Strain({
       name: this.name,
       description: this.description,
       genotype: this.genotype,
-      allelePairs,
+      allelePairs: [],
     });
+    clone.chromPairMap = new Map(this.chromPairMap);
+    return clone;
   }
 
   /**
@@ -360,7 +361,7 @@ export class Strain {
     const partition = new Map<string, StrainOption[]>();
     strainOpts.forEach((option) => {
       const genotype = option.strain.toString({
-        excludeWild: false,
+        simplify: false,
         excludeEca: true,
       });
       partition.has(genotype)
@@ -525,8 +526,10 @@ export class Strain {
 
   @Exclude()
   generateRecord(): db_Strain {
-    if (this.name === undefined) {
-      throw Error('Attempted to generate a record for a strain without a name');
+    if (this.name === undefined || this.genotype === undefined) {
+      throw Error(
+        'Attempted to generate a record for a strain without a name and genotype'
+      );
     }
     return {
       name: this.name,
