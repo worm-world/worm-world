@@ -1,18 +1,11 @@
 import { Condition } from 'models/frontend/Condition/Condition';
 import { expect, test, describe } from 'vitest';
+import * as mockConditions from 'models/frontend/Condition/Condition.mock';
+
 describe('Condition', () => {
-  test('should be able to serialize and deserialize', () => {
-    const cond = new Condition({
-      name: 'cond',
-      description: 'sample desc',
-      maleMating: 3,
-      lethal: false,
-      femaleSterile: true,
-      arrested: false,
-      maturationDays: 2,
-    });
-    const str = cond.toJSON();
+  test('(De)serializes', () => {
+    const str = mockConditions.cond25C.toJSON();
     const condBack = Condition.fromJSON(str);
-    expect(condBack).toEqual(cond);
+    expect(condBack).toEqual(mockConditions.cond25C);
   });
 });

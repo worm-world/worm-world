@@ -4,7 +4,7 @@ pub trait FieldNameEnum: TS + std::hash::Hash + std::cmp::Eq {
 }
 pub mod allele;
 pub mod allele_expr;
-pub mod chromosome;
+pub mod chromosome_name;
 pub mod condition;
 pub mod expr_relation;
 pub mod filter;

@@ -573,8 +573,8 @@ describe('cross tree', () => {
       sex: Sex.Hermaphrodite,
       strain: generateStrain({
         allelePairs: [
-          new AllelePair({ top: ed3, bot: ed3.getWild() }),
-          new AllelePair({ top: ox1059, bot: ox1059.getWild() }),
+          new AllelePair({ top: ed3, bot: ed3.toWild() }),
+          new AllelePair({ top: ox1059, bot: ox1059.toWild() }),
         ],
       }),
     });
@@ -630,6 +630,13 @@ describe('cross tree', () => {
     expect(treeBack.generateRecord(treeBack.editable)).toEqual(
       tree.generateRecord(tree.editable)
     );
+
+    expect(
+      treeBack.nodes
+        .filter((node) => node.type === FlowType.Strain)
+        .every(
+          (node) => (node.data.strain as Strain).getAllelePairs !== undefined
+        )
+    );
   });
-  // #endregion tests
 });

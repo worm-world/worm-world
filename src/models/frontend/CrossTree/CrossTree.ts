@@ -35,9 +35,9 @@ export interface ICrossTree {
   editable: boolean;
 }
 
-export interface iTaskDependencyTree {
+export interface ITaskDependencyTree {
   task: Task;
-  taskParents: iTaskDependencyTree[];
+  taskParents: ITaskDependencyTree[];
 }
 
 // Uses React Flow nodes and edges. The nodes contain a data property
@@ -56,6 +56,12 @@ export default class CrossTree {
   })
   public invisibleNodes: Set<string>;
 
+  // const fixTreeDeserialization = (tree: CrossTree): void => {
+  //   for (const node of tree.nodes) {
+  //
+  //   }
+  // };
+
   @Type(() => OffspringFilter)
   @Transform(
     (data: { obj: any }) => {
@@ -72,7 +78,22 @@ export default class CrossTree {
   )
   public crossFilters: Map<string, OffspringFilter>;
 
+  // @Transform((data: { obj: any }) => {
+  // const nodes = data?.obj?.nodes;
+  // nodes.forEach(
+  //   (node: Node) => {
+  //     if (node.type === FlowType.Strain) {
+  //       // Menu items deserialized as [] -- should be undefined
+  //       node.data.getMenuItems = undefined;
+  //       node.data.strain = Strain.fromJSON(JSON.stringify(node.data.strain));
+  //     }
+  //   },
+  //   { toClassOnly: true }
+  // );
+  // return nodes;
+  // })
   public nodes: Node[];
+
   public edges: Edge[];
 
   constructor(params: ICrossTree) {
@@ -197,7 +218,10 @@ export default class CrossTree {
   }
 
   static fromJSON(json: string): CrossTree {
-    return [plainToInstance(CrossTree, JSON.parse(json))].flat()[0];
+    return plainToInstance(
+      CrossTree,
+      JSON.parse(json) as Record<string, unknown>
+    );
   }
 
   public toJSON(): string {
@@ -280,7 +304,7 @@ export default class CrossTree {
    */
   private generateTasksRec(
     ancestryChain: StrainAncestry
-  ): iTaskDependencyTree | undefined {
+  ): ITaskDependencyTree | undefined {
     if (ancestryChain.parents.length === 0) return undefined;
 
     const [strain1, strain2] = ancestryChain.parents.map((parent) =>
@@ -317,7 +341,7 @@ export default class CrossTree {
     return moment(date).add(days, 'days').toDate();
   }
 
-  private addDatesToTasks(taskDeps: iTaskDependencyTree): void {
+  private addDatesToTasks(taskDeps: ITaskDependencyTree): void {
     const defaultMaturationDay = 3;
     taskDeps.taskParents.forEach((parent) => {
       this.addDatesToTasks(parent);
@@ -366,7 +390,7 @@ export default class CrossTree {
   }
 
   private bumpDatesBack(
-    tree: iTaskDependencyTree,
+    tree: ITaskDependencyTree,
     daysToBumpBack: number
   ): void {
     tree.task.dueDate = this.addDays(daysToBumpBack, tree.task.dueDate);
@@ -375,7 +399,7 @@ export default class CrossTree {
     });
   }
 
-  private makeTreeIntoArray(tree: iTaskDependencyTree, tasks: Task[]): void {
+  private makeTreeIntoArray(tree: ITaskDependencyTree, tasks: Task[]): void {
     tasks.push(tree.task);
     tree.taskParents.forEach((parent) => {
       this.makeTreeIntoArray(parent, tasks);

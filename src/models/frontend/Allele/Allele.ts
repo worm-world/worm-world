@@ -4,7 +4,7 @@ import { getVariation } from 'api/variation';
 import { instanceToPlain, plainToInstance, Type } from 'class-transformer';
 import { type db_Allele } from 'models/db/db_Allele';
 import { type AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
-import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
+import { type ChromosomeName } from 'models/db/filter/db_ChromosomeName';
 import { type FilterGroup } from 'models/db/filter/FilterGroup';
 import { AlleleExpression } from 'models/frontend/AlleleExpression/AlleleExpression';
 import { Gene } from 'models/frontend/Gene/Gene';
@@ -65,7 +65,7 @@ export class Allele {
     };
 
     await Allele.setGeneOrVariation(newAlleleState, fields).catch((err) => {
-      console.error('error generating gene / variation', err);
+      console.error('error generating gene or variation', err);
     });
 
     await Allele.setAlleleExpressions(newAlleleState, fields.name).catch(
@@ -153,15 +153,11 @@ export class Allele {
   }
 
   public toTopHetPair(): AllelePair {
-    return new AllelePair({ top: this, bot: this.getWild() });
+    return new AllelePair({ top: this, bot: this.toWild() });
   }
 
   public toBotHetPair(): AllelePair {
-    return new AllelePair({ top: this.getWild(), bot: this });
-  }
-
-  public toEcaPair(): AllelePair {
-    return new AllelePair({ top: this, bot: this.getWild(), isEca: true });
+    return new AllelePair({ top: this.toWild(), bot: this });
   }
 
   public generateRecord(): db_Allele {
@@ -173,7 +169,7 @@ export class Allele {
     };
   }
 
-  public getChromosome(): Chromosome | undefined {
+  public getChromName(): ChromosomeName | undefined {
     return this.gene?.chromosome ?? this.variation?.chromosome;
   }
 
@@ -181,7 +177,7 @@ export class Allele {
     return this.gene?.geneticLoc ?? this.variation?.geneticLoc;
   }
 
-  public getWild(): Allele {
+  public toWild(): Allele {
     return new Allele({
       name: WILD_ALLELE_NAME,
       variation: this.variation,
@@ -198,7 +194,7 @@ export class Allele {
   }
 
   static fromJSON(json: string): Allele {
-    return [plainToInstance(Allele, JSON.parse(json))].flat()[0];
+    return plainToInstance(Allele, JSON.parse(json) as Record<string, unknown>);
   }
 }
 

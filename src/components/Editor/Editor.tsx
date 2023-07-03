@@ -832,8 +832,6 @@ const Editor = (props: EditorProps): JSX.Element => {
     middleNode: Node,
     childOptions: StrainOption[]
   ): Array<Node<StrainNodeModel>> => {
-    childOptions.sort((c1, c2) => c1.prob - c2.prob);
-
     const childPositions = CrossTree.calculateChildPositions(
       middleNode.type === FlowType.XIcon ? FlowType.XIcon : FlowType.SelfIcon,
       childOptions
@@ -981,8 +979,6 @@ const Editor = (props: EditorProps): JSX.Element => {
         }
 
         const clonedTree = props.crossTree.clone();
-        clonedTree.nodes = [...nodeMap.values()];
-        clonedTree.edges = [...edges];
         clonedTree.editable = false;
         const tasks = clonedTree
           .generateTasks(node)

@@ -29,7 +29,7 @@ export const Menu = (props: MenuProps): JSX.Element => {
       {props.items.length > 0 && (
         <ul
           tabIndex={0}
-          className='menu-compact dropdown-content menu w-40 rounded-md bg-base-100 p-1 drop-shadow-lg'
+          className='menu-compact dropdown-content menu z-50 w-40 rounded-md bg-base-100 p-1 drop-shadow-lg'
         >
           <li className='menu-title'>
             <span>{props.title}</span>
@@ -45,10 +45,10 @@ const MenuOption = (item: MenuItem, key: number): JSX.Element => {
   const useIcon = item.icon !== undefined;
   return (
     <li key={key}>
-      <a onClick={item.menuCallback}>
+      <div onClick={item.menuCallback}>
         {useIcon ? <div>{item.icon}</div> : <div></div>}
         {item.text}
-      </a>
+      </div>
     </li>
   );
 };

@@ -13,7 +13,7 @@ const App = (): JSX.Element => {
   return (
     <>
       <Suspense fallback={<Spinner />}>
-        <Layout> {useRoutes(routes)}</Layout>
+        <Layout>{useRoutes(routes)}</Layout>
       </Suspense>
       <ToastContainer
         autoClose={3000}

@@ -162,7 +162,7 @@ mod test {
     use std::io::BufReader;
 
     use crate::interface::bulk::Bulk;
-    use crate::models::chromosome::Chromosome;
+    use crate::models::chromosome_name::ChromosomeName;
     use crate::models::filter::Order;
     use crate::models::gene::{Gene, GeneDb, GeneFieldName};
     use crate::InnerDbState;
@@ -318,7 +318,7 @@ mod test {
         let expected = Gene {
             systematic_name: "M142.1".to_string(),
             descriptive_name: Some("unc-119".to_string()),
-            chromosome: Some(Chromosome::Iii),
+            chromosome: Some(ChromosomeName::Iii),
             phys_loc: Some(10902641),
             gen_loc: Some(5.59),
             recomb_suppressor: None,
@@ -376,7 +376,7 @@ FAKE23.4,unc-new,,10902633,6.78,,"
                 Gene {
                     systematic_name: "M142.1".to_string(),
                     descriptive_name: Some("unc-119".to_string()),
-                    chromosome: Some(Chromosome::Iii),
+                    chromosome: Some(ChromosomeName::Iii),
                     phys_loc: Some(10902641),
                     gen_loc: Some(5.59),
                     recomb_suppressor: None,
@@ -419,7 +419,7 @@ FAKE23.4\tunc-new\t\t10902633\t6.78\t\t"
                 Gene {
                     systematic_name: "M142.1".to_string(),
                     descriptive_name: Some("unc-119".to_string()),
-                    chromosome: Some(Chromosome::Iii),
+                    chromosome: Some(ChromosomeName::Iii),
                     phys_loc: Some(10902641),
                     gen_loc: Some(5.59),
                     recomb_suppressor: None,
@@ -445,7 +445,7 @@ FAKE23.4\tunc-new\t\t10902633\t6.78\t\t"
         let gene = Gene {
             systematic_name: "T14B4.7".to_string(),
             descriptive_name: Some("dpy-10".to_string()),
-            chromosome: Some(Chromosome::Ii),
+            chromosome: Some(ChromosomeName::Ii),
             phys_loc: Some(6710149),
             gen_loc: Some(0.0),
             recomb_suppressor: None,
@@ -489,7 +489,7 @@ FAKE23.4\tunc-new\t\t10902633\t6.78\t\t"
         let filter = &FilterGroup::<GeneFieldName> {
             filters: vec![vec![(
                 GeneFieldName::Chromosome,
-                Filter::Equal(Chromosome::X.to_string()),
+                Filter::Equal(ChromosomeName::X.to_string()),
             )]],
             order_by: vec![],
             limit: None,

@@ -124,6 +124,9 @@ export class AlleleExpression {
   }
 
   static fromJSON(json: string): AlleleExpression {
-    return [plainToInstance(AlleleExpression, JSON.parse(json))].flat()[0];
+    return plainToInstance(
+      AlleleExpression,
+      JSON.parse(json) as Record<string, unknown>
+    );
   }
 }

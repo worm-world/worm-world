@@ -1,4 +1,4 @@
-use super::{chromosome::Chromosome, FieldNameEnum};
+use super::{chromosome_name::ChromosomeName, FieldNameEnum};
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
@@ -8,7 +8,7 @@ use ts_rs::TS;
 pub struct Variation {
     #[serde(rename = "alleleName")]
     pub allele_name: String,
-    pub chromosome: Option<Chromosome>,
+    pub chromosome: Option<ChromosomeName>,
     #[serde(rename = "physLoc")]
     pub phys_loc: Option<i32>,
     #[serde(rename = "geneticLoc")]

@@ -214,7 +214,7 @@ mod test {
     use crate::interface::bulk::Bulk;
     use crate::interface::mock;
     use crate::models::allele::AlleleFieldName;
-    use crate::models::chromosome::Chromosome;
+    use crate::models::chromosome_name::ChromosomeName;
     use crate::models::filter::{Filter, FilterGroup, Order};
     use crate::models::gene::GeneFieldName;
     use crate::models::{allele::Allele, gene::Gene, variation::Variation};
@@ -244,7 +244,7 @@ mod test {
         let new_gene = Gene {
             systematic_name: "T14B4.7".to_string(),
             descriptive_name: Some("dpy-10".to_string()),
-            chromosome: Some(Chromosome::Ii),
+            chromosome: Some(ChromosomeName::Ii),
             phys_loc: Some(6710149),
             gen_loc: Some(0.0),
             recomb_suppressor: None,
@@ -278,7 +278,7 @@ mod test {
 
         let new_vi = Variation {
             allele_name: "oxTi302".to_string(),
-            chromosome: Some(Chromosome::I),
+            chromosome: Some(ChromosomeName::I),
             phys_loc: Some(10166146),
             gen_loc: Some(4.72),
             recomb_suppressor: None,
@@ -341,7 +341,7 @@ mod test {
         let new_gene = Gene {
             systematic_name: "T14B4.7".to_string(),
             descriptive_name: Some("dpy-10".to_string()),
-            chromosome: Some(Chromosome::Ii),
+            chromosome: Some(ChromosomeName::Ii),
             phys_loc: Some(6710149),
             gen_loc: Some(0.0),
             recomb_suppressor: None,
@@ -351,7 +351,7 @@ mod test {
 
         let new_vi = Variation {
             allele_name: "oxTi302".to_string(),
-            chromosome: Some(Chromosome::I),
+            chromosome: Some(ChromosomeName::I),
             phys_loc: Some(10166146),
             gen_loc: Some(4.72),
             recomb_suppressor: None,

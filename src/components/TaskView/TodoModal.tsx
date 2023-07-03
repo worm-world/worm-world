@@ -3,6 +3,10 @@ import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { toast } from 'react-toastify';
+import {
+  FaArrowRight as RightIcon,
+  FaArrowLeft as LeftIcon,
+} from 'react-icons/fa';
 import { type Task, getConditionsFromTask } from 'models/frontend/Task/Task';
 
 interface TodoModalProps {
@@ -33,22 +37,24 @@ const TodoModal = (props: TodoModalProps): JSX.Element => {
     setSliderValue(event.target.value);
   };
 
-  const handleClick = (): void => {
-    void postponeDates();
+  const updateDate = (isForward = true): void => {
+    getTasks()
+      .then(async (tasks) => {
+        const task = tasks.find(
+          (task) => task.tree_id === props.task.treeId && !task.completed
+        );
+        if (task === undefined) throw new Error('Task not found in database');
+        task.due_date = moment(task.due_date)
+          .add((isForward ? 1 : -1) * parseInt(sliderValue), 'days')
+          .toISOString();
+        await updateDbTask(task);
+        await props.refresh();
+        setIsChecked(false);
+        toast.success('Successfully Updated tasks');
+      })
+      .catch(console.error);
   };
 
-  const postponeDates = async (): Promise<void> => {
-    const allTasks = await getTasks();
-    for (const t of allTasks) {
-      if (t.tree_id === props.task.treeId && !t.completed) {
-        t.due_date = moment(t.due_date).add(sliderValue, 'days').toISOString();
-        await updateDbTask(t);
-      }
-    }
-    toast.success('Successfully Updated tasks');
-    void props.refresh();
-    setIsChecked(false);
-  };
   const taskCondtions = Array.from(
     getConditionsFromTask(props.task.strain1, props.task.strain2)
   );
@@ -110,16 +116,29 @@ const TodoModal = (props: TodoModalProps): JSX.Element => {
             <span>4 Days</span>
             <span>5 Days</span>
           </div>
-          <button
-            onClick={handleClick}
-            disabled={props.task.completed}
-            className='btn-primary btn mb-4 mt-4'
-          >
-            Postpone Task
-          </button>
-          <button className='btn-primary btn ml-8' onClick={navigateToTree}>
-            View Non-Editable Origin Tree
-          </button>
+          <div className='modal-action'>
+            <button
+              onClick={() => {
+                updateDate(false);
+              }}
+              disabled={props.task.completed}
+              className='btn-primary btn'
+            >
+              Make Earlier
+            </button>
+            <button
+              onClick={() => {
+                updateDate();
+              }}
+              disabled={props.task.completed}
+              className='btn-primary btn'
+            >
+              Postpone
+            </button>
+            <button className='btn-secondary btn' onClick={navigateToTree}>
+              View Tree (Non-Editable)
+            </button>
+          </div>
         </div>
       </div>
     </>

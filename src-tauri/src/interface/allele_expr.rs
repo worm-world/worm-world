@@ -153,7 +153,7 @@ mod test {
     use crate::interface::bulk::Bulk;
     use crate::interface::mock;
     use crate::models::allele_expr::{AlleleExpressionDb, AlleleExpressionFieldName};
-    use crate::models::chromosome::Chromosome;
+    use crate::models::chromosome_name::ChromosomeName;
     use crate::models::expr_relation::ExpressionRelationFieldName;
     use crate::models::filter::{Filter, FilterGroup, Order};
     use crate::models::{
@@ -302,7 +302,7 @@ mod test {
             .insert_gene(&Gene {
                 systematic_name: "T14B4.7".to_string(),
                 descriptive_name: Some("dpy-10".to_string()),
-                chromosome: Some(Chromosome::Ii),
+                chromosome: Some(ChromosomeName::Ii),
                 phys_loc: Some(6710149),
                 gen_loc: Some(0.0),
                 recomb_suppressor: None,
@@ -351,7 +351,7 @@ mod test {
             .insert_gene(&Gene {
                 systematic_name: "T14B4.7".to_string(),
                 descriptive_name: Some("dpy-10".to_string()),
-                chromosome: Some(Chromosome::Ii),
+                chromosome: Some(ChromosomeName::Ii),
                 phys_loc: Some(6710149),
                 gen_loc: Some(0.0),
                 recomb_suppressor: None,

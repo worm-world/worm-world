@@ -73,6 +73,9 @@ export class Phenotype {
   }
 
   static fromJSON(json: string): Phenotype {
-    return [plainToInstance(Phenotype, JSON.parse(json))].flat()[0];
+    return plainToInstance(
+      Phenotype,
+      JSON.parse(json) as Record<string, unknown>
+    );
   }
 }
