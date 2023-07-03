@@ -85,7 +85,7 @@ export class Task {
   }
 
   static fromJSON(json: string): Task {
-    return [plainToInstance(Task, JSON.parse(json))].flat()[0];
+    return plainToInstance(Task, JSON.parse(json) as Record<string, unknown>);
   }
 }
 
@@ -98,8 +98,8 @@ export const getConditionsFromTask = (
   [
     ...worm1.strain.chromPairMap.values(),
     ...(worm2?.strain.chromPairMap.values() ?? []),
-  ].forEach((chrom) => {
-    chrom.forEach((allelePair) => {
+  ].forEach((chromPair) => {
+    chromPair.allelePairs.forEach((allelePair) => {
       [
         ...allelePair.bot.alleleExpressions,
         ...allelePair.top.alleleExpressions,

@@ -18,6 +18,9 @@ export class TaskCondition {
   }
 
   static fromJSON(json: string): TaskCondition {
-    return [plainToInstance(TaskCondition, JSON.parse(json))].flat()[0];
+    return plainToInstance(
+      TaskCondition,
+      JSON.parse(json) as Record<string, unknown>
+    );
   }
 }

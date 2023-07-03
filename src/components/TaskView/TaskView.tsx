@@ -6,6 +6,7 @@ import {
   TbArrowLoopLeft as SelfCrossIcon,
 } from 'react-icons/tb';
 import { BiX as CrossIcon } from 'react-icons/bi';
+import { FaArrowRight as RightIcon } from 'react-icons/fa';
 import TodoModal from 'components/TaskView/TodoModal';
 import moment from 'moment';
 import { type Action } from 'models/db/task/Action';
@@ -93,7 +94,9 @@ const TaskItem = (props: TaskItemProps): JSX.Element => {
               <StrainNode model={rightStrain} />
             )}
             {action === 'SelfCross' && <div className='ml-4 w-60' />}
-            <div className='divider lg:divider-horizontal'>To</div>
+            <div className='my-auto p-2'>
+              <RightIcon />
+            </div>
             {result !== undefined && <StrainNode model={result} />}
           </div>
           <textarea

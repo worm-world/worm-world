@@ -47,6 +47,9 @@ export class Variation {
   }
 
   static fromJSON(json: string): Variation {
-    return [plainToInstance(Variation, JSON.parse(json))].flat()[0];
+    return plainToInstance(
+      Variation,
+      JSON.parse(json) as Record<string, unknown>
+    );
   }
 }

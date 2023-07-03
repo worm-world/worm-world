@@ -9,7 +9,7 @@ import { BiHide, BiShow } from 'react-icons/bi';
 
 const untitledName = '(Untitled)';
 
-export const SchedulePage = (): JSX.Element => {
+export const ToDo = (): JSX.Element => {
   const noFilterText = 'No filter';
   const [tasks, setTasks] = useState<Task[]>([]);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
@@ -32,7 +32,8 @@ export const SchedulePage = (): JSX.Element => {
 
   const refreshTasks = async (): Promise<void> => {
     const tasks = await getTasks();
-    setTasks(tasks.map((task) => new Task(task)));
+    const tasks2 = tasks.map((task) => new Task(task));
+    setTasks(tasks2);
   };
 
   const refreshTreeNames = async (): Promise<void> => {
@@ -302,4 +303,4 @@ const TaskRemovalPrompt = (props: {
   );
 };
 
-export default SchedulePage;
+export default ToDo;

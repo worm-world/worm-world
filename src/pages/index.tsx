@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { GiEarthWorm as WormIcon } from 'react-icons/gi';
 import { toast } from 'react-toastify';
 
-const CrossDesignerPage = (): JSX.Element => {
+const Index = (): JSX.Element => {
   const [crossTrees, setCrossTrees] = useState<CrossTree[]>([]);
   const [hasRefreshedOnce, setHasRefreshedOnce] = useState(false);
 
@@ -55,7 +55,7 @@ const CrossDesignerPage = (): JSX.Element => {
   );
 
   return (
-    <div className='overflow-x-hidden'>
+    <>
       <TopNav
         title={'Cross Designs'}
         buttons={[newTreeButton, importTreeButton]}
@@ -77,7 +77,7 @@ const CrossDesignerPage = (): JSX.Element => {
           })}
         </div>
       )}
-    </div>
+    </>
   );
 };
 
@@ -131,4 +131,4 @@ const addTree = async (): Promise<void> => {
   }
 };
 
-export default CrossDesignerPage;
+export default Index;

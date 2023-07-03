@@ -76,38 +76,35 @@ const TreeCard = (props: TreeCardProps): JSX.Element => {
   };
 
   return (
-    <>
-      <div className='m-4'>
-        <div className='relative left-40 z-10 h-0'>
+    <div className='m-4'>
+      <Link
+        to={'/editor'}
+        className='card h-52 w-52 rounded-lg shadow-xl'
+        state={{ treeId: props.tree.id.toString() }}
+      >
+        <div className='flex h-1/2 justify-end rounded-t-lg bg-primary'>
           <Menu
             items={getMenuItems()}
             title='Actions'
             icon={<MoreHorizIcon />}
           />
         </div>
-        <Link
-          to={'/editor'}
-          className='hover card h-52 w-52 rounded-lg shadow-xl hover:brightness-[.97]'
-          state={{ treeId: props.tree.id.toString() }}
-        >
-          <div className='flex h-1/2 justify-end rounded-t-lg bg-primary' />
-          <div className='h-1/2 bg-base-200 p-4 pt-2 text-base-content'>
-            <div className='card-title w-full truncate'>
-              <EditableDiv
-                value={name}
-                setValue={setName}
-                editable={nameEditable}
-                onFinishEditing={updateTreeName}
-                placeholder='(Untitled)'
-              />
-            </div>
-            <div className='flex h-8 w-full justify-between'>
-              <span>Last saved:</span>
-              <span>{props.tree.lastSaved.toLocaleDateString()}</span>
-            </div>
+        <div className='h-1/2 bg-base-200 p-4 pt-2 text-base-content'>
+          <div className='card-title w-full truncate'>
+            <EditableDiv
+              value={name}
+              setValue={setName}
+              editable={nameEditable}
+              onFinishEditing={updateTreeName}
+              placeholder='(Untitled)'
+            />
           </div>
-        </Link>
-      </div>
+          <div className='flex h-8 w-full justify-between'>
+            <span>Last saved:</span>
+            <span>{props.tree.lastSaved.toLocaleDateString()}</span>
+          </div>
+        </div>
+      </Link>
 
       <div
         className={`modal cursor-pointer ${
@@ -144,7 +141,7 @@ const TreeCard = (props: TreeCardProps): JSX.Element => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

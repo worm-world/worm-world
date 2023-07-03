@@ -630,6 +630,13 @@ describe('cross tree', () => {
     expect(treeBack.generateRecord(treeBack.editable)).toEqual(
       tree.generateRecord(tree.editable)
     );
+
+    expect(
+      treeBack.nodes
+        .filter((node) => node.type === FlowType.Strain)
+        .every(
+          (node) => (node.data.strain as Strain).getAllelePairs !== undefined
+        )
+    );
   });
-  // #endregion tests
 });

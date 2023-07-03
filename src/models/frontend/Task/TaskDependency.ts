@@ -18,6 +18,9 @@ export class TaskDependency {
   }
 
   static fromJSON(json: string): TaskDependency {
-    return [plainToInstance(TaskDependency, JSON.parse(json))].flat()[0];
+    return plainToInstance(
+      TaskDependency,
+      JSON.parse(json) as Record<string, unknown>
+    );
   }
 }

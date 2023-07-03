@@ -138,6 +138,9 @@ export class AllelePair implements IAllelePair {
   }
 
   static fromJSON(json: string): AllelePair {
-    return [plainToInstance(AllelePair, JSON.parse(json))].flat()[0];
+    return plainToInstance(
+      AllelePair,
+      JSON.parse(json) as Record<string, unknown>
+    );
   }
 }

@@ -3,6 +3,7 @@ import { getFilteredStrainAlleles, insertStrainAllele } from 'api/strainAllele';
 import {
   Exclude,
   Transform,
+  Type,
   instanceToPlain,
   plainToInstance,
 } from 'class-transformer';
@@ -23,6 +24,7 @@ import {
   type ChromosomeOption,
   ChromosomePair,
 } from 'models/frontend/ChromosomePair/ChromosomePair';
+import { chromosomes } from 'models/frontend/Chromosome';
 
 export interface StrainOption {
   strain: Strain;
@@ -42,29 +44,21 @@ interface IStrain {
 }
 
 /**
- * A genetic profile consisting of an ordered sequence of any non-wild allele pairs.
+ * A genetic profile consisting of an ordered sequence allele pairs.
  */
 export class Strain {
-  /* #region initializers */
+  // Make sure that chromosome pairs in map are correctly deserialized
   @Transform(
-    (data: { obj: any }) => {
-      // Called by class-transformer to restore an object-based representation of the chromPairMap to a Map-based one
-      const dict = data?.obj?.chromPairMap ?? {};
-      return new Map(
-        Object.keys(dict).map((k) => {
-          const pairs = dict[k];
-          const restoredPairs = pairs.allelePairs.map((pair: unknown) =>
-            AllelePair.fromJSON(JSON.stringify(pair))
-          );
-          return [
-            k === 'undefined' ? undefined : k,
-            new ChromosomePair(restoredPairs),
-          ];
-        }) ?? null
-      );
-    },
+    ({ value }) =>
+      new Map(
+        [...value.entries()].map(([chromName, chromPair]) => [
+          chromName,
+          ChromosomePair.fromJSON(JSON.stringify(chromPair)),
+        ])
+      ),
     { toClassOnly: true }
   )
+  @Type(() => Map<ChromosomeName | undefined, ChromosomePair>)
   public chromPairMap = new Map<ChromosomeName | undefined, ChromosomePair>();
 
   public name?: string;
@@ -159,7 +153,7 @@ export class Strain {
               (options.excludeEca && chromPair.isEca())
             )
         )
-        .map((chromPair) => chromPair.toString())
+        .map((chromPair) => chromPair.toString(true))
         .join('; ') + '.'
     );
   }
@@ -355,6 +349,7 @@ export class Strain {
     );
     Strain.reduceStrainOptions(strainOpts);
     Strain.normalizeEcaOptions(strainOpts);
+    strainOpts.sort((a, b) => b.prob - a.prob);
     return strainOpts;
   }
 
@@ -525,7 +520,7 @@ export class Strain {
   }
 
   static fromJSON(json: string): Strain {
-    return [plainToInstance(Strain, JSON.parse(json))].flat()[0];
+    return plainToInstance(Strain, JSON.parse(json) as Record<string, unknown>);
   }
 
   @Exclude()
@@ -550,9 +545,8 @@ export function cmpChromName(
   } else if (chromB === undefined) {
     return -1;
   } else {
-    const order: ChromosomeName[] = ['I', 'II', 'III', 'IV', 'V', 'X', 'Ex'];
-    const posA = order.indexOf(chromA);
-    const posB = order.indexOf(chromB);
+    const posA = chromosomes.indexOf(chromA);
+    const posB = chromosomes.indexOf(chromB);
     return posA - posB;
   }
 }

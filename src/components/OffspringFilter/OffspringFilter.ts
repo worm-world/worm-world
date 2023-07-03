@@ -163,6 +163,9 @@ export class OffspringFilter {
   }
 
   static fromJSON(json: string): OffspringFilter {
-    return [plainToInstance(OffspringFilter, JSON.parse(json))].flat()[0];
+    return plainToInstance(
+      OffspringFilter,
+      JSON.parse(json) as Record<string, unknown>
+    );
   }
 }

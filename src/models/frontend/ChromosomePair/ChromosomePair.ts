@@ -1,7 +1,7 @@
 import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { type Allele } from 'models/frontend/Allele/Allele';
 import { type ChromosomeName } from 'models/db/filter/db_ChromosomeName';
-import { instanceToPlain, plainToInstance } from 'class-transformer';
+import { Type, instanceToPlain, plainToInstance } from 'class-transformer';
 
 export interface ChromosomeOption {
   chromosome: Allele[];
@@ -14,6 +14,7 @@ export interface ChromosomeOption {
  * kept in sorted order by genetic position.
  */
 export class ChromosomePair {
+  @Type(() => AllelePair)
   public allelePairs: AllelePair[] = [];
 
   constructor(allelePairs: AllelePair[]) {
@@ -77,17 +78,20 @@ export class ChromosomePair {
     );
   }
 
-  public toString(): string {
+  public toString(excludeWild = false): string {
     const chromName = this.getChromName();
+    const chromPair = excludeWild ? this.toSimplified() : this;
     if (this.isHomo()) {
       return (
-        this.allelePairs.map((pair) => pair.top.getQualifiedName()).join(' ') +
+        chromPair.allelePairs
+          .map((pair) => pair.top.getQualifiedName())
+          .join(' ') +
         ' ' +
         (chromName ?? '?')
       );
     } else {
-      const top = ChromosomePair.getChromosomeString(this.getTop());
-      const bot = ChromosomePair.getChromosomeString(this.getBot());
+      const top = ChromosomePair.getChromosomeString(chromPair.getTop());
+      const bot = ChromosomePair.getChromosomeString(chromPair.getBot());
       return top + '/' + bot + ' ' + (chromName ?? '?');
     }
   }
@@ -318,7 +322,10 @@ export class ChromosomePair {
   }
 
   static fromJSON(json: string): ChromosomePair {
-    return [plainToInstance(ChromosomePair, JSON.parse(json))].flat()[0];
+    return plainToInstance(
+      ChromosomePair,
+      JSON.parse(json) as Record<string, unknown>
+    );
   }
 }
 

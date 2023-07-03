@@ -65,10 +65,9 @@ export const maleManyPairs = new StrainNodeModel({
       mockAlleles.chrom2Gene1Allele1.toHomoPair(),
       mockAlleles.chrom2Gene2Allele1.toHomoPair(),
       mockAlleles.chromXGene1Allele1.toHomoPair(),
-      mockAlleles.chromExVariation1Allele1.toEcaPair(),
+      mockAlleles.chromExVariation1Allele1.toTopHetPair(),
     ],
   }),
-  getMenuItems,
 });
 
 export const ed3HetMale = new StrainNodeModel({
@@ -76,7 +75,6 @@ export const ed3HetMale = new StrainNodeModel({
   strain: new Strain({
     allelePairs: [mockAlleles.ed3.toTopHetPair()],
   }),
-  getMenuItems,
 });
 
 export const ed3HetHerm = new Strain({
@@ -88,7 +86,6 @@ export const ed3HomoHerm = new StrainNodeModel({
   strain: new Strain({
     allelePairs: [mockAlleles.ed3.toHomoPair()],
   }),
-  getMenuItems,
 });
 
 export const e204WildMale = new StrainNodeModel({
@@ -96,7 +93,6 @@ export const e204WildMale = new StrainNodeModel({
   strain: new Strain({
     allelePairs: [mockAlleles.e204.toWild().toHomoPair()],
   }),
-  getMenuItems,
 });
 
 export const e204HomoHerm = new StrainNodeModel({
@@ -104,7 +100,6 @@ export const e204HomoHerm = new StrainNodeModel({
   strain: new Strain({
     allelePairs: [mockAlleles.e204.toHomoPair()],
   }),
-  getMenuItems,
 });
 
 export const e204HetMale = new StrainNodeModel({
@@ -112,7 +107,6 @@ export const e204HetMale = new StrainNodeModel({
   strain: new Strain({
     allelePairs: [mockAlleles.e204.toTopHetPair()],
   }),
-  getMenuItems,
 });
 
 export const ox802HomoHerm = new StrainNodeModel({
@@ -120,7 +114,6 @@ export const ox802HomoHerm = new StrainNodeModel({
   strain: new Strain({
     allelePairs: [mockAlleles.ox802.toHomoPair()],
   }),
-  getMenuItems,
 });
 
 export const e204HetOx802Het = new StrainNodeModel({
@@ -131,7 +124,6 @@ export const e204HetOx802Het = new StrainNodeModel({
       mockAlleles.ox802.toTopHetPair(),
     ],
   }),
-  getMenuItems,
 });
 
 export const e204HomoOx802HetHerm = new StrainNodeModel({
@@ -142,7 +134,6 @@ export const e204HomoOx802HetHerm = new StrainNodeModel({
       mockAlleles.ox802.toTopHetPair(),
     ],
   }),
-  getMenuItems,
 });
 
 export const e204HomoOx802HomoHerm = new StrainNodeModel({
@@ -153,7 +144,6 @@ export const e204HomoOx802HomoHerm = new StrainNodeModel({
       mockAlleles.ox802.toHomoPair(),
     ],
   }),
-  getMenuItems,
 });
 
 export const n765Homo = new StrainNodeModel({
@@ -161,16 +151,14 @@ export const n765Homo = new StrainNodeModel({
   strain: new Strain({
     allelePairs: [mockAlleles.n765.toHomoPair()],
   }),
-  getMenuItems,
 });
 
 export const exStrainNode = new StrainNodeModel({
   sex: Sex.Hermaphrodite,
   strain: new Strain({
     allelePairs: [
-      mockAlleles.oxEx12345.toEcaPair(),
-      mockAlleles.oxEx2254.toEcaPair(),
+      mockAlleles.oxEx12345.toTopHetPair(),
+      mockAlleles.oxEx2254.toTopHetPair(),
     ],
   }),
-  getMenuItems,
 });

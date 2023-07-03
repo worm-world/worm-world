@@ -189,7 +189,7 @@ describe('ChromosomePair', () => {
     });
   });
 
-  test('should be able to serialize and deserialize', () => {
+  test('(De)serializes', () => {
     const chromPair = new ChromosomePair([
       e204.toTopHetPair(),
       ox802.toHomoPair(),
@@ -199,5 +199,6 @@ describe('ChromosomePair', () => {
     const chromPairBack = ChromosomePair.fromJSON(str);
     expect(chromPairBack).toEqual(chromPair);
     expect(chromPairBack.allelePairs).toBeDefined();
+    expect(chromPairBack.toJSON).toBeDefined();
   });
 });

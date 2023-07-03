@@ -56,6 +56,6 @@ export class Gene {
   }
 
   static fromJSON(json: string): Gene {
-    return [plainToInstance(Gene, JSON.parse(json))].flat()[0];
+    return plainToInstance(Gene, JSON.parse(json) as Record<string, unknown>);
   }
 }

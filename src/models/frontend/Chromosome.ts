@@ -1,4 +1,4 @@
-import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
+import { type ChromosomeName } from 'models/db/filter/db_ChromosomeName';
 
 /**
  * Specific to C. Elegans:
@@ -6,7 +6,7 @@ import { type Chromosome } from 'models/db/filter/db_ChromosomeEnum';
  * X is sex chromosome,
  * Ex is extra-chromosomal array (not technically chromosome, but treated as one)
  */
-export const chromosomes: Chromosome[] = [
+export const chromosomes: ChromosomeName[] = [
   'I',
   'II',
   'III',

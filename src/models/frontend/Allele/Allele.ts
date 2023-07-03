@@ -65,7 +65,7 @@ export class Allele {
     };
 
     await Allele.setGeneOrVariation(newAlleleState, fields).catch((err) => {
-      console.error('error generating gene / variation', err);
+      console.error('error generating gene or variation', err);
     });
 
     await Allele.setAlleleExpressions(newAlleleState, fields.name).catch(
@@ -160,10 +160,6 @@ export class Allele {
     return new AllelePair({ top: this.toWild(), bot: this });
   }
 
-  public toEcaPair(): AllelePair {
-    return new AllelePair({ top: this, bot: this.toWild(), isEca: true });
-  }
-
   public generateRecord(): db_Allele {
     return {
       name: this.name,
@@ -198,7 +194,7 @@ export class Allele {
   }
 
   static fromJSON(json: string): Allele {
-    return [plainToInstance(Allele, JSON.parse(json))].flat()[0];
+    return plainToInstance(Allele, JSON.parse(json) as Record<string, unknown>);
   }
 }
 

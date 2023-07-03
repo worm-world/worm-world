@@ -67,9 +67,9 @@ const Layout = (props: LayoutProps): JSX.Element => {
   }, []);
 
   return (
-    <div className='drawer'>
+    <div className='drawer h-screen w-screen'>
       <input id='nav-drawer' type='checkbox' className='drawer-toggle' />
-      <div className='drawer-content'>{props.children}</div>
+      <div className='drawer-content h-full'>{props.children}</div>
 
       <div className='drawer-side z-50' data-testid='side-drawer'>
         <label htmlFor='nav-drawer' className='drawer-overlay' />

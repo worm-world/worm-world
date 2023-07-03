@@ -1,11 +1,15 @@
 import { describe, expect, test } from 'vitest';
 import { Allele } from 'models/frontend/Allele/Allele';
-import { ed3 } from 'models/frontend/Allele/Allele.mock';
+import * as mockAlleles from 'models/frontend/Allele/Allele.mock';
 
 describe('Allele', () => {
-  test('should be able to (de)serialize', () => {
-    const str = ed3.toJSON();
+  test('(De)serializes', () => {
+    const str = mockAlleles.ed3.toJSON();
     const ed3Back = Allele.fromJSON(str);
-    expect(ed3Back).toEqual(ed3);
+    expect(ed3Back).toEqual(mockAlleles.ed3);
+    expect(ed3Back.toJSON).toBeDefined();
+
+    // Check nested objects
+    expect(ed3Back.gene?.toJSON).toBeDefined();
   });
 });

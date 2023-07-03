@@ -51,6 +51,9 @@ export class Condition {
   }
 
   static fromJSON(json: string): Condition {
-    return [plainToInstance(Condition, JSON.parse(json))].flat()[0];
+    return plainToInstance(
+      Condition,
+      JSON.parse(json) as Record<string, unknown>
+    );
   }
 }

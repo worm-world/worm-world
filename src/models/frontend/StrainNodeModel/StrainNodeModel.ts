@@ -22,6 +22,7 @@ export interface IStrainNodeModel {
 
 export class StrainNodeModel implements IStrainNodeModel {
   sex: Sex;
+
   @Type(() => Strain)
   strain: Strain;
 
@@ -61,6 +62,9 @@ export class StrainNodeModel implements IStrainNodeModel {
   }
 
   static fromJSON(json: string): StrainNodeModel {
-    return [plainToInstance(StrainNodeModel, JSON.parse(json))].flat()[0];
+    return plainToInstance(
+      StrainNodeModel,
+      JSON.parse(json) as Record<string, unknown>
+    );
   }
 }

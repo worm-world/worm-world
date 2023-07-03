@@ -8,7 +8,10 @@ import {
 } from 'models/frontend/Strain/Strain';
 import * as mockStrains from 'models/frontend/Strain/Strain.mock';
 import { expect, test, describe } from 'vitest';
-import { chromsEqual } from 'models/frontend/ChromosomePair/ChromosomePair';
+import {
+  ChromosomePair,
+  chromsEqual,
+} from 'models/frontend/ChromosomePair/ChromosomePair';
 
 const PRECISION = 6;
 
@@ -209,7 +212,7 @@ describe('strain', () => {
     expect(before).toEqual(after);
   });
 
-  test('fillsWildsFrom() is idempotent', () => {
+  test('fillWildsFrom() is idempotent', () => {
     const strain = new Strain({
       allelePairs: [
         mockAlleles.ed3.toTopHetPair(),
@@ -241,6 +244,29 @@ describe('strain', () => {
     });
 
     expect(strain1.equals(expected)).toBe(true);
+  });
+
+  test('(De)serializes', () => {
+    const strain = new Strain({
+      allelePairs: [
+        // chrom II
+        mockAlleles.oxTi75.toTopHetPair(),
+        mockAlleles.cn64.toHomoPair(),
+        // chrom IV
+        mockAlleles.ox802.toTopHetPair(),
+      ],
+    });
+    const str = strain.toJSON();
+    const strainBack = Strain.fromJSON(str);
+    expect(strainBack).toEqual(strain);
+    expect(strainBack.toJSON).toBeDefined();
+    expect(strainBack.chromPairMap).toBeInstanceOf(Map);
+
+    const chromPair = strainBack.chromPairMap?.get('IV');
+    expect(chromPair).toEqual(
+      new ChromosomePair([mockAlleles.ox802.toTopHetPair()])
+    );
+    expect(chromPair?.toJSON).toBeDefined();
   });
 });
 
@@ -389,9 +415,9 @@ describe('Cross algorithm', () => {
     const probSum = crossStrains.reduce((prev, curr) => prev + curr.prob, 0);
     expect(probSum).toBeCloseTo(1.0);
 
-    // test first 30 strains for correctness
+    // test all strains >= 0.1%
     testStrainOptions(
-      crossStrains.slice(0, mockStrains.partialAdvancedSelfCross.length),
+      crossStrains.filter((strainOpt) => strainOpt.prob >= 0.001),
       mockStrains.partialAdvancedSelfCross
     );
   });
@@ -440,20 +466,5 @@ describe('Cross algorithm', () => {
 
     testStrainOptions(selfCrossStrains, mockStrains.wildToWildCross);
     testStrainOptions(wildToWildCrossStrains, mockStrains.wildToWildCross);
-  });
-
-  test('should be able to serialize and deserialize', () => {
-    const allelePairs1: AllelePair[] = [
-      // chrom II
-      mockAlleles.oxTi75.toTopHetPair(),
-      mockAlleles.cn64.toTopHetPair(),
-      // chrom IV
-      mockAlleles.ox802.toTopHetPair(),
-    ];
-    const strain1 = new Strain({ allelePairs: allelePairs1 });
-    const str = strain1.toJSON();
-    const strain1Back = Strain.fromJSON(str);
-    expect(strain1Back).toEqual(strain1);
-    expect(strain1Back.getAllelePairs).toBeDefined();
   });
 });

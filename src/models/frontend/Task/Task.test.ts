@@ -5,7 +5,7 @@ import { TaskCondition } from 'models/frontend/Task/TaskCondition';
 import { TaskDependency } from 'models/frontend/Task/TaskDependency';
 
 describe('Task', () => {
-  test('should be able to serialize and deserialize', () => {
+  test('(De)serializes', () => {
     const task = new Task({
       id: '0',
       due_date: null,
@@ -20,6 +20,7 @@ describe('Task', () => {
     const str = task.toJSON();
     const taskBack = Task.fromJSON(str);
     expect(taskBack).toEqual(task);
+    expect(taskBack.toJSON).toBeDefined();
   });
 });
 
