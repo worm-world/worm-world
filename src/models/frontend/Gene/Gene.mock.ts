@@ -105,7 +105,7 @@ export const dpy10 = new Gene({
 export const dpy20 = new Gene({
   sysName: 'T22B3.1',
   descName: 'dpy-10',
-  chromosome: 'II',
+  chromosome: 'IV',
   physLoc: 11696430,
   geneticLoc: 5.52,
 });

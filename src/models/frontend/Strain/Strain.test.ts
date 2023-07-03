@@ -58,6 +58,18 @@ afterAll(() => {
 });
 
 describe('strain', () => {
+  test('ctor creates correct genotype', () => {
+    const strain1 = new Strain({
+      allelePairs: [
+        mockAlleles.ed3.toWild().toHomoPair(), // irrelevant to genotype
+        mockAlleles.e138.toBotHetPair(), // Physically first
+        mockAlleles.e1282.toTopHetPair(),
+      ],
+    });
+
+    expect(strain1.genotype).toEqual('unc-24(e138) +/+ dpy-10(e1282) IV.');
+  });
+
   test('.equals() returns true for strains with homozygous pairs', () => {
     const allelePairs: AllelePair[] = [mockAlleles.e204.toHomoPair()];
     const strain1 = new Strain({ allelePairs });
@@ -206,10 +218,12 @@ describe('strain', () => {
       allelePairs: [mockAlleles.ed3.toTopHetPair()],
     });
 
+    console.log(before.genotype);
+
     const after = before.clone();
     after.fillWildsFrom(before);
 
-    expect(before).toEqual(after);
+    expect(after).toEqual(before);
   });
 
   test('fillWildsFrom() is idempotent', () => {

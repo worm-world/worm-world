@@ -276,19 +276,19 @@ describe('allele pair', () => {
     expect(homoEd3.isHomo()).toBe(true);
   });
 
-  test('.getFlippedPair() on homozygous pair', () => {
+  test('.flip() on homozygous pair', () => {
     const pair = e204.toHomoPair();
-    const flipped = pair.getFlippedPair();
+    const flipped = pair.flip();
     expect(pair).not.toBe(flipped); // different instantiations
     expect(pair.top.name).toEqual(flipped.bot.name);
     expect(pair.bot.name).toEqual(flipped.top.name);
   });
 
-  test('.getFlippedPair() on heterozygous pair', () => {
+  test('.flip() on heterozygous pair', () => {
     const pair1 = e204.toTopHetPair();
     const pair2 = e204.toBotHetPair();
-    const flipped1 = pair1.getFlippedPair();
-    const flipped2 = pair2.getFlippedPair();
+    const flipped1 = pair1.flip();
+    const flipped2 = pair2.flip();
 
     expect(pair1).not.toEqual(flipped1); // different instantiations
     expect(pair2).not.toEqual(flipped2); // different instantiations
@@ -296,20 +296,6 @@ describe('allele pair', () => {
     expect(pair1.bot.name).toEqual(flipped1.top.name);
     expect(pair2.top.name).toEqual(flipped2.bot.name);
     expect(pair2.bot.name).toEqual(flipped2.top.name);
-  });
-
-  test('.flip() mutates current pair', () => {
-    const pair = e204.toTopHetPair();
-    const oldTop = pair.top;
-    const oldBot = pair.bot;
-
-    pair.flip();
-    expect(pair.top).toBe(oldBot);
-    expect(pair.bot).toBe(oldTop);
-
-    pair.flip();
-    expect(pair.top).toBe(oldTop);
-    expect(pair.bot).toBe(oldBot);
   });
 
   test('.clone() on homozygous pair', () => {
