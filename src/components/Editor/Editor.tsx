@@ -305,8 +305,13 @@ const Editor = (props: EditorProps): JSX.Element => {
   /** Called after onConnect or after dragging an edge */
   const onConnectEnd = useCallback(() => {
     const params = onConnectParams.current;
-    if (params === null || params === undefined) return;
-    if (params.handleType === 'target') return;
+    if (
+      params === null ||
+      params === undefined ||
+      params.handleType === 'target' ||
+      !props.crossTree.editable
+    )
+      return;
     const nodeId = params.nodeId;
     if (nodeId === null || nodeId === undefined) {
       console.error('NodeId is null or undefined');
