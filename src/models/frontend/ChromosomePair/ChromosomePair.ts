@@ -62,10 +62,13 @@ export class ChromosomePair {
   }
 
   /** Return a new, equivalent chromosome pair without any wild allele pairs */
-  public toSimplified(): ChromosomePair {
-    return new ChromosomePair(
-      this.allelePairs.filter((allelePair) => !allelePair.isWild())
+  public simplify(): ChromosomePair {
+    let allelePairs = this.allelePairs.filter(
+      (allelePair) => !allelePair.isWild()
     );
+    if (allelePairs.length > 0 && allelePairs[0].top.isWild())
+      allelePairs = allelePairs.map((allelePair) => allelePair.flip());
+    return new ChromosomePair(allelePairs);
   }
 
   public getChromName(): ChromosomeName | undefined {
@@ -78,9 +81,9 @@ export class ChromosomePair {
     );
   }
 
-  public toString(excludeWild = false): string {
+  public toString(simplify = false): string {
     const chromName = this.getChromName();
-    const chromPair = excludeWild ? this.toSimplified() : this;
+    const chromPair = simplify ? this.simplify() : this;
     if (this.isHomo()) {
       return (
         chromPair.allelePairs

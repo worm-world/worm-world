@@ -102,21 +102,14 @@ export class AllelePair implements IAllelePair {
   }
 
   /**
-   * Given an allele pair, flips it so the top is now on the bottom and vice versa
+   * Returns a flipped pair
    */
-  public getFlippedPair(): AllelePair {
+  public flip(): AllelePair {
     const newPair = this.clone();
-    newPair.flip();
-    return newPair;
-  }
-
-  /**
-   * Flips this pair's top and bottom alleles
-   */
-  public flip(): void {
     const temp = this.top;
-    this.top = this.bot;
-    this.bot = temp;
+    newPair.top = this.bot;
+    newPair.bot = temp;
+    return newPair;
   }
 
   /**

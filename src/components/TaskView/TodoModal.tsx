@@ -3,10 +3,6 @@ import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { toast } from 'react-toastify';
-import {
-  FaArrowRight as RightIcon,
-  FaArrowLeft as LeftIcon,
-} from 'react-icons/fa';
 import { type Task, getConditionsFromTask } from 'models/frontend/Task/Task';
 
 interface TodoModalProps {
