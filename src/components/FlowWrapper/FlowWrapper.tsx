@@ -26,33 +26,27 @@ export const StrainFlowWrapper = (
   return (
     <div className='strain-node h-fit w-fit'>
       <Handle key='top' id='top' type='target' position={Position.Top} />
-
-      <div className={rStyling}>
-        <Handle
-          key='right'
-          id='right'
-          type='source'
-          position={Position.Right}
-        />
-      </div>
-      <div className={lStyling}>
-        <Handle
-          key='left'
-          className={lStyling}
-          id='left'
-          type='source'
-          position={Position.Left}
-        />
-      </div>
-      <div className={bStyling}>
-        <Handle
-          key='bottom'
-          className={bStyling}
-          id='bottom'
-          type='source'
-          position={Position.Bottom}
-        />
-      </div>
+      <Handle
+        key='right'
+        id='right'
+        className={rStyling}
+        type='source'
+        position={Position.Right}
+      />
+      <Handle
+        key='left'
+        className={lStyling}
+        id='left'
+        type='source'
+        position={Position.Left}
+      />
+      <Handle
+        key='bottom'
+        className={bStyling}
+        id='bottom'
+        type='source'
+        position={Position.Bottom}
+      />
       <StrainNode model={props.data} />
     </div>
   );

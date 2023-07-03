@@ -3,10 +3,6 @@ import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { toast } from 'react-toastify';
-import {
-  FaArrowRight as RightIcon,
-  FaArrowLeft as LeftIcon,
-} from 'react-icons/fa';
 import { type Task, getConditionsFromTask } from 'models/frontend/Task/Task';
 
 interface TodoModalProps {
@@ -99,7 +95,7 @@ const TodoModal = (props: TodoModalProps): JSX.Element => {
               </div>
             </>
           )}
-          <h3 className='mb-4 mt-2 text-lg font-bold'>Update Due-Date:</h3>
+          <h3 className='mb-4 mt-2 text-lg font-bold'>Update Due Date:</h3>
           <input
             type='range'
             min='1'
@@ -124,7 +120,7 @@ const TodoModal = (props: TodoModalProps): JSX.Element => {
               disabled={props.task.completed}
               className='btn-primary btn'
             >
-              Make Earlier
+              Earlier
             </button>
             <button
               onClick={() => {
@@ -133,7 +129,7 @@ const TodoModal = (props: TodoModalProps): JSX.Element => {
               disabled={props.task.completed}
               className='btn-primary btn'
             >
-              Postpone
+              Later
             </button>
             <button className='btn-secondary btn' onClick={navigateToTree}>
               View Tree (Non-Editable)

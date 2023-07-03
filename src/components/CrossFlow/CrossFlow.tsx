@@ -249,6 +249,7 @@ const CrossFlow = (props: CrossFlowProps): JSX.Element => {
         connectionMode={ConnectionMode.Loose}
         onNodeDragStop={props.onNodeDragStop}
         nodesDraggable={props.treeEditable}
+        nodesConnectable={props.treeEditable}
         elementsSelectable={props.treeEditable}
       >
         <CustomControls
