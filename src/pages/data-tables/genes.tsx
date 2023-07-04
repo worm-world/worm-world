@@ -10,7 +10,7 @@ import { type ColumnDefinitionType } from 'components/Table/Table';
 import { chromosomes } from 'models/frontend/Chromosome';
 import { type Field } from 'components/ColumnFilter/ColumnFilter';
 import { type GeneFieldName } from 'models/db/filter/db_GeneFieldName';
-import DataTablePage from 'components/DataTablePage/DataTablePage';
+import DataTable from 'components/DataTable/DataTable';
 
 export const cols: Array<ColumnDefinitionType<db_Gene>> = [
   { key: 'sysName', header: 'Systematic Name' },
@@ -58,9 +58,9 @@ const nameMapping: { [key in keyof db_Gene]: GeneFieldName } = {
   recombSuppressor: 'RecombSuppressor',
 };
 
-export default function GeneDataTablePage(): JSX.Element {
+export default function GeneDataTable(): JSX.Element {
   return (
-    <DataTablePage
+    <DataTable
       title='Genes'
       dataName='gene'
       cols={cols}

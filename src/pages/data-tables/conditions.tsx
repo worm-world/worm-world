@@ -9,7 +9,7 @@ import {
 } from 'api/condition';
 import { type Field } from 'components/ColumnFilter/ColumnFilter';
 import { type ConditionFieldName } from 'models/db/filter/db_ConditionFieldName';
-import DataTablePage from 'components/DataTablePage/DataTablePage';
+import DataTable from 'components/DataTable/DataTable';
 
 export const cols: Array<ColumnDefinitionType<db_Condition>> = [
   { key: 'name', header: 'Name' },
@@ -69,9 +69,9 @@ const nameMapping: { [key in keyof db_Condition]: ConditionFieldName } = {
   arrested: 'Arrested',
 };
 
-export default function ConditionDataTablePage(): JSX.Element {
+export default function ConditionDataTable(): JSX.Element {
   return (
-    <DataTablePage
+    <DataTable
       title='Conditions'
       dataName='condition'
       cols={cols}

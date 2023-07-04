@@ -2,7 +2,7 @@ import { Meta, StoryFn } from '@storybook/react';
 import DataImportForm, {
   FieldType,
   DataImportFormProps,
-} from 'components/DataImportForm/DataImportForm';
+} from 'components/DataInputForm/DataInputForm';
 import { db_Allele } from 'models/db/db_Allele';
 import { db_Condition } from 'models/db/db_Condition';
 import { db_Gene } from 'models/db/db_Gene';

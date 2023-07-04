@@ -213,14 +213,10 @@ const TaskRemovalBtn = (props: {
     : 'Are you sure you want to remove ALL tasks? This will delete every task from every cross design.';
   return (
     <div>
-      <label htmlFor='delete-tasks-modal' className='btn-error btn-outline btn'>
+      <label htmlFor='delete-tasks-modal' className='btn-outline btn-error btn'>
         {removeBtnTxt}
       </label>
-      <input
-        type='checkbox'
-        id='delete-tasks-modal'
-        className='modal-toggle btn-error btn'
-      />
+      <input type='checkbox' id='delete-tasks-modal' className='modal-toggle' />
       <label htmlFor='delete-tasks-modal' className='modal cursor-pointer'>
         <label className='modal-box relative text-center' htmlFor=''>
           <h2 className='text-3xl font-bold'>{modalHeader}</h2>
