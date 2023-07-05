@@ -14,8 +14,6 @@ const Index = (): React.JSX.Element => {
   const [trees, setTrees] = useState<CrossTree[]>([]);
   const [hasRefreshedOnce, setHasRefreshedOnce] = useState(false);
 
-  console.log(newTreeId);
-
   const refreshTrees = async (): Promise<void> => {
     const trees = await getFilteredTrees({
       filters: [[['Editable', 'True']]],
