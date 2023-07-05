@@ -11,9 +11,10 @@ interface EditableDivProps {
   onFinishEditing: () => void;
   onClick?: MouseEventHandler;
   placeholder?: string;
+  autoFocus?: boolean;
 }
 
-const EditableDiv = (props: EditableDivProps): JSX.Element => {
+const EditableDiv = (props: EditableDivProps): React.JSX.Element => {
   const handleKeyDown: KeyboardEventHandler = (event) => {
     if (event.key === 'Enter') {
       props.onFinishEditing();
@@ -38,7 +39,7 @@ const EditableDiv = (props: EditableDivProps): JSX.Element => {
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           autoFocus
-        ></input>
+        />
       ) : (
         <div
           className={`w-full truncate border-2 border-transparent ${

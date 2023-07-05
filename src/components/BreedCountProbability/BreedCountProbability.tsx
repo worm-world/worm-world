@@ -6,7 +6,7 @@ export interface BreedCountProbabilityProps {
 
 const BreedCountProbability = (
   props: BreedCountProbabilityProps
-): JSX.Element => {
+): React.JSX.Element => {
   const getNForConfidence = (confidence: number): number => {
     if (
       confidence > 0.999 ||

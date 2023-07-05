@@ -147,7 +147,7 @@ interface CustomControlsProps {
   treeEditable: boolean;
 }
 
-const CustomControls = (props: CustomControlsProps): JSX.Element => {
+const CustomControls = (props: CustomControlsProps): React.JSX.Element => {
   return (
     <Controls
       position='top-left'
@@ -216,7 +216,7 @@ export enum FlowType {
   FilteredOut = 'filteredOut',
 }
 
-const CrossFlow = (props: CrossFlowProps): JSX.Element => {
+const CrossFlow = (props: CrossFlowProps): React.JSX.Element => {
   const nodeTypes = useMemo(
     () => ({
       strain: StrainFlowWrapper,

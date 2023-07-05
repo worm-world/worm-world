@@ -83,7 +83,9 @@ export class Strain {
     chromPairs: ChromosomePair[]
   ): Promise<Strain> {
     return await this.build({
-      allelePairs: chromPairs.flatMap((chromPair) => chromPair.allelePairs),
+      allelePairs: chromPairs
+        .filter((chromPair) => !chromPair.isEca() || !chromPair.isWild())
+        .flatMap((chromPair) => chromPair.allelePairs),
     });
   }
 
@@ -95,7 +97,11 @@ export class Strain {
   }
 
   public isEmptyWild(): boolean {
-    return this.chromPairMap.size === 0;
+    const isEmpty = this.chromPairMap.size === 0;
+    const isOnlyWildEcas =
+      this.chromPairMap.size === 1 &&
+      (this.chromPairMap.get('Ex')?.isWild() ?? false);
+    return isEmpty || isOnlyWildEcas;
   }
 
   /** Returns clone with leading het alleles on to and no wild chromosome pairs */
@@ -354,7 +360,7 @@ export class Strain {
     return strainOpts;
   }
 
-  /** Strain options differing only by extrachromosomal array contents should have equivalent property
+  /** Strain options differing only by extrachromosomal array contents should have same probability
    * (for simplicity, not necessarily biologically accurate) */
   private static normalizeEcaOptions(strainOpts: StrainOption[]): void {
     // Partition options according to non-ECA equality

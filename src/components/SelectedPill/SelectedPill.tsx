@@ -5,7 +5,7 @@ export interface SelectedPillProps {
   displayVal: string;
 }
 
-const SelectedPill = (props: SelectedPillProps): JSX.Element => {
+const SelectedPill = (props: SelectedPillProps): React.JSX.Element => {
   return (
     <div className='badge badge-secondary m-1 p-4 pr-0' key={props.displayVal}>
       <div className='mr-2'>{props.displayVal}</div>
@@ -23,8 +23,8 @@ export const getSelectedPills = <U,>(
   selectedRecords: Set<U>,
   removeFromSelected: (value: U) => void,
   displayResultsOn: Array<keyof U>
-): JSX.Element[] => {
-  const pills = new Array<JSX.Element>();
+): React.JSX.Element[] => {
+  const pills = new Array<React.JSX.Element>();
   Array.from(selectedRecords).forEach((record, index) => {
     const displayVal = displayResultsOn
       .map((field) => record[field] as string)

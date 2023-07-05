@@ -2,12 +2,12 @@ import * as React from 'react';
 import { BiMenu as MenuIcon } from 'react-icons/bi';
 interface TopNavInputProps {
   title: string;
-  children?: JSX.Element[];
+  children?: React.JSX.Element[];
   tabIndex?: number | false;
-  buttons?: JSX.Element[];
+  buttons?: React.JSX.Element[];
 }
 
-export function TopNav(props: TopNavInputProps): JSX.Element {
+export function TopNav(props: TopNavInputProps): React.JSX.Element {
   const initialTabIdx = props.tabIndex === undefined ? 0 : props.tabIndex;
   const [tabIdx, setTabIdx] = React.useState(initialTabIdx);
   return (

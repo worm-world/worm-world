@@ -7,7 +7,7 @@ interface FilteredOutModalProps {
   excludedNodes: Array<Node<StrainNodeModel>>;
 }
 
-const FilteredOutModal = (props: FilteredOutModalProps): JSX.Element => {
+const FilteredOutModal = (props: FilteredOutModalProps): React.JSX.Element => {
   return (
     <>
       <input

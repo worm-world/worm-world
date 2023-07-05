@@ -1,16 +1,16 @@
-import { getTasks, updateDbTask } from 'api/task';
+import { getTasks, updateTask } from 'api/task';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { toast } from 'react-toastify';
 import { type Task, getConditionsFromTask } from 'models/frontend/Task/Task';
 
-interface TodoModalProps {
+interface TaskModalProps {
   task: Task;
   refresh: () => Promise<void>;
 }
 
-const TodoModal = (props: TodoModalProps): JSX.Element => {
+const TaskModal = (props: TaskModalProps): React.JSX.Element => {
   const navigate = useNavigate();
   const navigateToTree = useCallback((): void => {
     // the tree associated with the task is already a copy
@@ -43,7 +43,7 @@ const TodoModal = (props: TodoModalProps): JSX.Element => {
         task.due_date = moment(task.due_date)
           .add((isForward ? 1 : -1) * parseInt(sliderValue), 'days')
           .toISOString();
-        await updateDbTask(task);
+        await updateTask(task);
         await props.refresh();
         setIsChecked(false);
         toast.success('Successfully Updated tasks');
@@ -95,7 +95,7 @@ const TodoModal = (props: TodoModalProps): JSX.Element => {
               </div>
             </>
           )}
-          <h3 className='mb-4 mt-2 text-lg font-bold'>Update Due Date:</h3>
+          <h3 className='mb-4 mt-2 text-lg font-bold'>Update Due Date</h3>
           <input
             type='range'
             min='1'
@@ -141,4 +141,4 @@ const TodoModal = (props: TodoModalProps): JSX.Element => {
   );
 };
 
-export default TodoModal;
+export default TaskModal;

@@ -1,12 +1,12 @@
 import { open } from '@tauri-apps/api/dialog';
 import { type Field } from 'components/ColumnFilter/ColumnFilter';
-import DataImportForm from 'components/DataImportForm/DataImportForm';
+import DataImportForm from 'components/DataInputForm/DataInputForm';
 import { Table, type ColumnDefinitionType } from 'components/Table/Table';
 import { type FilterGroup } from 'models/db/filter/FilterGroup';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
-interface DataTablePageProps<T, K> {
+interface DataTableProps<T, K> {
   title: string;
   dataName: string;
   cols: Array<ColumnDefinitionType<T>>;
@@ -26,7 +26,9 @@ interface DataTablePageProps<T, K> {
 
 const rowsPerPage = 50;
 
-const DataTablePage = <T, K>(props: DataTablePageProps<T, K>): JSX.Element => {
+const DataTableView = <T, K>(
+  props: DataTableProps<T, K>
+): React.JSX.Element => {
   const [data, setData] = useState<T[]>([]);
   const [page, setPage] = useState<number | undefined>(0);
   const [rowCount, setRowCount] = useState(0);
@@ -224,4 +226,4 @@ const DataTablePage = <T, K>(props: DataTablePageProps<T, K>): JSX.Element => {
   );
 };
 
-export default DataTablePage;
+export default DataTableView;

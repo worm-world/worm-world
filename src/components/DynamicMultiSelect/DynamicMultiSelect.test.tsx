@@ -15,7 +15,7 @@ export const mockGetFilteredGenes = async (): Promise<db_Gene[]> => {
   return await Promise.resolve([gene1, gene2]);
 };
 
-const MockDynamicMultiSelect = (): JSX.Element => {
+const MockDynamicMultiSelect = (): React.JSX.Element => {
   const [selectedRecords, setSelectedRecords] = useState<Set<db_Gene>>(
     new Set()
   );
@@ -33,7 +33,7 @@ const MockDynamicMultiSelect = (): JSX.Element => {
   return <DynamicMultiSelect {...selectProps} />;
 };
 
-const MockDynamicMultiSelectWithFilter = (): JSX.Element => {
+const MockDynamicMultiSelectWithFilter = (): React.JSX.Element => {
   const [selectedRecords, setSelectedRecords] = useState<Set<db_Gene>>(
     new Set()
   );

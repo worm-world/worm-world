@@ -1,4 +1,4 @@
-import { updateTree } from 'api/crossTree';
+import { updateTree } from 'api/tree';
 import EditableDiv from 'components/EditableDiv/EditableDiv';
 import type CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { useState, useEffect } from 'react';
@@ -6,10 +6,10 @@ import { BiMenu as MenuIcon } from 'react-icons/bi';
 
 export interface EditorTopProps {
   tree: CrossTree;
-  buttons?: JSX.Element[];
+  buttons?: React.JSX.Element[];
 }
 
-const EditorTop = (props: EditorTopProps): JSX.Element => {
+const EditorTop = (props: EditorTopProps): React.JSX.Element => {
   const [name, setName] = useState('');
   const [nameEditable, setNameEditable] = useState(false);
 
@@ -42,7 +42,6 @@ const EditorTop = (props: EditorTopProps): JSX.Element => {
             onClick={() => {
               setNameEditable(true);
             }}
-            placeholder='(Untitled)'
           />
         </h1>
       </div>

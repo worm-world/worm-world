@@ -1,4 +1,4 @@
-import { getTree } from 'api/crossTree';
+import { getTree } from 'api/tree';
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { useLocation } from 'react-router-dom';
 import Editor from 'components/Editor/Editor';
@@ -8,7 +8,7 @@ import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
 
-const EditorPage = (): JSX.Element => {
+const EditorPage = (): React.JSX.Element => {
   const [tree, setTree]: [CrossTree | null, (tree: CrossTree | null) => void] =
     useState<CrossTree | null>(null);
 

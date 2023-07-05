@@ -12,7 +12,7 @@ export interface StrainFormProps {
   enforcedSex?: Sex;
 }
 
-const StrainForm = (props: StrainFormProps): JSX.Element => {
+const StrainForm = (props: StrainFormProps): React.JSX.Element => {
   const [sex, setSex] = useState(Sex.Male);
   const [isSelectByName, setIsSelectByName] = useState(true);
   const [previewStrain, setPreviewStrain] = useState<Strain>();
@@ -77,7 +77,7 @@ const StrainForm = (props: StrainFormProps): JSX.Element => {
 const StrainSelect = (props: {
   setPreview?: (strain?: Strain) => void;
   onSubmit: (strain: Strain) => void;
-}): JSX.Element => {
+}): React.JSX.Element => {
   const [strain, setStrain] = useState<Strain>();
   const [userInput, setUserInput] = useState('');
 
@@ -126,7 +126,7 @@ const SexSelect = (props: {
   sex: Sex;
   setSex: (sex: Sex) => void;
   disabled: boolean;
-}): JSX.Element => {
+}): React.JSX.Element => {
   return (
     <>
       <label className='label'>

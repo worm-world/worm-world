@@ -54,7 +54,7 @@ interface ContextMenuProps {
   yPos: number;
 }
 
-export const ContextMenu = (props: ContextMenuProps): JSX.Element => {
+export const ContextMenu = (props: ContextMenuProps): React.JSX.Element => {
   return (
     <div
       data-testid='context-menu'

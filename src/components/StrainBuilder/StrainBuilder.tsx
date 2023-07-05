@@ -22,7 +22,7 @@ const buildStrain = async (
     (await Allele.createFromRecord(allele)).toHomoPair()
   );
   const exPairs = Array.from(ecas).map(async (allele) =>
-    (await Allele.createFromRecord(allele)).toEcaPair()
+    (await Allele.createFromRecord(allele)).toTopHetPair()
   );
 
   // Merge het pairs
@@ -56,7 +56,7 @@ const buildStrain = async (
   });
 };
 
-const StrainBuilder = (props: StrainBuilderProps): JSX.Element => {
+const StrainBuilder = (props: StrainBuilderProps): React.JSX.Element => {
   const [homoAlleles, setHomoAlleles] = useState(new Set<db_Allele>());
   const [hetAlleles, setHetAlleles] = useState(new Set<db_Allele>());
   const [ecaAlleles, setEcaAlleles] = useState(new Set<db_Allele>());

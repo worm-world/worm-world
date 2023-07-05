@@ -1,7 +1,7 @@
 import { TopNav } from 'components/TopNav/TopNav';
 import { Link, Outlet } from 'react-router-dom';
 
-const DataTables = (): JSX.Element => {
+const DataTables = (): React.JSX.Element => {
   return (
     <div className='data-tables'>
       <TopNav title={'Data Tables'} tabIndex={0}>

@@ -11,7 +11,7 @@ interface LayoutProps {
 interface NavItem {
   name: string;
   path: string;
-  icon: JSX.Element;
+  icon: React.JSX.Element;
 }
 
 const navItems: NavItem[] = [
@@ -32,7 +32,7 @@ const navItems: NavItem[] = [
   },
 ];
 
-const NavItems = (): JSX.Element => {
+const NavItems = (): React.JSX.Element => {
   return (
     <>
       {navItems.map((item) => (
@@ -60,7 +60,7 @@ const allThemes = [
   'corporate',
 ];
 
-const Layout = (props: LayoutProps): JSX.Element => {
+const Layout = (props: LayoutProps): React.JSX.Element => {
   useEffect(() => {
     themeChange(false);
     // 👆 false parameter is required for react project

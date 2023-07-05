@@ -12,7 +12,7 @@ interface ColumnFilterWrapperProps<T> {
 
 const ColumnFilterWrapper = <T,>(
   props: ColumnFilterWrapperProps<T>
-): JSX.Element => {
+): React.JSX.Element => {
   const [filterTypes, setFilterTypes] = useState<Filter[]>(
     props.filterTypes ?? new Array<Filter>()
   );

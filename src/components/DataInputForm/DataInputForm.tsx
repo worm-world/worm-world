@@ -20,7 +20,7 @@ interface FieldsProps<T> {
   fieldList: Array<FieldType<T>>;
 }
 
-const Fields = <T,>(props: FieldsProps<T>): JSX.Element => {
+const Fields = <T,>(props: FieldsProps<T>): React.JSX.Element => {
   const fieldList = props.fieldList;
   return (
     <div>
@@ -42,24 +42,25 @@ const Fields = <T,>(props: FieldsProps<T>): JSX.Element => {
             </div>
           );
         } else if (field.type === 'select') {
+          const key = 'key-' + field.name.toString();
           return (
-            <div className='my-1' key={'key-' + field.name.toString()}>
+            <div className='my-1' key={key}>
               <label className='label'>
                 <span className='label-text'>{field.title}</span>
+                <select
+                  className='select-bordered select w-full max-w-xs'
+                  key={key}
+                  name={field.name.toString()}
+                >
+                  {field.selectOptions?.map((option: string) => {
+                    return (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    );
+                  })}
+                </select>
               </label>
-              <select
-                className='select-bordered select w-full max-w-xs'
-                key={'key-' + field.name.toString()}
-                name={field.name.toString()}
-              >
-                {field.selectOptions?.map((option: string) => {
-                  return (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  );
-                })}
-              </select>
             </div>
           );
         } else {
@@ -67,13 +68,13 @@ const Fields = <T,>(props: FieldsProps<T>): JSX.Element => {
             <div className='my-1' key={'key-' + field.name.toString()}>
               <label className='label'>
                 <span className='label-text'>{field.title}</span>
+                <input
+                  type='text'
+                  className='input-bordered input w-full max-w-xs'
+                  key={'key-' + field.name.toString()}
+                  name={field.name.toString()}
+                />
               </label>
-              <input
-                type='text'
-                className='input-bordered input w-full max-w-xs'
-                key={'key-' + field.name.toString()}
-                name={field.name.toString()}
-              />
             </div>
           );
         }
@@ -82,11 +83,10 @@ const Fields = <T,>(props: FieldsProps<T>): JSX.Element => {
   );
 };
 
-const DataImportForm = <T,>(props: DataImportFormProps<T>): JSX.Element => {
+const DataImportForm = <T,>(
+  props: DataImportFormProps<T>
+): React.JSX.Element => {
   const [isFormOpen, setFormOpen] = useState(false);
-  const handleOpen = (): void => {
-    setFormOpen(true);
-  };
 
   const handleSubmit = (event: React.ChangeEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -114,7 +114,7 @@ const DataImportForm = <T,>(props: DataImportFormProps<T>): JSX.Element => {
         if (datum === '' || datum === null) {
           record[field.name] = null;
         } else {
-          record[field.name] = datum;
+          record[field.name] = datum.toString().trim();
         }
       }
     }
@@ -128,7 +128,9 @@ const DataImportForm = <T,>(props: DataImportFormProps<T>): JSX.Element => {
       <label
         htmlFor={'add-new-' + props.dataName}
         className='btn'
-        onClick={handleOpen}
+        onClick={() => {
+          setFormOpen(true);
+        }}
       >
         {'Add New ' + props.title.slice(0, -1)}
       </label>

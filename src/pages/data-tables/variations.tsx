@@ -9,7 +9,7 @@ import { type db_Variation } from 'models/db/db_Variation';
 import { type ColumnDefinitionType } from 'components/Table/Table';
 import { chromosomes } from 'models/frontend/Chromosome';
 import { type VariationFieldName } from 'models/db/filter/db_VariationFieldName';
-import DataTablePage from 'components/DataTablePage/DataTablePage';
+import DataTableView from 'components/DataTableView/DataTableView';
 import { type Field } from 'components/ColumnFilter/ColumnFilter';
 
 export const cols: Array<ColumnDefinitionType<db_Variation>> = [
@@ -51,9 +51,9 @@ const nameMapping: { [key in keyof db_Variation]: VariationFieldName } = {
   recombSuppressor: 'RecombSuppressor',
 };
 
-export default function VariationDataTablePage(): JSX.Element {
+export default function VariationDataTable(): React.JSX.Element {
   return (
-    <DataTablePage
+    <DataTableView
       title='Variations'
       dataName='variation'
       cols={cols}

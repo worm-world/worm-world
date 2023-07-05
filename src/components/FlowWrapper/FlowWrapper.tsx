@@ -16,7 +16,7 @@ export interface StrainFlowWrapperProps {
 
 export const StrainFlowWrapper = (
   props: StrainFlowWrapperProps
-): JSX.Element => {
+): React.JSX.Element => {
   const isMale = props.data.sex === Sex.Male;
 
   const rStyling = isMale ? '' : 'invisible';
@@ -53,7 +53,9 @@ export const StrainFlowWrapper = (
 };
 
 // Container used to wrap components for use in React Flow
-export const XIconFlowWrapper = (props: { data: XNodeProps }): JSX.Element => {
+export const XIconFlowWrapper = (props: {
+  data: XNodeProps;
+}): React.JSX.Element => {
   return (
     <div className='h-fit w-fit'>
       <Handle key='left' id='left' type='target' position={Position.Left} />
@@ -71,7 +73,7 @@ export const XIconFlowWrapper = (props: { data: XNodeProps }): JSX.Element => {
 
 export const SelfIconFlowWrapper = (props: {
   data: SelfIconProps;
-}): JSX.Element => {
+}): React.JSX.Element => {
   return (
     <div className='h-fit w-fit'>
       <Handle key='top' id='top' type='target' position={Position.Top} />
@@ -88,13 +90,13 @@ export const SelfIconFlowWrapper = (props: {
 
 export const NoteFlowWrapper = (props: {
   data: NoteNodeProps;
-}): JSX.Element => {
+}): React.JSX.Element => {
   return <NoteNode {...props.data}></NoteNode>;
 };
 
 export const FilteredOutFlowWrapper = (props: {
   data: FilteredOutNodeProps;
-}): JSX.Element => {
+}): React.JSX.Element => {
   return (
     <div>
       <Handle key='top' id='top' type='target' position={Position.Top} />

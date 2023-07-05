@@ -28,7 +28,7 @@ const MockAlleleMultiSelect = (props: {
   shouldInclude: (allele: db_Allele) => boolean;
   placeholder: string;
   label: string;
-}): JSX.Element => {
+}): React.JSX.Element => {
   const [selectedRecords, setSelectedRecords] = useState<Set<db_Allele>>(
     new Set()
   );

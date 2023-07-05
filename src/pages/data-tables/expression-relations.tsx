@@ -9,7 +9,7 @@ import { type db_ExpressionRelation } from 'models/db/db_ExpressionRelation';
 import { type ColumnDefinitionType } from 'components/Table/Table';
 import { type ExpressionRelationFieldName } from 'models/db/filter/db_ExpressionRelationFieldName';
 import { type Field } from 'components/ColumnFilter/ColumnFilter';
-import DataTablePage from 'components/DataTablePage/DataTablePage';
+import DataTableView from 'components/DataTableView/DataTableView';
 
 export const cols: Array<ColumnDefinitionType<db_ExpressionRelation>> = [
   { key: 'alleleName', header: 'Allele Name' },
@@ -71,9 +71,9 @@ const nameMapping: {
   isSuppressing: 'IsSuppressing',
 };
 
-export default function ExpressionRelationDataTablePage(): JSX.Element {
+export default function ExpressionRelationDataTable(): React.JSX.Element {
   return (
-    <DataTablePage
+    <DataTableView
       title='Expression Relations'
       dataName='expressionRelation'
       cols={cols}

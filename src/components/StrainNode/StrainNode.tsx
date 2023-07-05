@@ -18,7 +18,7 @@ const SexIcon = (props: {
   sex: Sex;
   isParent: boolean;
   toggleSex?: () => void;
-}): JSX.Element => {
+}): React.JSX.Element => {
   const toggleStyling = 'text-base ' + (props.isParent ? 'opacity-50' : '');
   return (
     <div
@@ -41,7 +41,7 @@ export interface StrainNodeProps {
   model: StrainNodeModel;
 }
 
-const StrainNode = (props: StrainNodeProps): JSX.Element => {
+const StrainNode = (props: StrainNodeProps): React.JSX.Element => {
   const menuItems =
     props.model?.getMenuItems !== undefined
       ? props.model.getMenuItems(props.model)
@@ -119,10 +119,10 @@ const MainContentArea = (props: {
   strain: Strain;
   canToggleHets: boolean;
   toggleHetPair?: (pair: AllelePair) => void;
-}): JSX.Element => {
-  if (props.strain.getAllelePairs().length === 0) {
+}): React.JSX.Element => {
+  if (props.strain.isEmptyWild())
     return <div className='flex h-12 flex-col justify-center'>(Wild)</div>;
-  } else {
+  else {
     return (
       <ChromBoxes
         strain={props.strain}
@@ -138,33 +138,25 @@ const ChromBoxes = (props: {
   strain: Strain;
   canToggleHets: boolean;
   toggleHetPair?: (pair: AllelePair) => void;
-}): JSX.Element => {
-  let hideEcaBox = false;
-  if (props.strain.chromPairMap.has('Ex')) {
-    const nonWildEcas = props.strain.chromPairMap.get('Ex');
-    hideEcaBox = nonWildEcas?.allelePairs.length === 0;
-  }
-  const lastIndex = hideEcaBox
-    ? props.strain.chromPairMap.size - 2
-    : props.strain.chromPairMap.size - 1;
-
+}): React.JSX.Element => {
   return (
     <>
-      {Array.from(props.strain.getSortedChromPairs()).map((chromPair, idx) => {
-        if (chromPair.isEca() && hideEcaBox) return <></>;
-        return (
-          <div key={idx} className='flex'>
-            <ChromBox
-              canToggleHets={props.canToggleHets}
-              chromPair={chromPair}
-              toggleHetPair={props.toggleHetPair}
-            />
-            <div className='flex flex-col justify-center pt-3 font-light text-base-content'>
-              {idx < lastIndex ? ';' : ''}
+      {Array.from(props.strain.getSortedChromPairs())
+        .filter((chromPair) => !(chromPair.isEca() && chromPair.isWild()))
+        .map((chromPair, idx, chromPairs) => {
+          return (
+            <div key={idx} className='flex'>
+              <ChromBox
+                canToggleHets={props.canToggleHets}
+                chromPair={chromPair}
+                toggleHetPair={props.toggleHetPair}
+              />
+              <div className='flex flex-col justify-center pt-3 font-light text-base-content'>
+                {idx < chromPairs.length - 1 ? ';' : ''}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
     </>
   );
 };
@@ -172,10 +164,10 @@ const ChromBoxes = (props: {
 // All the 'fractions' under a single chromosome
 const ChromBox = (props: {
   canToggleHets: boolean;
-  chromPair?: ChromosomePair;
+  chromPair: ChromosomePair;
   toggleHetPair?: (pair: AllelePair) => void;
-}): JSX.Element => {
-  const mutationBoxes = props.chromPair?.allelePairs.map((allelePair, idx) => (
+}): React.JSX.Element => {
+  const mutationBoxes = props.chromPair.allelePairs.map((allelePair, idx) => (
     <MutationBox
       allelePair={allelePair}
       key={idx}
@@ -183,7 +175,7 @@ const ChromBox = (props: {
       toggleHetPair={props.toggleHetPair}
     />
   ));
-  const chromName = props.chromPair?.getChromName() ?? '?';
+  const chromName = props.chromPair.getChromName() ?? '?';
 
   return (
     <div key={chromName} className='mx-2  flex flex-col items-center'>
@@ -197,7 +189,7 @@ const MutationBox = (props: {
   allelePair: AllelePair;
   canToggleHets: boolean;
   toggleHetPair?: (pair: AllelePair) => void;
-}): JSX.Element => {
+}): React.JSX.Element => {
   if (props.allelePair.isEca()) {
     if (props.allelePair.isWild()) return <></>;
     return (

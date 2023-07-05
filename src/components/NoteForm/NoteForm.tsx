@@ -6,7 +6,7 @@ export interface NoteFormProps {
   buttonText: string;
 }
 
-const NoteForm = (props: NoteFormProps): JSX.Element => {
+const NoteForm = (props: NoteFormProps): React.JSX.Element => {
   return (
     <div className='flex h-5/6 flex-col'>
       <h1 className='text-lg'>{props.header}</h1>

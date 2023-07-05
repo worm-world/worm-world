@@ -8,7 +8,7 @@ const MockTreeCard = ({
   tree: tree,
 }: {
   tree: CrossTree;
-}): JSX.Element => {
+}): React.JSX.Element => {
   return (
     <BrowserRouter>
       <TreeCard tree={tree} refreshTrees={() => {}}></TreeCard>

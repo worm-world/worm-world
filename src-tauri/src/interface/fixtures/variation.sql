@@ -21,9 +21,9 @@ VALUES ("oxIs363", "IV", NULL, NULL, NULL, NULL),
         6600000,
         12500000
     ),
-    ("oxEx2254", NULL, NULL, NULL, NULL, NULL),
+    ("oxEx2254", "Ex", NULL, NULL, NULL, NULL),
     ("oxSi1168", "II", 8420158, 0.77, NULL, NULL),
-    ("oxEx219999", NULL, NULL, NULL, NULL, NULL),
+    ("oxEx219999", "Ex", NULL, NULL, NULL, NULL),
     ("eT1(V)", "V", NULL, NULL, 1, 8934697),
     ("eT1(III)", "III", NULL, NULL, 8192365, 13783733);
 COMMIT TRANSACTION;

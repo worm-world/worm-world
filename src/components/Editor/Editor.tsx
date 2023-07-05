@@ -1,5 +1,5 @@
-import { insertTree, updateTree } from 'api/crossTree';
-import { insertDbTasks } from 'api/task';
+import { insertTree, updateTree } from 'api/tree';
+import { insertTasks } from 'api/task';
 import {
   ContextMenu,
   useContextMenuState,
@@ -80,7 +80,7 @@ export const ShowGenesContext = createContext(true);
 
 type DrawerState = 'addStrain' | 'cross' | 'addNote' | 'editNote';
 
-const Editor = (props: EditorProps): JSX.Element => {
+const Editor = (props: EditorProps): React.JSX.Element => {
   const navigate = useNavigate();
   const [rightDrawerOpen, setEditorDrawerSideOpen] = useState(false);
   const [drawerState, setDrawerState] = useState<DrawerState>('addStrain');
@@ -990,7 +990,7 @@ const Editor = (props: EditorProps): JSX.Element => {
           .map((task) => task.generateRecord());
         insertTree(clonedTree.generateRecord(clonedTree.editable))
           .then(async () => {
-            await insertDbTasks(tasks);
+            await insertTasks(tasks);
           })
           .then(() => {
             navigate('/schedules/todo');
