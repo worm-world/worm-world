@@ -4,7 +4,7 @@ import * as mockCrossTree from 'models/frontend/CrossTree/CrossTree.mock';
 import { BrowserRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 
-const MockTreeCard = (): JSX.Element => {
+const MockTreeCard = (): React.JSX.Element => {
   return (
     <BrowserRouter>
       <TreeCard

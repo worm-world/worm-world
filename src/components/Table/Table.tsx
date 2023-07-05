@@ -22,7 +22,7 @@ export interface ColumnDefinitionType<T> {
   width?: number;
 }
 
-const SortIcon = (props: any): JSX.Element => {
+const SortIcon = (props: any): React.JSX.Element => {
   if (props.sortdir === 'Asc') {
     return <SortUpIcon {...props} />;
   } else {
@@ -52,7 +52,9 @@ interface TableHeaderCellProps<T> {
  * This component is not stateful beside tracking if the cell is currently hovered.
  * It calls a parent component's stateful functions to update the sort type and filter field.
  */
-const TableHeaderCell = <T,>(props: TableHeaderCellProps<T>): JSX.Element => {
+const TableHeaderCell = <T,>(
+  props: TableHeaderCellProps<T>
+): React.JSX.Element => {
   const [hovered, setHovered] = useState<boolean>(false);
   const flipSortAndRun = (): void => {
     let sortType = props.sortType;
@@ -116,7 +118,7 @@ interface TableHeaderProps<T> {
   applyFilters: () => void;
 }
 
-const TableHeader = <T,>(props: TableHeaderProps<T>): JSX.Element => {
+const TableHeader = <T,>(props: TableHeaderProps<T>): React.JSX.Element => {
   const headers = props.columns.map((column, index) => {
     return (
       <TableHeaderCell
@@ -167,7 +169,7 @@ interface DeleteCellProps {
   deleteRecord: () => Promise<void>;
 }
 
-const DeleteCell = (props: DeleteCellProps): JSX.Element => {
+const DeleteCell = (props: DeleteCellProps): React.JSX.Element => {
   return (
     <td
       className='text-error hover:cursor-pointer'
@@ -199,7 +201,7 @@ interface CellProps<T> {
   ) => Promise<void>;
 }
 
-const Cell = <T,>(props: CellProps<T>): JSX.Element => {
+const Cell = <T,>(props: CellProps<T>): React.JSX.Element => {
   const cellValue = formatData(props.row[props.column.key]);
   const isEditable = props.updateRecord !== undefined;
   const [isActive, setIsActive] = useState(false);
@@ -248,7 +250,7 @@ const TableRows = <T,>({
   offset,
   deleteRecord,
   updateRecord,
-}: TableRowsProps<T>): JSX.Element => {
+}: TableRowsProps<T>): React.JSX.Element => {
   const rows = data.map((row, rowIndex) => {
     return (
       <tr key={`row-${rowIndex}`} className='rounded-none border-none'>
@@ -309,7 +311,7 @@ type SortTuple<T> = [keyof T, Order];
  * It can construct a full FilterGroup object from the state and pass it to the prop applyFilters function
  * to run filters on the data.
  */
-export const Table = <T, K>(props: TableProps<T, K>): JSX.Element => {
+export const Table = <T, K>(props: TableProps<T, K>): React.JSX.Element => {
   const [filterMap, setFilterMap] = useState<FilterMap<T>>(new Map());
   const [sortType, setSortType] = useState<SortTuple<T> | undefined>(undefined);
   const [focusedFilterField, setFocusedFilterField] = useState<

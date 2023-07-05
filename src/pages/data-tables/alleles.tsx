@@ -8,7 +8,7 @@ import {
 import { type db_Allele } from 'models/db/db_Allele';
 import { type ColumnDefinitionType } from 'components/Table/Table';
 import { type AlleleFieldName } from 'models/db/filter/db_AlleleFieldName';
-import DataTable from 'components/DataTable/DataTable';
+import DataTableView from 'components/DataTableView/DataTableView';
 import { type Field } from 'components/ColumnFilter/ColumnFilter';
 
 export const cols: Array<ColumnDefinitionType<db_Allele>> = [
@@ -48,9 +48,9 @@ const nameMapping: { [key in keyof db_Allele]: AlleleFieldName } = {
   contents: 'Contents',
 };
 
-export default function AlleleDataTable(): JSX.Element {
+export default function AlleleDataTable(): React.JSX.Element {
   return (
-    <DataTable
+    <DataTableView
       title='Alleles'
       dataName='alleles'
       cols={cols}

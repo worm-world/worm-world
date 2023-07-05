@@ -6,7 +6,7 @@ import {
   deleteStrainAllele,
 } from 'api/strainAllele';
 import { type Field } from 'components/ColumnFilter/ColumnFilter';
-import DataTable from 'components/DataTable/DataTable';
+import DataTableView from 'components/DataTableView/DataTableView';
 import { type ColumnDefinitionType } from 'components/Table/Table';
 import { type db_StrainAllele } from 'models/db/db_StrainAllele';
 import { type StrainAlleleFieldName } from 'models/db/filter/db_StrainAlleleFieldName';
@@ -48,9 +48,9 @@ const nameMapping: { [key in keyof db_StrainAllele]: StrainAlleleFieldName } = {
   is_on_bot: 'IsOnBot',
 };
 
-export default function StrainDataTable(): JSX.Element {
+export default function StrainDataTable(): React.JSX.Element {
   return (
-    <DataTable
+    <DataTableView
       title='Strain Alleles'
       dataName='strainAlleles'
       cols={cols}

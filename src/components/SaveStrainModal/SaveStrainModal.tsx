@@ -9,7 +9,7 @@ interface SaveStrainModalProps {
   strainNode?: Node<StrainNodeModel>;
 }
 
-const SaveStrainModal = (props: SaveStrainModalProps): JSX.Element => {
+const SaveStrainModal = (props: SaveStrainModalProps): React.JSX.Element => {
   const [strainNameInput, setStrainNameInput] = useState('');
   const [descriptionInput, setDescriptionInput] = useState('');
   const strain = props.strainNode?.data.strain;

@@ -9,7 +9,7 @@ import routes from '~react-pages';
 import Spinner from 'components/Spinner/Spinner';
 import Layout from 'components/Layout/Layout';
 
-const App = (): JSX.Element => {
+const App = (): React.JSX.Element => {
   return (
     <>
       <Suspense fallback={<Spinner />}>

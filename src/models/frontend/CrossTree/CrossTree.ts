@@ -201,7 +201,7 @@ export default class CrossTree {
 
     let y =
       middleNodeType === FlowType.XIcon
-        ? MIDDLE_NODE_HEIGHT / 2 + STRAIN_NODE_HEIGHT / 2 + NODE_PADDING
+        ? MIDDLE_NODE_HEIGHT / 2 + STRAIN_NODE_HEIGHT / 2 + 4 * NODE_PADDING
         : MIDDLE_NODE_HEIGHT + NODE_PADDING;
     for (let i = 0; i < childOptions.length; i += maxNodesInRow) {
       const nodesInRow = childOptions.slice(i, i + maxNodesInRow);

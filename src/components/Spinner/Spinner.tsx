@@ -1,4 +1,4 @@
-const Spinner = (): JSX.Element => {
+const Spinner = (): React.JSX.Element => {
   return (
     <div
       role='status'

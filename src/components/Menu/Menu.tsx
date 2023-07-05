@@ -1,17 +1,17 @@
 export interface MenuItem {
-  icon?: JSX.Element;
+  icon?: React.JSX.Element;
   text: string;
   menuCallback: () => void;
 }
 
 export interface MenuProps {
   items: MenuItem[];
-  icon: JSX.Element;
+  icon: React.JSX.Element;
   title: string;
   top?: boolean;
 }
 
-export const Menu = (props: MenuProps): JSX.Element => {
+export const Menu = (props: MenuProps): React.JSX.Element => {
   return (
     <div
       onClick={(e) => {
@@ -41,7 +41,7 @@ export const Menu = (props: MenuProps): JSX.Element => {
   );
 };
 
-const MenuOption = (item: MenuItem, key: number): JSX.Element => {
+const MenuOption = (item: MenuItem, key: number): React.JSX.Element => {
   const useIcon = item.icon !== undefined;
   return (
     <li key={key}>

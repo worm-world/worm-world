@@ -28,7 +28,7 @@ export interface DynamicMultiSelectProps<T, U> {
 
 export const DynamicMultiSelect = <T, U>(
   props: DynamicMultiSelectProps<T, U>
-): JSX.Element => {
+): React.JSX.Element => {
   const [searchRes, setSearchRes] = useState(new Array<U>());
   const [userInput, setUserInput] = useState('');
 

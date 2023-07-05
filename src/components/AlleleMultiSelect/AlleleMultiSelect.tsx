@@ -21,7 +21,7 @@ export interface AlleleMultiSelectProps {
 
 export const AlleleMultiSelect = (
   props: AlleleMultiSelectProps
-): JSX.Element => {
+): React.JSX.Element => {
   const [searchRes, setSearchRes] = useState(new Array<[db_Allele, db_Gene]>());
   const [userInput, setUserInput] = useState('');
 

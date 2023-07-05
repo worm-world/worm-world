@@ -26,7 +26,9 @@ interface DataTableProps<T, K> {
 
 const rowsPerPage = 50;
 
-const DataTable = <T, K>(props: DataTableProps<T, K>): JSX.Element => {
+const DataTableView = <T, K>(
+  props: DataTableProps<T, K>
+): React.JSX.Element => {
   const [data, setData] = useState<T[]>([]);
   const [page, setPage] = useState<number | undefined>(0);
   const [rowCount, setRowCount] = useState(0);
@@ -224,4 +226,4 @@ const DataTable = <T, K>(props: DataTableProps<T, K>): JSX.Element => {
   );
 };
 
-export default DataTable;
+export default DataTableView;

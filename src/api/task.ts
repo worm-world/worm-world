@@ -13,19 +13,19 @@ export const getFilteredTasks = async (
   return await invoke('get_filtered_tasks', { filter });
 };
 
-export const insertDbTasks = async (records: db_Task[]): Promise<void> => {
+export const insertTasks = async (records: db_Task[]): Promise<void> => {
   await Promise.all(
     records.map(async (record) => {
-      await insertDbTask(record);
+      await insertTask(record);
     })
   );
 };
 
-export const insertDbTask = async (record: db_Task): Promise<void> => {
+export const insertTask = async (record: db_Task): Promise<void> => {
   await invoke('insert_task', { task: record });
 };
 
-export const updateDbTask = async (record: db_Task): Promise<void> => {
+export const updateTask = async (record: db_Task): Promise<void> => {
   await invoke('update_task', { task: record });
 };
 

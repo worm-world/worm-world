@@ -2,7 +2,7 @@ import { StoryFn, Meta } from '@storybook/react';
 import EditableDiv from 'components/EditableDiv/EditableDiv';
 import { useState } from 'react';
 
-const MockEditableDiv = (): JSX.Element => {
+const MockEditableDiv = (): React.JSX.Element => {
   const [value, setValue] = useState('text content');
   const [valueEditable, setValueEditable] = useState(false);
   const onClick = () => {

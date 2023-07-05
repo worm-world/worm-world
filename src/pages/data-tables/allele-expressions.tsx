@@ -8,7 +8,7 @@ import {
 import { type db_AlleleExpression } from 'models/db/db_AlleleExpression';
 import { type ColumnDefinitionType } from 'components/Table/Table';
 import { type AlleleExpressionFieldName } from 'models/db/filter/db_AlleleExpressionFieldName';
-import DataTable from 'components/DataTable/DataTable';
+import DataTableView from 'components/DataTableView/DataTableView';
 import { type Field } from 'components/ColumnFilter/ColumnFilter';
 
 export const cols: Array<ColumnDefinitionType<db_AlleleExpression>> = [
@@ -51,9 +51,9 @@ const nameMapping: {
   dominance: 'Dominance',
 };
 
-export default function AlleleExpressionDataTable(): JSX.Element {
+export default function AlleleExpressionDataTable(): React.JSX.Element {
   return (
-    <DataTable
+    <DataTableView
       title='Allele Expressions'
       dataName='alleleExpression'
       cols={cols}

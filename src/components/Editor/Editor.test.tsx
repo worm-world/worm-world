@@ -7,7 +7,11 @@ import { BrowserRouter } from 'react-router-dom';
 import { ReactFlowProvider } from 'reactflow';
 import { vi } from 'vitest';
 
-const Wrapper = ({ children }: { children: React.ReactNode }): JSX.Element => {
+const Wrapper = ({
+  children,
+}: {
+  children: React.ReactNode;
+}): React.JSX.Element => {
   return (
     <BrowserRouter>
       <ReactFlowProvider>{children}</ReactFlowProvider>

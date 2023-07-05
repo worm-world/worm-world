@@ -52,7 +52,7 @@ interface MockDynamicMultiSelectProps {
 
 const MockDynamicMultiSelect = (
   props: MockDynamicMultiSelectProps
-): JSX.Element => {
+): React.JSX.Element => {
   const [selectedRecords, setSelectedRecords] = useState(
     new Set<StringWrapper>()
   );

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import type CrossTree from 'models/frontend/CrossTree/CrossTree';
 import { Menu, type MenuItem } from 'components/Menu/Menu';
 import { useEffect, useState } from 'react';
-import { deleteTree, insertTree, updateTree } from 'api/crossTree';
+import { deleteTree, insertTree, updateTree } from 'api/tree';
 import { open } from '@tauri-apps/api/dialog';
 import { writeTextFile } from '@tauri-apps/api/fs';
 import { sep } from '@tauri-apps/api/path';
@@ -13,12 +13,13 @@ import EditableDiv from 'components/EditableDiv/EditableDiv';
 export interface TreeCardProps {
   tree: CrossTree;
   refreshTrees: () => void;
+  isNew: boolean;
 }
 
-const TreeCard = (props: TreeCardProps): JSX.Element => {
+const TreeCard = (props: TreeCardProps): React.JSX.Element => {
   const navigate = useNavigate();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [nameEditable, setNameEditable] = useState(false);
+  const [nameEditable, setNameEditable] = useState(props.isNew);
   const [name, setName] = useState('');
 
   useEffect(() => {
@@ -96,7 +97,7 @@ const TreeCard = (props: TreeCardProps): JSX.Element => {
               setValue={setName}
               editable={nameEditable}
               onFinishEditing={updateTreeName}
-              placeholder='(Untitled)'
+              autoFocus={true}
             />
           </div>
           <div className='flex h-8 w-full justify-between'>
@@ -116,8 +117,7 @@ const TreeCard = (props: TreeCardProps): JSX.Element => {
       >
         <div className='modal-box relative cursor-auto'>
           <h1 className='text-lg font-bold'>
-            Are you sure you want to delete &quot;
-            {props.tree.name !== '' ? props.tree.name : '(Untitled)'}&quot;?
+            Are you sure you want to delete &quot;{props.tree.name}&quot;?
           </h1>
           <div className='modal-action flex justify-center'>
             <button

@@ -7,7 +7,7 @@ import {
   updateStrain,
 } from 'api/strain';
 import { type Field } from 'components/ColumnFilter/ColumnFilter';
-import DataTable from 'components/DataTable/DataTable';
+import DataTableView from 'components/DataTableView/DataTableView';
 import { type ColumnDefinitionType } from 'components/Table/Table';
 import { type db_Strain } from 'models/db/db_Strain';
 import { type StrainFieldName } from 'models/db/filter/db_StrainFieldName';
@@ -42,9 +42,9 @@ const nameMapping: { [key in keyof db_Strain]: StrainFieldName } = {
   description: 'Description',
 };
 
-export default function StrainDataTable(): JSX.Element {
+export default function StrainDataTable(): React.JSX.Element {
   return (
-    <DataTable
+    <DataTableView
       title='Strains'
       dataName='strain'
       cols={cols}

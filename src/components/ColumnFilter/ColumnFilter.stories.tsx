@@ -11,7 +11,7 @@ interface ColumnFilterWrapperProps<T> {
 
 const ColumnFilterWrapper = <T,>(
   props: ColumnFilterWrapperProps<T>
-): JSX.Element => {
+): React.JSX.Element => {
   const [filterTypes, setFilterTypes] = useState<Filter[]>(new Array<Filter>());
   return (
     <div className='modal-box'>

@@ -8,7 +8,7 @@ import {
   insertPhenotypesFromFile,
 } from 'api/phenotype';
 import { type PhenotypeFieldName } from 'models/db/filter/db_PhenotypeFieldName';
-import DataTable from 'components/DataTable/DataTable';
+import DataTableView from 'components/DataTableView/DataTableView';
 import { type Field } from 'components/ColumnFilter/ColumnFilter';
 
 export const cols: Array<ColumnDefinitionType<db_Phenotype>> = [
@@ -83,9 +83,9 @@ const nameMapping: { [key in keyof db_Phenotype]: PhenotypeFieldName } = {
   arrested: 'Arrested',
 };
 
-export default function PhenotypeDataTable(): JSX.Element {
+export default function PhenotypeDataTable(): React.JSX.Element {
   return (
-    <DataTable
+    <DataTableView
       title='Phenotypes'
       dataName='phenotype'
       cols={cols}

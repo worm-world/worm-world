@@ -54,7 +54,7 @@ interface FilterTextInputProps {
  * FilterTextInput is a generic input component that can be used for text-input filter types.
  * It calls a parent component's stateful function to update the filter value at the given index.
  */
-const FilterTextInput = (props: FilterTextInputProps): JSX.Element => {
+const FilterTextInput = (props: FilterTextInputProps): React.JSX.Element => {
   return (
     <>
       {props.label !== undefined && (
@@ -88,7 +88,7 @@ interface FilterInputProps<T> {
  * FilterInput is a generic component that renders the correct input component for a given filter type.
  * Most filter types are rendered by FilterTextInput, but Range and Boolean filters are rendered by their own components.
  */
-const FilterInput = <T,>(props: FilterInputProps<T>): JSX.Element => {
+const FilterInput = <T,>(props: FilterInputProps<T>): React.JSX.Element => {
   const filterType = getFilterType(props.filter);
   switch (filterType) {
     case 'Range': {
@@ -182,7 +182,9 @@ export interface ColumnFilterProps<T> {
  * It renders a list of filters (the filter type selector and corresponding data inputs), and a button to add a new filter.
  * The field prop is optional because the parent component may pass in a null field if no column is currently being filtered.
  */
-export const ColumnFilter = <T,>(props: ColumnFilterProps<T>): JSX.Element => {
+export const ColumnFilter = <T,>(
+  props: ColumnFilterProps<T>
+): React.JSX.Element => {
   const addFilter = (): void => {
     if (props.field === undefined) {
       return;
@@ -261,7 +263,7 @@ interface FilterEntryProps<T> {
  * The filter is set by calling the setFilter callback in a stateful parent component.
  * It also renders a button to remove the filter.
  */
-const FilterEntry = <T,>(props: FilterEntryProps<T>): JSX.Element => {
+const FilterEntry = <T,>(props: FilterEntryProps<T>): React.JSX.Element => {
   const [filterValues, setLocalFilterValues] = useState<FormValueType[]>(
     getValuesForFilterType(props.filter)
   );
@@ -337,7 +339,7 @@ interface FilterModalBoxProps<T> {
  */
 export const ColumnFilterModalBox = <T,>(
   props: FilterModalBoxProps<T>
-): JSX.Element => {
+): React.JSX.Element => {
   return (
     <>
       {props.field !== undefined && (

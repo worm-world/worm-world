@@ -20,7 +20,7 @@ export interface DynamicSelectProps<T, U> {
 
 export const DynamicSelect = <T, U>(
   props: DynamicSelectProps<T, U>
-): JSX.Element => {
+): React.JSX.Element => {
   const [searchRes, setSearchRes] = useState(new Array<U>());
 
   const onSelect = (record: U): void => {

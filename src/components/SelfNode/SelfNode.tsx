@@ -7,7 +7,7 @@ export interface SelfIconProps {
 export const MIDDLE_NODE_WIDTH = 64; // w-16
 export const MIDDLE_NODE_HEIGHT = 64; // w-16
 
-export const SelfNode = (props: SelfIconProps): JSX.Element => {
+export const SelfNode = (props: SelfIconProps): React.JSX.Element => {
   return (
     <label key={props.id} htmlFor={`cross-filter-modal-${props.id}`}>
       <div className='h-16 w-16 rounded-full bg-secondary p-4 shadow transition hover:cursor-pointer hover:bg-secondary-focus'>

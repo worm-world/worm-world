@@ -20,7 +20,7 @@ export interface OffspringFilterModalProps {
 
 export const OffspringFilterModal = (
   props: OffspringFilterModalProps
-): JSX.Element => {
+): React.JSX.Element => {
   const strains = props.childNodes.map((node) => node.data.strain);
   const names = OffspringFilter.condenseOffspringFilterNames(strains);
   if (props.childNodes.length === 0) return <></>;
@@ -93,7 +93,7 @@ const FilterList = (props: {
   nodeId: string;
   filter?: OffspringFilter;
   updateFilter: (update: OffspringFilterUpdate) => void;
-}): JSX.Element => {
+}): React.JSX.Element => {
   if (props.names.size === 0) return <></>;
 
   const noFilter =
@@ -169,7 +169,7 @@ const StrainList = (props: {
   invisibleSet: Set<string>;
   toggleVisible: (nodeId: string) => void;
   filter?: OffspringFilter;
-}): JSX.Element => {
+}): React.JSX.Element => {
   const filteredList = props.childNodes.filter((node) =>
     OffspringFilter.includedInFilter(node, props.filter)
   );
@@ -190,7 +190,7 @@ const StrainList = (props: {
       });
   };
 
-  const strainList: JSX.Element[] = [];
+  const strainList: React.JSX.Element[] = [];
   strainList.push(
     <li key={`cross-filter-modal-${props.nodeId}-all}`}>
       <div className='my-2 ml-8 flex flex-row items-center'>

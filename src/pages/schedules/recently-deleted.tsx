@@ -1,5 +1,5 @@
-export const RecentlyDeleted = (): JSX.Element => {
-  return <div>Todo</div>;
+export const RecentlyDeleted = (): React.JSX.Element => {
+  return <div>This page is a work in progress</div>;
 };
 
 export default RecentlyDeleted;

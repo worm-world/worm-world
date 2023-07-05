@@ -1,5 +1,6 @@
 import StrainNode from 'components/StrainNode/StrainNode';
 import { type Task, getConditionsFromTask } from 'models/frontend/Task/Task';
+import TaskModal from 'components/TaskItem/TaskModal';
 import {
   TbSnowflake as FreezeIcon,
   TbMicroscope as PCRIcon,
@@ -7,22 +8,7 @@ import {
 } from 'react-icons/tb';
 import { BiX as CrossIcon } from 'react-icons/bi';
 import { FaArrowRight as RightIcon } from 'react-icons/fa';
-import TodoModal from 'components/TaskView/TodoModal';
-import moment from 'moment';
 import { type Action } from 'models/db/task/Action';
-
-const getIconColor = (action: Action): string => {
-  switch (action) {
-    case 'Cross':
-      return 'bg-primary hover:bg-primary-focus';
-    case 'SelfCross':
-      return 'bg-secondary hover:bg-secondary-focus';
-    case 'Pcr':
-      return 'bg-accent hover:bg-accent-focus';
-    case 'Freeze':
-      return 'bg-accent hover:bg-accent-focus';
-  }
-};
 
 interface TaskItemProps {
   task: Task;
@@ -30,7 +16,7 @@ interface TaskItemProps {
   refresh: () => Promise<void>;
 }
 
-const TaskItem = (props: TaskItemProps): JSX.Element => {
+const TaskItem = (props: TaskItemProps): React.JSX.Element => {
   const action = props.task.action;
   const shouldSwap =
     action === 'Cross' &&
@@ -95,7 +81,7 @@ const TaskItem = (props: TaskItemProps): JSX.Element => {
             )}
             {action === 'SelfCross' && <div className='ml-4 w-60' />}
             <div className='my-auto p-2'>
-              <RightIcon />
+              <RightIcon size='20' />
             </div>
             {result !== undefined && <StrainNode model={result} />}
           </div>
@@ -107,66 +93,24 @@ const TaskItem = (props: TaskItemProps): JSX.Element => {
               props.updateTask(props.task);
             }}
           />
-          <TodoModal task={props.task} refresh={props.refresh} />
+          <TaskModal task={props.task} refresh={props.refresh} />
         </div>
       </div>
     </>
   );
 };
 
-interface TaskViewProps {
-  tasks: Task[];
-  updateTask: (task: Task) => void;
-  refresh: () => Promise<void>;
-}
-
-const getDateSections = (tasks: Task[]): Map<string, Set<Task>> => {
-  const dates = new Map<string, Set<Task>>();
-  const format = new Intl.DateTimeFormat('en-US', { dateStyle: 'full' });
-  tasks.forEach((task) => {
-    if (task.dueDate !== undefined) {
-      const dueDate = format.format(task.dueDate);
-      if (dates.has(dueDate)) dates.get(dueDate)?.add(task);
-      else dates.set(dueDate, new Set([task]));
-    }
-  });
-  return dates;
+const getIconColor = (action: Action): string => {
+  switch (action) {
+    case 'Cross':
+      return 'bg-primary hover:bg-primary-focus';
+    case 'SelfCross':
+      return 'bg-secondary hover:bg-secondary-focus';
+    case 'Pcr':
+      return 'bg-accent hover:bg-accent-focus';
+    case 'Freeze':
+      return 'bg-accent hover:bg-accent-focus';
+  }
 };
 
-export const TaskView = (props: TaskViewProps): JSX.Element => {
-  const sections = Array.from(getDateSections(props.tasks)).sort(
-    ([date1], [date2]) => (moment(date1).isAfter(moment(date2)) ? 1 : -1)
-  );
-  return (
-    <div className='pt-4'>
-      {sections.map(([date, section]) => (
-        <div key={date}>
-          <div className='collapse-arrow collapse'>
-            <input type='checkbox' defaultChecked />
-            <div className='collapse-title text-xl font-medium'>
-              <div className='text-3xl'>
-                <span>{date}</span>
-                <span className=' mx-3 opacity-40'>|</span>
-                <span>
-                  {section.size} {section.size === 1 ? ' Task' : ' Tasks'}
-                </span>
-              </div>
-            </div>
-            <div className='collapse-content'>
-              {Array.from(section).map((task, i) => (
-                <div key={i} className='mb-2'>
-                  <TaskItem
-                    refresh={props.refresh}
-                    task={task}
-                    updateTask={props.updateTask}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className='divider' />
-        </div>
-      ))}
-    </div>
-  );
-};
+export default TaskItem;

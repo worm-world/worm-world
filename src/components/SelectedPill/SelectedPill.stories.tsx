@@ -7,7 +7,7 @@ import { useState } from 'react';
 
 type StringWrapper = { field: string };
 
-const MockSelectedPill = (): JSX.Element => {
+const MockSelectedPill = (): React.JSX.Element => {
   const [selectedRecords, setSelectedRecords] = useState(
     new Set<StringWrapper>([{ field: 'text  here' }])
   );

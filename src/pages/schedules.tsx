@@ -1,7 +1,7 @@
 import { TopNav } from 'components/TopNav/TopNav';
 import { Link, Outlet } from 'react-router-dom';
 
-const Schedules = (): JSX.Element => {
+const Schedules = (): React.JSX.Element => {
   return (
     <>
       <TopNav title={'Schedules'} tabIndex={1}>

@@ -1,6 +1,6 @@
 import { type NoteNodeProps } from 'components/NoteNode/NoteNodeProps';
 
-export const NoteNode = (props: NoteNodeProps): JSX.Element => {
+export const NoteNode = (props: NoteNodeProps): React.JSX.Element => {
   return (
     <div
       data-testid='noteNode'

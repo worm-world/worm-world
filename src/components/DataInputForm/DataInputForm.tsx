@@ -20,7 +20,7 @@ interface FieldsProps<T> {
   fieldList: Array<FieldType<T>>;
 }
 
-const Fields = <T,>(props: FieldsProps<T>): JSX.Element => {
+const Fields = <T,>(props: FieldsProps<T>): React.JSX.Element => {
   const fieldList = props.fieldList;
   return (
     <div>
@@ -83,7 +83,9 @@ const Fields = <T,>(props: FieldsProps<T>): JSX.Element => {
   );
 };
 
-const DataImportForm = <T,>(props: DataImportFormProps<T>): JSX.Element => {
+const DataImportForm = <T,>(
+  props: DataImportFormProps<T>
+): React.JSX.Element => {
   const [isFormOpen, setFormOpen] = useState(false);
 
   const handleSubmit = (event: React.ChangeEvent<HTMLFormElement>): void => {
