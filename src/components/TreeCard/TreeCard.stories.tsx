@@ -11,7 +11,7 @@ const MockTreeCard = ({
 }): React.JSX.Element => {
   return (
     <BrowserRouter>
-      <TreeCard tree={tree} refreshTrees={() => {}}></TreeCard>
+      <TreeCard tree={tree} refreshTrees={() => { } } isNew={false}></TreeCard>
     </BrowserRouter>
   );
 };

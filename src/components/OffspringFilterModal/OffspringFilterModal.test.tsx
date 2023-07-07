@@ -86,8 +86,8 @@ describe('OffspringFilterModal', () => {
     childNodes.forEach((node) => {
       const chromPairs = [...node.data.strain.chromPairMap.values()];
       chromPairs.forEach((pair) => {
-        if (pair.length > 0) {
-          const pairText = pair[0].top.name;
+        if (pair.allelePairs.length > 0) {
+          const pairText = pair.allelePairs[0].top.name;
           const pairElements = screen.getAllByText(pairText);
           expect(pairElements.length).toBeGreaterThan(0);
         }

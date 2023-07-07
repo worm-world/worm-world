@@ -10,6 +10,7 @@ const MockTreeCard = (): React.JSX.Element => {
       <TreeCard
         tree={mockCrossTree.simpleCrossTree}
         refreshTrees={() => {}}
+        isNew={false}
       ></TreeCard>
     </BrowserRouter>
   );
