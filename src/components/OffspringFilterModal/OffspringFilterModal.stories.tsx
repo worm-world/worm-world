@@ -4,7 +4,7 @@ import {
   OffspringFilterUpdate,
 } from 'components/OffspringFilter/OffspringFilter';
 import { OffspringFilterModal } from 'components/OffspringFilterModal/OffspringFilterModal';
-import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import { StrainData } from 'models/frontend/StrainData/StrainData';
 import * as mockTrees from 'models/frontend/CrossTree/CrossTree.mock';
 import { Node } from 'reactflow';
 
@@ -20,7 +20,7 @@ const Template: StoryFn<typeof OffspringFilterModal> = ({
   filter = undefined,
   updateFilter = () => {},
 }: {
-  childNodes: Array<Node<StrainNodeModel>>;
+  childNodes: Array<Node<StrainData>>;
   invisibleSet: Set<string>;
   toggleVisible: (nodeId: string) => void;
   filter?: OffspringFilter;

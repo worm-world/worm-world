@@ -6,12 +6,11 @@ import { Type, instanceToPlain, plainToInstance } from 'class-transformer';
 export interface ChromosomeOption {
   chromosome: Allele[];
   prob: number;
-  isEca: boolean;
 }
 
 /**
  * Two homologous chromosomes of a specimen, represented as an array of allele pairs
- * kept in sorted order by genetic position.
+ * kept in sorted order by genetic position. Also extrachromosomal array.
  */
 export class ChromosomePair {
   @Type(() => AllelePair)
@@ -21,7 +20,7 @@ export class ChromosomePair {
     if (allelePairs !== undefined) {
       if (!ChromosomePair.areOnSameChrom(allelePairs))
         throw new Error('Allele pairs on different chromosomes.');
-      AllelePair.sortByPos(allelePairs);
+      AllelePair.sort(allelePairs);
       this.allelePairs = allelePairs;
     }
   }
@@ -34,20 +33,24 @@ export class ChromosomePair {
     );
   }
 
-  public static buildFromChroms(top: Allele[], bot: Allele[]): ChromosomePair {
-    if (top.length > 0 && top[0].getChromName() === 'Ex') {
+  public static buildFromChroms(top: Allele[], bot?: Allele[]): ChromosomePair {
+    if (top.length > 0 && top[0].isEca()) {
       return ChromosomePair.ecaBuildFromChroms(top, bot);
     }
     return new ChromosomePair(
       top.map(
-        (topAllele, idx) => new AllelePair({ top: topAllele, bot: bot[idx] })
+        (topAllele, idx) =>
+          new AllelePair({
+            top: topAllele,
+            bot: bot?.[idx] ?? topAllele.toWild(),
+          })
       )
     );
   }
 
   private static ecaBuildFromChroms(
     top: Allele[],
-    bot: Allele[]
+    bot: Allele[] = []
   ): ChromosomePair {
     const uniqueNonWild = [...top, ...bot].reduce<Allele[]>((unique, curr) => {
       if (!unique.some((allele) => allele.equals(curr)) && !curr.isWild())
@@ -63,11 +66,13 @@ export class ChromosomePair {
 
   /** Return a new, equivalent chromosome pair without any wild allele pairs */
   public simplify(): ChromosomePair {
-    let allelePairs = this.allelePairs.filter(
+    const allelePairs = this.allelePairs.filter(
       (allelePair) => !allelePair.isWild()
     );
     if (allelePairs.length > 0 && allelePairs[0].top.isWild())
-      allelePairs = allelePairs.map((allelePair) => allelePair.flip());
+      allelePairs.forEach((allelePair) => {
+        allelePair.flip();
+      });
     return new ChromosomePair(allelePairs);
   }
 
@@ -119,8 +124,20 @@ export class ChromosomePair {
     return this.allelePairs.every((pair) => pair.isHomo());
   }
 
+  public isWildHet(): boolean {
+    return (
+      !this.isHomo() &&
+      (this.getTop().every((allele) => allele.isWild()) ||
+        this.getBot().every((allele) => allele.isWild()))
+    );
+  }
+
   public isEca(): boolean {
     return this.getChromName() === 'Ex';
+  }
+
+  public isX(): boolean {
+    return this.getChromName() === 'X';
   }
 
   private static getChromosomeString(chrom: Allele[]): string {
@@ -153,45 +170,44 @@ export class ChromosomePair {
 
   /**
    * Computes the possible combinations (for a single chromosome) that can result due to genetic recombination
-   * @param startingChromosome Alleles used before a recombination event
-   * @param flippedChromosome Alleles used after a recombination event
-   * @param chromosome List of allele pairs that represent the combined starting/flipped sides
+   * @param startingChrom Alleles used before a recombination event
+   * @param flippedChrom Alleles used after a recombination event
+   * @param chromPair List of allele pairs that represent the combined starting/flipped sides
    * @returns list of allele chains and their respective probabilities
    */
   private static permuteRecombOptions(
-    startingChromosome: Allele[],
-    flippedChromosome: Allele[],
-    chromosome: AllelePair[]
+    startingChrom: Allele[],
+    flippedChrom: Allele[],
+    chromPair: AllelePair[]
   ): ChromosomeOption[] {
     const chroms: ChromosomeOption[] = [];
 
     // first iteration accounts for NO recombination at all
-    for (let i = 0; i < chromosome.length; i++) {
+    for (let i = 0; i < chromPair.length; i++) {
       let chrom: Allele[] = [];
       let probability = 0.5;
-      chrom.push(startingChromosome[0]);
+      chrom.push(startingChrom[0]);
 
-      for (let j = 1; j < chromosome.length; j++) {
+      for (let j = 1; j < chromPair.length; j++) {
         const recombinationProb = this.getRecombProb(
-          chromosome[j - 1],
-          chromosome[j]
+          chromPair[j - 1],
+          chromPair[j]
         );
 
         // recombination event
         if (j === i) {
-          chrom = chrom.concat(flippedChromosome.slice(j)); // add remainder of alleles of other chrom
+          chrom = chrom.concat(flippedChrom.slice(j)); // add remainder of alleles of other chrom
           probability = recombinationProb;
           break;
         }
 
         // no recombination, continue along starting side
         probability -= recombinationProb;
-        chrom.push(startingChromosome[j]);
+        chrom.push(startingChrom[j]);
       }
       chroms.push({
         chromosome: chrom,
         prob: probability,
-        isEca: chromosome.length > 0 && chromosome[0].isEca(),
       });
     }
 
@@ -263,7 +279,7 @@ export class ChromosomePair {
 
   public insertPair(pair: AllelePair): void {
     this.allelePairs.push(pair);
-    AllelePair.sortByPos(this.allelePairs);
+    AllelePair.sort(this.allelePairs);
   }
 
   // Assumed equal probabilities of all possible sets

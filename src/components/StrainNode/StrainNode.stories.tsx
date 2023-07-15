@@ -1,6 +1,6 @@
 import { Meta, StoryFn } from '@storybook/react';
 import StrainNode, { StrainNodeProps } from 'components/StrainNode/StrainNode';
-import * as strainNodeMock from 'models/frontend/StrainNodeModel/StrainNodeModel\.mock';
+import * as strainNodeMock from 'models/frontend/StrainData/StrainData.stories';
 import { ReactFlowProvider } from 'reactflow';
 
 export default {
@@ -18,21 +18,21 @@ export default {
 const Template: StoryFn<typeof StrainNode> = (args: StrainNodeProps) => {
   return (
     <ReactFlowProvider>
-      <StrainNode model={args.model}></StrainNode>
+      <StrainNode data={args.data}></StrainNode>
     </ReactFlowProvider>
   );
 };
 
 export const empty = Template.bind({});
-empty.args = { model: strainNodeMock.maleWild };
+empty.args = { data: strainNodeMock.maleWild };
 
 export const N2 = Template.bind({});
-N2.args = { model: strainNodeMock.maleN2 };
+N2.args = { data: strainNodeMock.maleN2 };
 
 export const MT2495 = Template.bind({});
-MT2495.args = { model: strainNodeMock.maleMT2495 };
+MT2495.args = { data: strainNodeMock.maleMT2495 };
 
 export const BT14 = Template.bind({});
-BT14.args = { model: strainNodeMock.maleBT14 };
+BT14.args = { data: strainNodeMock.maleBT14 };
 
 

@@ -148,16 +148,24 @@ export class Allele {
     });
   }
 
-  public toHomoPair(): AllelePair {
+  public toHomo(): AllelePair {
     return new AllelePair({ top: this, bot: this });
   }
 
-  public toTopHetPair(): AllelePair {
+  public toTopHet(): AllelePair {
     return new AllelePair({ top: this, bot: this.toWild() });
   }
 
-  public toBotHetPair(): AllelePair {
+  public toBotHet(): AllelePair {
     return new AllelePair({ top: this.toWild(), bot: this });
+  }
+
+  public isEca(): boolean {
+    return this.getChromName() === 'Ex';
+  }
+
+  public isX(): boolean {
+    return this.getChromName() === 'X';
   }
 
   public generateRecord(): db_Allele {

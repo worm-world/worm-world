@@ -1,11 +1,7 @@
 import { invoke } from '@tauri-apps/api/tauri';
 import { type db_StrainAllele } from 'models/db/db_StrainAllele';
 import { type StrainAlleleFieldName } from 'models/db/filter/db_StrainAlleleFieldName';
-import {
-  getSingleRecordOrThrow,
-  type FilterGroup,
-} from 'models/db/filter/FilterGroup';
-import { type StrainAllele } from 'models/frontend/StrainAllele/StrainAllele';
+import { type FilterGroup } from 'models/db/filter/FilterGroup';
 
 export const getStrainAlleles = async (): Promise<db_StrainAllele[]> => {
   return await invoke('get_strain_alleles');
@@ -25,23 +21,6 @@ export const getCountFilteredStrainAlleles = async (
   return await invoke('get_count_filtered_strain_alleles', {
     filter,
   });
-};
-
-export const getStrainAllele = async (
-  strain: string
-): Promise<db_StrainAllele> => {
-  const filter: FilterGroup<StrainAlleleFieldName> = {
-    filters: [[['StrainName', { Equal: strain }]]],
-    orderBy: [],
-  };
-  const res = await getFilteredStrainAlleles(filter);
-  return getSingleRecordOrThrow(res, 'Unable to get specified strain allele');
-};
-
-export const insertStrainAllele = async (
-  strainAllele: StrainAllele
-): Promise<void> => {
-  await insertDbStrainAllele(strainAllele.generateRecord());
 };
 
 export const insertDbStrainAllele = async (
@@ -67,8 +46,8 @@ export const deleteStrainAllele = async (
 ): Promise<void> => {
   const filter: FilterGroup<StrainAlleleFieldName> = {
     filters: [
-      [['StrainName', { Equal: strainAllele.strain_name }]],
-      [['AlleleName', { Equal: strainAllele.allele_name }]],
+      [['StrainName', { Equal: strainAllele.strainName }]],
+      [['AlleleName', { Equal: strainAllele.alleleName }]],
     ],
     orderBy: [],
   };

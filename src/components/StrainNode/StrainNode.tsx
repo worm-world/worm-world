@@ -5,152 +5,132 @@ import { Sex } from 'models/enums';
 import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { type ChromosomePair } from 'models/frontend/ChromosomePair/ChromosomePair';
 import { type Strain } from 'models/frontend/Strain/Strain';
-import { type StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
-import { useContext } from 'react';
+import { type StrainData } from 'models/frontend/StrainData/StrainData';
+import { createContext, useContext } from 'react';
 import { BsLightningCharge as MenuIcon } from 'react-icons/bs';
-import { IoFemale, IoMale, IoMaleFemale } from 'react-icons/io5';
+import { IoMale as MaleIcon, IoMaleFemale as HermIcon } from 'react-icons/io5';
 import { RiArrowUpDownLine as SwapIcon } from 'react-icons/ri';
 
 export const STRAIN_NODE_WIDTH = 256; // w-64
 export const STRAIN_NODE_HEIGHT = 144; // w-36
+const StrainIsFrozenContext = createContext<boolean>(false);
+const ToggleHetPairContext = createContext<
+  ((allelePair: AllelePair) => void) | undefined
+>(() => {});
+const SexContext = createContext<Sex>(Sex.Hermaphrodite);
 
-const SexIcon = (props: {
+export interface StrainNodeProps {
+  data: StrainData;
+}
+
+const StrainNode = (props: StrainNodeProps): React.JSX.Element => {
+  const menuItems =
+    props.data?.getMenuItems !== undefined
+      ? props.data.getMenuItems(props.data)
+      : [];
+  const probability =
+    props.data.probability !== undefined && props.data.probability !== null
+      ? `${(props.data.probability * 100).toFixed(2)}%`
+      : '';
+  return (
+    <>
+      <div
+        data-testid='strainNode'
+        className='flex h-36 w-64 flex-col rounded bg-base-100 shadow'
+      >
+        <div className='flex h-6 justify-between'>
+          <SexButton
+            sex={props.data.strain.sex}
+            isParent={props.data.isParent}
+            toggleSex={props.data.toggleSex}
+          />
+          {props.data.isChild && (
+            <div className='dropdown-top dropdown'>
+              <label
+                tabIndex={0}
+                className='btn-ghost btn-xs btn text-accent ring-0 hover:bg-base-200 hover:ring-0'
+              >
+                {probability}
+              </label>
+              <div
+                tabIndex={0}
+                className='compact card dropdown-content rounded-box w-full bg-base-100 shadow'
+              >
+                <div className='card-body'>
+                  <BreedCountProbability probability={props.data.probability} />
+                </div>
+              </div>
+            </div>
+          )}
+          {menuItems.length > 0 && (
+            <Menu
+              title='Actions'
+              top={true}
+              icon={<MenuIcon />}
+              items={menuItems}
+            />
+          )}
+        </div>
+        <div className='overflow-x-auto'>
+          <div
+            className='flex h-24 min-w-min justify-center text-sm'
+            data-testid='strainNodeBody'
+          >
+            <StrainIsFrozenContext.Provider
+              value={props.data.isParent || props.data.isChild}
+            >
+              <ToggleHetPairContext.Provider value={props.data.toggleHetPair}>
+                <SexContext.Provider value={props.data.strain.sex}>
+                  <MainContentArea strain={props.data.strain} />
+                </SexContext.Provider>
+              </ToggleHetPairContext.Provider>
+            </StrainIsFrozenContext.Provider>
+          </div>
+        </div>
+        <div className='h-6 text-center text-sm font-bold'>
+          {props.data.strain.name}
+        </div>
+      </div>
+    </>
+  );
+};
+
+const SexButton = (props: {
   sex: Sex;
   isParent: boolean;
   toggleSex?: () => void;
 }): React.JSX.Element => {
   const toggleStyling = 'text-base ' + (props.isParent ? 'opacity-50' : '');
   return (
-    <div
+    <button
       className={
         'btn-ghost btn-xs btn m-1 ring-0 hover:bg-base-200 hover:ring-0' +
         (props.isParent ? ' btn-transparent hover:bg-transparent' : '')
       }
-      onClick={props.toggleSex}
+      onClick={() => {
+        if (!props.isParent) props.toggleSex?.();
+      }}
     >
-      {props.sex === Sex.Male && <IoMale className={toggleStyling} />}
+      {props.sex === Sex.Male && <MaleIcon className={toggleStyling} />}
       {props.sex === Sex.Hermaphrodite && (
-        <IoMaleFemale className={toggleStyling} />
+        <HermIcon className={toggleStyling} />
       )}
-      {props.sex === Sex.Female && <IoFemale className={toggleStyling} />}
-    </div>
-  );
-};
-
-export interface StrainNodeProps {
-  model: StrainNodeModel;
-}
-
-const StrainNode = (props: StrainNodeProps): React.JSX.Element => {
-  const menuItems =
-    props.model?.getMenuItems !== undefined
-      ? props.model.getMenuItems(props.model)
-      : [];
-  const probability =
-    props.model.probability !== undefined && props.model.probability !== null
-      ? `${(props.model.probability * 100).toFixed(2)}%`
-      : '';
-  const canToggleHets = !props.model.isParent && !props.model.isChild;
-  return (
-    <>
-      {props.model !== undefined && (
-        <div
-          data-testid='strainNode'
-          className='flex h-36 w-64 flex-col rounded bg-base-100 shadow'
-        >
-          <div className='flex h-6 justify-between'>
-            <SexIcon
-              sex={props.model.sex}
-              isParent={props.model.isParent}
-              toggleSex={props.model.toggleSex}
-            />
-            {props.model.isChild && (
-              <div className='dropdown-top dropdown'>
-                <label
-                  tabIndex={0}
-                  className='btn-ghost btn-xs btn text-accent ring-0 hover:bg-base-200 hover:ring-0'
-                >
-                  {probability}
-                </label>
-                <div
-                  tabIndex={0}
-                  className='compact card dropdown-content rounded-box w-full bg-base-100 shadow'
-                >
-                  <div className='card-body'>
-                    <BreedCountProbability
-                      probability={props.model.probability}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-            {menuItems.length > 0 && (
-              <Menu
-                title='Actions'
-                top={true}
-                icon={<MenuIcon />}
-                items={menuItems}
-              />
-            )}
-          </div>
-          <div className='overflow-x-auto'>
-            <div
-              className='flex h-24 min-w-min justify-center text-sm'
-              data-testid='strainNodeBody'
-            >
-              <MainContentArea
-                strain={props.model.strain}
-                canToggleHets={canToggleHets}
-                toggleHetPair={props.model.toggleHetPair}
-              />
-            </div>
-          </div>
-          <div className='h-6 text-center text-sm font-bold'>
-            {props.model.strain.name}
-          </div>
-        </div>
-      )}
-    </>
+    </button>
   );
 };
 
 // Return the main content area of the strain node, which will show genotype information
-const MainContentArea = (props: {
-  strain: Strain;
-  canToggleHets: boolean;
-  toggleHetPair?: (pair: AllelePair) => void;
-}): React.JSX.Element => {
-  if (props.strain.isEmptyWild())
-    return <div className='flex h-12 flex-col justify-center'>(Wild)</div>;
-  else {
-    return (
-      <ChromBoxes
-        strain={props.strain}
-        canToggleHets={props.canToggleHets}
-        toggleHetPair={props.toggleHetPair}
-      />
-    );
-  }
-};
-
-// Returns array of chromosome boxes
-const ChromBoxes = (props: {
-  strain: Strain;
-  canToggleHets: boolean;
-  toggleHetPair?: (pair: AllelePair) => void;
-}): React.JSX.Element => {
-  return (
+const MainContentArea = (props: { strain: Strain }): React.JSX.Element => {
+  return props.strain.isEmptyWild() ? (
+    <div className='flex h-12 flex-col justify-center'>(Wild)</div>
+  ) : (
     <>
       {Array.from(props.strain.getSortedChromPairs())
         .filter((chromPair) => !(chromPair.isEca() && chromPair.isWild()))
         .map((chromPair, idx, chromPairs) => {
           return (
             <div key={idx} className='flex'>
-              <ChromBox
-                canToggleHets={props.canToggleHets}
-                chromPair={chromPair}
-                toggleHetPair={props.toggleHetPair}
-              />
+              <ChromPairBox chromPair={chromPair} />
               <div className='flex flex-col justify-center pt-3 font-light text-base-content'>
                 {idx < chromPairs.length - 1 ? ';' : ''}
               </div>
@@ -162,19 +142,27 @@ const ChromBoxes = (props: {
 };
 
 // All the 'fractions' under a single chromosome
-const ChromBox = (props: {
-  canToggleHets: boolean;
+const ChromPairBox = (props: {
   chromPair: ChromosomePair;
   toggleHetPair?: (pair: AllelePair) => void;
 }): React.JSX.Element => {
-  const mutationBoxes = props.chromPair.allelePairs.map((allelePair, idx) => (
-    <MutationBox
-      allelePair={allelePair}
-      key={idx}
-      canToggleHets={props.canToggleHets}
-      toggleHetPair={props.toggleHetPair}
-    />
-  ));
+  const strainIsFrozen = useContext(StrainIsFrozenContext);
+  const toggleHetPair = useContext(ToggleHetPairContext);
+  const mutationBoxes = props.chromPair.allelePairs.map((allelePair, idx) => {
+    const toggleEnabled =
+      !strainIsFrozen &&
+      !allelePair.isHomo() &&
+      idx !== 0 &&
+      toggleHetPair !== undefined;
+    return (
+      <MutationBox
+        allelePair={allelePair}
+        key={idx}
+        toggleHetPair={toggleEnabled ? toggleHetPair : undefined}
+        isX={props.chromPair.isX()}
+      />
+    );
+  });
   const chromName = props.chromPair.getChromName() ?? '?';
 
   return (
@@ -187,27 +175,27 @@ const ChromBox = (props: {
 
 const MutationBox = (props: {
   allelePair: AllelePair;
-  canToggleHets: boolean;
-  toggleHetPair?: (pair: AllelePair) => void;
+  toggleHetPair?: (allelePair: AllelePair) => void;
+  isX: boolean;
 }): React.JSX.Element => {
-  if (props.allelePair.isEca()) {
-    if (props.allelePair.isWild()) return <></>;
-    return (
+  const showGene = useContext(ShowGenesContext);
+  const sex = useContext(SexContext);
+
+  if (props.allelePair.isEca())
+    return props.allelePair.isWild() ? (
+      <></>
+    ) : (
       <div className='text-align w-full px-2 text-center'>
         {props.allelePair.top.name}
       </div>
     );
-  } else {
-    const toggleEnabled =
-      props.allelePair.top.name !== props.allelePair.bot.name &&
-      props.canToggleHets &&
-      props.toggleHetPair !== undefined;
+  else {
+    const canToggleHets = props.toggleHetPair !== undefined;
+    const hiddenStyling = canToggleHets ? `visible group-hover:invisible` : '';
 
-    const hiddenStyling = toggleEnabled ? `visible group-hover:invisible` : '';
-    const showGene = useContext(ShowGenesContext);
     return (
       <div className={`group relative flex flex-col whitespace-nowrap`}>
-        {toggleEnabled && (
+        {canToggleHets && (
           <div
             className={`invisible absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-primary hover:cursor-pointer group-hover:visible `}
             onClick={() => {
@@ -226,7 +214,9 @@ const MutationBox = (props: {
           <hr className={`my-1 border-base-content ${hiddenStyling}`} />
         </div>
         <div className='text-align w-full px-2 text-center'>
-          {showGene
+          {sex === Sex.Male && props.isX
+            ? '0'
+            : showGene
             ? props.allelePair.bot.getQualifiedName()
             : props.allelePair.bot.name}
         </div>

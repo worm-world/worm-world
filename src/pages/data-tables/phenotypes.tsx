@@ -31,7 +31,7 @@ const fields: Array<Field<db_Phenotype>> = [
   },
   {
     name: 'shortName',
-    title: 'Short-Name',
+    title: 'Short Name',
     type: 'text',
   },
   {

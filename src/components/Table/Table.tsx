@@ -94,7 +94,7 @@ const TableHeaderCell = <T,>(
         </button>
         <h2 className='px-1'>{props.column.header}</h2>
         <button
-          className='m-0 cursor-pointer p-0'
+          className='m-0 cursor-pointer p-0 transition-colors'
           title='filter-icon'
           onClick={() => {
             props.setFilterField(props.column.key);

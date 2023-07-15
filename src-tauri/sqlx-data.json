@@ -29,11 +29,7 @@
           "type_info": "Text"
         }
       ],
-      "nullable": [
-        false,
-        false,
-        true
-      ],
+      "nullable": [false, false, true],
       "parameters": {
         "Right": 0
       }
@@ -74,10 +70,7 @@
           "type_info": "Text"
         }
       ],
-      "nullable": [
-        false,
-        false
-      ],
+      "nullable": [false, false],
       "parameters": {
         "Right": 0
       }
@@ -183,15 +176,7 @@
           "type_info": "Int64"
         }
       ],
-      "nullable": [
-        false,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true
-      ],
+      "nullable": [false, true, true, true, true, true, true],
       "parameters": {
         "Right": 0
       }
@@ -247,17 +232,7 @@
           "type_info": "Float"
         }
       ],
-      "nullable": [
-        false,
-        false,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true
-      ],
+      "nullable": [false, false, false, true, true, true, true, true, true],
       "parameters": {
         "Right": 0
       }
@@ -288,12 +263,7 @@
           "type_info": "Int64"
         }
       ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false
-      ],
+      "nullable": [false, false, false, false],
       "parameters": {
         "Right": 0
       }
@@ -354,14 +324,7 @@
           "type_info": "Int64"
         }
       ],
-      "nullable": [
-        false,
-        true,
-        true,
-        true,
-        true,
-        true
-      ],
+      "nullable": [false, true, true, true, true, true],
       "parameters": {
         "Right": 0
       }
@@ -402,12 +365,7 @@
           "type_info": "Int64"
         }
       ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false
-      ],
+      "nullable": [false, false, false, false],
       "parameters": {
         "Right": 0
       }
@@ -463,15 +421,7 @@
           "type_info": "Float"
         }
       ],
-      "nullable": [
-        false,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true
-      ],
+      "nullable": [false, true, true, true, true, true, true],
       "parameters": {
         "Right": 0
       }
@@ -512,12 +462,7 @@
           "type_info": "Text"
         }
       ],
-      "nullable": [
-        false,
-        true,
-        true,
-        true
-      ],
+      "nullable": [false, true, true, true],
       "parameters": {
         "Right": 0
       }
@@ -593,15 +538,7 @@
           "type_info": "Int64"
         }
       ],
-      "nullable": [
-        false,
-        false,
-        false,
-        true,
-        true,
-        true,
-        false
-      ],
+      "nullable": [false, false, false, true, true, true, false],
       "parameters": {
         "Right": 0
       }
@@ -622,10 +559,7 @@
           "type_info": "Text"
         }
       ],
-      "nullable": [
-        false,
-        false
-      ],
+      "nullable": [false, false],
       "parameters": {
         "Right": 0
       }
@@ -701,17 +635,7 @@
           "type_info": "Int64"
         }
       ],
-      "nullable": [
-        false,
-        true,
-        false,
-        false,
-        true,
-        true,
-        true,
-        false,
-        false
-      ],
+      "nullable": [false, true, false, false, true, true, true, false, false],
       "parameters": {
         "Right": 0
       }
@@ -757,13 +681,7 @@
           "type_info": "Int64"
         }
       ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false
-      ],
+      "nullable": [false, false, false, false, false],
       "parameters": {
         "Right": 0
       }

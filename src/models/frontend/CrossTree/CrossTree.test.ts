@@ -2,7 +2,7 @@ import { OffspringFilter } from 'components/OffspringFilter/OffspringFilter';
 import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { type MenuItem } from 'components/Menu/Menu';
 import { Sex } from 'models/enums';
-import { type IStrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import { type IStrainData } from 'models/frontend/StrainData/StrainData';
 import CrossTree, {
   type ICrossTree,
 } from 'models/frontend/CrossTree/CrossTree';
@@ -39,7 +39,7 @@ describe('cross tree', () => {
     id = 0,
     type = FlowType.Strain,
     position = { x: 0, y: 0 },
-    data = generateStrainNodeModel({}),
+    data = generateStrainData({}),
     parentNode = undefined,
   }: {
     id?: number;
@@ -56,28 +56,24 @@ describe('cross tree', () => {
     };
   };
 
-  const generateStrainNodeModel = ({
-    sex = Sex.Male,
-    strain = generateStrain({}),
+  const generateStrainData = ({
+    strain = generateStrain({ sex: Sex.Hermaphrodite }),
     getMenuItems = undefined,
   }: {
-    sex?: Sex;
     strain?: Strain;
-    getMenuItems?: (node: IStrainNodeModel) => MenuItem[];
-  }): IStrainNodeModel => {
-    return { sex, strain, getMenuItems, isChild: false, isParent: false };
+    getMenuItems?: (node: IStrainData) => MenuItem[];
+  }): IStrainData => {
+    return { strain, getMenuItems };
   };
 
   const generateStrain = ({
     allelePairs = [],
-    name = undefined,
-    description = undefined,
+    sex = Sex.Hermaphrodite,
   }: {
-    name?: string;
     allelePairs?: AllelePair[];
-    description?: string;
+    sex: Sex;
   }): Strain => {
-    return new Strain({ name, allelePairs, description });
+    return new Strain({ allelePairs, sex });
   };
 
   const generateEdge = ({
@@ -151,8 +147,8 @@ describe('cross tree', () => {
   });
   test('constructs a tree with edges and nodes', () => {
     let id = 0;
-    const maleData = generateStrainNodeModel({ sex: Sex.Male });
-    const hermData = generateStrainNodeModel({ sex: Sex.Hermaphrodite });
+    const maleData = generateStrainData({});
+    const hermData = generateStrainData({});
 
     const maleNode = generateNode({ id: id++, data: maleData });
     const hermNode = generateNode({ id: id++, data: hermData });
@@ -182,7 +178,7 @@ describe('cross tree', () => {
     let id = 0;
     const strainNode = generateNode({
       id: id++,
-      data: generateStrainNodeModel({ sex: Sex.Hermaphrodite }),
+      data: generateStrainData({}),
     });
     const selfIcon = generateNode({ id: id++, type: FlowType.SelfIcon });
 
@@ -368,7 +364,7 @@ describe('cross tree', () => {
   });
   test('.generateTasks() returns self-cross tasks', () => {
     let id = 0;
-    const strain1 = generateStrainNodeModel({ sex: Sex.Hermaphrodite });
+    const strain1 = generateStrainData({});
     const nodes = [
       generateNode({ id: id++, data: strain1 }),
       generateNode({ id: id++, type: FlowType.SelfIcon }),
@@ -395,8 +391,8 @@ describe('cross tree', () => {
   });
   test('.generateTasks() returns regular cross tasks', () => {
     let id = 0;
-    const strain1 = generateStrainNodeModel({ sex: Sex.Hermaphrodite });
-    const strain2 = generateStrainNodeModel({ sex: Sex.Male });
+    const strain1 = generateStrainData({});
+    const strain2 = generateStrainData({});
     const nodes = [
       generateNode({ id: id++, data: strain1 }),
       generateNode({ id: id++, data: strain2 }),
@@ -433,9 +429,13 @@ describe('cross tree', () => {
   });
   test('.generateTasks() generates multiple tasks', () => {
     let id = 0;
-    const strain1 = generateStrainNodeModel({ sex: Sex.Hermaphrodite });
-    const strain2 = generateStrainNodeModel({ sex: Sex.Male });
-    const strain3 = generateStrainNodeModel({});
+    const strain1 = generateStrainData({
+      strain: generateStrain({ sex: Sex.Hermaphrodite }),
+    });
+    const strain2 = generateStrainData({
+      strain: generateStrain({ sex: Sex.Male }),
+    });
+    const strain3 = generateStrainData({});
     const nodes = [
       generateNode({ id: id++, data: strain1 }),
       generateNode({ id: id++, data: strain2 }),
@@ -482,8 +482,8 @@ describe('cross tree', () => {
   });
   test('.generateTasks() correctly bumps dates', () => {
     let id = 0;
-    const strain1 = generateStrainNodeModel({ sex: Sex.Hermaphrodite });
-    const strain2 = generateStrainNodeModel({ sex: Sex.Male });
+    const strain1 = generateStrainData({});
+    const strain2 = generateStrainData({});
     const nodes = [
       generateNode({ id: id++, data: strain1 }),
       generateNode({ id: id++, data: strain2 }),
@@ -569,19 +569,20 @@ describe('cross tree', () => {
 
   test('should be able to serialize and deserialize', () => {
     let id = 0;
-    const strain1 = generateStrainNodeModel({
-      sex: Sex.Hermaphrodite,
+    const strain1 = generateStrainData({
       strain: generateStrain({
         allelePairs: [
           new AllelePair({ top: ed3, bot: ed3.toWild() }),
           new AllelePair({ top: ox1059, bot: ox1059.toWild() }),
         ],
+        sex: Sex.Hermaphrodite,
       }),
     });
-    const strain2 = generateStrainNodeModel({ sex: Sex.Male });
-    const strain3 = generateStrainNodeModel({
+    const strain2 = generateStrainData({});
+    const strain3 = generateStrainData({
       strain: generateStrain({
         allelePairs: [new AllelePair({ top: n765, bot: n765 })],
+        sex: Sex.Hermaphrodite,
       }),
     });
     const selfIcon = generateNode({ id: id++, type: FlowType.SelfIcon });

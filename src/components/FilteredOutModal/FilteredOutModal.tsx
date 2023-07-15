@@ -1,10 +1,10 @@
 import StrainNode from 'components/StrainNode/StrainNode';
-import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import { StrainData } from 'models/frontend/StrainData/StrainData';
 import { type Node } from 'reactflow';
 
 interface FilteredOutModalProps {
   nodeId: string;
-  excludedNodes: Array<Node<StrainNodeModel>>;
+  excludedNodes: Array<Node<StrainData>>;
 }
 
 const FilteredOutModal = (props: FilteredOutModalProps): React.JSX.Element => {
@@ -28,7 +28,7 @@ const FilteredOutModal = (props: FilteredOutModalProps): React.JSX.Element => {
             <div className='divider w-auto px-8' />
             <ul>
               {props.excludedNodes.map((node, idx) => {
-                const copiedData = new StrainNodeModel(node.data);
+                const copiedData = new StrainData(node.data);
                 copiedData.toggleHetPair = undefined;
                 copiedData.toggleSex = undefined;
                 copiedData.getMenuItems = () => [];
@@ -42,7 +42,7 @@ const FilteredOutModal = (props: FilteredOutModalProps): React.JSX.Element => {
                       idx + 1
                     }.`}</div>
                     <div>
-                      <StrainNode model={copiedData} />
+                      <StrainNode data={copiedData} />
                     </div>
                   </li>
                 );

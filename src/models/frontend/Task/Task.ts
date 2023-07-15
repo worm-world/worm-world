@@ -1,8 +1,8 @@
 import { type Action } from 'models/db/task/Action';
 import { type db_Task } from 'models/db/task/db_Task';
-import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import { StrainData } from 'models/frontend/StrainData/StrainData';
 import { Type, plainToInstance, instanceToPlain } from 'class-transformer';
-import { hermWild } from 'models/frontend/StrainNodeModel/StrainNodeModel.mock';
+import { hermWild } from 'models/frontend/StrainData/StrainData.stories';
 import { type Condition } from 'models/frontend/Condition/Condition';
 
 export interface iTask {
@@ -10,10 +10,10 @@ export interface iTask {
   dueDate?: Date;
 
   action: Action;
-  strain1: StrainNodeModel;
+  strain1: StrainData;
 
-  strain2?: StrainNodeModel;
-  result?: StrainNodeModel;
+  strain2?: StrainData;
+  result?: StrainData;
 
   notes?: string;
   completed: boolean;
@@ -26,14 +26,14 @@ export class Task {
   dueDate?: Date;
 
   action: Action;
-  @Type(() => StrainNodeModel)
-  strain1: StrainNodeModel;
+  @Type(() => StrainData)
+  strain1: StrainData;
 
-  @Type(() => StrainNodeModel)
-  strain2?: StrainNodeModel;
+  @Type(() => StrainData)
+  strain2?: StrainData;
 
-  @Type(() => StrainNodeModel)
-  result?: StrainNodeModel;
+  @Type(() => StrainData)
+  result?: StrainData;
 
   notes?: string;
   completed: boolean;
@@ -51,15 +51,13 @@ export class Task {
       this.dueDate =
         task.due_date !== null ? new Date(task.due_date) : undefined;
       this.action = task.action;
-      this.strain1 = StrainNodeModel.fromJSON(task.strain1);
+      this.strain1 = StrainData.fromJSON(task.strain1);
       this.strain2 =
         task.strain2 !== null
-          ? StrainNodeModel.fromJSON(task.strain2)
+          ? StrainData.fromJSON(task.strain2)
           : undefined;
       this.result =
-        task.result !== null
-          ? StrainNodeModel.fromJSON(task.result)
-          : undefined;
+        task.result !== null ? StrainData.fromJSON(task.result) : undefined;
       this.notes = task.notes ?? undefined;
       this.completed = task.completed;
       this.treeId = task.tree_id;
@@ -90,8 +88,8 @@ export class Task {
 }
 
 export const getConditionsFromTask = (
-  worm1: StrainNodeModel,
-  worm2?: StrainNodeModel
+  worm1: StrainData,
+  worm2?: StrainData
 ): Map<string, Condition> => {
   const conditions = new Map<string, Condition>();
 

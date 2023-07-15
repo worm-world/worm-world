@@ -44,12 +44,24 @@ export class AllelePair implements IAllelePair {
     );
   }
 
-  public static sortByPos(allelePairs: AllelePair[]): void {
+  public static sort(allelePairs: AllelePair[]): void {
+    if (allelePairs.length === 0) return;
+    if (allelePairs[0].isEca()) AllelePair.sortByName(allelePairs);
+    else AllelePair.sortByPos(allelePairs);
+  }
+
+  private static sortByPos(allelePairs: AllelePair[]): void {
     allelePairs.sort((pair1, pair2) => {
       const pair1Pos = pair1.top.getGenPosition() ?? 50; // gen pos never greater than 25
       const pair2Pos = pair2.top.getGenPosition() ?? 50; // gen pos never greater than 25
       return pair1Pos < pair2Pos ? -1 : 1;
     });
+  }
+
+  private static sortByName(allelePairs: AllelePair[]): void {
+    allelePairs.sort((pair1, pair2) =>
+      pair1.top.name < pair2.top.name ? -1 : 1
+    );
   }
 
   /** Checks if two allele pairs are on the same "variation" or the same gene. */
@@ -101,15 +113,36 @@ export class AllelePair implements IAllelePair {
     return this.top.getChromName() === 'Ex';
   }
 
+  /** Returns true if the pair is heterozygous, with one allele being wild */
+  public isWildHet(): boolean {
+    return !this.isHomo() && (this.top.isWild() || this.bot.isWild());
+  }
+
+  public merge(other: AllelePair): AllelePair {
+    if (!this.isWildHet() || other.isWildHet())
+      throw new Error(
+        'Cannot merge allele pairs where a pair contains two non-wild alleles'
+      );
+    if (
+      (this.top.isWild() && other.top.isWild()) ||
+      (this.bot.isWild() && other.bot.isWild())
+    )
+      throw new Error(
+        'Cannot merge two allele pairs with non-wild allele on same side'
+      );
+    const params = this.top.isWild()
+      ? { top: other.top, bot: this.bot }
+      : { top: this.top, bot: other.bot };
+    return new AllelePair(params);
+  }
+
   /**
-   * Returns a flipped pair
+   * Flips in place
    */
-  public flip(): AllelePair {
-    const newPair = this.clone();
+  public flip(): void {
     const temp = this.top;
-    newPair.top = this.bot;
-    newPair.bot = temp;
-    return newPair;
+    this.top = this.bot;
+    this.bot = temp;
   }
 
   /**

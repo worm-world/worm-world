@@ -3,7 +3,7 @@ import { Link, Outlet } from 'react-router-dom';
 
 const DataTables = (): React.JSX.Element => {
   return (
-    <div className='data-tables'>
+    <>
       <TopNav title={'Data Tables'} tabIndex={0}>
         <Link key='genes' to='genes' className='tab'>
           Genes
@@ -38,7 +38,7 @@ const DataTables = (): React.JSX.Element => {
         </Link>
       </TopNav>
       <Outlet />
-    </div>
+    </>
   );
 };
 

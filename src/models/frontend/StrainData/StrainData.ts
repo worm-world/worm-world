@@ -5,24 +5,20 @@ import {
   Type,
 } from 'class-transformer';
 import { type MenuItem } from 'components/Menu/Menu';
-import { Sex } from 'models/enums';
 import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
 
-export interface IStrainNodeModel {
-  sex?: Sex;
+export interface IStrainData {
   strain: Strain;
   isParent?: boolean;
   isChild?: boolean;
   probability?: number;
-  getMenuItems?: (node: StrainNodeModel) => MenuItem[];
+  getMenuItems?: (node: StrainData) => MenuItem[];
   toggleSex?: () => void;
   toggleHetPair?: (pair: AllelePair) => void;
 }
 
-export class StrainNodeModel implements IStrainNodeModel {
-  sex: Sex;
-
+export class StrainData implements IStrainData {
   @Type(() => Strain)
   strain: Strain;
 
@@ -31,7 +27,7 @@ export class StrainNodeModel implements IStrainNodeModel {
   probability?: number;
 
   @Exclude()
-  getMenuItems?: (node: StrainNodeModel) => MenuItem[];
+  getMenuItems?: (node: StrainData) => MenuItem[];
 
   @Exclude()
   toggleSex?: () => void;
@@ -39,18 +35,16 @@ export class StrainNodeModel implements IStrainNodeModel {
   @Exclude()
   toggleHetPair?: (pair: AllelePair) => void;
 
-  constructor(strainNodeModel: IStrainNodeModel) {
-    if (strainNodeModel !== null && strainNodeModel !== undefined) {
-      this.sex = strainNodeModel.sex ?? Sex.Male;
-      this.strain = strainNodeModel.strain;
-      this.getMenuItems = strainNodeModel.getMenuItems;
-      this.toggleSex = strainNodeModel.toggleSex;
-      this.toggleHetPair = strainNodeModel.toggleHetPair;
-      this.isParent = strainNodeModel.isParent ?? false;
-      this.isChild = strainNodeModel.isChild ?? false;
-      this.probability = strainNodeModel.probability;
+  constructor(StrainData: IStrainData) {
+    if (StrainData !== null && StrainData !== undefined) {
+      this.strain = StrainData.strain;
+      this.getMenuItems = StrainData.getMenuItems;
+      this.toggleSex = StrainData.toggleSex;
+      this.toggleHetPair = StrainData.toggleHetPair;
+      this.isParent = StrainData.isParent ?? false;
+      this.isChild = StrainData.isChild ?? false;
+      this.probability = StrainData.probability;
     } else {
-      this.sex = Sex.Male;
       this.strain = new Strain({ allelePairs: [] });
       this.isParent = false;
       this.isChild = false;
@@ -61,9 +55,9 @@ export class StrainNodeModel implements IStrainNodeModel {
     return JSON.stringify(instanceToPlain(this));
   }
 
-  static fromJSON(json: string): StrainNodeModel {
+  static fromJSON(json: string): StrainData {
     return plainToInstance(
-      StrainNodeModel,
+      StrainData,
       JSON.parse(json) as Record<string, unknown>
     );
   }

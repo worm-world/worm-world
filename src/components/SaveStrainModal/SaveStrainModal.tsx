@@ -1,4 +1,4 @@
-import { type StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import { type StrainData } from 'models/frontend/StrainData/StrainData';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { type Node } from 'reactflow';
@@ -6,7 +6,7 @@ import { type Node } from 'reactflow';
 interface SaveStrainModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  strainNode?: Node<StrainNodeModel>;
+  strainNode?: Node<StrainData>;
 }
 
 const SaveStrainModal = (props: SaveStrainModalProps): React.JSX.Element => {

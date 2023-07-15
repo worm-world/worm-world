@@ -1,5 +1,8 @@
 import { getAllele } from 'api/allele';
-import { getFilteredStrainAlleles, insertStrainAllele } from 'api/strainAllele';
+import {
+  getFilteredStrainAlleles,
+  insertDbStrainAllele,
+} from 'api/strainAllele';
 import {
   Exclude,
   Transform,
@@ -16,9 +19,8 @@ import { type AlleleExpression } from 'models/frontend/AlleleExpression/AlleleEx
 import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { type Condition } from 'models/frontend/Condition/Condition';
 import { type Phenotype } from 'models/frontend/Phenotype/Phenotype';
-import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import { StrainData } from 'models/frontend/StrainData/StrainData';
 import { getStrain, insertStrain } from 'api/strain';
-import { StrainAllele } from 'models/frontend/StrainAllele/StrainAllele';
 import { type ChromosomeName } from 'models/db/filter/db_ChromosomeName';
 import {
   type ChromosomeOption,
@@ -38,16 +40,18 @@ export interface GameteOption {
 
 interface IStrain {
   name?: string;
-  allelePairs: AllelePair[];
+  allelePairs?: AllelePair[];
   genotype?: string;
   description?: string;
+  sex?: Sex;
 }
 
 /**
  * A genetic profile consisting of an ordered sequence allele pairs.
  */
 export class Strain {
-  public name?: string;
+  public name = '';
+  public sex = Sex.Hermaphrodite;
   public description?: string;
 
   // Make sure that chromosome pairs in map are correctly deserialized
@@ -66,19 +70,26 @@ export class Strain {
 
   public genotype: string = '.';
 
-  constructor(params: IStrain) {
+  constructor(params?: IStrain) {
     // Serialization issue
     if (params === undefined || params === null) return;
 
-    this.name = params.name;
+    this.name = params.name ?? '';
     this.description = params.description;
-    this.addPairsToStrain(params.allelePairs);
+    this.sex = params.sex ?? Sex.Hermaphrodite;
+
+    if (params.allelePairs !== undefined)
+      this.addPairsToStrain(params.allelePairs);
     this.genotype =
       params.genotype ?? this.toString({ simplify: true, excludeEca: false });
-    this.name = params.name;
   }
 
-  // Constructs new object, along with fetching name
+  public static async build(params: IStrain): Promise<Strain> {
+    const strain = new Strain(params);
+    await strain.syncFromDb(); // Dynamically query for name
+    return strain;
+  }
+
   public static async buildFromChromPairs(
     chromPairs: ChromosomePair[]
   ): Promise<Strain> {
@@ -89,11 +100,17 @@ export class Strain {
     });
   }
 
-  // Constructs new object, along with fetching name
-  public static async build(params: IStrain): Promise<Strain> {
-    const strain = new Strain(params);
-    await strain.syncFromDb();
-    return strain;
+  public toggleSex(): void {
+    this.sex = this.sex === Sex.Hermaphrodite ? Sex.Male : Sex.Hermaphrodite;
+    const xChromPair = this.chromPairMap.get('X');
+    if (xChromPair !== undefined)
+      this.chromPairMap.set(
+        'X',
+        ChromosomePair.buildFromChroms(
+          xChromPair.getTop(),
+          this.sex === Sex.Hermaphrodite ? xChromPair.getTop() : undefined
+        )
+      );
   }
 
   public isEmptyWild(): boolean {
@@ -126,7 +143,7 @@ export class Strain {
     };
     const matchCandidates = await Promise.all(
       (await getFilteredStrainAlleles(sAFilter))
-        .map(async (sa) => await getStrain(sa.strain_name))
+        .map(async (sa) => await getStrain(sa.strainName))
         .map(async (strain) => await Strain.createFromRecord(await strain))
     );
     for (const candidate of matchCandidates) {
@@ -177,17 +194,35 @@ export class Strain {
     const allelePairs = await Promise.all(
       strainAlleles.map(async (strainAllele) => {
         const allele = await Allele.createFromRecord(
-          await getAllele(strainAllele.allele_name)
+          await getAllele(strainAllele.alleleName)
         );
         return new AllelePair({
-          top: strainAllele.is_on_top ? allele : allele.toWild(),
-          bot: strainAllele.is_on_bot ? allele : allele.toWild(),
+          top: strainAllele.isOnTop ? allele : allele.toWild(),
+          bot: strainAllele.isOnBot ? allele : allele.toWild(),
         });
       })
     );
 
+    // Merge co-located het pairs
+    const hetPairs: AllelePair[] = [];
+    const hetMap = new Map<string, AllelePair[]>();
+    allelePairs.forEach((allelePair) => {
+      const locus =
+        allelePair.top.gene?.sysName ?? allelePair.top.variation?.name ?? '';
+      hetMap.get(locus)?.push(allelePair) ?? hetMap.set(locus, [allelePair]);
+    });
+    hetMap.forEach((allelePairs, locus) => {
+      if (allelePairs.length > 2)
+        throw new Error(
+          `Cannot have more than two heterozygous alleles on one gene or variation: ${locus}`
+        );
+      else if (allelePairs.length === 2) {
+        hetPairs.push(allelePairs[0].merge(allelePairs[1]));
+      } else hetPairs.push(allelePairs[0]);
+    });
+
     return new Strain({
-      name: record.name ?? undefined,
+      name: record.name,
       description: record.description ?? undefined,
       genotype: record.genotype,
       allelePairs: await Promise.all(allelePairs),
@@ -201,45 +236,67 @@ export class Strain {
     const simplified = this.simplify();
     simplified.getAllelePairs().forEach((pair) => {
       if (pair.isHomo()) {
-        insertStrainAllele(
-          new StrainAllele({
+        insertDbStrainAllele({
+          strainName: this.name ?? '',
+          alleleName: pair.top.name,
+          isOnTop: true,
+          isOnBot: true,
+        }).catch(console.error);
+      } else {
+        if (!pair.top.isWild()) {
+          insertDbStrainAllele({
             strainName: this.name ?? '',
             alleleName: pair.top.name,
             isOnTop: true,
-            isOnBot: true,
-          })
-        ).catch(console.error);
-      } else {
-        if (!pair.top.isWild()) {
-          insertStrainAllele(
-            new StrainAllele({
-              strainName: this.name ?? '',
-              alleleName: pair.top.name,
-              isOnTop: true,
-              isOnBot: false,
-            })
-          ).catch(console.error);
+            isOnBot: false,
+          }).catch(console.error);
         }
         if (!pair.bot.isWild()) {
-          insertStrainAllele(
-            new StrainAllele({
-              strainName: this.name ?? '',
-              alleleName: pair.bot.name,
-              isOnTop: false,
-              isOnBot: true,
-            })
-          ).catch(console.error);
+          insertDbStrainAllele({
+            strainName: this.name ?? '',
+            alleleName: pair.bot.name,
+            isOnTop: false,
+            isOnBot: true,
+          }).catch(console.error);
         }
       }
     });
   }
 
-  public toMaleModel(): StrainNodeModel {
-    return new StrainNodeModel({ sex: Sex.Male, strain: this });
+  public toData(): StrainData {
+    return new StrainData({ strain: this });
   }
 
-  public toHermModel(): StrainNodeModel {
-    return new StrainNodeModel({ sex: Sex.Hermaphrodite, strain: this });
+  public toMale(): Strain {
+    const male = this.clone();
+    male.sex = Sex.Male;
+    return male;
+  }
+
+  public toHerm(): Strain {
+    const herm = this.clone();
+    herm.sex = Sex.Hermaphrodite;
+    return herm;
+  }
+
+  /* "Regular" alleles are homozygous, X chrom in males, or extrachromosomal array */
+  public getRegularAlleles(sex: Sex): Allele[] {
+    return [
+      ...this.getHomoAlleles(),
+      ...this.getEcaAlleles(),
+      ...this.getHetAlleles().filter(
+        (hetAllele) => hetAllele.isX() && sex === Sex.Male
+      ),
+    ];
+  }
+
+  /* "Iregular" alleles heterozygous (not just in our representation, but in biological reality) */
+  public getIrregularAlleles(sex: Sex): Allele[] {
+    return [
+      ...this.getHetAlleles().filter(
+        (hetAllele) => !hetAllele.isX() || sex === Sex.Hermaphrodite
+      ),
+    ];
   }
 
   public getHomoAlleles(): Allele[] {
@@ -251,12 +308,12 @@ export class Strain {
   public getHetAlleles(): Allele[] {
     return this.getAllelePairs()
       .filter((allelePair) => !allelePair.isEca() && !allelePair.isHomo())
-      .map((allelePair) =>
-        allelePair.top.isWild() ? allelePair.top : allelePair.bot
-      );
+      .map((allelePair) => [allelePair.top, allelePair.bot])
+      .flat()
+      .filter((allele) => !allele.isWild());
   }
 
-  public getExAlleles(): Allele[] {
+  public getEcaAlleles(): Allele[] {
     return this.getAllelePairs()
       .filter((allelePair) => allelePair.isEca())
       .map((allelePair) => allelePair.top);
@@ -304,6 +361,7 @@ export class Strain {
       description: this.description,
       genotype: this.genotype,
       allelePairs: [],
+      sex: this.sex,
     });
     clone.chromPairMap = new Map(this.chromPairMap);
     return clone;
@@ -472,10 +530,6 @@ export class Strain {
    * Adds a provided AllelePair to this strain. Throws an error if this fails (pair already exists).
    */
   private addPairToStrain(allelePair: AllelePair): void {
-    // Clear name and description, since these follow from strain identity
-    this.name = undefined;
-    this.description = undefined;
-
     const chromName = allelePair.top.getChromName();
     let chromPair = this.chromPairMap.get(chromName);
     if (chromPair === undefined) {
@@ -483,10 +537,22 @@ export class Strain {
       this.chromPairMap.set(chromName, chromPair);
     }
 
-    // Doesn't allow duplicated genes
+    // Prevent homozygous X alleles for males (only one X chromosome)
+    if (
+      this.sex === Sex.Male &&
+      chromPair.isX() &&
+      !allelePair.top.isWild() &&
+      allelePair.isWildHet()
+    ) {
+      throw new Error(
+        `Cannot add allele pair ${allelePair} because it is on the X chromosome, and males have only one X chromosome`
+      );
+    }
+
+    // Prevent duplicated genes
     if (chromPair.containsSameGeneOrVariationAs(allelePair)) {
       throw new Error(
-        `Bad pair: ${allelePair}\nCannot add multiple allele pairs of the same gene or variation.`
+        `Cannot add allele pair ${allelePair} because it conflicts with of the same gene or variation.`
       );
     }
 
@@ -496,19 +562,19 @@ export class Strain {
   /**
    * Combines probabilities of duplicate StrainOptions such that the resulting list has unique strains
    */
-  private static reduceStrainOptions(strains: StrainOption[]): void {
+  private static reduceStrainOptions(strainOpts: StrainOption[]): void {
     // Check each strain against every other strain
-    for (let i = 0; i < strains.length; i++) {
-      const currStrain = strains[i];
+    for (let i = 0; i < strainOpts.length; i++) {
+      const currStrain = strainOpts[i];
 
       // Check for duplicates and combine probabilities
-      for (let j = i + 1; j < strains.length; ) {
-        const nextStrain = strains[j];
-        const duplicate = currStrain.strain.equals(nextStrain.strain);
+      for (let j = i + 1; j < strainOpts.length; ) {
+        const strainOpt = strainOpts[j];
+        const duplicate = currStrain.strain.equals(strainOpt.strain);
 
         if (duplicate) {
-          currStrain.prob += nextStrain.prob;
-          strains.splice(j, 1);
+          currStrain.prob += strainOpt.prob;
+          strainOpts.splice(j, 1);
         } else {
           j++;
         }
@@ -532,13 +598,8 @@ export class Strain {
 
   @Exclude()
   generateRecord(): db_Strain {
-    if (this.name === undefined || this.genotype === undefined) {
-      throw Error(
-        'Attempted to generate a record for a strain without a name and genotype'
-      );
-    }
     return {
-      name: this.name,
+      name: this.name ?? '',
       genotype: this.genotype,
       description: this.description ?? null,
     };

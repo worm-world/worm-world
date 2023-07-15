@@ -1,34 +1,34 @@
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.3.0
     hooks:
-    -   id: check-yaml
-    -   id: end-of-file-fixer
-    -   id: trailing-whitespace
--   repo: https://github.com/pre-commit/mirrors-eslint
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: https://github.com/pre-commit/mirrors-eslint
     rev: v8.27.0
     hooks:
-    -   id: eslint
-        files: \.[jt]sx?$  # *.js, *.jsx, *.ts and *.tsx
+      - id: eslint
+        files: \.[jt]sx?$ # *.js, *.jsx, *.ts and *.tsx
         types: [file]
         additional_dependencies:
-        - "eslint@8.27.0"
-        - "eslint-config-standard-with-typescript@23.0.0"
-        - "eslint-plugin-import@2.26.0"
-        - "eslint-plugin-n@15.5.1"
-        - "eslint-plugin-promise@6.1.1"
-        - "eslint-plugin-react@7.31.10"
--   repo: local
+          - 'eslint@8.27.0'
+          - 'eslint-config-standard-with-typescript@23.0.0'
+          - 'eslint-plugin-import@2.26.0'
+          - 'eslint-plugin-n@15.5.1'
+          - 'eslint-plugin-promise@6.1.1'
+          - 'eslint-plugin-react@7.31.10'
+  - repo: local
     hooks:
-    -   id: test-front
+      - id: test-front
         name: Test frontend
         entry: npm run test-front
         always_run: true
-        files: "none"
+        files: 'none'
         language: system
-    -   id: test-back
+      - id: test-back
         name: Test backend
         entry: npm run test-back
         language: system
         always_run: true
-        files: "none"
+        files: 'none'

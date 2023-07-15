@@ -1,21 +1,21 @@
 import { render, screen } from '@testing-library/react';
 import StrainNode from 'components/StrainNode/StrainNode';
-import * as mock from 'models/frontend/StrainNodeModel/StrainNodeModel.mock';
+import * as mock from 'models/frontend/StrainData/StrainData.stories';
 
 describe('StrainNode component', () => {
   test('Empty node shows "wild" label', () => {
     const emptyNode = mock.maleWild;
-    render(<StrainNode model={emptyNode} />);
+    render(<StrainNode data={emptyNode} />);
 
     const body = screen.getByTestId('strainNodeBody');
     expect(body).toHaveTextContent(/wild/i);
   });
 
   test('Breed Count Probabilty Renders and shows correct data', () => {
-    const model = mock.maleWild;
-    model.probability = 0.25;
-    model.isChild = true;
-    render(<StrainNode model={model} />);
+    const data = mock.maleWild;
+    data.probability = 0.25;
+    data.isChild = true;
+    render(<StrainNode data={data} />);
     const prob1 = screen.getByTestId('progress-0.8');
     expect(prob1).not.toBeNull();
     const prob2 = screen.getByTestId('progress-0.9');

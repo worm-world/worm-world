@@ -58,13 +58,13 @@ export const AlleleMultiSelect = (
   };
 
   return (
-    <>
+    <div>
       {props.label !== undefined && (
         <label htmlFor={`AlleleMultiSelect-${props.label}`} className='label'>
           <span className='label-text'>{props.label}</span>
         </label>
       )}
-      <div className='dropdown w-full max-w-md'>
+      <div className='dropdown w-full'>
         <input
           id={`AlleleMultiSelect-${props.label}`}
           type='text'
@@ -76,7 +76,7 @@ export const AlleleMultiSelect = (
         {searchRes.length === 0 ? (
           <></> // Don't show list if no results
         ) : (
-          <ul className='dropdown-content menu rounded-box z-50 mb-2 mt-2 w-52 overflow-auto bg-base-100 p-2 shadow'>
+          <ul className='dropdown-content menu rounded-box z-50 my-2 w-52 overflow-auto bg-base-100 p-2 shadow'>
             {searchRes.map((record, idx) => {
               const [allele, gene] = record;
               const optionText =
@@ -117,6 +117,6 @@ export const AlleleMultiSelect = (
       >
         {getSelectedPills(props.selectedRecords, removeFromSelected, ['name'])}
       </div>
-    </>
+    </div>
   );
 };

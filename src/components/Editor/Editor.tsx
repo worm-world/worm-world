@@ -23,8 +23,8 @@ import StrainForm from 'components/StrainForm/StrainForm';
 import { Sex } from 'models/enums';
 import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import CrossTree, { NODE_PADDING } from 'models/frontend/CrossTree/CrossTree';
-import { type Strain, type StrainOption } from 'models/frontend/Strain/Strain';
-import { StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import { Strain, type StrainOption } from 'models/frontend/Strain/Strain';
+import { StrainData } from 'models/frontend/StrainData/StrainData';
 import {
   Fragment,
   createContext,
@@ -68,12 +68,7 @@ import SaveStrainModal from 'components/SaveStrainModal/SaveStrainModal';
 
 export interface EditorProps {
   crossTree: CrossTree;
-  /*
-   * This is used to determine if the context menu should be shown.
-   * In attempting to use a right click event in testing, the context menu never shows up.
-   * Not sure why, but this is a workaround.
-   */
-  testing?: boolean;
+  testing?: boolean; // This is used to determine if the context menu should be shown (testing workaround)
 }
 
 export const ShowGenesContext = createContext(true);
@@ -104,6 +99,10 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   const currNodeId = useRef<string>('');
   const onConnectParams = useRef<OnConnectStartParams | null>(null);
 
+  const getCurrentNode = (): Node | undefined => {
+    return nodeMap.get(currNodeId.current);
+  };
+
   /**
    * This function sets up right click handler overrides that check if the right click is on an HTML
    * element that has a class that matches any of the passed in class names.
@@ -113,10 +112,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
     useContextMenuState(['react-flow__pane'], props.testing);
   const flowRef = useRef<HTMLElement>(null);
 
-  /**
-   * sets nodeMap state to include passed node
-   */
-  const addToOrUpdateNodeMap = (node: Node): void => {
+  const updateNodeMap = (node: Node): void => {
     setNodeMap((nodeMap) => new Map(nodeMap.set(node.id, node)));
   };
 
@@ -269,8 +265,10 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       args.targetHandle === 'bottom'
     )
       return;
-    const lNodeId = args.sourceHandle === 'right' ? args.source : args.target;
-    const rNodeId = args.sourceHandle === 'right' ? args.target : args.source;
+    const [lNodeId, rNodeId] =
+      args.sourceHandle === 'right'
+        ? [args.source, args.target]
+        : [args.target, args.source];
 
     setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
       const lNode = nodeMap.get(lNodeId ?? '');
@@ -284,15 +282,15 @@ const Editor = (props: EditorProps): React.JSX.Element => {
         return nodeMap;
       }
 
-      const lStrain: StrainNodeModel = lNode.data;
-      const rStrain: StrainNodeModel = rNode.data;
+      const lData: StrainData = lNode.data;
+      const rData: StrainData = rNode.data;
 
-      if (lStrain.sex !== Sex.Male || rStrain.sex !== Sex.Hermaphrodite) {
-        toast.error('Can only cross strains that are different sexes');
+      if (lData.strain.sex === rData.strain.sex) {
+        toast.error('Can only mate strains that are different sexes');
         return nodeMap;
       }
 
-      if (lStrain.isParent || rStrain.isParent) {
+      if (lData.isParent || rData.isParent) {
         toast.error("A single strain can't be involved in multiple crosses");
         return nodeMap;
       }
@@ -323,7 +321,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
 
       if (currNode === undefined) return nodeMap;
       if (currNode.type !== FlowType.Strain) return nodeMap;
-      const currStrain = currNode.data as StrainNodeModel;
+      const currStrain = currNode.data as StrainData;
 
       if (currStrain.isParent) {
         toast.error('Cannot cross a strain already involved in a cross');
@@ -360,25 +358,22 @@ const Editor = (props: EditorProps): React.JSX.Element => {
           const nodes = [...nodeMap.values()];
           const refreshedNodes = nodes.map((node) => {
             if (node.type === FlowType.Strain) {
-              const data: StrainNodeModel = node.data;
-              node.data = new StrainNodeModel({
-                sex: data.sex,
+              const data: StrainData = node.data;
+              node.data = new StrainData({
                 strain: data.strain,
                 probability: data.probability,
                 isParent: data.isParent,
                 isChild: data.isChild,
-                getMenuItems: (model: StrainNodeModel) =>
+                getMenuItems: (model: StrainData) =>
                   getStrainNodeMenuItems(model, node.id, data.isParent),
-                toggleSex: data.isParent
-                  ? undefined
-                  : () => {
-                      toggleStrainNodeSex(node.id);
-                    },
+                toggleSex: () => {
+                  toggleStrainNodeSex(node.id);
+                },
                 toggleHetPair: (pair) => {
                   toggleHetPair(pair, node.id);
                 },
               });
-            } else if (node.type === FlowType.Note) {
+            } else if (node.type === FlowType.Note)
               node.data = new NoteNodeProps({
                 content: node.data.content,
                 onDoubleClick: () => {
@@ -388,13 +383,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
                   setEditorDrawerSideOpen(true);
                 },
               });
-            } else if (
-              node.type === FlowType.XIcon ||
-              node.type === FlowType.SelfIcon
-            ) {
-              loadIconWithData(node);
-            }
-
+            else node.data = { id: node.id };
             return node;
           });
           refreshedNodes.forEach((node) => nodeMap.set(node.id, node));
@@ -408,7 +397,6 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   // #region Flow Component Creation
   /** Creates a node representing a strain */
   const createStrainNode = ({
-    sex,
     strain,
     position,
     isParent,
@@ -421,30 +409,26 @@ const Editor = (props: EditorProps): React.JSX.Element => {
     position: XYPosition;
     isParent: boolean;
     isChild: boolean;
-    sex: Sex;
     parentNode?: string;
     probability?: number;
     id?: string;
-  }): Node<StrainNodeModel> => {
+  }): Node<StrainData> => {
     const nodeId = id ?? props.crossTree.createId();
     const strainNode: Node = {
       id: nodeId,
       type: FlowType.Strain,
       position,
       parentNode,
-      data: new StrainNodeModel({
-        sex,
+      data: new StrainData({
         strain,
         probability,
         isParent,
         isChild,
-        getMenuItems: (node: StrainNodeModel) =>
+        getMenuItems: (node: StrainData) =>
           getStrainNodeMenuItems(node, nodeId, isParent),
-        toggleSex: isParent
-          ? undefined
-          : () => {
-              toggleStrainNodeSex(nodeId);
-            },
+        toggleSex: () => {
+          toggleStrainNodeSex(nodeId);
+        },
         toggleHetPair: (pair) => {
           toggleHetPair(pair, nodeId);
         },
@@ -470,37 +454,25 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   };
 
   /** Creates a node representing the x icon */
-  const createXIcon = (parentNode: Node<StrainNodeModel>): Node => {
-    const position = CrossTree.getXIconPos(parentNode);
-    const newXIcon: Node = {
+  const createXIcon = (parentNode: Node<StrainData>): Node => {
+    return {
       id: props.crossTree.createId(),
       type: FlowType.XIcon,
-      position,
+      position: CrossTree.getXIconPos(parentNode),
       parentNode: parentNode.id,
       data: {},
     };
-    return newXIcon;
   };
 
   /** Creates a node representing the self icon */
   const createSelfIcon = (parentNode: string): Node => {
-    const position = CrossTree.getSelfIconPos();
-    const newSelfIcon: Node = {
+    return {
       id: props.crossTree.createId(),
       type: FlowType.SelfIcon,
-      position,
+      position: CrossTree.getSelfIconPos(),
       parentNode,
       data: {},
     };
-    return newSelfIcon;
-  };
-
-  const loadIconWithData = (iconNode: Node): void => {
-    const data = {
-      id: iconNode.id,
-    };
-
-    iconNode.data = data;
   };
 
   /** Creates an edge connecting a source node to a target node */
@@ -550,13 +522,14 @@ const Editor = (props: EditorProps): React.JSX.Element => {
         return nodeMap;
       }
 
-      const data: StrainNodeModel = node.data;
-      if (data.sex === undefined || data.sex === null) return nodeMap;
+      const data: StrainData = node.data;
+      if (data.strain.sex === undefined || data.strain.sex === null)
+        return nodeMap;
 
       // need to create a new node with the updated data so the state knows something has changed
-      const newSex = data.sex === Sex.Male ? Sex.Hermaphrodite : Sex.Male;
+      data.strain.sex =
+        data.strain.sex === Sex.Male ? Sex.Hermaphrodite : Sex.Male;
       const newNode = createStrainNode({
-        sex: newSex,
         strain: data.strain,
         position: node.position,
         isParent: false,
@@ -574,7 +547,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   };
 
   const toggleHetPair = (pair: AllelePair, nodeId: string): void => {
-    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
+    setNodeMap((nodeMap) => {
       const node = nodeMap.get(nodeId);
       if (node === undefined || node.type !== FlowType.Strain) {
         console.error(
@@ -582,25 +555,33 @@ const Editor = (props: EditorProps): React.JSX.Element => {
         );
         return nodeMap;
       }
-
-      const data: StrainNodeModel = node.data;
+      const data: StrainData = node.data;
 
       pair.flip();
-      // replace node with new node of toggled pair
-      const newNode = createStrainNode({
-        sex: data.sex,
-        strain: data.strain,
-        position: node.position,
-        isParent: false, // if toggled before, should be able to toggle again
-        isChild: false,
-        parentNode: node.parentNode,
-        probability: data.probability,
-        id: node.id,
-      });
-      nodeMap.set(newNode.id, newNode);
-      return new Map(nodeMap);
+      Strain.build({
+        allelePairs: data.strain.getAllelePairs(),
+        sex: data.strain.sex,
+      })
+        .then((strain) => {
+          // Replace node with new node of toggled pair
+          const newNode = createStrainNode({
+            strain,
+            position: node.position,
+            isParent: false, // If toggled before, should be able to toggle again
+            isChild: false,
+            parentNode: node.parentNode,
+            probability: data.probability,
+            id: node.id,
+          });
+          setNodeMap((nodeMap) => {
+            nodeMap.set(newNode.id, newNode);
+            return new Map(nodeMap);
+          });
+        })
+        .catch(console.error);
+      saveTree();
+      return nodeMap;
     });
-    saveTree();
   };
 
   /** Show the filterOut node child of nodeId if any strain children of nodeId are hidden */
@@ -663,7 +644,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       // Mark nodes as (in)visible
       setNodeMap((nodeMap) => {
         setInvisibleNodes((invisibleNodes: Set<string>): Set<string> => {
-          const childList: Array<Node<StrainNodeModel>> = [
+          const childList: Array<Node<StrainData>> = [
             ...nodeMap.values(),
           ].filter(
             (node) =>
@@ -712,14 +693,14 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   const addNote = (): void => {
     const position = getNodePositionFromLastClick();
     const newNote = createNote(noteFormContent, position);
-    addToOrUpdateNodeMap(newNote);
+    updateNodeMap(newNote);
     setEditorDrawerSideOpen(false);
     saveTree();
   };
 
   /** Edits a current note's content */
   const editNote = (): void => {
-    const noteNode = nodeMap.get(currNodeId.current);
+    const noteNode = getCurrentNode();
     if (noteNode === undefined || noteNode.type !== FlowType.Note) {
       console.error(
         'Cannot edit note when currNode is undefined or is not a note type'
@@ -729,22 +710,21 @@ const Editor = (props: EditorProps): React.JSX.Element => {
 
     const noteData: NoteNodeProps = noteNode.data;
     noteData.content = noteFormContent;
-    addToOrUpdateNodeMap(noteNode);
+    updateNodeMap(noteNode);
     setEditorDrawerSideOpen(false);
     saveTree();
   };
 
   /** Adds a "floating" strain node to the editor */
-  const addStrain = (sex: Sex, strain: Strain): void => {
+  const addStrain = (strain: Strain): void => {
     const position = getNodePositionFromLastClick();
     const newStrain = createStrainNode({
-      sex,
       strain,
       position,
       isParent: false,
       isChild: false,
     });
-    addToOrUpdateNodeMap(newStrain);
+    updateNodeMap(newStrain);
     setEditorDrawerSideOpen(false);
     saveTree();
   };
@@ -765,11 +745,11 @@ const Editor = (props: EditorProps): React.JSX.Element => {
 
     // Create nodes and edges
     const selfNode = createSelfIcon(parentNode.id);
-    loadIconWithData(selfNode);
+    selfNode.data = { id: selfNode.id };
     const edgeToIcon = createEdge(parentNode.id, selfNode.id, {
       sourceHandle: 'bottom',
     });
-    const parentStrain = parentNode.data as StrainNodeModel;
+    const parentStrain = parentNode.data as StrainData;
     const childStrains = await parentStrain.strain.selfCross();
     const childNodes = getChildNodes(selfNode, childStrains);
     const childEdges = childNodes.map((node) =>
@@ -787,8 +767,8 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   };
 
   const matedCross = async (
-    lNode: Node<StrainNodeModel>,
-    rNode: Node<StrainNodeModel>
+    lNode: Node<StrainData>,
+    rNode: Node<StrainData>
   ): Promise<void> => {
     // Mark as parents
     lNode.data = copyNodeData(lNode, { isParent: true });
@@ -798,26 +778,26 @@ const Editor = (props: EditorProps): React.JSX.Element => {
     const lControlsR = rNode.parentNode === undefined;
     if (lControlsR) {
       rNode.parentNode = lNode.id;
-      rNode.position = CrossTree.getMatedStrainPos(lNode.data.sex);
+      rNode.position = CrossTree.getMatedStrainPos(lNode.data.strain.sex);
     } else {
       lNode.parentNode = rNode.id;
-      lNode.position = CrossTree.getMatedStrainPos(rNode.data.sex);
+      lNode.position = CrossTree.getMatedStrainPos(rNode.data.strain.sex);
     }
 
     // Create new nodes and edges
     const xNode = createXIcon(lNode);
-    loadIconWithData(xNode);
-    const lStrain = lNode.data;
-    const rStrain = rNode.data;
+    xNode.data = { id: xNode.id };
+    const lData = lNode.data;
+    const rData = rNode.data;
     const e1 = createEdge(lNode.id, xNode.id, {
-      targetHandle: lStrain.sex === Sex.Male ? 'left' : 'right',
-      sourceHandle: lStrain.sex !== Sex.Male ? 'left' : 'right',
+      sourceHandle: lData.strain.sex === Sex.Hermaphrodite ? 'left' : 'right',
+      targetHandle: lData.strain.sex === Sex.Male ? 'left' : 'right',
     });
     const e2 = createEdge(rNode.id, xNode.id, {
-      targetHandle: rStrain.sex === Sex.Male ? 'left' : 'right',
-      sourceHandle: rStrain.sex !== Sex.Male ? 'left' : 'right',
+      sourceHandle: rData.strain.sex === Sex.Hermaphrodite ? 'left' : 'right',
+      targetHandle: rData.strain.sex === Sex.Male ? 'left' : 'right',
     });
-    const childOptions = await lStrain.strain.crossWith(rStrain.strain);
+    const childOptions = await lData.strain.crossWith(rData.strain);
     const childNodes = getChildNodes(xNode, childOptions);
     const childEdges = childNodes.map((node) => createEdge(xNode.id, node.id));
 
@@ -836,7 +816,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   const getChildNodes = (
     middleNode: Node,
     childOptions: StrainOption[]
-  ): Array<Node<StrainNodeModel>> => {
+  ): Array<Node<StrainData>> => {
     const childPositions = CrossTree.calculateChildPositions(
       middleNode.type === FlowType.XIcon ? FlowType.XIcon : FlowType.SelfIcon,
       childOptions
@@ -844,7 +824,6 @@ const Editor = (props: EditorProps): React.JSX.Element => {
 
     const childNodes: Node[] = childOptions.map((child, i) => {
       return createStrainNode({
-        sex: Sex.Hermaphrodite,
         strain: child.strain,
         position: childPositions[i],
         isParent: false,
@@ -874,9 +853,9 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   /**
    * Params are provided by the strainNode form's onSubmit callback function
    */
-  const matedCrossWithFormData = (sex: Sex, strain: Strain): void => {
+  const matedCrossWithFormData = (strain: Strain): void => {
     setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
-      const startingNode = nodeMap.get(currNodeId.current);
+      const startingNode = getCurrentNode();
       if (startingNode === undefined || startingNode.type !== FlowType.Strain) {
         console.error(
           'Cannot cross currNode with a form node when currNode is undefined or not a strain'
@@ -884,16 +863,15 @@ const Editor = (props: EditorProps): React.JSX.Element => {
         return nodeMap;
       }
 
-      const currStrain: StrainNodeModel = startingNode.data;
+      const currData: StrainData = startingNode.data;
       const formNode = createStrainNode({
-        sex,
         strain,
-        position: CrossTree.getMatedStrainPos(currStrain.sex),
+        position: CrossTree.getMatedStrainPos(currData.strain.sex),
         isParent: true,
         isChild: false,
       });
 
-      currStrain.sex === Sex.Male
+      currData.strain.sex === Sex.Male
         ? matedCross(startingNode, formNode).catch(console.error)
         : matedCross(formNode, startingNode).catch(console.error);
 
@@ -904,16 +882,15 @@ const Editor = (props: EditorProps): React.JSX.Element => {
 
   /** Clones the passed node's data and optionally marks as a parent/child */
   const copyNodeData = (
-    node: Node<StrainNodeModel>,
+    node: Node<StrainData>,
     {
       isChild = node.data.isChild,
       isParent = node.data.isParent,
       toggleNodeSex = node.data.toggleSex,
       toggleNodeHetPair = node.data.toggleHetPair,
     }
-  ): StrainNodeModel => {
-    const updatedParentData = new StrainNodeModel({
-      sex: node.data.sex,
+  ): StrainData => {
+    const updatedParentData = new StrainData({
       strain: node.data.strain,
       isChild,
       isParent,
@@ -926,7 +903,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   };
 
   const getStrainNodeMenuItems = (
-    strainNode: StrainNodeModel | null | undefined,
+    strainNode: StrainData | null | undefined,
     nodeId: string,
     isParent: boolean = false
   ): MenuItem[] => {
@@ -965,7 +942,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
 
     const menuOptions = [scheduleOption];
     if (!isParent) menuOptions.push(crossOption);
-    if (strainNode.sex === Sex.Hermaphrodite && !isParent)
+    if (strainNode.strain.sex === Sex.Hermaphrodite && !isParent)
       menuOptions.push(selfOption);
     if (strainNode.strain.name === undefined)
       menuOptions.push(saveStrainOption);
@@ -1038,7 +1015,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   };
 
   /** Gets onSubmit callback for the strain form based on current state  */
-  const getOnSubmitForStrainForm = (): ((sex: Sex, strain: Strain) => void) => {
+  const getOnSubmitForStrainForm = (): ((strain: Strain) => void) => {
     switch (drawerState) {
       case 'addStrain':
         return addStrain;
@@ -1061,11 +1038,12 @@ const Editor = (props: EditorProps): React.JSX.Element => {
     }
   };
 
-  let enforcedSex: Sex | undefined;
-  const currNode = nodeMap.get(currNodeId.current);
-  if (drawerState === 'cross')
-    enforcedSex =
-      currNode?.data?.sex === Sex.Male ? Sex.Hermaphrodite : Sex.Male;
+  const enforcedSex =
+    drawerState === 'cross'
+      ? undefined
+      : getCurrentNode()?.data?.strain.sex === Sex.Male
+      ? Sex.Hermaphrodite
+      : Sex.Male;
 
   return (
     <ShowGenesContext.Provider value={showGenes}>
@@ -1183,7 +1161,6 @@ const Editor = (props: EditorProps): React.JSX.Element => {
                 }
                 hidden={!rightDrawerOpen}
               >
-                <label htmlFor='my-drawer-4' className='drawer-overlay' />
                 <button
                   className='self-end'
                   onClick={() => {
@@ -1220,7 +1197,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
           <SaveStrainModal
             isOpen={saveStrainModalIsOpen}
             setIsOpen={setSaveStrainModalIsOpen}
-            strainNode={nodeMap.get(currNodeId.current)}
+            strainNode={getCurrentNode()}
           />
         </div>
       </div>

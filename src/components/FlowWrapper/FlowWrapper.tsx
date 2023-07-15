@@ -1,6 +1,6 @@
 import StrainNode from 'components/StrainNode/StrainNode';
 import { Sex } from 'models/enums';
-import { type StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import { type StrainData } from 'models/frontend/StrainData/StrainData';
 import { Handle, Position } from 'reactflow';
 import { XNode, type XNodeProps } from 'components/XNode/XNode';
 import { type SelfIconProps, SelfNode } from 'components/SelfNode/SelfNode';
@@ -11,13 +11,13 @@ import FilteredOutNode, {
 } from 'components/FilteredOutNode/FilteredOutNode';
 
 export interface StrainFlowWrapperProps {
-  data: StrainNodeModel;
+  data: StrainData;
 }
 
 export const StrainFlowWrapper = (
   props: StrainFlowWrapperProps
 ): React.JSX.Element => {
-  const isMale = props.data.sex === Sex.Male;
+  const isMale = props.data.strain.sex === Sex.Male;
 
   const rStyling = isMale ? '' : 'invisible';
   const bStyling = isMale ? 'invisible' : '';
@@ -47,7 +47,7 @@ export const StrainFlowWrapper = (
         type='source'
         position={Position.Bottom}
       />
-      <StrainNode model={props.data} />
+      <StrainNode data={props.data} />
     </div>
   );
 };

@@ -18,14 +18,14 @@ pub fn get_variations() -> Vec<Variation> {
         },
         Variation {
             allele_name: "oxEx219999".to_string(),
-            chromosome: None,
+            chromosome: Some(ChromosomeName::Ex),
             phys_loc: None,
             gen_loc: None,
             recomb_suppressor: None,
         },
         Variation {
             allele_name: "oxEx2254".to_string(),
-            chromosome: None,
+            chromosome: Some(ChromosomeName::Ex),
             phys_loc: None,
             gen_loc: None,
             recomb_suppressor: None,

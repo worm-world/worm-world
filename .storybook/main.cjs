@@ -1,35 +1,38 @@
-const {mergeConfig} = require("vite")
-const { default: tsconfigPaths } = require('vite-tsconfig-paths')
+const { mergeConfig } = require('vite');
+const { default: tsconfigPaths } = require('vite-tsconfig-paths');
 
 module.exports = {
   stories: ['../src/**/*.stories.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
-  addons: ['@storybook/addon-links', '@storybook/addon-essentials', '@storybook/addon-interactions', {
-    name: '@storybook/addon-postcss',
-    options: {
-      postcssLoaderOptions: {
-        implementation: require('postcss')
-      }
-    }
-  }],
+  addons: [
+    '@storybook/addon-links',
+    '@storybook/addon-essentials',
+    '@storybook/addon-interactions',
+    {
+      name: '@storybook/addon-postcss',
+      options: {
+        postcssLoaderOptions: {
+          implementation: require('postcss'),
+        },
+      },
+    },
+  ],
   framework: {
     name: '@storybook/react-vite',
-    options: {}
+    options: {},
   },
   core: {},
   features: {
-    storyStoreV7: true
+    storyStoreV7: true,
   },
   docsPage: {
-    docs: 'automatic'
+    docs: 'automatic',
   },
   docs: {
-    autodocs: true
+    autodocs: true,
   },
   viteFinal(config, { configType }) {
     return mergeConfig(config, {
-      plugins: [
-        tsconfigPaths()
-      ]
-    })
-  }
+      plugins: [tsconfigPaths()],
+    });
+  },
 };

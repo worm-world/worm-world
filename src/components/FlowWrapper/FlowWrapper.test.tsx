@@ -1,14 +1,14 @@
 import { render, screen } from '@testing-library/react';
 import { StrainFlowWrapper } from 'components/FlowWrapper/FlowWrapper';
-import * as mock from 'models/frontend/StrainNodeModel/StrainNodeModel.mock';
+import * as mock from 'models/frontend/StrainData/StrainData.stories';
 import { ReactFlowProvider } from 'reactflow';
 
 describe('FlowWrapper', () => {
   test('FlowWrapper does not obscure contents of strain node', () => {
-    const strainNodeModel = mock.maleManyPairs;
+    const StrainData = mock.maleManyPairs;
     const wrapperInFlow = (
       <ReactFlowProvider>
-        <StrainFlowWrapper data={strainNodeModel} />
+        <StrainFlowWrapper data={StrainData} />
       </ReactFlowProvider>
     );
     render(wrapperInFlow);

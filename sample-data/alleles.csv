@@ -1,0 +1,23 @@
+name,contents,sysGeneName,variationName
+cn64,,T14B4.7,
+e128,,T14B4.7,
+e1282,,T22B3.1,
+e138,,F57H12.2,
+eT1(III),[unc-36(e873)],,eT1(III)
+eT1(V),,,eT1(V)
+ed3,,M142.1,
+hd43,,F56H11.1,
+md299,,F27D9.1,
+n744,,ZK662.4,
+n765,,ZK662.4,
+ox1059,,C10C6.1,
+oxEx219999,[Primb-1::HisCl1::SL2::GFP],,oxEx219999
+oxEx2254,"[Psnt-1::Flp, Punc-122::GAP-43::mScarlet, cbr-unc-119(+), NeoR]",,oxEx2254
+oxIs12,[Punc-47::GFP; lin-15(+)],,oxIs12
+oxIs363,[unc-122p::GFP + unc-119(+)],,oxIs363
+oxIs644,[Peft-3::FRT-UTR-FRT::mYFP::unc-54UTR; lin-15(+)],,oxIs644
+oxSi1168,"[Psnt-1:Flp, *ttTi5605]",,oxSi1168
+oxTi302,[Peft-3::mCherry; cbr-unc-119(+)],,oxTi302
+oxTi75,[Peft-3::GFP-NLS; unc-18(+)],,oxTi75
+tmC5,,,tmC5
+tmC5[F36H1.3(tmIs1220)],[Pmyo-2::YFP],,tmC5[F36H1.3(tmIs1220)]

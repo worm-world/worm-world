@@ -191,9 +191,9 @@ describe('ChromosomePair', () => {
 
   test('(De)serializes', () => {
     const chromPair = new ChromosomePair([
-      e204.toTopHetPair(),
-      ox802.toHomoPair(),
-      oxIs363.toBotHetPair(),
+      e204.toTopHet(),
+      ox802.toHomo(),
+      oxIs363.toBotHet(),
     ]);
     const str = chromPair.toJSON();
     const chromPairBack = ChromosomePair.fromJSON(str);

@@ -1,8 +1,8 @@
 import CrossTree from 'models/frontend/CrossTree/CrossTree';
-import * as mockStrainNode from 'models/frontend/StrainNodeModel/StrainNodeModel.mock';
+import * as mockStrainNode from 'models/frontend/StrainData/StrainData.stories';
 import { type Edge, type Node } from 'reactflow';
 import { FlowType } from 'components/CrossFlow/CrossFlow';
-import { type StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import { type StrainData } from 'models/frontend/StrainData/StrainData';
 
 export const emptyCrossTree = new CrossTree({
   name: 'Empty cross tree',
@@ -14,7 +14,7 @@ export const emptyCrossTree = new CrossTree({
   editable: true,
 });
 
-export const ed3HeteroMale: Node<StrainNodeModel> = {
+export const ed3HeteroMale: Node<StrainData> = {
   id: '0',
   type: FlowType.Strain,
   data: mockStrainNode.ed3HetMale,
@@ -24,7 +24,7 @@ export const ed3HeteroMale: Node<StrainNodeModel> = {
   },
 };
 
-export const ed3HeteroHerm: Node<StrainNodeModel> = {
+export const ed3HeteroHerm: Node<StrainData> = {
   id: '1',
   type: FlowType.Strain,
   data: mockStrainNode.ed3HetHerm,
@@ -34,7 +34,7 @@ export const ed3HeteroHerm: Node<StrainNodeModel> = {
   },
 };
 
-export const ed3HomoHerm: Node<StrainNodeModel> = {
+export const ed3HomoHerm: Node<StrainData> = {
   id: '2',
   type: FlowType.Strain,
   data: mockStrainNode.ed3HomoHerm,
@@ -83,7 +83,7 @@ export const simpleCrossTree = new CrossTree({
   editable: true,
 });
 
-export const node0: Node<StrainNodeModel> = {
+export const node0: Node<StrainData> = {
   id: '0',
   type: FlowType.Strain,
   data: mockStrainNode.e204WildMale,
@@ -92,7 +92,7 @@ export const node0: Node<StrainNodeModel> = {
     y: -1000,
   },
 };
-export const node1: Node<StrainNodeModel> = {
+export const node1: Node<StrainData> = {
   id: '1',
   type: FlowType.Strain,
   data: mockStrainNode.e204HomoHerm,
@@ -101,7 +101,7 @@ export const node1: Node<StrainNodeModel> = {
     y: -1000,
   },
 };
-export const node2: Node<StrainNodeModel> = {
+export const node2: Node<StrainData> = {
   id: '2',
   type: FlowType.Strain,
   data: mockStrainNode.e204HetMale,
@@ -110,7 +110,7 @@ export const node2: Node<StrainNodeModel> = {
     y: -800,
   },
 };
-export const node3: Node<StrainNodeModel> = {
+export const node3: Node<StrainData> = {
   id: '3',
   type: FlowType.Strain,
   data: mockStrainNode.ox802HomoHerm,
@@ -119,7 +119,7 @@ export const node3: Node<StrainNodeModel> = {
     y: -800,
   },
 };
-export const node4: Node<StrainNodeModel> = {
+export const node4: Node<StrainData> = {
   id: '4',
   type: FlowType.Strain,
   data: mockStrainNode.e204HetOx802Het,
@@ -128,7 +128,7 @@ export const node4: Node<StrainNodeModel> = {
     y: -600,
   },
 };
-export const node5: Node<StrainNodeModel> = {
+export const node5: Node<StrainData> = {
   id: '5',
   type: FlowType.Strain,
   data: mockStrainNode.e204HomoOx802HetHerm,
@@ -137,7 +137,7 @@ export const node5: Node<StrainNodeModel> = {
     y: -400,
   },
 };
-export const node6: Node<StrainNodeModel> = {
+export const node6: Node<StrainData> = {
   id: '6',
   type: FlowType.Strain,
   data: mockStrainNode.e204HomoOx802HomoHerm,
@@ -252,7 +252,7 @@ export const selfNodeAsParent: Node = {
   },
 };
 
-export const ed3AsChild: Node<StrainNodeModel> = {
+export const ed3AsChild: Node<StrainData> = {
   id: '1',
   type: FlowType.Strain,
   data: mockStrainNode.ed3HomoHerm,
@@ -262,7 +262,7 @@ export const ed3AsChild: Node<StrainNodeModel> = {
   },
   parentNode: '0',
 };
-export const n765AsChild: Node<StrainNodeModel> = {
+export const n765AsChild: Node<StrainData> = {
   id: '1',
   type: FlowType.Strain,
   data: mockStrainNode.n765Homo,

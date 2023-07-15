@@ -302,7 +302,7 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
 
         let csv_str =
-            "strain_name,allele_name,is_on_top,is_on_bot\nEG6207,ed3,true,true\nMT2495,n744,true,true\nTN64,cn64,true,true"
+            "strainName,alleleName,isOnTop,isOnBot\nEG6207,ed3,true,true\nMT2495,n744,true,true\nTN64,cn64,true,true"
                 .as_bytes();
         let buf = BufReader::new(csv_str);
         let mut reader = csv::ReaderBuilder::new().has_headers(true).from_reader(buf);
@@ -342,7 +342,7 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
 
         let tsv_str =
-            "strain_name\tallele_name\tis_on_top\tis_on_bot\nEG6207\ted3\ttrue\ttrue\nMT2495\tn744\ttrue\ttrue\nTN64\tcn64\ttrue\ttrue"
+            "strainName\talleleName\tisOnTop\tisOnBot\nEG6207\ted3\ttrue\ttrue\nMT2495\tn744\ttrue\ttrue\nTN64\tcn64\ttrue\ttrue"
                 .as_bytes();
         let buf = BufReader::new(tsv_str);
         let mut reader = csv::ReaderBuilder::new()

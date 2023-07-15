@@ -3,7 +3,7 @@ import {
   StrainFlowWrapper,
   StrainFlowWrapperProps,
 } from 'components/FlowWrapper/FlowWrapper';
-import * as strainNodeMock from 'models/frontend/StrainNodeModel/StrainNodeModel\.mock';
+import * as strainNodeMock from 'models/frontend/StrainData/StrainData.stories';
 import { ReactFlowProvider } from 'reactflow';
 
 export default {

@@ -6,9 +6,13 @@ use ts_rs::TS;
 #[ts(export, export_to = "../src/models/db/db_StrainAllele.ts")]
 #[serde(rename = "db_StrainAllele")]
 pub struct StrainAllele {
+    #[serde(rename = "strainName")]
     pub strain_name: String,
+    #[serde(rename = "alleleName")]
     pub allele_name: String,
+    #[serde(rename = "isOnTop")]
     pub is_on_top: bool,
+    #[serde(rename = "isOnBot")]
     pub is_on_bot: bool,
 }
 
@@ -25,9 +29,13 @@ impl From<StrainAlleleDb> for StrainAllele {
 
 #[derive(Serialize, Deserialize, Debug, sqlx::FromRow)]
 pub struct StrainAlleleDb {
+    #[serde(rename = "strainName")]
     pub strain_name: String,
+    #[serde(rename = "alleleName")]
     pub allele_name: String,
+    #[serde(rename = "isOnTop")]
     pub is_on_top: i64,
+    #[serde(rename = "isOnBot")]
     pub is_on_bot: i64,
 }
 

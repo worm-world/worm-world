@@ -1,7 +1,7 @@
 import { type db_Tree } from 'models/db/db_Tree';
 import type { Action } from 'models/db/task/Action';
 import { Sex } from 'models/enums';
-import { type StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import { type StrainData } from 'models/frontend/StrainData/StrainData';
 import { type StrainOption } from 'models/frontend/Strain/Strain';
 import { type Node, type Edge, type XYPosition } from 'reactflow';
 import { ulid } from 'ulid';
@@ -43,7 +43,6 @@ export interface ITaskDependencyTree {
 // Uses React Flow nodes and edges. The nodes contain a data property
 // which, for strain nodes, contains the model.
 export default class CrossTree {
-  /** #region class vars / initialization */
   public readonly id: string;
   public name: string;
   public editable: boolean;
@@ -117,7 +116,6 @@ export default class CrossTree {
     this.crossFilters = new Map(params.crossFilters);
     this.editable = params.editable;
   }
-  /** #endregion class vars / initialization */
 
   /**
    * Flexible method allowing you to remove all edges with a {sourceId},
@@ -148,7 +146,6 @@ export default class CrossTree {
     return edges.filter(combinedFilter);
   }
 
-  /* #region public static methods */
   /**
    * @param refNode Strain node that is the direct parent of the self icon
    * @returns XY coordinates of where to place the self icon in the editor
@@ -166,7 +163,7 @@ export default class CrossTree {
    */
   public static getXIconPos(refNode: Node): XYPosition {
     const x =
-      refNode.data.sex === Sex.Male
+      refNode.data.strain.sex === Sex.Male
         ? STRAIN_NODE_WIDTH + NODE_PADDING
         : -MIDDLE_NODE_WIDTH - NODE_PADDING;
     const y = STRAIN_NODE_HEIGHT / 2 - MIDDLE_NODE_HEIGHT / 2;
@@ -201,7 +198,7 @@ export default class CrossTree {
 
     let y =
       middleNodeType === FlowType.XIcon
-        ? MIDDLE_NODE_HEIGHT / 2 + STRAIN_NODE_HEIGHT / 2 + 4 * NODE_PADDING
+        ? MIDDLE_NODE_HEIGHT / 2 + STRAIN_NODE_HEIGHT / 2 + 3 * NODE_PADDING
         : MIDDLE_NODE_HEIGHT + NODE_PADDING;
     for (let i = 0; i < childOptions.length; i += maxNodesInRow) {
       const nodesInRow = childOptions.slice(i, i + maxNodesInRow);
@@ -438,7 +435,6 @@ export default class CrossTree {
       parents: parents.map((parent) => this.getAncestryChain(parent)),
     };
   }
-  /* #endregion private helper methods */
 }
 
 /**
@@ -446,6 +442,6 @@ export default class CrossTree {
  * and link parents with one or more parents, etc.
  */
 interface StrainAncestry {
-  strain: StrainNodeModel;
+  strain: StrainData;
   parents: StrainAncestry[];
 }

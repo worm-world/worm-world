@@ -1,5 +1,5 @@
 import StrainNode from 'components/StrainNode/StrainNode';
-import { type StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import { type StrainData } from 'models/frontend/StrainData/StrainData';
 import { type Node } from 'reactflow';
 import {
   OffspringFilter,
@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 
 export interface OffspringFilterModalProps {
   nodeId?: string;
-  childNodes: Array<Node<StrainNodeModel>>;
+  childNodes: Array<Node<StrainData>>;
   invisibleSet: Set<string>;
   toggleVisible: (nodeId: string) => void;
 
@@ -165,7 +165,7 @@ const FilterList = (props: {
 
 const StrainList = (props: {
   nodeId?: string;
-  childNodes: Array<Node<StrainNodeModel>>;
+  childNodes: Array<Node<StrainData>>;
   invisibleSet: Set<string>;
   toggleVisible: (nodeId: string) => void;
   filter?: OffspringFilter;
@@ -175,7 +175,7 @@ const StrainList = (props: {
   );
   const [allSelected, setAllSelected] = useState(true);
 
-  const isVisible = (node: Node<StrainNodeModel>): boolean =>
+  const isVisible = (node: Node<StrainData>): boolean =>
     !props.invisibleSet.has(node.id);
 
   useEffect(() => {
@@ -221,7 +221,7 @@ const StrainList = (props: {
             key={`cross-filter-modal-${props.nodeId}-item-${idx++}-checkbox`}
             readOnly
           />
-          <StrainNode model={strain.data} />
+          <StrainNode data={strain.data} />
         </div>
       </li>
     );

@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'vitest';
-import { maleManyPairs } from 'models/frontend/StrainNodeModel/StrainNodeModel.mock';
+import { maleManyPairs } from 'models/frontend/StrainData/StrainData.stories';
 import { Task } from 'models/frontend/Task/Task';
 import { TaskCondition } from 'models/frontend/Task/TaskCondition';
 import { TaskDependency } from 'models/frontend/Task/TaskDependency';

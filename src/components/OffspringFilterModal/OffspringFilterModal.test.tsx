@@ -3,14 +3,14 @@ import userEvent from '@testing-library/user-event';
 import { OffspringFilter } from 'components/OffspringFilter/OffspringFilter';
 import { OffspringFilterModal } from 'components/OffspringFilterModal/OffspringFilterModal';
 import * as mockAlleles from 'models/frontend/Allele/Allele.mock';
-import { type StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import { type StrainData } from 'models/frontend/StrainData/StrainData';
 import * as mockTrees from 'models/frontend/CrossTree/CrossTree.mock';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { type Node } from 'reactflow';
 import { vi, expect, test, describe } from 'vitest';
 
 const renderComponent = ({
-  childNodes = new Array<Node<StrainNodeModel>>(),
+  childNodes = new Array<Node<StrainData>>(),
   invisibleSet = new Set<string>(),
   toggleVisible = vi.fn(),
   filter = new OffspringFilter({
@@ -278,8 +278,8 @@ describe('OffspringFilter', () => {
   test('.extractOffspringFilterNames() to pull info from strain', () => {
     const strain = new Strain({
       allelePairs: [
-        mockAlleles.n765.toTopHetPair(),
-        mockAlleles.ed3.toHomoPair(),
+        mockAlleles.n765.toTopHet(),
+        mockAlleles.ed3.toHomo(),
       ],
     });
     const names = OffspringFilter.extractOffspringFilterNames(strain);
@@ -292,12 +292,12 @@ describe('OffspringFilter', () => {
 
   test('.condenseOffspringFilterNames() pulls info from multiple strains', () => {
     const strain1 = new Strain({
-      allelePairs: [mockAlleles.n765.toTopHetPair()],
+      allelePairs: [mockAlleles.n765.toTopHet()],
     });
     const strain2 = new Strain({
       allelePairs: [
-        mockAlleles.ed3.toHomoPair(),
-        mockAlleles.n765.toTopHetPair(),
+        mockAlleles.ed3.toHomo(),
+        mockAlleles.n765.toTopHet(),
       ],
     });
     const names = OffspringFilter.condenseOffspringFilterNames([

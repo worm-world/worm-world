@@ -7,9 +7,9 @@ export const emptyWild = new Strain({
 
 export const wildManyPairs = new Strain({
   allelePairs: [
-    mockAlleles.hd43.toTopHetPair(),
-    mockAlleles.e138.toHomoPair(),
-    mockAlleles.e1282.toTopHetPair(),
+    mockAlleles.hd43.toTopHet(),
+    mockAlleles.e138.toHomo(),
+    mockAlleles.e1282.toTopHet(),
   ],
 });
 
@@ -22,32 +22,32 @@ export const N2: Strain = new Strain({
 export const EG6207: Strain = new Strain({
   name: 'EG6207',
   description: 'Reference: WBPaper00059962',
-  allelePairs: [mockAlleles.ed3.toHomoPair()],
+  allelePairs: [mockAlleles.ed3.toHomo()],
 });
 
 export const MT2495: Strain = new Strain({
   name: 'MT2495',
-  allelePairs: [mockAlleles.n744.toHomoPair()],
+  allelePairs: [mockAlleles.n744.toHomo()],
 });
 
 export const CB128: Strain = new Strain({
   name: 'CB128',
   description: 'Small dpy.',
-  allelePairs: [mockAlleles.e128.toHomoPair()],
+  allelePairs: [mockAlleles.e128.toHomo()],
 });
 
 export const TN64: Strain = new Strain({
   name: 'TN64',
   description:
     'Temperature sensitive. Dpy when grown at 15C. DpyRoller when grown at 25C. Heterozygotes are Rollers at any temperature.',
-  allelePairs: [mockAlleles.cn64.toHomoPair()],
+  allelePairs: [mockAlleles.cn64.toHomo()],
 });
 
 export const EG5071: Strain = new Strain({
   name: 'EG5071',
   description:
     'mockAlleles.oxIs363 [unc-122p::GFP + unc-119(+)]. Wild type. Very dim GFP expression in the coelomycytes. Only visible on compound microscope. Plasmid pBN04 inserted by MosSCI into cxTi10882 site.',
-  allelePairs: [mockAlleles.ed3.toHomoPair(), mockAlleles.oxIs363.toHomoPair()],
+  allelePairs: [mockAlleles.ed3.toHomo(), mockAlleles.oxIs363.toHomo()],
 });
 
 export const BT14: Strain = new Strain({
@@ -55,16 +55,16 @@ export const BT14: Strain = new Strain({
   description:
     'Heterozygotes are WT and segregate WT, Steriles (mockAlleles.hd43 homozygotes) and Dpy Uncs.',
   allelePairs: [
-    mockAlleles.hd43.toTopHetPair(),
-    mockAlleles.e138.toHomoPair(),
-    mockAlleles.e1282.toTopHetPair(),
+    mockAlleles.hd43.toTopHet(),
+    mockAlleles.e138.toHomo(),
+    mockAlleles.e1282.toTopHet(),
   ],
 });
 
 export const homozygousCross: StrainOption[] = [
   {
     strain: new Strain({
-      allelePairs: [mockAlleles.e204.toHomoPair()],
+      allelePairs: [mockAlleles.e204.toHomo()],
     }),
     prob: 1.0,
   },
@@ -73,19 +73,19 @@ export const homozygousCross: StrainOption[] = [
 export const heterozygousCross: StrainOption[] = [
   {
     strain: new Strain({
-      allelePairs: [mockAlleles.e204.toTopHetPair()],
+      allelePairs: [mockAlleles.e204.toTopHet()],
     }),
     prob: 0.5,
   },
   {
     strain: new Strain({
-      allelePairs: [mockAlleles.e204.toHomoPair()],
+      allelePairs: [mockAlleles.e204.toHomo()],
     }),
     prob: 0.25,
   },
   {
     strain: new Strain({
-      allelePairs: [mockAlleles.e204.toWild().toHomoPair()],
+      allelePairs: [mockAlleles.e204.toWild().toHomo()],
     }),
     prob: 0.25,
   },
@@ -94,7 +94,7 @@ export const heterozygousCross: StrainOption[] = [
 export const homoWildCross: StrainOption[] = [
   {
     strain: new Strain({
-      allelePairs: [mockAlleles.e204.toTopHetPair()],
+      allelePairs: [mockAlleles.e204.toTopHet()],
     }),
     prob: 1.0,
   },
@@ -103,16 +103,13 @@ export const homoWildCross: StrainOption[] = [
 export const homoHetCross: StrainOption[] = [
   {
     strain: new Strain({
-      allelePairs: [
-        mockAlleles.e204.toTopHetPair(),
-        mockAlleles.ox802.toBotHetPair(),
-      ],
+      allelePairs: [mockAlleles.e204.toTopHet(), mockAlleles.ox802.toBotHet()],
     }),
     prob: 0.5,
   },
   {
     strain: new Strain({
-      allelePairs: [mockAlleles.ox802.toBotHetPair()],
+      allelePairs: [mockAlleles.ox802.toBotHet()],
     }),
     prob: 0.5,
   },
@@ -121,25 +118,19 @@ export const homoHetCross: StrainOption[] = [
 export const homoHetSelfCross: StrainOption[] = [
   {
     strain: new Strain({
-      allelePairs: [
-        mockAlleles.e204.toHomoPair(),
-        mockAlleles.ox802.toBotHetPair(),
-      ],
+      allelePairs: [mockAlleles.e204.toHomo(), mockAlleles.ox802.toBotHet()],
     }),
     prob: 0.5,
   },
   {
     strain: new Strain({
-      allelePairs: [mockAlleles.e204.toHomoPair()],
+      allelePairs: [mockAlleles.e204.toHomo()],
     }),
     prob: 0.25,
   },
   {
     strain: new Strain({
-      allelePairs: [
-        mockAlleles.e204.toHomoPair(),
-        mockAlleles.ox802.toHomoPair(),
-      ],
+      allelePairs: [mockAlleles.e204.toHomo(), mockAlleles.ox802.toHomo()],
     }),
     prob: 0.25,
   },
@@ -148,61 +139,49 @@ export const homoHetSelfCross: StrainOption[] = [
 export const difChromSimpleSelfCross: StrainOption[] = [
   {
     strain: new Strain({
-      allelePairs: [
-        mockAlleles.ed3.toTopHetPair(),
-        mockAlleles.md299.toTopHetPair(),
-      ],
+      allelePairs: [mockAlleles.ed3.toTopHet(), mockAlleles.md299.toTopHet()],
     }),
     prob: 0.25,
   },
   {
     strain: new Strain({
-      allelePairs: [
-        mockAlleles.ed3.toHomoPair(),
-        mockAlleles.md299.toTopHetPair(),
-      ],
+      allelePairs: [mockAlleles.ed3.toHomo(), mockAlleles.md299.toTopHet()],
     }),
     prob: 0.125,
   },
   {
     strain: new Strain({
-      allelePairs: [
-        mockAlleles.ed3.toTopHetPair(),
-        mockAlleles.md299.toHomoPair(),
-      ],
+      allelePairs: [mockAlleles.ed3.toTopHet(), mockAlleles.md299.toHomo()],
     }),
     prob: 0.125,
   },
   {
     strain: new Strain({
-      allelePairs: [mockAlleles.ed3.toTopHetPair()],
+      allelePairs: [mockAlleles.ed3.toTopHet()],
     }),
     prob: 0.125,
   },
   {
     strain: new Strain({
-      allelePairs: [mockAlleles.md299.toTopHetPair()],
+      allelePairs: [mockAlleles.md299.toTopHet()],
     }),
     prob: 0.125,
   },
   {
     strain: new Strain({
-      allelePairs: [
-        mockAlleles.ed3.toHomoPair(),
-        mockAlleles.md299.toHomoPair(),
-      ],
+      allelePairs: [mockAlleles.ed3.toHomo(), mockAlleles.md299.toHomo()],
     }),
     prob: 0.0625,
   },
   {
     strain: new Strain({
-      allelePairs: [mockAlleles.ed3.toHomoPair()],
+      allelePairs: [mockAlleles.ed3.toHomo()],
     }),
     prob: 0.0625,
   },
   {
     strain: new Strain({
-      allelePairs: [mockAlleles.md299.toHomoPair()],
+      allelePairs: [mockAlleles.md299.toHomo()],
     }),
     prob: 0.0625,
   },
@@ -217,70 +196,55 @@ export const difChromSimpleSelfCross: StrainOption[] = [
 export const intermediateSelfCross: StrainOption[] = [
   {
     strain: new Strain({
-      allelePairs: [
-        mockAlleles.e204.toTopHetPair(),
-        mockAlleles.ox802.toBotHetPair(),
-      ],
+      allelePairs: [mockAlleles.e204.toTopHet(), mockAlleles.ox802.toBotHet()],
     }),
     prob: 0.440015805,
   },
   {
     strain: new Strain({
-      allelePairs: [mockAlleles.e204.toHomoPair()],
+      allelePairs: [mockAlleles.e204.toHomo()],
     }),
     prob: 0.2200079025,
   },
   {
     strain: new Strain({
-      allelePairs: [mockAlleles.ox802.toHomoPair()],
+      allelePairs: [mockAlleles.ox802.toHomo()],
     }),
     prob: 0.2200079025,
   },
   {
     strain: new Strain({
-      allelePairs: [
-        mockAlleles.e204.toHomoPair(),
-        mockAlleles.ox802.toTopHetPair(),
-      ],
+      allelePairs: [mockAlleles.e204.toHomo(), mockAlleles.ox802.toTopHet()],
     }),
     prob: 0.029034195,
   },
   {
     strain: new Strain({
-      allelePairs: [mockAlleles.e204.toTopHetPair()],
+      allelePairs: [mockAlleles.e204.toTopHet()],
     }),
     prob: 0.029034195,
   },
   {
     strain: new Strain({
-      allelePairs: [
-        mockAlleles.e204.toTopHetPair(),
-        mockAlleles.ox802.toHomoPair(),
-      ],
+      allelePairs: [mockAlleles.e204.toTopHet(), mockAlleles.ox802.toHomo()],
     }),
     prob: 0.029034195,
   },
   {
     strain: new Strain({
-      allelePairs: [mockAlleles.ox802.toTopHetPair()],
+      allelePairs: [mockAlleles.ox802.toTopHet()],
     }),
     prob: 0.029034195,
   },
   {
     strain: new Strain({
-      allelePairs: [
-        mockAlleles.e204.toTopHetPair(),
-        mockAlleles.ox802.toTopHetPair(),
-      ],
+      allelePairs: [mockAlleles.e204.toTopHet(), mockAlleles.ox802.toTopHet()],
     }),
     prob: 0.001915805,
   },
   {
     strain: new Strain({
-      allelePairs: [
-        mockAlleles.e204.toHomoPair(),
-        mockAlleles.ox802.toHomoPair(),
-      ],
+      allelePairs: [mockAlleles.e204.toHomo(), mockAlleles.ox802.toHomo()],
     }),
     prob: 0.0009579025,
   },
@@ -296,11 +260,11 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toTopHetPair(),
-        mockAlleles.cn64.toTopHetPair(),
-        mockAlleles.ed3.toTopHetPair(),
-        mockAlleles.e204.toTopHetPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.oxTi75.toTopHet(),
+        mockAlleles.cn64.toTopHet(),
+        mockAlleles.ed3.toTopHet(),
+        mockAlleles.e204.toTopHet(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.121376645,
@@ -308,11 +272,11 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toHomoPair(),
-        mockAlleles.cn64.toHomoPair(),
-        mockAlleles.ed3.toTopHetPair(),
-        mockAlleles.e204.toTopHetPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.oxTi75.toHomo(),
+        mockAlleles.cn64.toHomo(),
+        mockAlleles.ed3.toTopHet(),
+        mockAlleles.e204.toTopHet(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.0606883225,
@@ -320,11 +284,11 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toTopHetPair(),
-        mockAlleles.cn64.toTopHetPair(),
-        mockAlleles.ed3.toHomoPair(),
-        mockAlleles.e204.toTopHetPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.oxTi75.toTopHet(),
+        mockAlleles.cn64.toTopHet(),
+        mockAlleles.ed3.toHomo(),
+        mockAlleles.e204.toTopHet(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.0606883225,
@@ -332,11 +296,11 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toTopHetPair(),
-        mockAlleles.cn64.toTopHetPair(),
-        mockAlleles.ed3.toTopHetPair(),
-        mockAlleles.e204.toHomoPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.oxTi75.toTopHet(),
+        mockAlleles.cn64.toTopHet(),
+        mockAlleles.ed3.toTopHet(),
+        mockAlleles.e204.toHomo(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.0606883225,
@@ -344,10 +308,10 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toTopHetPair(),
-        mockAlleles.cn64.toTopHetPair(),
-        mockAlleles.ed3.toTopHetPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.oxTi75.toTopHet(),
+        mockAlleles.cn64.toTopHet(),
+        mockAlleles.ed3.toTopHet(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.0606883225,
@@ -355,10 +319,10 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toTopHetPair(),
-        mockAlleles.cn64.toTopHetPair(),
-        mockAlleles.e204.toTopHetPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.oxTi75.toTopHet(),
+        mockAlleles.cn64.toTopHet(),
+        mockAlleles.e204.toTopHet(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.0606883225,
@@ -366,9 +330,9 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.ed3.toTopHetPair(),
-        mockAlleles.e204.toTopHetPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.ed3.toTopHet(),
+        mockAlleles.e204.toTopHet(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.0606883225,
@@ -376,11 +340,11 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toHomoPair(),
-        mockAlleles.cn64.toHomoPair(),
-        mockAlleles.ed3.toHomoPair(),
-        mockAlleles.e204.toTopHetPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.oxTi75.toHomo(),
+        mockAlleles.cn64.toHomo(),
+        mockAlleles.ed3.toHomo(),
+        mockAlleles.e204.toTopHet(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.03034416125,
@@ -388,11 +352,11 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toHomoPair(),
-        mockAlleles.cn64.toHomoPair(),
-        mockAlleles.ed3.toTopHetPair(),
-        mockAlleles.e204.toHomoPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.oxTi75.toHomo(),
+        mockAlleles.cn64.toHomo(),
+        mockAlleles.ed3.toTopHet(),
+        mockAlleles.e204.toHomo(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.03034416125,
@@ -400,11 +364,11 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toTopHetPair(),
-        mockAlleles.cn64.toTopHetPair(),
-        mockAlleles.ed3.toHomoPair(),
-        mockAlleles.e204.toHomoPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.oxTi75.toTopHet(),
+        mockAlleles.cn64.toTopHet(),
+        mockAlleles.ed3.toHomo(),
+        mockAlleles.e204.toHomo(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.03034416125,
@@ -412,10 +376,10 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toHomoPair(),
-        mockAlleles.cn64.toHomoPair(),
-        mockAlleles.ed3.toTopHetPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.oxTi75.toHomo(),
+        mockAlleles.cn64.toHomo(),
+        mockAlleles.ed3.toTopHet(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.03034416125,
@@ -423,10 +387,10 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toTopHetPair(),
-        mockAlleles.cn64.toTopHetPair(),
-        mockAlleles.ed3.toHomoPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.oxTi75.toTopHet(),
+        mockAlleles.cn64.toTopHet(),
+        mockAlleles.ed3.toHomo(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.03034416125,
@@ -434,10 +398,10 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toHomoPair(),
-        mockAlleles.cn64.toHomoPair(),
-        mockAlleles.e204.toTopHetPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.oxTi75.toHomo(),
+        mockAlleles.cn64.toHomo(),
+        mockAlleles.e204.toTopHet(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.03034416125,
@@ -445,10 +409,10 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toTopHetPair(),
-        mockAlleles.cn64.toTopHetPair(),
-        mockAlleles.e204.toHomoPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.oxTi75.toTopHet(),
+        mockAlleles.cn64.toTopHet(),
+        mockAlleles.e204.toHomo(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.03034416125,
@@ -456,10 +420,10 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toTopHetPair(),
-        mockAlleles.cn64.toTopHetPair(),
-        mockAlleles.e204.toWild().toHomoPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.oxTi75.toTopHet(),
+        mockAlleles.cn64.toTopHet(),
+        mockAlleles.e204.toWild().toHomo(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.03034416125,
@@ -467,9 +431,9 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.ed3.toHomoPair(),
-        mockAlleles.e204.toTopHetPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.ed3.toHomo(),
+        mockAlleles.e204.toTopHet(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.03034416125,
@@ -477,9 +441,9 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.ed3.toTopHetPair(),
-        mockAlleles.e204.toHomoPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.ed3.toTopHet(),
+        mockAlleles.e204.toHomo(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.03034416125,
@@ -487,30 +451,27 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.ed3.toTopHetPair(),
-        mockAlleles.e204.toWild().toHomoPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.ed3.toTopHet(),
+        mockAlleles.e204.toWild().toHomo(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.03034416125,
   },
   {
     strain: new Strain({
-      allelePairs: [
-        mockAlleles.e204.toTopHetPair(),
-        mockAlleles.e53.toHomoPair(),
-      ],
+      allelePairs: [mockAlleles.e204.toTopHet(), mockAlleles.e53.toHomo()],
     }),
     prob: 0.03034416125,
   },
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toHomoPair(),
-        mockAlleles.cn64.toHomoPair(),
-        mockAlleles.ed3.toHomoPair(),
-        mockAlleles.e204.toHomoPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.oxTi75.toHomo(),
+        mockAlleles.cn64.toHomo(),
+        mockAlleles.ed3.toHomo(),
+        mockAlleles.e204.toHomo(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.015172080625,
@@ -518,10 +479,10 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toHomoPair(),
-        mockAlleles.cn64.toHomoPair(),
-        mockAlleles.ed3.toHomoPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.oxTi75.toHomo(),
+        mockAlleles.cn64.toHomo(),
+        mockAlleles.ed3.toHomo(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.015172080625,
@@ -529,10 +490,10 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toHomoPair(),
-        mockAlleles.cn64.toHomoPair(),
-        mockAlleles.e204.toHomoPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.oxTi75.toHomo(),
+        mockAlleles.cn64.toHomo(),
+        mockAlleles.e204.toHomo(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.015172080625,
@@ -540,9 +501,9 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toHomoPair(),
-        mockAlleles.cn64.toHomoPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.oxTi75.toHomo(),
+        mockAlleles.cn64.toHomo(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.015172080625,
@@ -550,9 +511,9 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.ed3.toHomoPair(),
-        mockAlleles.e204.toHomoPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.ed3.toHomo(),
+        mockAlleles.e204.toHomo(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.015172080625,
@@ -560,9 +521,24 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.ed3.toHomoPair(),
-        mockAlleles.e204.toWild().toHomoPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.ed3.toHomo(),
+        mockAlleles.e204.toWild().toHomo(),
+        mockAlleles.e53.toHomo(),
+      ],
+    }),
+    prob: 0.015172080625,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [mockAlleles.e204.toHomo(), mockAlleles.e53.toHomo()],
+    }),
+    prob: 0.015172080625,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [
+        mockAlleles.e204.toWild().toHomo(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.015172080625,
@@ -570,29 +546,11 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.e204.toHomoPair(),
-        mockAlleles.e53.toHomoPair(),
-      ],
-    }),
-    prob: 0.015172080625,
-  },
-  {
-    strain: new Strain({
-      allelePairs: [
-        mockAlleles.e204.toWild().toHomoPair(),
-        mockAlleles.e53.toHomoPair(),
-      ],
-    }),
-    prob: 0.015172080625,
-  },
-  {
-    strain: new Strain({
-      allelePairs: [
-        mockAlleles.oxTi75.toHomoPair(),
-        mockAlleles.cn64.toTopHetPair(),
-        mockAlleles.ed3.toTopHetPair(),
-        mockAlleles.e204.toTopHetPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.oxTi75.toHomo(),
+        mockAlleles.cn64.toTopHet(),
+        mockAlleles.ed3.toTopHet(),
+        mockAlleles.e204.toTopHet(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.001798355,
@@ -600,11 +558,11 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toTopHetPair(),
-        mockAlleles.cn64.toHomoPair(),
-        mockAlleles.ed3.toTopHetPair(),
-        mockAlleles.e204.toTopHetPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.oxTi75.toTopHet(),
+        mockAlleles.cn64.toHomo(),
+        mockAlleles.ed3.toTopHet(),
+        mockAlleles.e204.toTopHet(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.001798355,
@@ -612,10 +570,10 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toTopHetPair(),
-        mockAlleles.ed3.toTopHetPair(),
-        mockAlleles.e204.toTopHetPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.oxTi75.toTopHet(),
+        mockAlleles.ed3.toTopHet(),
+        mockAlleles.e204.toTopHet(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.001798355,
@@ -623,10 +581,10 @@ export const partialAdvancedSelfCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.cn64.toBotHetPair(),
-        mockAlleles.ed3.toTopHetPair(),
-        mockAlleles.e204.toTopHetPair(),
-        mockAlleles.e53.toHomoPair(),
+        mockAlleles.cn64.toBotHet(),
+        mockAlleles.ed3.toTopHet(),
+        mockAlleles.e204.toTopHet(),
+        mockAlleles.e53.toHomo(),
       ],
     }),
     prob: 0.001798355,
@@ -637,12 +595,12 @@ export const intermediateCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toTopHetPair(),
-        mockAlleles.cn64.toTopHetPair(),
-        mockAlleles.ox11000.toTopHetPair(),
-        mockAlleles.e53.toBotHetPair(),
-        mockAlleles.e204.toBotHetPair(),
-        mockAlleles.ox802.toTopHetPair(),
+        mockAlleles.oxTi75.toTopHet(),
+        mockAlleles.cn64.toTopHet(),
+        mockAlleles.ox11000.toTopHet(),
+        mockAlleles.e53.toBotHet(),
+        mockAlleles.e204.toBotHet(),
+        mockAlleles.ox802.toTopHet(),
       ],
     }),
     prob: 0.123175,
@@ -650,12 +608,12 @@ export const intermediateCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toTopHetPair(),
-        mockAlleles.cn64.toTopHetPair(),
-        mockAlleles.ox11000.toTopHetPair(),
+        mockAlleles.oxTi75.toTopHet(),
+        mockAlleles.cn64.toTopHet(),
+        mockAlleles.ox11000.toTopHet(),
 
-        mockAlleles.e53.toBotHetPair(),
-        mockAlleles.ox802.toTopHetPair(),
+        mockAlleles.e53.toBotHet(),
+        mockAlleles.ox802.toTopHet(),
       ],
     }),
     prob: 0.123175,
@@ -663,11 +621,11 @@ export const intermediateCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toTopHetPair(),
-        mockAlleles.cn64.toTopHetPair(),
-        mockAlleles.ox11000.toTopHetPair(),
-        mockAlleles.e53.toBotHetPair(),
-        mockAlleles.e204.toBotHetPair(),
+        mockAlleles.oxTi75.toTopHet(),
+        mockAlleles.cn64.toTopHet(),
+        mockAlleles.ox11000.toTopHet(),
+        mockAlleles.e53.toBotHet(),
+        mockAlleles.e204.toBotHet(),
       ],
     }),
     prob: 0.123175,
@@ -675,10 +633,10 @@ export const intermediateCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toTopHetPair(),
-        mockAlleles.cn64.toTopHetPair(),
-        mockAlleles.ox11000.toTopHetPair(),
-        mockAlleles.e53.toBotHetPair(),
+        mockAlleles.oxTi75.toTopHet(),
+        mockAlleles.cn64.toTopHet(),
+        mockAlleles.ox11000.toTopHet(),
+        mockAlleles.e53.toBotHet(),
       ],
     }),
     prob: 0.123175,
@@ -686,10 +644,10 @@ export const intermediateCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.ox11000.toTopHetPair(),
-        mockAlleles.e53.toBotHetPair(),
-        mockAlleles.e204.toBotHetPair(),
-        mockAlleles.ox802.toTopHetPair(),
+        mockAlleles.ox11000.toTopHet(),
+        mockAlleles.e53.toBotHet(),
+        mockAlleles.e204.toBotHet(),
+        mockAlleles.ox802.toTopHet(),
       ],
     }),
     prob: 0.123175,
@@ -697,10 +655,10 @@ export const intermediateCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.ox11000.toTopHetPair(),
-        mockAlleles.e53.toBotHetPair(),
+        mockAlleles.ox11000.toTopHet(),
+        mockAlleles.e53.toBotHet(),
 
-        mockAlleles.ox802.toTopHetPair(),
+        mockAlleles.ox802.toTopHet(),
       ],
     }),
     prob: 0.123175,
@@ -708,31 +666,28 @@ export const intermediateCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.ox11000.toTopHetPair(),
-        mockAlleles.e53.toBotHetPair(),
-        mockAlleles.e204.toBotHetPair(),
+        mockAlleles.ox11000.toTopHet(),
+        mockAlleles.e53.toBotHet(),
+        mockAlleles.e204.toBotHet(),
       ],
     }),
     prob: 0.123175,
   },
   {
     strain: new Strain({
-      allelePairs: [
-        mockAlleles.ox11000.toTopHetPair(),
-        mockAlleles.e53.toBotHetPair(),
-      ],
+      allelePairs: [mockAlleles.ox11000.toTopHet(), mockAlleles.e53.toBotHet()],
     }),
     prob: 0.123175,
   },
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toTopHetPair(),
+        mockAlleles.oxTi75.toTopHet(),
 
-        mockAlleles.ox11000.toBotHetPair(),
-        mockAlleles.e53.toBotHetPair(),
-        mockAlleles.e204.toBotHetPair(),
-        mockAlleles.ox802.toTopHetPair(),
+        mockAlleles.ox11000.toBotHet(),
+        mockAlleles.e53.toBotHet(),
+        mockAlleles.e204.toBotHet(),
+        mockAlleles.ox802.toTopHet(),
       ],
     }),
     prob: 0.001825,
@@ -740,12 +695,12 @@ export const intermediateCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toTopHetPair(),
+        mockAlleles.oxTi75.toTopHet(),
 
-        mockAlleles.ox11000.toBotHetPair(),
-        mockAlleles.e53.toBotHetPair(),
+        mockAlleles.ox11000.toBotHet(),
+        mockAlleles.e53.toBotHet(),
 
-        mockAlleles.ox802.toTopHetPair(),
+        mockAlleles.ox802.toTopHet(),
       ],
     }),
     prob: 0.001825,
@@ -753,11 +708,11 @@ export const intermediateCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toTopHetPair(),
+        mockAlleles.oxTi75.toTopHet(),
 
-        mockAlleles.ox11000.toBotHetPair(),
-        mockAlleles.e53.toBotHetPair(),
-        mockAlleles.e204.toBotHetPair(),
+        mockAlleles.ox11000.toBotHet(),
+        mockAlleles.e53.toBotHet(),
+        mockAlleles.e204.toBotHet(),
       ],
     }),
     prob: 0.001825,
@@ -765,10 +720,10 @@ export const intermediateCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxTi75.toTopHetPair(),
+        mockAlleles.oxTi75.toTopHet(),
 
-        mockAlleles.ox11000.toBotHetPair(),
-        mockAlleles.e53.toBotHetPair(),
+        mockAlleles.ox11000.toBotHet(),
+        mockAlleles.e53.toBotHet(),
       ],
     }),
     prob: 0.001825,
@@ -776,11 +731,11 @@ export const intermediateCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.cn64.toTopHetPair(),
-        mockAlleles.ox11000.toBotHetPair(),
-        mockAlleles.e53.toBotHetPair(),
-        mockAlleles.e204.toBotHetPair(),
-        mockAlleles.ox802.toTopHetPair(),
+        mockAlleles.cn64.toTopHet(),
+        mockAlleles.ox11000.toBotHet(),
+        mockAlleles.e53.toBotHet(),
+        mockAlleles.e204.toBotHet(),
+        mockAlleles.ox802.toTopHet(),
       ],
     }),
     prob: 0.001825,
@@ -788,11 +743,11 @@ export const intermediateCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.cn64.toTopHetPair(),
-        mockAlleles.ox11000.toBotHetPair(),
-        mockAlleles.e53.toBotHetPair(),
+        mockAlleles.cn64.toTopHet(),
+        mockAlleles.ox11000.toBotHet(),
+        mockAlleles.e53.toBotHet(),
 
-        mockAlleles.ox802.toTopHetPair(),
+        mockAlleles.ox802.toTopHet(),
       ],
     }),
     prob: 0.001825,
@@ -800,10 +755,10 @@ export const intermediateCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.cn64.toTopHetPair(),
-        mockAlleles.ox11000.toBotHetPair(),
-        mockAlleles.e53.toBotHetPair(),
-        mockAlleles.e204.toBotHetPair(),
+        mockAlleles.cn64.toTopHet(),
+        mockAlleles.ox11000.toBotHet(),
+        mockAlleles.e53.toBotHet(),
+        mockAlleles.e204.toBotHet(),
       ],
     }),
     prob: 0.001825,
@@ -811,9 +766,9 @@ export const intermediateCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.cn64.toTopHetPair(),
-        mockAlleles.ox11000.toBotHetPair(),
-        mockAlleles.e53.toBotHetPair(),
+        mockAlleles.cn64.toTopHet(),
+        mockAlleles.ox11000.toBotHet(),
+        mockAlleles.e53.toBotHet(),
       ],
     }),
     prob: 0.001825,
@@ -824,27 +779,27 @@ export const ecaCross: StrainOption[] = [
   {
     strain: new Strain({
       allelePairs: [
-        mockAlleles.oxEx219999.toTopHetPair(),
-        mockAlleles.oxEx2254.toTopHetPair(),
+        mockAlleles.oxEx219999.toTopHet(),
+        mockAlleles.oxEx2254.toTopHet(),
       ],
     }),
     prob: 0.25,
   },
   {
     strain: new Strain({
-      allelePairs: [mockAlleles.oxEx2254.toTopHetPair()],
+      allelePairs: [mockAlleles.oxEx219999.toTopHet()],
+    }),
+    prob: 0.25,
+  },
+  {
+    strain: new Strain({
+      allelePairs: [mockAlleles.oxEx2254.toTopHet()],
     }),
     prob: 0.25,
   },
   {
     strain: new Strain({
       allelePairs: [],
-    }),
-    prob: 0.25,
-  },
-  {
-    strain: new Strain({
-      allelePairs: [mockAlleles.oxEx219999.toTopHetPair()],
     }),
     prob: 0.25,
   },

@@ -1,6 +1,6 @@
 import { instanceToPlain, plainToInstance, Transform } from 'class-transformer';
 import { Dominance } from 'models/enums';
-import { type StrainNodeModel } from 'models/frontend/StrainNodeModel/StrainNodeModel';
+import { type StrainData } from 'models/frontend/StrainData/StrainData';
 import { type Strain } from 'models/frontend/Strain/Strain';
 import { type Node } from 'reactflow';
 
@@ -101,7 +101,7 @@ export class OffspringFilter {
 
   /** Checks if a node can be displayed given current filter values */
   public static includedInFilter(
-    node: Node<StrainNodeModel>,
+    node: Node<StrainData>,
     filter?: OffspringFilter
   ): boolean {
     if (filter === undefined) return true;
