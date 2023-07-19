@@ -1,6 +1,5 @@
 import { StoryFn, Meta } from '@storybook/react';
-import { NoteNode } from 'components/NoteNode/NoteNode';
-import { NoteNodeProps } from 'components/NoteNode/NoteNodeProps';
+import { NoteNode, NoteNodeProps } from 'components/NoteNode/NoteNode';
 
 export default {
   title: 'Components/NoteNode',
@@ -12,14 +11,14 @@ const Template: StoryFn<typeof NoteNode> = (props: NoteNodeProps) => {
 };
 
 export const empty = Template.bind({});
-empty.args = { content: '' };
+empty.args = { data: '' };
 
 export const withContent = Template.bind({});
-withContent.args = { content: 'This is some content.' };
+withContent.args = { data: 'This is some content.' };
 
 export const withScroller = Template.bind({});
 withScroller.args = {
-  content:
+  data:
     'Lorem ipsum dolor sit amet, \
     consectetur adipiscing elit, sed do eiusmod tempor \
     incididunt ut labore et dolore magna aliqua. \

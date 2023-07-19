@@ -1,5 +1,4 @@
-import StrainNode from 'components/StrainNode/StrainNode';
-import { type StrainData } from 'models/frontend/StrainData/StrainData';
+import StrainCard from 'components/StrainCard/StrainCard';
 import { type Node } from 'reactflow';
 import {
   OffspringFilter,
@@ -7,10 +6,11 @@ import {
   type OffspringFilterProps,
 } from 'components/OffspringFilter/OffspringFilter';
 import { useEffect, useState } from 'react';
+import { type Strain } from 'models/frontend/Strain/Strain';
 
 export interface OffspringFilterModalProps {
   nodeId?: string;
-  childNodes: Array<Node<StrainData>>;
+  childNodes: Array<Node<Strain>>;
   invisibleSet: Set<string>;
   toggleVisible: (nodeId: string) => void;
 
@@ -21,7 +21,7 @@ export interface OffspringFilterModalProps {
 export const OffspringFilterModal = (
   props: OffspringFilterModalProps
 ): React.JSX.Element => {
-  const strains = props.childNodes.map((node) => node.data.strain);
+  const strains = props.childNodes.map((node) => node.data);
   const names = OffspringFilter.condenseOffspringFilterNames(strains);
   if (props.childNodes.length === 0) return <></>;
   const nodeId = props.childNodes[0].parentNode ?? '';
@@ -165,7 +165,7 @@ const FilterList = (props: {
 
 const StrainList = (props: {
   nodeId?: string;
-  childNodes: Array<Node<StrainData>>;
+  childNodes: Array<Node<Strain>>;
   invisibleSet: Set<string>;
   toggleVisible: (nodeId: string) => void;
   filter?: OffspringFilter;
@@ -175,7 +175,7 @@ const StrainList = (props: {
   );
   const [allSelected, setAllSelected] = useState(true);
 
-  const isVisible = (node: Node<StrainData>): boolean =>
+  const isVisible = (node: Node<Strain>): boolean =>
     !props.invisibleSet.has(node.id);
 
   useEffect(() => {
@@ -221,7 +221,7 @@ const StrainList = (props: {
             key={`cross-filter-modal-${props.nodeId}-item-${idx++}-checkbox`}
             readOnly
           />
-          <StrainNode data={strain.data} />
+          <StrainCard data={strain.data} id={''} />
         </div>
       </li>
     );

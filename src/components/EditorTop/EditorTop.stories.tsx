@@ -1,6 +1,6 @@
 import { StoryFn, Meta } from '@storybook/react';
 import EditorTop from 'components/EditorTop/EditorTop';
-import CrossTree from 'models/frontend/CrossTree/CrossTree';
+import CrossDesign from 'models/frontend/CrossDesign/CrossDesign';
 
 export default {
   title: 'Components/EditorTop',
@@ -13,13 +13,12 @@ const Template: StoryFn<typeof EditorTop> = (args) => {
 
 export const primary = Template.bind({});
 primary.args = {
-  tree: new CrossTree({
+  crossDesign: new CrossDesign({
     name: 'My Tree',
     nodes: [],
     edges: [],
     lastSaved: new Date(),
-    invisibleNodes: new Set<string>(),
-    crossFilters: new Map(),
+    offspringFilters: new Map(),
     editable: true,
   }),
   buttons: [
@@ -31,13 +30,12 @@ primary.args = {
 
 export const longTitle = Template.bind({});
 longTitle.args = {
-  tree: new CrossTree({
+  crossDesign: new CrossDesign({
     name: 'My Tree Has a Very Long Name that May Not Fit',
     nodes: [],
     edges: [],
     lastSaved: new Date(),
-    invisibleNodes: new Set<string>(),
-    crossFilters: new Map(),
+    offspringFilters: new Map(),
     editable: true,
   }),
   buttons: [
@@ -49,13 +47,12 @@ longTitle.args = {
 
 export const withoutButton = Template.bind({});
 withoutButton.args = {
-  tree: new CrossTree({
+  crossDesign: new CrossDesign({
     name: 'My Tree',
     nodes: [],
     edges: [],
     lastSaved: new Date(),
-    invisibleNodes: new Set<string>(),
-    crossFilters: new Map(),
+    offspringFilters: new Map(),
     editable: true,
   }),
   buttons: [

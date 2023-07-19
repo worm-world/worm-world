@@ -2,15 +2,14 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { OffspringFilter } from 'components/OffspringFilter/OffspringFilter';
 import { OffspringFilterModal } from 'components/OffspringFilterModal/OffspringFilterModal';
-import * as mockAlleles from 'models/frontend/Allele/Allele.mock';
-import { type StrainData } from 'models/frontend/StrainData/StrainData';
-import * as mockTrees from 'models/frontend/CrossTree/CrossTree.mock';
+import * as alleles from 'models/frontend/Allele/Allele.mock';
+import * as crossDesigns from 'models/frontend/CrossDesign/CrossDesign.mock';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { type Node } from 'reactflow';
 import { vi, expect, test, describe } from 'vitest';
 
 const renderComponent = ({
-  childNodes = new Array<Node<StrainData>>(),
+  childNodes = new Array<Node<Strain>>(),
   invisibleSet = new Set<string>(),
   toggleVisible = vi.fn(),
   filter = new OffspringFilter({
@@ -54,9 +53,9 @@ const createFilter = ({
 describe('OffspringFilterModal', () => {
   test('modal displays all nodes in map', () => {
     const childNodes = [
-      mockTrees.ed3HeteroHerm,
-      mockTrees.ed3HeteroMale,
-      mockTrees.ed3HomoHerm,
+      crossDesigns.ed3HeteroHerm,
+      crossDesigns.ed3HeteroMale,
+      crossDesigns.ed3HomoHerm,
     ];
     renderComponent({ childNodes });
 
@@ -84,7 +83,7 @@ describe('OffspringFilterModal', () => {
 
     // check if node models rendered
     childNodes.forEach((node) => {
-      const chromPairs = [...node.data.strain.chromPairMap.values()];
+      const chromPairs = [...node.data.chromPairMap.values()];
       chromPairs.forEach((pair) => {
         if (pair.allelePairs.length > 0) {
           const pairText = pair.allelePairs[0].top.name;
@@ -96,7 +95,7 @@ describe('OffspringFilterModal', () => {
   });
 
   test('modal displays limited strain options with set filters', () => {
-    const childNodes = [mockTrees.n765AsChild, mockTrees.ed3AsChild];
+    const childNodes = [crossDesigns.n765AsChild, crossDesigns.ed3AsChild];
     const filter = createFilter({ alleleNames: new Set(['ed3']) });
 
     renderComponent({ childNodes, filter });
@@ -130,11 +129,11 @@ describe('OffspringFilterModal', () => {
 
   test('modal unchecks nodes marked invisible', () => {
     const childNodes = [
-      mockTrees.ed3HeteroHerm,
-      mockTrees.ed3HeteroMale,
-      mockTrees.ed3HomoHerm,
+      crossDesigns.ed3HeteroHerm,
+      crossDesigns.ed3HeteroMale,
+      crossDesigns.ed3HomoHerm,
     ];
-    const invisibleSet = new Set<string>(mockTrees.ed3HeteroHerm.id);
+    const invisibleSet = new Set<string>(crossDesigns.ed3HeteroHerm.id);
     renderComponent({ childNodes, invisibleSet });
 
     const strainSec = screen.getByTestId(
@@ -150,9 +149,9 @@ describe('OffspringFilterModal', () => {
 
   test('clicking a strain checkbox triggers callback function', async () => {
     const childNodes = [
-      mockTrees.ed3HeteroHerm,
-      mockTrees.ed3HeteroMale,
-      mockTrees.ed3HomoHerm,
+      crossDesigns.ed3HeteroHerm,
+      crossDesigns.ed3HeteroMale,
+      crossDesigns.ed3HomoHerm,
     ];
     const toggleVisible = vi.fn();
     const user = userEvent.setup();
@@ -175,7 +174,7 @@ describe('OffspringFilterModal', () => {
 
   test('clicking a filter checkbox triggers callback function', async () => {
     const user = userEvent.setup();
-    const childNodes = [mockTrees.n765AsChild, mockTrees.ed3AsChild];
+    const childNodes = [crossDesigns.n765AsChild, crossDesigns.ed3AsChild];
     const updateFilter = vi.fn();
     renderComponent({ childNodes, updateFilter });
 
@@ -277,10 +276,7 @@ describe('OffspringFilter', () => {
 
   test('.extractOffspringFilterNames() to pull info from strain', () => {
     const strain = new Strain({
-      allelePairs: [
-        mockAlleles.n765.toTopHet(),
-        mockAlleles.ed3.toHomo(),
-      ],
+      allelePairs: [alleles.n765.toTopHet(), alleles.ed3.toHomo()],
     });
     const names = OffspringFilter.extractOffspringFilterNames(strain);
 
@@ -292,13 +288,10 @@ describe('OffspringFilter', () => {
 
   test('.condenseOffspringFilterNames() pulls info from multiple strains', () => {
     const strain1 = new Strain({
-      allelePairs: [mockAlleles.n765.toTopHet()],
+      allelePairs: [alleles.n765.toTopHet()],
     });
     const strain2 = new Strain({
-      allelePairs: [
-        mockAlleles.ed3.toHomo(),
-        mockAlleles.n765.toTopHet(),
-      ],
+      allelePairs: [alleles.ed3.toHomo(), alleles.n765.toTopHet()],
     });
     const names = OffspringFilter.condenseOffspringFilterNames([
       strain1,
@@ -319,7 +312,7 @@ describe('OffspringFilter', () => {
       supConditions: new Set(),
     });
     expect(
-      OffspringFilter.includedInFilter(mockTrees.ed3HomoHerm, filter)
+      OffspringFilter.includedInFilter(crossDesigns.ed3HomoHerm, filter)
     ).toBe(true);
   });
   test('includedInFilter() correctly excludes a node', () => {
@@ -330,7 +323,7 @@ describe('OffspringFilter', () => {
       supConditions: new Set(),
     });
     expect(
-      OffspringFilter.includedInFilter(mockTrees.ed3HomoHerm, filter)
+      OffspringFilter.includedInFilter(crossDesigns.ed3HomoHerm, filter)
     ).toBe(false);
   });
 });

@@ -1,30 +1,34 @@
 import { BiDotsHorizontalRounded as MoreHorizIcon } from 'react-icons/bi';
 import { Link, useNavigate } from 'react-router-dom';
-import type CrossTree from 'models/frontend/CrossTree/CrossTree';
+import type CrossDesign from 'models/frontend/CrossDesign/CrossDesign';
 import { Menu, type MenuItem } from 'components/Menu/Menu';
 import { useEffect, useState } from 'react';
-import { deleteTree, insertTree, updateTree } from 'api/tree';
+import {
+  deleteCrossDesign,
+  insertCrossDesign,
+  updateCrossDesign,
+} from 'api/crossDesign';
 import { open } from '@tauri-apps/api/dialog';
 import { writeTextFile } from '@tauri-apps/api/fs';
 import { sep } from '@tauri-apps/api/path';
 import { toast } from 'react-toastify';
 import EditableDiv from 'components/EditableDiv/EditableDiv';
 
-export interface TreeCardProps {
-  tree: CrossTree;
-  refreshTrees: () => void;
+export interface CrossDesignCardProps {
+  crossDesign: CrossDesign;
+  refreshCrossDesigns: () => void;
   isNew: boolean;
 }
 
-const TreeCard = (props: TreeCardProps): React.JSX.Element => {
+const CrossDesignCard = (props: CrossDesignCardProps): React.JSX.Element => {
   const navigate = useNavigate();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [nameEditable, setNameEditable] = useState(props.isNew);
   const [name, setName] = useState('');
 
   useEffect(() => {
-    setName(props.tree.name);
-  }, [props.tree.name]);
+    setName(props.crossDesign.name);
+  }, [props.crossDesign.name]);
 
   const getMenuItems = (): MenuItem[] => {
     return [
@@ -32,7 +36,7 @@ const TreeCard = (props: TreeCardProps): React.JSX.Element => {
         text: 'Open',
         menuCallback: () => {
           navigate('/editor', {
-            state: { treeId: props.tree.id.toString() },
+            state: { crossDesignId: props.crossDesign.id.toString() },
           });
         },
       },
@@ -45,14 +49,14 @@ const TreeCard = (props: TreeCardProps): React.JSX.Element => {
       {
         text: 'Export',
         menuCallback: () => {
-          exportTree(props.tree).catch(console.error);
+          exportCrossDesign(props.crossDesign).catch(console.error);
         },
       },
       {
         text: 'Copy',
         menuCallback: () => {
-          copyTree(props.tree)
-            .then(props.refreshTrees)
+          copyCrossDesign(props.crossDesign)
+            .then(props.refreshCrossDesigns)
             .catch((err) => {
               console.error(err);
             });
@@ -67,11 +71,11 @@ const TreeCard = (props: TreeCardProps): React.JSX.Element => {
     ];
   };
 
-  const updateTreeName = (): void => {
-    props.tree.name = name.trim();
-    props.tree.lastSaved = new Date();
-    updateTree(props.tree.generateRecord(props.tree.editable))
-      .then(props.refreshTrees)
+  const updateCrossDesignName = (): void => {
+    props.crossDesign.name = name.trim();
+    props.crossDesign.lastSaved = new Date();
+    updateCrossDesign(props.crossDesign.generateRecord())
+      .then(props.refreshCrossDesigns)
       .catch(console.error);
     setNameEditable(false);
   };
@@ -81,7 +85,7 @@ const TreeCard = (props: TreeCardProps): React.JSX.Element => {
       <Link
         to={'/editor'}
         className='card h-52 w-52 rounded-lg shadow-xl'
-        state={{ treeId: props.tree.id.toString() }}
+        state={{ crossDesignId: props.crossDesign.id.toString() }}
       >
         <div className='flex h-1/2 justify-end rounded-t-lg bg-primary'>
           <Menu
@@ -96,13 +100,13 @@ const TreeCard = (props: TreeCardProps): React.JSX.Element => {
               value={name}
               setValue={setName}
               editable={nameEditable}
-              onFinishEditing={updateTreeName}
+              onFinishEditing={updateCrossDesignName}
               autoFocus={true}
             />
           </div>
           <div className='flex h-8 w-full justify-between'>
             <span>Last saved:</span>
-            <span>{props.tree.lastSaved.toLocaleDateString()}</span>
+            <span>{props.crossDesign.lastSaved.toLocaleDateString()}</span>
           </div>
         </div>
       </Link>
@@ -117,14 +121,15 @@ const TreeCard = (props: TreeCardProps): React.JSX.Element => {
       >
         <div className='modal-box relative cursor-auto'>
           <h1 className='text-lg font-bold'>
-            Are you sure you want to delete &quot;{props.tree.name}&quot;?
+            Are you sure you want to delete &quot;{props.crossDesign.name}
+            &quot;?
           </h1>
           <div className='modal-action flex justify-center'>
             <button
               className='btn-error btn'
               onClick={() => {
-                deleteTree(props.tree.id)
-                  .then(props.refreshTrees)
+                deleteCrossDesign(props.crossDesign.id)
+                  .then(props.refreshCrossDesigns)
                   .catch(console.error);
               }}
             >
@@ -145,26 +150,29 @@ const TreeCard = (props: TreeCardProps): React.JSX.Element => {
   );
 };
 
-const copyTree = async (tree: CrossTree): Promise<void> => {
-  const newTree = tree.clone();
-  newTree.name = `Copy of ${tree.name}`;
-  newTree.lastSaved = new Date();
-  newTree.editable = true;
-  await insertTree(newTree.generateRecord(newTree.editable));
+const copyCrossDesign = async (crossDesign: CrossDesign): Promise<void> => {
+  const newCrossDesign = crossDesign.clone();
+  newCrossDesign.name = `Copy of ${crossDesign.name}`;
+  newCrossDesign.lastSaved = new Date();
+  newCrossDesign.editable = true;
+  await insertCrossDesign(newCrossDesign.generateRecord());
 };
 
-const exportTree = async (tree: CrossTree): Promise<void> => {
+const exportCrossDesign = async (crossDesign: CrossDesign): Promise<void> => {
   try {
     const dir: string | null = (await open({
       directory: true,
     })) as string | null;
     if (dir === null) return;
-    const filename = tree.name !== '' ? tree.name : 'untitled';
-    await writeTextFile(`${dir}${sep}${filename}.ww.json`, tree.toJSON());
-    toast.success('Successfully exported tree');
+    const filename = crossDesign.name !== '' ? crossDesign.name : 'untitled';
+    await writeTextFile(
+      `${dir}${sep}${filename}.ww.json`,
+      crossDesign.toJSON()
+    );
+    toast.success('Successfully exported crossDesign');
   } catch (err) {
-    toast.error(`Error exporting tree: ${err}`);
+    toast.error(`Error exporting crossDesign: ${err}`);
   }
 };
 
-export default TreeCard;
+export default CrossDesignCard;

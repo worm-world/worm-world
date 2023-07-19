@@ -1,6 +1,5 @@
 import { instanceToPlain, plainToInstance, Transform } from 'class-transformer';
 import { Dominance } from 'models/enums';
-import { type StrainData } from 'models/frontend/StrainData/StrainData';
 import { type Strain } from 'models/frontend/Strain/Strain';
 import { type Node } from 'reactflow';
 
@@ -101,11 +100,11 @@ export class OffspringFilter {
 
   /** Checks if a node can be displayed given current filter values */
   public static includedInFilter(
-    node: Node<StrainData>,
+    node: Node<Strain>,
     filter?: OffspringFilter
   ): boolean {
     if (filter === undefined) return true;
-    const strain = node.data.strain;
+    const strain = node.data;
 
     const alleles = strain.getAlleles();
     const alleleNames = new Set(alleles.map((a) => a.name));

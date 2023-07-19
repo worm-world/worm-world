@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'vitest';
 import { Allele } from 'models/frontend/Allele/Allele';
-import * as mockAlleles from 'models/frontend/Allele/Allele.mock';
+import * as alleles from 'models/frontend/Allele/Allele.mock';
 
 describe('Allele', () => {
   test('(De)serializes', () => {
-    const str = mockAlleles.ed3.toJSON();
+    const str = alleles.ed3.toJSON();
     const ed3Back = Allele.fromJSON(str);
-    expect(ed3Back).toEqual(mockAlleles.ed3);
+    expect(ed3Back).toEqual(alleles.ed3);
     expect(ed3Back.toJSON).toBeDefined();
 
     // Check nested objects

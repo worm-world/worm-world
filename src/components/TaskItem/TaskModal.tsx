@@ -12,12 +12,12 @@ interface TaskModalProps {
 
 const TaskModal = (props: TaskModalProps): React.JSX.Element => {
   const navigate = useNavigate();
-  const navigateToTree = useCallback((): void => {
-    // the tree associated with the task is already a copy
+  const navigateToCrossDesign = useCallback((): void => {
+    // the crossDesign associated with the task is already a copy
     navigate('/editor', {
-      state: { treeId: props.task.treeId },
+      state: { crossDesignId: props.task.crossDesignId },
     });
-  }, [props.task.treeId]);
+  }, [props.task.crossDesignId]);
 
   const [sliderValue, setSliderValue] = useState('3');
   const [isChecked, setIsChecked] = useState(false);
@@ -37,10 +37,11 @@ const TaskModal = (props: TaskModalProps): React.JSX.Element => {
     getTasks()
       .then(async (tasks) => {
         const task = tasks.find(
-          (task) => task.tree_id === props.task.treeId && !task.completed
+          (task) =>
+            task.crossDesignId === props.task.crossDesignId && !task.completed
         );
         if (task === undefined) throw new Error('Task not found in database');
-        task.due_date = moment(task.due_date)
+        task.dueDate = moment(task.dueDate)
           .add((isForward ? 1 : -1) * parseInt(sliderValue), 'days')
           .toISOString();
         await updateTask(task);
@@ -131,8 +132,11 @@ const TaskModal = (props: TaskModalProps): React.JSX.Element => {
             >
               Later
             </button>
-            <button className='btn-secondary btn' onClick={navigateToTree}>
-              View Tree (Non-Editable)
+            <button
+              className='btn-secondary btn'
+              onClick={navigateToCrossDesign}
+            >
+              View CrossDesign (Non-Editable)
             </button>
           </div>
         </div>

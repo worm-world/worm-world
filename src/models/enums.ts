@@ -5,16 +5,16 @@ export enum Dominance {
 }
 
 export enum Sex {
-  Male,
   Hermaphrodite,
+  Male,
 }
 
 export const sexToString = (sex: Sex): string => {
   switch (sex) {
-    case Sex.Male:
-      return 'male';
     case Sex.Hermaphrodite:
       return 'hermaphrodite';
+    case Sex.Male:
+      return 'male';
   }
 };
 

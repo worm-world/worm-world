@@ -5,6 +5,8 @@ pub mod allele_expr;
 #[cfg(test)]
 pub mod condition;
 #[cfg(test)]
+pub mod cross_design;
+#[cfg(test)]
 pub mod expr_relation;
 #[cfg(test)]
 pub mod gene;
@@ -20,7 +22,5 @@ pub mod task;
 pub mod task_cond;
 #[cfg(test)]
 pub mod task_dep;
-#[cfg(test)]
-pub mod tree;
 #[cfg(test)]
 pub mod variation;

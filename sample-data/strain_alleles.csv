@@ -1,4 +1,4 @@
-strain_name,allele_name,is_on_top,is_on_bot
+strainName,alleleName,isOnTop,isOnBot
 EG6207,ed3,true,true
 MT2495,n744,true,true
 CB128,e128,true,true

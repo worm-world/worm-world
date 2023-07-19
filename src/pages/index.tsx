@@ -1,56 +1,61 @@
 import { open } from '@tauri-apps/api/dialog';
 import { readTextFile } from '@tauri-apps/api/fs';
-import { getFilteredTrees, insertTree } from 'api/tree';
+import { getFilteredCrossDesigns, insertCrossDesign } from 'api/crossDesign';
 import { type OffspringFilter } from 'components/OffspringFilter/OffspringFilter';
-import TreeCard from 'components/TreeCard/TreeCard';
+import CrossDesignCard from 'components/CrossDesignCard/CrossDesignCard';
 import { TopNav } from 'components/TopNav/TopNav';
-import CrossTree from 'models/frontend/CrossTree/CrossTree';
+import CrossDesign from 'models/frontend/CrossDesign/CrossDesign';
 import { useEffect, useState } from 'react';
 import { GiEarthWorm as WormIcon } from 'react-icons/gi';
 import { toast } from 'react-toastify';
 
 const Index = (): React.JSX.Element => {
-  const [newTreeId, setNewTreeId] = useState<string>();
-  const [trees, setTrees] = useState<CrossTree[]>([]);
+  const [newCrossDesignId, setNewCrossDesignId] = useState<string>();
+  const [crossDesigns, setCrossDesigns] = useState<CrossDesign[]>([]);
   const [hasRefreshedOnce, setHasRefreshedOnce] = useState(false);
 
-  const refreshTrees = async (): Promise<void> => {
-    const trees = await getFilteredTrees({
+  const refreshCrossDesigns = async (): Promise<void> => {
+    const crossDesigns = await getFilteredCrossDesigns({
       filters: [[['Editable', 'True']]],
       orderBy: [],
     });
 
-    setTrees(trees.map((tree) => CrossTree.fromJSON(tree.data)));
+    setCrossDesigns(
+      crossDesigns.map((crossDesign) => CrossDesign.fromJSON(crossDesign.data))
+    );
   };
 
-  // if (newTreeId !== undefined) setNewTreeId(undefined);
+  // if (newCrossDesignId !== undefined) setNewCrossDesignId(undefined);
 
   useEffect(() => {
-    refreshTrees()
+    refreshCrossDesigns()
       .then(() => {
         setHasRefreshedOnce(true);
       })
       .catch(console.error);
   }, []);
 
-  const newTreeButton = (
+  const newCrossDesignButton = (
     <button
-      key='newTree'
+      key='newCrossDesign'
       className='btn'
       onClick={() => {
-        addTree().then(setNewTreeId).then(refreshTrees).catch(console.error);
+        addCrossDesign()
+          .then(setNewCrossDesignId)
+          .then(refreshCrossDesigns)
+          .catch(console.error);
       }}
     >
       New Design
     </button>
   );
 
-  const importTreeButton = (
+  const importCrossDesignButton = (
     <button
-      key='importTree'
+      key='importCrossDesign'
       className='btn'
       onClick={() => {
-        importTree().then(refreshTrees).catch(console.error);
+        importCrossDesign().then(refreshCrossDesigns).catch(console.error);
       }}
     >
       Import
@@ -61,61 +66,61 @@ const Index = (): React.JSX.Element => {
     <>
       <TopNav
         title={'Cross Designs'}
-        buttons={[newTreeButton, importTreeButton]}
+        buttons={[newCrossDesignButton, importCrossDesignButton]}
       />
-      {hasRefreshedOnce && trees.length === 0 ? (
-        <NoTreePlaceholder />
+      {hasRefreshedOnce && crossDesigns.length === 0 ? (
+        <NoCrossDesignPlaceholder />
       ) : (
-        <TreeCards
-          trees={trees}
-          newTreeId={newTreeId}
-          setNewTreeId={setNewTreeId}
-          refreshTrees={refreshTrees}
+        <CrossDesignCards
+          crossDesigns={crossDesigns}
+          newCrossDesignId={newCrossDesignId}
+          setNewCrossDesignId={setNewCrossDesignId}
+          refreshCrossDesigns={refreshCrossDesigns}
         />
       )}
     </>
   );
 };
 
-const TreeCards = (props: {
-  trees: CrossTree[];
-  newTreeId: string | undefined;
-  setNewTreeId: (id: string | undefined) => void;
-  refreshTrees: () => Promise<void>;
+const CrossDesignCards = (props: {
+  crossDesigns: CrossDesign[];
+  newCrossDesignId: string | undefined;
+  setNewCrossDesignId: (id: string | undefined) => void;
+  refreshCrossDesigns: () => Promise<void>;
 }): React.JSX.Element => {
   return (
     <div className='mx-36 my-8 flex flex-wrap '>
-      {props.trees?.map((tree) => {
-        const isNew = tree.id === props.newTreeId;
-        const treeCard = (
-          <TreeCard
-            refreshTrees={() => {
-              props.refreshTrees().catch(console.error);
+      {props.crossDesigns?.map((crossDesign) => {
+        const isNew = crossDesign.id === props.newCrossDesignId;
+        const crossDesignCard = (
+          <CrossDesignCard
+            refreshCrossDesigns={() => {
+              props.refreshCrossDesigns().catch(console.error);
             }}
-            key={tree.id}
-            tree={tree}
+            key={crossDesign.id}
+            crossDesign={crossDesign}
             isNew={isNew}
           />
         );
-        return treeCard;
+        return crossDesignCard;
       })}
     </div>
   );
 };
 
-const NoTreePlaceholder = (): React.JSX.Element => {
+const NoCrossDesignPlaceholder = (): React.JSX.Element => {
   return (
     <div className='m-14 flex flex-col items-center justify-center'>
       <h2 className='text-2xl'>Cross designs can be found here.</h2>
       <h2 className='my-4 flex flex-row text-xl'>
-        Click the &quot;New Tree&quot; button to start.
+        Click the &quot;New CrossDesign&quot; button to start.
       </h2>
       <WormIcon className='my-8 text-9xl text-base-300' />
     </div>
   );
 };
 
-const importTree = async (): Promise<void> => {
+const importCrossDesign = async (): Promise<void> => {
   try {
     const filepath: string | null = (await open({
       filters: [
@@ -127,30 +132,29 @@ const importTree = async (): Promise<void> => {
     })) as string | null;
     if (filepath === null) return;
     const file = await readTextFile(filepath);
-    const clonedTree = CrossTree.fromJSON(file).clone();
-    await insertTree(clonedTree.generateRecord(clonedTree.editable));
-    toast.success('Successfully imported tree');
+    const clonedCrossDesign = CrossDesign.fromJSON(file).clone();
+    await insertCrossDesign(clonedCrossDesign.generateRecord());
+    toast.success('Successfully imported crossDesign');
   } catch (err) {
-    toast.error(`Error importing tree: ${err}`);
+    toast.error(`Error importing crossDesign: ${err}`);
   }
 };
 
-const addTree = async (): Promise<string | undefined> => {
+const addCrossDesign = async (): Promise<string | undefined> => {
   try {
-    const newTree: CrossTree = new CrossTree({
+    const newCrossDesign = new CrossDesign({
       name: '',
       lastSaved: new Date(),
       nodes: [],
       edges: [],
-      invisibleNodes: new Set<string>(),
-      crossFilters: new Map<string, OffspringFilter>(),
+      offspringFilters: new Map<string, OffspringFilter>(),
       editable: true,
     });
-    await insertTree(newTree.generateRecord(newTree.editable));
-    toast.success('Successfully added tree');
-    return newTree.id;
+    await insertCrossDesign(newCrossDesign.generateRecord());
+    toast.success('Successfully added crossDesign');
+    return newCrossDesign.id;
   } catch (err) {
-    toast.error(`Error adding tree: ${err}`);
+    toast.error(`Error adding crossDesign: ${err}`);
     return undefined;
   }
 };

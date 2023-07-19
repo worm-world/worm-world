@@ -11,7 +11,7 @@ impl InnerDbState {
         match sqlx::query_as!(
             TaskDb,
             "
-            SELECT id, due_date, action, strain1, strain2, result, notes, tree_id, completed FROM tasks ORDER BY id
+            SELECT id, due_date, action, strain1, strain2, result, notes, cross_design_id, completed FROM tasks ORDER BY id
             "
         )
         .fetch_all(&self.conn_pool)
@@ -30,7 +30,7 @@ impl InnerDbState {
         filter: &FilterGroup<TaskFieldName>,
     ) -> Result<Vec<Task>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
-            "SELECT id, due_date, action, strain1, strain2, result, notes, tree_id, completed FROM tasks",
+            "SELECT id, due_date, action, strain1, strain2, result, notes, cross_design_id, completed FROM tasks",
         );
         filter.add_filtered_query(&mut qb, true, true);
 
@@ -50,7 +50,7 @@ impl InnerDbState {
     pub async fn insert_task(&self, task: &Task) -> Result<(), DbError> {
         let action_val: i32 = (task.action as u8).into();
         match sqlx::query!(
-            "INSERT INTO tasks (id, due_date, action, strain1, strain2, result, notes, tree_id, completed)
+            "INSERT INTO tasks (id, due_date, action, strain1, strain2, result, notes, cross_design_id, completed)
             VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
             ",
             task.id,
@@ -60,7 +60,7 @@ impl InnerDbState {
             task.strain2,
             task.result,
             task.notes,
-            task.tree_id,
+            task.cross_design_id,
             task.completed,
         )
         .execute(&self.conn_pool)
@@ -84,7 +84,7 @@ impl InnerDbState {
                 strain2 = ?,
                 result = ?,
                 notes = ?,
-                tree_id = ?,
+                cross_design_id = ?,
                 completed = ?
             WHERE
                 id = ?",
@@ -94,7 +94,7 @@ impl InnerDbState {
             task.strain2,
             task.result,
             task.notes,
-            task.tree_id,
+            task.cross_design_id,
             task.completed,
             task.id,
         )
@@ -125,11 +125,11 @@ impl InnerDbState {
         }
     }
 
-    pub async fn delete_tasks(&self, tree: String) -> Result<(), DbError> {
+    pub async fn delete_tasks(&self, cross_design: String) -> Result<(), DbError> {
         match sqlx::query!(
             "DELETE FROM tasks
-            WHERE tree_id = ?",
-            tree,
+            WHERE cross_design_id = ?",
+            cross_design,
         )
         .execute(&self.conn_pool)
         .await
@@ -159,8 +159,8 @@ impl InnerDbState {
 #[cfg(test)]
 mod test {
 
+    use crate::models::cross_design::CrossDesign;
     use crate::models::task::{Action, Task, TaskFieldName};
-    use crate::models::tree::Tree;
     use crate::InnerDbState;
     use crate::{
         interface::mock,
@@ -204,14 +204,14 @@ mod test {
         let tasks: Vec<Task> = state.get_tasks().await?;
         assert_eq!(tasks.len(), 0);
 
-        let tree = Tree {
+        let cross_design = CrossDesign {
             id: "1".to_string(),
             name: "test1".to_string(),
             last_edited: "2012-01-01".to_string(),
             data: "{}".to_string(),
             editable: true,
         };
-        state.insert_tree(&tree).await?;
+        state.insert_cross_design(&cross_design).await?;
 
         let expected = Task {
             id: "1".to_string(),
@@ -221,7 +221,7 @@ mod test {
             strain2: Some("{}".to_string()),
             result: Some("{}".to_string()),
             notes: None,
-            tree_id: "1".to_string(),
+            cross_design_id: "1".to_string(),
             completed: true,
         };
 
@@ -239,14 +239,14 @@ mod test {
         let tasks: Vec<Task> = state.get_tasks().await?;
         assert_eq!(tasks.len(), 0);
 
-        let tree = Tree {
+        let cross_design = CrossDesign {
             id: "1".to_string(),
             name: "test1".to_string(),
             last_edited: "2012-01-01".to_string(),
             data: "{}".to_string(),
             editable: true,
         };
-        state.insert_tree(&tree).await?;
+        state.insert_cross_design(&cross_design).await?;
 
         let expected = Task {
             id: "1".to_string(),
@@ -256,7 +256,7 @@ mod test {
             strain2: Some("{}".to_string()),
             result: Some("{}".to_string()),
             notes: None,
-            tree_id: "1".to_string(),
+            cross_design_id: "1".to_string(),
             completed: true,
         };
 
@@ -273,7 +273,7 @@ mod test {
             strain2: Some("{foo}".to_string()),
             result: Some("{}".to_string()),
             notes: Some("foo note".to_string()),
-            tree_id: "1".to_string(),
+            cross_design_id: "1".to_string(),
             completed: false,
         };
         state.update_task(&new_expected).await?;
@@ -290,14 +290,14 @@ mod test {
         let tasks: Vec<Task> = state.get_tasks().await?;
         assert_eq!(tasks.len(), 0);
 
-        let tree = Tree {
+        let cross_design = CrossDesign {
             id: "1".to_string(),
             name: "test1".to_string(),
             last_edited: "2012-01-01".to_string(),
             data: "{}".to_string(),
             editable: true,
         };
-        state.insert_tree(&tree).await?;
+        state.insert_cross_design(&cross_design).await?;
 
         let expected = Task {
             id: "1".to_string(),
@@ -307,7 +307,7 @@ mod test {
             strain2: Some("{}".to_string()),
             result: Some("{}".to_string()),
             notes: None,
-            tree_id: "1".to_string(),
+            cross_design_id: "1".to_string(),
             completed: true,
         };
 
@@ -330,22 +330,22 @@ mod test {
         let tasks: Vec<Task> = state.get_tasks().await?;
         assert_eq!(tasks.len(), 0);
 
-        let tree1 = Tree {
+        let cross_design1 = CrossDesign {
             id: "1".to_string(),
             name: "test1".to_string(),
             last_edited: "2012-01-01".to_string(),
             data: "{}".to_string(),
             editable: false,
         };
-        let tree2 = Tree {
+        let cross_design2 = CrossDesign {
             id: "2".to_string(),
-            name: "tree2".to_string(),
+            name: "cross_design2".to_string(),
             last_edited: "2012-01-01".to_string(),
             data: "{}".to_string(),
             editable: false,
         };
-        state.insert_tree(&tree1).await?;
-        state.insert_tree(&tree2).await?;
+        state.insert_cross_design(&cross_design1).await?;
+        state.insert_cross_design(&cross_design2).await?;
 
         let task1 = Task {
             id: "3".to_string(),
@@ -354,7 +354,7 @@ mod test {
             strain1: "{}".to_string(),
             strain2: Some("{}".to_string()),
             notes: None,
-            tree_id: "1".to_string(),
+            cross_design_id: "1".to_string(),
             completed: true,
             result: Some("".to_string()),
         };
@@ -365,7 +365,7 @@ mod test {
             strain1: "{}".to_string(),
             strain2: None,
             notes: None,
-            tree_id: "1".to_string(),
+            cross_design_id: "1".to_string(),
             completed: true,
             result: Some("".to_string()),
         };
@@ -376,7 +376,7 @@ mod test {
             strain1: "{}".to_string(),
             strain2: None,
             notes: None,
-            tree_id: "2".to_string(),
+            cross_design_id: "2".to_string(),
             completed: true,
             result: Some("".to_string()),
         };
@@ -403,22 +403,22 @@ mod test {
         let tasks: Vec<Task> = state.get_tasks().await?;
         assert_eq!(tasks.len(), 0);
 
-        let tree1 = Tree {
+        let cross_design1 = CrossDesign {
             id: "1".to_string(),
             name: "test1".to_string(),
             last_edited: "2012-01-01".to_string(),
             data: "{}".to_string(),
             editable: false,
         };
-        let tree2 = Tree {
+        let cross_design2 = CrossDesign {
             id: "2".to_string(),
-            name: "tree2".to_string(),
+            name: "cross_design2".to_string(),
             last_edited: "2012-01-01".to_string(),
             data: "{}".to_string(),
             editable: false,
         };
-        state.insert_tree(&tree1).await?;
-        state.insert_tree(&tree2).await?;
+        state.insert_cross_design(&cross_design1).await?;
+        state.insert_cross_design(&cross_design2).await?;
 
         let task1 = Task {
             id: "3".to_string(),
@@ -427,7 +427,7 @@ mod test {
             strain1: "{}".to_string(),
             strain2: Some("{}".to_string()),
             notes: None,
-            tree_id: "1".to_string(),
+            cross_design_id: "1".to_string(),
             completed: true,
             result: Some("".to_string()),
         };
@@ -438,7 +438,7 @@ mod test {
             strain1: "{}".to_string(),
             strain2: None,
             notes: None,
-            tree_id: "1".to_string(),
+            cross_design_id: "1".to_string(),
             completed: true,
             result: Some("".to_string()),
         };
@@ -449,7 +449,7 @@ mod test {
             strain1: "{}".to_string(),
             strain2: None,
             notes: None,
-            tree_id: "2".to_string(),
+            cross_design_id: "2".to_string(),
             completed: true,
             result: Some("".to_string()),
         };

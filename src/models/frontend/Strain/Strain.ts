@@ -19,7 +19,6 @@ import { type AlleleExpression } from 'models/frontend/AlleleExpression/AlleleEx
 import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { type Condition } from 'models/frontend/Condition/Condition';
 import { type Phenotype } from 'models/frontend/Phenotype/Phenotype';
-import { StrainData } from 'models/frontend/StrainData/StrainData';
 import { getStrain, insertStrain } from 'api/strain';
 import { type ChromosomeName } from 'models/db/filter/db_ChromosomeName';
 import {
@@ -40,10 +39,14 @@ export interface GameteOption {
 
 interface IStrain {
   name?: string;
+  chromPairMap?: Map<ChromosomeName | undefined, ChromosomePair>; // Has priority over allelePairs
   allelePairs?: AllelePair[];
   genotype?: string;
   description?: string;
   sex?: Sex;
+  isParent?: boolean;
+  isChild?: boolean;
+  probability?: number;
 }
 
 /**
@@ -52,7 +55,12 @@ interface IStrain {
 export class Strain {
   public name = '';
   public sex = Sex.Hermaphrodite;
+  public isParent = false;
+  public isChild = false;
+  public genotype: string = '.';
+
   public description?: string;
+  public probability?: number;
 
   // Make sure that chromosome pairs in map are correctly deserialized
   @Transform(
@@ -68,17 +76,22 @@ export class Strain {
   @Type(() => Map<ChromosomeName | undefined, ChromosomePair>)
   public chromPairMap = new Map<ChromosomeName | undefined, ChromosomePair>();
 
-  public genotype: string = '.';
-
   constructor(params?: IStrain) {
     // Serialization issue
     if (params === undefined || params === null) return;
 
     this.name = params.name ?? '';
-    this.description = params.description;
     this.sex = params.sex ?? Sex.Hermaphrodite;
+    this.isParent = params.isParent ?? false;
+    this.isChild = params.isChild ?? false;
+    this.chromPairMap =
+      params.chromPairMap ??
+      new Map<ChromosomeName | undefined, ChromosomePair>();
 
-    if (params.allelePairs !== undefined)
+    this.description = params.description;
+    this.probability = params.probability;
+
+    if (params.allelePairs !== undefined && params.chromPairMap === undefined)
       this.addPairsToStrain(params.allelePairs);
     this.genotype =
       params.genotype ?? this.toString({ simplify: true, excludeEca: false });
@@ -100,17 +113,20 @@ export class Strain {
     });
   }
 
-  public toggleSex(): void {
-    this.sex = this.sex === Sex.Hermaphrodite ? Sex.Male : Sex.Hermaphrodite;
-    const xChromPair = this.chromPairMap.get('X');
+  public toggleSex(): Strain {
+    const strain = this.clone();
+    strain.sex =
+      strain.sex === Sex.Hermaphrodite ? Sex.Male : Sex.Hermaphrodite;
+    const xChromPair = strain.chromPairMap.get('X');
     if (xChromPair !== undefined)
-      this.chromPairMap.set(
+      strain.chromPairMap.set(
         'X',
         ChromosomePair.buildFromChroms(
           xChromPair.getTop(),
-          this.sex === Sex.Hermaphrodite ? xChromPair.getTop() : undefined
+          strain.sex === Sex.Hermaphrodite ? xChromPair.getTop() : undefined
         )
       );
+    return strain;
   }
 
   public isEmptyWild(): boolean {
@@ -263,10 +279,6 @@ export class Strain {
     });
   }
 
-  public toData(): StrainData {
-    return new StrainData({ strain: this });
-  }
-
   public toMale(): Strain {
     const male = this.clone();
     male.sex = Sex.Male;
@@ -356,15 +368,13 @@ export class Strain {
    * Returns a new strain with identical data to this
    */
   public clone(): Strain {
-    const clone = new Strain({
+    return new Strain({
       name: this.name,
       description: this.description,
       genotype: this.genotype,
-      allelePairs: [],
       sex: this.sex,
+      chromPairMap: new Map(this.chromPairMap),
     });
-    clone.chromPairMap = new Map(this.chromPairMap);
-    return clone;
   }
 
   /**

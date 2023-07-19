@@ -28,7 +28,7 @@ describe('Strain form', () => {
   });
 
   test('No input gives no options', async () => {
-    render(<StrainForm onSubmit={() => {}} />);
+    render(<StrainForm onSubmit={() => {}} newId={''} showGenes={false} />);
 
     await user.click(screen.getByLabelText(/alleles/i));
     await user.keyboard('e');

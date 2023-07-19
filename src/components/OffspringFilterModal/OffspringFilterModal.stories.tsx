@@ -4,8 +4,8 @@ import {
   OffspringFilterUpdate,
 } from 'components/OffspringFilter/OffspringFilter';
 import { OffspringFilterModal } from 'components/OffspringFilterModal/OffspringFilterModal';
-import { StrainData } from 'models/frontend/StrainData/StrainData';
-import * as mockTrees from 'models/frontend/CrossTree/CrossTree.mock';
+import * as crossDesigns from 'models/frontend/CrossDesign/CrossDesign.mock';
+import { Strain } from 'models/frontend/Strain/Strain';
 import { Node } from 'reactflow';
 
 export default {
@@ -20,7 +20,7 @@ const Template: StoryFn<typeof OffspringFilterModal> = ({
   filter = undefined,
   updateFilter = () => {},
 }: {
-  childNodes: Array<Node<StrainData>>;
+  childNodes: Array<Node<Strain>>;
   invisibleSet: Set<string>;
   toggleVisible: (nodeId: string) => void;
   filter?: OffspringFilter;
@@ -46,18 +46,18 @@ export const Empty = Template.bind({});
 
 export const WithNodes = Template.bind({});
 WithNodes.args = {
-  childNodes: [mockTrees.ed3HeteroHerm, mockTrees.ed3HeteroMale, mockTrees.ed3HomoHerm],
+  childNodes: [crossDesigns.ed3HeteroHerm, crossDesigns.ed3HeteroMale, crossDesigns.ed3HomoHerm],
 };
 
 export const WithNodeDeselected = Template.bind({});
 WithNodeDeselected.args = {
-  childNodes: [mockTrees.ed3HeteroHerm, mockTrees.ed3HeteroMale, mockTrees.ed3HomoHerm],
-  invisibleSet: new Set(mockTrees.ed3HeteroHerm.id),
+  childNodes: [crossDesigns.ed3HeteroHerm, crossDesigns.ed3HeteroMale, crossDesigns.ed3HomoHerm],
+  invisibleSet: new Set(crossDesigns.ed3HeteroHerm.id),
 };
 
 export const WithToggleCallback = Template.bind({});
 WithToggleCallback.args = {
-  childNodes: [mockTrees.ed3HeteroHerm, mockTrees.ed3HeteroMale, mockTrees.ed3HomoHerm],
+  childNodes: [crossDesigns.ed3HeteroHerm, crossDesigns.ed3HeteroMale, crossDesigns.ed3HomoHerm],
   toggleVisible: (nodeId: string) => {
     alert('Clicked node with id: ' + nodeId);
   },
@@ -74,6 +74,6 @@ const ed3Filter = new OffspringFilter({
 });
 export const WithAppliedfilter = Template.bind({});
 WithAppliedfilter.args = {
-  childNodes: [mockTrees.ed3AsChild, mockTrees.n765AsChild],
+  childNodes: [crossDesigns.ed3AsChild, crossDesigns.n765AsChild],
   filter: ed3Filter,
 };

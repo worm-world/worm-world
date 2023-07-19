@@ -3,7 +3,7 @@ import { ed3, n765 } from 'models/frontend/Allele/Allele.mock';
 import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { OffspringFilter } from 'components/OffspringFilter/OffspringFilter';
-import { ed3HomoHerm } from 'models/frontend/CrossTree/CrossTree.mock';
+import { ed3HomoHerm } from 'models/frontend/CrossDesign/CrossDesign.mock';
 import { mockIPC, clearMocks } from '@tauri-apps/api/mocks';
 
 beforeEach(() => {

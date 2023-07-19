@@ -15,5 +15,6 @@ pub mod strain_allele;
 pub mod task;
 pub mod task_cond;
 pub mod task_dep;
-pub mod tree;
+
+pub mod cross_design;
 pub mod variation;

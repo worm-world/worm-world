@@ -20,6 +20,7 @@ use models::{
     allele::{Allele, AlleleFieldName},
     allele_expr::{AlleleExpression, AlleleExpressionDb, AlleleExpressionFieldName},
     condition::{Condition, ConditionDb, ConditionFieldName},
+    cross_design::{CrossDesign, CrossDesignFieldName},
     expr_relation::{ExpressionRelation, ExpressionRelationDb, ExpressionRelationFieldName},
     filter::FilterGroup,
     gene::{Gene, GeneDb, GeneFieldName},
@@ -29,7 +30,6 @@ use models::{
     task::{Task, TaskFieldName},
     task_cond::{TaskCondition, TaskConditionFieldName},
     task_dep::{TaskDependency, TaskDependencyFieldName},
-    tree::{Tree, TreeFieldName},
     variation::{Variation, VariationDb, VariationFieldName},
 };
 
@@ -102,12 +102,12 @@ async fn main() {
             delete_task,
             delete_tasks,
             delete_all_tasks,
-            // trees
-            get_trees,
-            get_filtered_trees,
-            insert_tree,
-            update_tree,
-            delete_tree,
+            // cross_designs
+            get_cross_designs,
+            get_filtered_cross_designs,
+            insert_cross_design,
+            update_cross_design,
+            delete_cross_design,
             // task conditions/dependencies
             get_task_conditions,
             get_filtered_task_conditions,
@@ -626,9 +626,12 @@ async fn delete_task(state: tauri::State<'_, DbState>, id: String) -> Result<(),
 }
 
 #[tauri::command]
-async fn delete_tasks(state: tauri::State<'_, DbState>, tree: String) -> Result<(), DbError> {
+async fn delete_tasks(
+    state: tauri::State<'_, DbState>,
+    cross_design: String,
+) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
-    state_guard.delete_tasks(tree).await
+    state_guard.delete_tasks(cross_design).await
 }
 
 #[tauri::command]
@@ -638,35 +641,42 @@ async fn delete_all_tasks(state: tauri::State<'_, DbState>) -> Result<(), DbErro
 }
 
 #[tauri::command]
-async fn get_trees(state: tauri::State<'_, DbState>) -> Result<Vec<Tree>, DbError> {
+async fn get_cross_designs(state: tauri::State<'_, DbState>) -> Result<Vec<CrossDesign>, DbError> {
     let state_guard = state.0.read().await;
-    state_guard.get_trees().await
+    state_guard.get_cross_designs().await
 }
 
 #[tauri::command]
-async fn get_filtered_trees(
+async fn get_filtered_cross_designs(
     state: tauri::State<'_, DbState>,
-    filter: FilterGroup<TreeFieldName>,
-) -> Result<Vec<Tree>, DbError> {
+    filter: FilterGroup<CrossDesignFieldName>,
+) -> Result<Vec<CrossDesign>, DbError> {
     let state_guard = state.0.read().await;
-    state_guard.get_filtered_trees(&filter).await
-}
-#[tauri::command]
-async fn insert_tree(state: tauri::State<'_, DbState>, tree: Tree) -> Result<(), DbError> {
-    let state_guard = state.0.read().await;
-    state_guard.insert_tree(&tree).await
+    state_guard.get_filtered_cross_designs(&filter).await
 }
 
 #[tauri::command]
-async fn update_tree(state: tauri::State<'_, DbState>, tree: Tree) -> Result<(), DbError> {
+async fn insert_cross_design(
+    state: tauri::State<'_, DbState>,
+    cross_design: CrossDesign,
+) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
-    state_guard.update_tree(&tree).await
+    state_guard.insert_cross_design(&cross_design).await
 }
 
 #[tauri::command]
-async fn delete_tree(state: tauri::State<'_, DbState>, id: String) -> Result<(), DbError> {
+async fn update_cross_design(
+    state: tauri::State<'_, DbState>,
+    cross_design: CrossDesign,
+) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
-    state_guard.delete_tree(id).await
+    state_guard.update_cross_design(&cross_design).await
+}
+
+#[tauri::command]
+async fn delete_cross_design(state: tauri::State<'_, DbState>, id: String) -> Result<(), DbError> {
+    let state_guard = state.0.read().await;
+    state_guard.delete_cross_design(id).await
 }
 
 #[tauri::command]

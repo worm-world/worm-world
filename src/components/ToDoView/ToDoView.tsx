@@ -3,15 +3,17 @@ import { TaskList } from 'components/TaskList/TaskList';
 import { Task } from 'models/frontend/Task/Task';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { GiCheckboxTree as TreeIcon } from 'react-icons/gi';
-import { deleteTree, getFilteredTrees } from 'api/tree';
+import { GiCheckboxTree as CrossDesignIcon } from 'react-icons/gi';
+import { deleteCrossDesign, getFilteredCrossDesigns } from 'api/crossDesign';
 import { BiHide, BiShow } from 'react-icons/bi';
 
 export const ToDoView = (): React.JSX.Element => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
-  const [treeNames, setTreeNames] = useState(new Map<string, string>());
-  const [filteredTreeId, setFilteredTreeId] = useState<string>();
+  const [crossDesignNames, setCrossDesignNames] = useState(
+    new Map<string, string>()
+  );
+  const [filteredCrossDesignId, setFilteredCrossDesignId] = useState<string>();
   const [promptRemovalTasks, setPromptRemovalTasks] = useState<Task[]>([]);
   const [showCompleted, setShowCompleted] = useState(true);
 
@@ -22,8 +24,8 @@ export const ToDoView = (): React.JSX.Element => {
       }) // prevents text from flashing on screen while loading tasks from db
       .catch((e) => toast.error('Unable to get data: ' + JSON.stringify(e)));
 
-    refreshTreeNames().catch((e) =>
-      toast.error('Unable to get treeIds: ' + JSON.stringify(e))
+    refreshCrossDesignNames().catch((e) =>
+      toast.error('Unable to get crossDesignIds: ' + JSON.stringify(e))
     );
   }, []);
 
@@ -32,16 +34,22 @@ export const ToDoView = (): React.JSX.Element => {
     setTasks(tasks.map((task) => new Task(task)));
   };
 
-  const refreshTreeNames = async (): Promise<void> => {
-    const trees = await getFilteredTrees({
+  const refreshCrossDesignNames = async (): Promise<void> => {
+    const crossDesigns = await getFilteredCrossDesigns({
       filters: [[['Editable', 'False']]],
       orderBy: [],
     });
-    setTreeNames(new Map(trees.map((tree) => [tree.id, tree.name])));
+    setCrossDesignNames(
+      new Map(
+        crossDesigns.map((crossDesign) => [crossDesign.id, crossDesign.name])
+      )
+    );
   };
 
   const handleUpdateTask = (task: Task): void => {
-    const filteredTasks = tasks.filter((t) => t.treeId === task.treeId);
+    const filteredTasks = tasks.filter(
+      (t) => t.crossDesignId === task.crossDesignId
+    );
     updateTask(task.generateRecord())
       .then(() => {
         setPromptRemovalTasks(filteredTasks);
@@ -50,18 +58,20 @@ export const ToDoView = (): React.JSX.Element => {
       .catch((e) => toast.error('Unable to update task: ' + JSON.stringify(e)));
   };
 
-  const handleDeleteTasks = (filteredTreeId?: string): void => {
-    (filteredTreeId === undefined
+  const handleDeleteTasks = (filteredCrossDesignId?: string): void => {
+    (filteredCrossDesignId === undefined
       ? deleteAllTasks().then(() => {
-          [...treeNames.keys()].map(async (treeId) => await deleteTree(treeId));
+          [...crossDesignNames.keys()].map(
+            async (crossDesignId) => await deleteCrossDesign(crossDesignId)
+          );
         })
-      : deleteTasks(filteredTreeId).then(async () => {
-          await deleteTree(filteredTreeId);
+      : deleteTasks(filteredCrossDesignId).then(async () => {
+          await deleteCrossDesign(filteredCrossDesignId);
         })
     )
       .then(refreshTasks)
       .then(() => {
-        setFilteredTreeId(undefined);
+        setFilteredCrossDesignId(undefined);
       })
       .catch((e) =>
         toast.error('Unable to delete tasks: ' + JSON.stringify(e))
@@ -70,11 +80,11 @@ export const ToDoView = (): React.JSX.Element => {
 
   const handleDeleteTasksWithPrompt = (): void => {
     if (promptRemovalTasks.length === 0) return;
-    const treeId = promptRemovalTasks[0].treeId;
-    deleteTasks(treeId)
+    const crossDesignId = promptRemovalTasks[0].crossDesignId;
+    deleteTasks(crossDesignId)
       .then(() => {
         setPromptRemovalTasks([]);
-        setFilteredTreeId(undefined);
+        setFilteredCrossDesignId(undefined);
       })
       .then(refreshTasks)
       .catch((e) =>
@@ -82,11 +92,13 @@ export const ToDoView = (): React.JSX.Element => {
       );
   };
 
-  const hasFilter = filteredTreeId !== undefined;
-  const treeIds = new Set<string>(tasks.map((task) => task.treeId));
+  const hasFilter = filteredCrossDesignId !== undefined;
+  const crossDesignIds = new Set<string>(
+    tasks.map((task) => task.crossDesignId)
+  );
   const filteredTasks = tasks.filter(
     (task) =>
-      (!hasFilter || task.treeId === filteredTreeId) &&
+      (!hasFilter || task.crossDesignId === filteredCrossDesignId) &&
       (showCompleted || !task.completed)
   );
 
@@ -97,14 +109,14 @@ export const ToDoView = (): React.JSX.Element => {
         <>
           <TaskDeletePrompt
             tasks={promptRemovalTasks}
-            treeNames={treeNames}
+            crossDesignNames={crossDesignNames}
             deleteTasks={handleDeleteTasksWithPrompt}
           />
           <div className='flex items-center justify-between'>
-            <TreeFilter
-              setFilteredTreeId={setFilteredTreeId}
-              treeIds={treeIds}
-              treeNames={treeNames}
+            <CrossDesignFilter
+              setFilteredCrossDesignId={setFilteredCrossDesignId}
+              crossDesignIds={crossDesignIds}
+              crossDesignNames={crossDesignNames}
             />
             <div className='flex flex-row items-end gap-2'>
               <ShowCompletedButton
@@ -115,11 +127,11 @@ export const ToDoView = (): React.JSX.Element => {
               />
               <TaskRemovalBtn
                 hasFilter={hasFilter}
-                filteredTreeId={filteredTreeId}
-                treeName={
-                  filteredTreeId === undefined
+                filteredCrossDesignId={filteredCrossDesignId}
+                crossDesignName={
+                  filteredCrossDesignId === undefined
                     ? undefined
-                    : treeNames.get(filteredTreeId)
+                    : crossDesignNames.get(filteredCrossDesignId)
                 }
                 deleteTasks={handleDeleteTasks}
               />
@@ -143,7 +155,7 @@ const NoTaskPlaceholder = (): React.JSX.Element => {
       <h3 className='my-4 text-xl'>
         Tasks can be scheduled when viewing a cross design in the editor.
       </h3>
-      <TreeIcon className='my-4 text-9xl text-base-300' />
+      <CrossDesignIcon className='my-4 text-9xl text-base-300' />
     </div>
   );
 };
@@ -170,18 +182,18 @@ const ShowCompletedButton = (
 
 const TaskRemovalBtn = (props: {
   hasFilter: boolean;
-  filteredTreeId?: string;
-  treeName?: string;
-  deleteTasks: (treeId?: string) => void;
+  filteredCrossDesignId?: string;
+  crossDesignName?: string;
+  deleteTasks: (crossDesignId?: string) => void;
 }): React.JSX.Element => {
   const removeBtnTxt = props.hasFilter ? 'Delete tasks' : 'Delete all tasks';
   const modalHeader = 'Delete tasks';
   const confirmationText = props.hasFilter
-    ? `Are you sure you want to remove tasks for "${props.treeName}"? This cannot be undone.`
+    ? `Are you sure you want to remove tasks for "${props.crossDesignName}"? This cannot be undone.`
     : 'Are you sure you want to remove ALL tasks? This will delete every task from every cross design.';
   return (
     <div>
-      <label htmlFor='delete-tasks-modal' className='btn-outline btn-error btn'>
+      <label htmlFor='delete-tasks-modal' className='btn-error btn-outline btn'>
         {removeBtnTxt}
       </label>
       <input type='checkbox' id='delete-tasks-modal' className='modal-toggle' />
@@ -196,7 +208,7 @@ const TaskRemovalBtn = (props: {
               htmlFor='delete-tasks-modal'
               className='btn-error btn'
               onClick={() => {
-                props.deleteTasks(props.filteredTreeId);
+                props.deleteTasks(props.filteredCrossDesignId);
               }}
             >
               Delete
@@ -213,7 +225,7 @@ const TaskRemovalBtn = (props: {
 
 const TaskDeletePrompt = (props: {
   tasks: Task[];
-  treeNames: Map<string, string>;
+  crossDesignNames: Map<string, string>;
   deleteTasks: () => void;
 }): React.JSX.Element => {
   const [modalOpen, setModalOpen] = useState(true);
@@ -225,9 +237,11 @@ const TaskDeletePrompt = (props: {
     ? 'modal-open modal cursor-pointer'
     : 'modal cursor-pointer';
 
-  const treeName = props.treeNames.get(props.tasks[0].treeId);
-  const modalHeader = `"${treeName}" complete`;
-  const confirmationText = `Great job! You've completed all tasks for "${treeName}". Would you like to clear them?`;
+  const crossDesignName = props.crossDesignNames.get(
+    props.tasks[0].crossDesignId
+  );
+  const modalHeader = `"${crossDesignName}" complete`;
+  const confirmationText = `Great job! You've completed all tasks for "${crossDesignName}". Would you like to clear them?`;
   return (
     <>
       <label htmlFor='task-delete-prompt-modal' className={modalClass}>
@@ -262,31 +276,33 @@ const TaskDeletePrompt = (props: {
   );
 };
 
-interface TreeFilterProps {
-  setFilteredTreeId: (id?: string) => void;
-  treeIds: Set<string>;
-  treeNames: Map<string, string>;
+interface CrossDesignFilterProps {
+  setFilteredCrossDesignId: (id?: string) => void;
+  crossDesignIds: Set<string>;
+  crossDesignNames: Map<string, string>;
 }
 
-const TreeFilter = (props: TreeFilterProps): React.JSX.Element => {
+const CrossDesignFilter = (
+  props: CrossDesignFilterProps
+): React.JSX.Element => {
   return (
     <div>
       <label>
-        <span className='label-text'>Filter Tasks By Cross Tree</span>
+        <span className='label-text'>Filter Tasks By Cross CrossDesign</span>
       </label>
       <select
         onChange={(e) => {
-          props.setFilteredTreeId(
+          props.setFilteredCrossDesignId(
             e.target.value === '' ? undefined : e.target.value
           );
         }}
         className='select-primary select w-full max-w-xs'
       >
         <option value={''}>{'No Filter'}</option>
-        {Array.from(props.treeIds).map((id: string) => {
+        {Array.from(props.crossDesignIds).map((id: string) => {
           return (
             <option key={id} value={id}>
-              {props.treeNames.get(id)}
+              {props.crossDesignNames.get(id)}
             </option>
           );
         })}

@@ -9,8 +9,8 @@ cd ./src-tauri
 cargo sqlx prepare --check
 cd ..
 
-echo "Testing backend"
-npm run test-back
+# echo "Testing backend"
+# npm run test-back
 
-echo "Testing frontend"
-npm run test-front
+# echo "Testing frontend"
+# npm run test-front

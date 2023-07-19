@@ -75,8 +75,8 @@ mod test {
     use crate::models::condition::Condition;
     use crate::models::task::{Action, Task};
     use crate::models::task_cond::{TaskCondition, TaskConditionFieldName};
+    use crate::CrossDesign;
     use crate::InnerDbState;
-    use crate::Tree;
     use crate::{
         interface::mock,
         models::filter::{Filter, FilterGroup},
@@ -120,7 +120,7 @@ mod test {
         let state = InnerDbState { conn_pool: pool };
 
         state
-            .insert_tree(&Tree {
+            .insert_cross_design(&CrossDesign {
                 id: 1.to_string(),
                 name: "test1".to_string(),
                 last_edited: "2012-01-01".to_string(),
@@ -137,7 +137,7 @@ mod test {
                 strain2: Some("{}".to_string()),
                 result: Some("{}".to_string()),
                 notes: Some("example note".to_string()),
-                tree_id: 1.to_string(),
+                cross_design_id: 1.to_string(),
                 completed: true,
             })
             .await?;

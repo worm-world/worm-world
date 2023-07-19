@@ -1,54 +1,68 @@
-import { getTree } from 'api/tree';
-import CrossTree from 'models/frontend/CrossTree/CrossTree';
+import { getCrossDesign, updateCrossDesign } from 'api/crossDesign';
+import CrossDesign from 'models/frontend/CrossDesign/CrossDesign';
 import { useLocation } from 'react-router-dom';
-import Editor from 'components/Editor/Editor';
+import Editor, { NodeType } from 'components/Editor/Editor';
 import { useEffect, useState } from 'react';
 import Spinner from 'components/Spinner/Spinner';
-import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
-import { Strain } from 'models/frontend/Strain/Strain';
+import { type Strain } from 'models/frontend/Strain/Strain';
+import { ReactFlowProvider, type Node } from 'reactflow';
+import { toast } from 'react-toastify';
+import { ChromosomePair } from 'models/frontend/ChromosomePair/ChromosomePair';
 
 const EditorPage = (): React.JSX.Element => {
-  const [tree, setTree]: [CrossTree | null, (tree: CrossTree | null) => void] =
-    useState<CrossTree | null>(null);
-
-  const treeId: string = useLocation().state.treeId;
+  const [crossDesign, setCrossDesign] = useState<CrossDesign>();
+  const crossDesignId: string = useLocation().state.crossDesignId;
 
   useEffect(() => {
-    getTree(treeId)
-      .then((dbTree) => {
-        const tree = CrossTree.fromJSON(dbTree.data);
-        fixTreeDeserialization(tree);
-        setTree(tree);
+    if (crossDesign !== undefined)
+      updateCrossDesign(crossDesign.generateRecord()).catch(() => {
+        toast.error('Unable to save design');
+      });
+  }, [crossDesign]);
+
+  useEffect(() => {
+    getCrossDesign(crossDesignId)
+      .then((dbCrossDesign) => {
+        const crossDesign = CrossDesign.fromJSON(dbCrossDesign.data);
+        fixNodeDeserialization(crossDesign);
+        setCrossDesign(crossDesign);
       })
       .catch(console.error);
-  });
+  }, []);
 
-  if (tree === null) {
+  if (crossDesign === undefined) {
     return <Spinner />;
   } else {
-    return <Editor crossTree={tree} />;
+    return (
+      <ReactFlowProvider>
+        <Editor crossDesign={crossDesign} setCrossDesign={setCrossDesign} />
+      </ReactFlowProvider>
+    );
   }
 };
 
-const fixTreeDeserialization = (tree: CrossTree): void => {
-  for (const node of tree.nodes) {
-    if (node.type === FlowType.Strain) {
+const fixNodeDeserialization = (crossDesign: CrossDesign): void => {
+  for (const node of crossDesign.nodes) {
+    if (node.type === NodeType.Strain) {
+      const strainNode: Node<Strain> = node;
       // Strain's chromPairMap deserialized as object -- should be Map
-      const chromPairObj = node.data.strain.chromPairMap;
-      const allelePairs: AllelePair[] = [];
+      const chromPairObj = strainNode.data.chromPairMap as unknown as Record<
+        string,
+        ChromosomePair
+      >;
+      const chromPairMap = new Map();
       for (const key in chromPairObj) {
-        allelePairs.push(
-          ...chromPairObj[key].allelePairs.map((pair: unknown) =>
-            AllelePair.fromJSON(JSON.stringify(pair))
+        chromPairMap.set(
+          key,
+          new ChromosomePair(
+            chromPairObj[key].allelePairs.map((pair: unknown) =>
+              AllelePair.fromJSON(JSON.stringify(pair))
+            )
           )
         );
       }
-      node.data.strain = new Strain({
-        name: node.data.strain.name,
-        allelePairs,
-        description: node.data.strain.description,
-      });
+      strainNode.data.chromPairMap = chromPairMap;
     }
   }
 };

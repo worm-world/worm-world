@@ -27,6 +27,7 @@ impl From<i32> for Action {
 #[serde(rename = "db_Task")]
 pub struct Task {
     pub id: String,
+    #[serde(rename = "dueDate")]
     pub due_date: Option<String>,
     pub action: Action,
     pub strain1: String,
@@ -34,7 +35,8 @@ pub struct Task {
     pub result: Option<String>,
     pub notes: Option<String>,
     pub completed: bool,
-    pub tree_id: String,
+    #[serde(rename = "crossDesignId")]
+    pub cross_design_id: String,
 }
 
 impl From<TaskDb> for Task {
@@ -48,7 +50,7 @@ impl From<TaskDb> for Task {
             result: item.result,
             notes: item.notes,
             completed: item.completed == 1,
-            tree_id: item.tree_id,
+            cross_design_id: item.cross_design_id,
         }
     }
 }
@@ -63,7 +65,7 @@ pub struct TaskDb {
     pub result: Option<String>,
     pub notes: Option<String>,
     pub completed: i64,
-    pub tree_id: String,
+    pub cross_design_id: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, TS)]
@@ -77,7 +79,7 @@ pub enum TaskFieldName {
     Result,
     Notes,
     Completed,
-    TreeId,
+    CrossDesignId,
 }
 
 impl FieldNameEnum for TaskFieldName {
@@ -91,7 +93,7 @@ impl FieldNameEnum for TaskFieldName {
             TaskFieldName::Result => "result".to_owned(),
             TaskFieldName::Notes => "notes".to_owned(),
             TaskFieldName::Completed => "completed".to_owned(),
-            TaskFieldName::TreeId => "tree_id".to_owned(),
+            TaskFieldName::CrossDesignId => "cross_design_id".to_owned(),
         }
     }
 }

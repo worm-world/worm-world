@@ -1,43 +1,42 @@
-import CrossTree from 'models/frontend/CrossTree/CrossTree';
-import * as mockStrainNode from 'models/frontend/StrainData/StrainData.stories';
+import CrossDesign from 'models/frontend/CrossDesign/CrossDesign';
 import { type Edge, type Node } from 'reactflow';
-import { FlowType } from 'components/CrossFlow/CrossFlow';
-import { type StrainData } from 'models/frontend/StrainData/StrainData';
+import { NodeType } from 'components/Editor/Editor';
+import * as strains from 'models/frontend/Strain/Strain.mock';
+import { type Strain } from 'models/frontend/Strain/Strain';
 
-export const emptyCrossTree = new CrossTree({
+export const emptyCrossDesign = new CrossDesign({
   name: 'Empty cross tree',
   nodes: [],
   edges: [],
-  invisibleNodes: new Set(),
-  crossFilters: new Map(),
+  offspringFilters: new Map(),
   lastSaved: new Date(),
   editable: true,
 });
 
-export const ed3HeteroMale: Node<StrainData> = {
+export const ed3HeteroMale: Node<Strain> = {
   id: '0',
-  type: FlowType.Strain,
-  data: mockStrainNode.ed3HetMale,
+  type: NodeType.Strain,
+  data: strains.ed3Het.toMale(),
   position: {
     x: -300,
     y: -300,
   },
 };
 
-export const ed3HeteroHerm: Node<StrainData> = {
+export const ed3HeteroHerm: Node<Strain> = {
   id: '1',
-  type: FlowType.Strain,
-  data: mockStrainNode.ed3HetHerm,
+  type: NodeType.Strain,
+  data: strains.ed3Het,
   position: {
     x: 300,
     y: -300,
   },
 };
 
-export const ed3HomoHerm: Node<StrainData> = {
+export const ed3HomoHerm: Node<Strain> = {
   id: '2',
-  type: FlowType.Strain,
-  data: mockStrainNode.ed3HomoHerm,
+  type: NodeType.Strain,
+  data: strains.ed3Homo,
   position: {
     x: 0,
     y: 0,
@@ -46,7 +45,7 @@ export const ed3HomoHerm: Node<StrainData> = {
 
 export const xNode: Node = {
   id: '3',
-  type: FlowType.XIcon,
+  type: NodeType.X,
   data: null,
   position: {
     x: 96,
@@ -73,83 +72,82 @@ export const edgeChild: Edge = {
   target: '2',
 };
 
-export const simpleCrossTree = new CrossTree({
+export const simpleCrossDesign = new CrossDesign({
   name: 'ed3 Cross',
   nodes: [ed3HeteroHerm, ed3HeteroMale, ed3HomoHerm, xNode],
   edges: [edgeMale, edgeFemale, edgeChild],
   lastSaved: new Date(),
-  invisibleNodes: new Set(),
-  crossFilters: new Map(),
+  offspringFilters: new Map(),
   editable: true,
 });
 
-export const node0: Node<StrainData> = {
+export const node1: Node<Strain> = {
   id: '0',
-  type: FlowType.Strain,
-  data: mockStrainNode.e204WildMale,
+  type: NodeType.Strain,
+  data: strains.e204Wild.toMale(),
   position: {
     x: -600,
     y: -1000,
   },
 };
-export const node1: Node<StrainData> = {
+export const node2: Node<Strain> = {
   id: '1',
-  type: FlowType.Strain,
-  data: mockStrainNode.e204HomoHerm,
+  type: NodeType.Strain,
+  data: strains.e204Homo,
   position: {
     x: 0,
     y: -1000,
   },
 };
-export const node2: Node<StrainData> = {
+export const node3: Node<Strain> = {
   id: '2',
-  type: FlowType.Strain,
-  data: mockStrainNode.e204HetMale,
+  type: NodeType.Strain,
+  data: strains.e204Het.toMale(),
   position: {
     x: -300,
     y: -800,
   },
 };
-export const node3: Node<StrainData> = {
+export const node4: Node<Strain> = {
   id: '3',
-  type: FlowType.Strain,
-  data: mockStrainNode.ox802HomoHerm,
+  type: NodeType.Strain,
+  data: strains.ox802Homo,
   position: {
     x: 300,
     y: -800,
   },
 };
-export const node4: Node<StrainData> = {
+export const node5: Node<Strain> = {
   id: '4',
-  type: FlowType.Strain,
-  data: mockStrainNode.e204HetOx802Het,
+  type: NodeType.Strain,
+  data: strains.e204HetOx802Het,
   position: {
     x: 0,
     y: -600,
   },
 };
-export const node5: Node<StrainData> = {
+export const node6: Node<Strain> = {
   id: '5',
-  type: FlowType.Strain,
-  data: mockStrainNode.e204HomoOx802HetHerm,
+  type: NodeType.Strain,
+  data: strains.e204HomoOx802Het,
   position: {
     x: 0,
     y: -400,
   },
 };
-export const node6: Node<StrainData> = {
+export const node7: Node<Strain> = {
   id: '6',
-  type: FlowType.Strain,
-  data: mockStrainNode.e204HomoOx802HomoHerm,
+  type: NodeType.Strain,
+  data: strains.e204HomoOx802Homo,
   position: {
     x: 0,
     y: -200,
   },
 };
 
-export const xNode0: Node = {
+export const xNode1: Node = {
   id: '7',
-  type: FlowType.XIcon,
+  type: NodeType.X,
   data: null,
   position: {
     x: -204,
@@ -157,9 +155,9 @@ export const xNode0: Node = {
   },
 };
 
-export const xNode1: Node = {
+export const xNode2: Node = {
   id: '8',
-  type: FlowType.XIcon,
+  type: NodeType.X,
   data: null,
   position: {
     x: 96,
@@ -167,9 +165,9 @@ export const xNode1: Node = {
   },
 };
 
-export const selfNode0: Node = {
+export const selfNode1: Node = {
   id: '9',
-  type: FlowType.SelfIcon,
+  type: NodeType.Self,
   data: null,
   position: {
     x: 96,
@@ -177,9 +175,9 @@ export const selfNode0: Node = {
   },
 };
 
-export const selfNode1: Node = {
+export const selfNode2: Node = {
   id: '10',
-  type: FlowType.SelfIcon,
+  type: NodeType.Self,
   data: null,
   position: {
     x: 96,
@@ -220,31 +218,30 @@ export const edges: Edge[] = [
   { id: 'e10-6', source: '10', target: '6' },
 ];
 
-export const mediumCrossTree = new CrossTree({
+export const mediumCrossDesign = new CrossDesign({
   name: 'Make unc-33(-)',
   nodes: [
-    node0,
     node1,
     node2,
     node3,
     node4,
     node5,
     node6,
-    xNode0,
+    node7,
     xNode1,
-    selfNode0,
+    xNode2,
     selfNode1,
+    selfNode2,
   ],
   edges,
-  invisibleNodes: new Set(),
-  crossFilters: new Map(),
+  offspringFilters: new Map(),
   lastSaved: new Date('2023-01-18'),
   editable: true,
 });
 
 export const selfNodeAsParent: Node = {
   id: '0',
-  type: FlowType.SelfIcon,
+  type: NodeType.Self,
   data: null,
   position: {
     x: 0,
@@ -252,20 +249,20 @@ export const selfNodeAsParent: Node = {
   },
 };
 
-export const ed3AsChild: Node<StrainData> = {
+export const ed3AsChild: Node<Strain> = {
   id: '1',
-  type: FlowType.Strain,
-  data: mockStrainNode.ed3HomoHerm,
+  type: NodeType.Strain,
+  data: strains.ed3Homo,
   position: {
     x: 0,
     y: 0,
   },
   parentNode: '0',
 };
-export const n765AsChild: Node<StrainData> = {
+export const n765AsChild: Node<Strain> = {
   id: '1',
-  type: FlowType.Strain,
-  data: mockStrainNode.n765Homo,
+  type: NodeType.Strain,
+  data: strains.n765Homo,
   position: {
     x: 0,
     y: 0,

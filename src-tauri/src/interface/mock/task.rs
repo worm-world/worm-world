@@ -9,7 +9,7 @@ pub fn get_tasks() -> Vec<Task> {
             strain2: Some("{}".to_string()),
             result: Some("{}".to_string()),
             notes: Some("example note".to_string()),
-            tree_id: "1".to_string(),
+            cross_design_id: "1".to_string(),
             completed: true,
         },
         Task {
@@ -20,7 +20,7 @@ pub fn get_tasks() -> Vec<Task> {
             strain2: Some("{}".to_string()),
             result: Some("{}".to_string()),
             notes: None,
-            tree_id: "1".to_string(),
+            cross_design_id: "1".to_string(),
             completed: false,
         },
         Task {
@@ -31,7 +31,7 @@ pub fn get_tasks() -> Vec<Task> {
             strain2: Some("{}".to_string()),
             result: Some("{}".to_string()),
             notes: Some("example note".to_string()),
-            tree_id: "2".to_string(),
+            cross_design_id: "2".to_string(),
             completed: false,
         },
         Task {
@@ -42,7 +42,7 @@ pub fn get_tasks() -> Vec<Task> {
             strain2: Some("{}".to_string()),
             result: Some("{}".to_string()),
             notes: None,
-            tree_id: "2".to_string(),
+            cross_design_id: "2".to_string(),
             completed: true,
         },
         Task {
@@ -53,7 +53,7 @@ pub fn get_tasks() -> Vec<Task> {
             strain2: Some("{}".to_string()),
             result: Some("{}".to_string()),
             notes: Some("example note".to_string()),
-            tree_id: "3".to_string(),
+            cross_design_id: "3".to_string(),
             completed: true,
         },
     ]
@@ -67,7 +67,7 @@ pub fn get_filtered_tasks() -> Vec<Task> {
         strain2: Some("{}".to_string()),
         result: Some("{}".to_string()),
         notes: Some("example note".to_string()),
-        tree_id: "1".to_string(),
+        cross_design_id: "1".to_string(),
         completed: true,
     }]
 }

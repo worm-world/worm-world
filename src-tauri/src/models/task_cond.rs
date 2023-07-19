@@ -4,7 +4,9 @@ use ts_rs::TS;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, TS, sqlx::FromRow)]
 pub struct TaskCondition {
+    #[serde(rename = "taskId")]
     pub task_id: String,
+    #[serde(rename = "condName")]
     pub cond_name: String,
 }
 

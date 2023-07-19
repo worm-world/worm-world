@@ -1,4 +1,4 @@
-import { type StrainData } from 'models/frontend/StrainData/StrainData';
+import { type Strain } from 'models/frontend/Strain/Strain';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { type Node } from 'reactflow';
@@ -6,13 +6,13 @@ import { type Node } from 'reactflow';
 interface SaveStrainModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  strainNode?: Node<StrainData>;
+  strainNode?: Node<Strain>;
 }
 
 const SaveStrainModal = (props: SaveStrainModalProps): React.JSX.Element => {
   const [strainNameInput, setStrainNameInput] = useState('');
   const [descriptionInput, setDescriptionInput] = useState('');
-  const strain = props.strainNode?.data.strain;
+  const strain = props.strainNode?.data;
   return (
     <>
       <input

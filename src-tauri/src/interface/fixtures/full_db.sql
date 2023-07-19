@@ -401,7 +401,7 @@ VALUES (
         "Histamine",
         0
     );
-INSERT INTO trees (id, name, last_edited, data, editable)
+INSERT INTO cross_designs (id, name, last_edited, data, editable)
 VALUES (1, "test1", "2012-01-01", "{}", 1),
     (2, "test2", "2012-01-02", "{}", 0),
     (3, "test3", "2012-01-03", "{}", 1);
@@ -413,7 +413,7 @@ INSERT INTO tasks (
         strain2,
         result,
         notes,
-        tree_id,
+        cross_design_id,
         completed
     )
 VALUES (

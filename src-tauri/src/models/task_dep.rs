@@ -4,7 +4,9 @@ use ts_rs::TS;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, TS, sqlx::FromRow)]
 pub struct TaskDependency {
+    #[serde(rename = "parentId")]
     pub parent_id: String,
+    #[serde(rename = "childId")]
     pub child_id: String,
 }
 

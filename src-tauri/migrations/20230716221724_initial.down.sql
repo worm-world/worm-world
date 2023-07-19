@@ -1,0 +1,15 @@
+PRAGMA foreign_keys = OFF;
+DROP TABLE allele_exprs;
+DROP TABLE alleles;
+DROP TABLE conditions;
+DROP TABLE expr_relations;
+DROP TABLE genes;
+DROP TABLE phenotypes;
+DROP TABLE strain_alleles;
+DROP TABLE strains;
+DROP TABLE task_conds;
+DROP TABLE task_deps;
+DROP TABLE tasks;
+DROP TABLE cross_designs;
+DROP TABLE variations;
+PRAGMA foreign_keys = ON;

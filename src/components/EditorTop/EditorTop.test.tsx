@@ -1,21 +1,20 @@
 import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import EditorTop from 'components/EditorTop/EditorTop';
-import CrossTree from 'models/frontend/CrossTree/CrossTree';
+import CrossDesign from 'models/frontend/CrossDesign/CrossDesign';
 import { vi } from 'vitest';
 
 describe('Editor Top', () => {
   test('Component renders', async () => {
     render(
       <EditorTop
-        tree={
-          new CrossTree({
+        crossDesign={
+          new CrossDesign({
             name: 'My Tree',
             nodes: [],
             edges: [],
             lastSaved: new Date(),
-            invisibleNodes: new Set<string>(),
-            crossFilters: new Map(),
+            offspringFilters: new Map(),
             editable: true,
           })
         }
@@ -31,14 +30,13 @@ describe('Editor Top', () => {
     const spyFn = vi.fn();
     render(
       <EditorTop
-        tree={
-          new CrossTree({
+        crossDesign={
+          new CrossDesign({
             name: 'My Tree',
             nodes: [],
             edges: [],
             lastSaved: new Date(),
-            invisibleNodes: new Set<string>(),
-            crossFilters: new Map(),
+            offspringFilters: new Map(),
             editable: true,
           })
         }

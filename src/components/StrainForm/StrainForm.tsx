@@ -1,7 +1,6 @@
 import { Strain } from 'models/frontend/Strain/Strain';
 import { useState } from 'react';
-import StrainNode from 'components/StrainNode/StrainNode';
-import { StrainData } from 'models/frontend/StrainData/StrainData';
+import StrainCard from 'components/StrainCard/StrainCard';
 import { type Sex } from 'models/enums';
 import { getFilteredStrains } from 'api/strain';
 import { AlleleMultiSelect } from 'components/AlleleMultiSelect/AlleleMultiSelect';
@@ -11,10 +10,13 @@ import { type FilterGroup } from 'models/db/filter/FilterGroup';
 import { type StrainFieldName } from 'models/db/filter/db_StrainFieldName';
 import { isEcaAlleleName, Allele } from 'models/frontend/Allele/Allele';
 import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
+import EditorContext from 'components/EditorContext/EditorContext';
 
 export interface StrainFormProps {
   onSubmit: (strain: Strain) => void;
   enforcedSex?: Sex;
+  newId: string;
+  showGenes: boolean;
 }
 
 export type StrainFormSource = 'select' | 'alleles' | 'toggle';
@@ -25,13 +27,21 @@ export interface StrainFormState {
 
 const StrainForm = (props: StrainFormProps): React.JSX.Element => {
   const defaultState: StrainFormState = {
-    strain: new Strain({ sex: props.enforcedSex }),
+    strain: new Strain(),
     source: 'alleles',
   };
   const [state, setState] = useState(defaultState);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
-  // Includes Eca
+  if (props.enforcedSex !== undefined && state.strain.sex !== props.enforcedSex)
+    setState({
+      ...state,
+      strain: new Strain({
+        sex: props.enforcedSex,
+        isParent: props.enforcedSex !== undefined,
+      }),
+    });
+
   const regAlleles = new Set(
     state.strain
       .getRegularAlleles(state.strain.sex)
@@ -63,32 +73,33 @@ const StrainForm = (props: StrainFormProps): React.JSX.Element => {
       .includes(allele.name);
   }
 
+  const editorContextValue = {
+    showGenes: props.showGenes,
+    strain: state.strain,
+    toggleHetPair: (id: string, pair: AllelePair) => {
+      pair.flip();
+      Strain.build({
+        allelePairs: state.strain.getAllelePairs(),
+        isParent: props.enforcedSex !== undefined,
+      })
+        .then((strain) => {
+          setState({ source: 'toggle', strain });
+        })
+        .catch(console.error);
+    },
+    toggleSex: (id: string) => {
+      setState({ strain: state.strain.toggleSex(), source: 'toggle' });
+    },
+    openNote: () => {},
+    getMenuItems: () => [],
+  };
+
   return (
     <div className='form-control h-full gap-2'>
       <h1 className='text-lg'>Add Strain</h1>
-      <StrainNode
-        data={
-          new StrainData({
-            strain: state.strain,
-            toggleHetPair: (pair) => {
-              pair.flip();
-              if (state.strain !== undefined)
-                Strain.build({ allelePairs: state.strain.getAllelePairs() })
-                  .then((strain) => {
-                    setState({ source: 'toggle', strain });
-                  })
-                  .catch(console.error);
-            },
-            toggleSex: () => {
-              setState((state) => {
-                state.strain.toggleSex();
-                return { strain: state.strain, source: 'toggle' };
-              });
-            },
-            isParent: props.enforcedSex !== undefined,
-          })
-        }
-      />
+      <EditorContext.Provider value={editorContextValue}>
+        <StrainCard data={state.strain} id={props.newId} />
+      </EditorContext.Provider>
       <StrainSelect
         strain={state.strain.generateRecord()}
         setStrain={(strain) => {

@@ -1,8 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Editor from 'components/Editor/Editor';
-import type CrossTree from 'models/frontend/CrossTree/CrossTree';
-import * as mockTrees from 'models/frontend/CrossTree/CrossTree.mock';
+import type CrossDesign from 'models/frontend/CrossDesign/CrossDesign';
+import * as crossDesignss from 'models/frontend/CrossDesign/CrossDesign.mock';
+import { type SetStateAction } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { ReactFlowProvider } from 'reactflow';
 import { vi } from 'vitest';
@@ -28,14 +29,25 @@ describe('Editor', () => {
     }));
   });
 
-  const renderComponent = (tree: CrossTree): void => {
-    render(<Editor crossTree={tree} testing={true} />, {
-      wrapper: Wrapper, // Need this wrapper since the component uses the react router
-    });
+  const renderComponent = (tree: CrossDesign): void => {
+    render(
+      <Editor
+        crossDesign={tree}
+        testing={true}
+        setCrossDesign={function (
+          value: SetStateAction<CrossDesign | undefined>
+        ): void {
+          throw new Error('Function not implemented.');
+        }}
+      />,
+      {
+        wrapper: Wrapper, // Need this wrapper since the component uses the react router
+      }
+    );
   };
 
   test('Renders', () => {
-    renderComponent(mockTrees.simpleCrossTree);
+    renderComponent(crossDesignss.simpleCrossDesign);
 
     const nodes = screen.getAllByTestId('strainNode');
     expect(nodes).toHaveLength(3 + 1); // Extra is preview node on right drawer
@@ -58,7 +70,7 @@ describe('Editor', () => {
   test('can add strain nodes', async () => {
     const user = userEvent.setup();
 
-    renderComponent(mockTrees.simpleCrossTree);
+    renderComponent(crossDesignss.simpleCrossDesign);
 
     const nodes = screen.getAllByTestId('strainNode');
     expect(nodes).toHaveLength(3 + 1); // Extra is preview node on right drawer
@@ -84,7 +96,7 @@ describe('Editor', () => {
   test('adds notes', async () => {
     const user = userEvent.setup();
 
-    renderComponent(mockTrees.emptyCrossTree);
+    renderComponent(crossDesignss.emptyCrossDesign);
 
     const notes = screen.queryAllByTestId('noteNode');
     expect(notes).toHaveLength(0);

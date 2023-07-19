@@ -1,8 +1,6 @@
-import { type db_Tree } from 'models/db/db_Tree';
 import type { Action } from 'models/db/task/Action';
 import { Sex } from 'models/enums';
-import { type StrainData } from 'models/frontend/StrainData/StrainData';
-import { type StrainOption } from 'models/frontend/Strain/Strain';
+import { Strain, type StrainOption } from 'models/frontend/Strain/Strain';
 import { type Node, type Edge, type XYPosition } from 'reactflow';
 import { ulid } from 'ulid';
 import {
@@ -11,7 +9,6 @@ import {
   Transform,
   Type,
 } from 'class-transformer';
-import { FlowType } from 'components/CrossFlow/CrossFlow';
 import { OffspringFilter } from 'components/OffspringFilter/OffspringFilter';
 import moment from 'moment';
 import { Task } from 'models/frontend/Task/Task';
@@ -19,20 +16,22 @@ import {
   STRAIN_NODE_HEIGHT,
   STRAIN_NODE_WIDTH,
 } from 'components/StrainNode/StrainNode';
+import { NodeType } from 'components/Editor/Editor';
+import { type db_CrossDesign } from 'models/db/db_CrossDesign';
 
 export const NODE_PADDING = 36;
 // middle nodes (X or Self)
 export const MIDDLE_NODE_HEIGHT = 64;
 export const MIDDLE_NODE_WIDTH = 64;
 
-export interface ICrossTree {
+export interface ICrossDesign {
   name: string;
   nodes: Node[];
   edges: Edge[];
-  invisibleNodes: Set<string>;
-  crossFilters: Map<string, OffspringFilter>;
+  offspringFilters: Map<string, OffspringFilter>;
   lastSaved: Date;
   editable: boolean;
+  id?: string;
 }
 
 export interface ITaskDependencyTree {
@@ -42,29 +41,17 @@ export interface ITaskDependencyTree {
 
 // Uses React Flow nodes and edges. The nodes contain a data property
 // which, for strain nodes, contains the model.
-export default class CrossTree {
+export default class CrossDesign {
   public readonly id: string;
   public name: string;
   public editable: boolean;
   @Type(() => Date)
   public lastSaved: Date;
 
-  @Transform((data: { obj: any }) => {
-    const nodeList = data?.obj?.invisibleNodes;
-    return new Set(nodeList);
-  })
-  public invisibleNodes: Set<string>;
-
-  // const fixTreeDeserialization = (tree: CrossTree): void => {
-  //   for (const node of tree.nodes) {
-  //
-  //   }
-  // };
-
   @Type(() => OffspringFilter)
   @Transform(
     (data: { obj: any }) => {
-      const d = data?.obj?.crossFilters ?? {};
+      const d = data?.obj?.offspringFilters ?? {};
       const filters = new Map(
         Object.keys(d).map((key) => {
           const filter = OffspringFilter.fromJSON(JSON.stringify(d[key]));
@@ -75,45 +62,40 @@ export default class CrossTree {
     },
     { toClassOnly: true }
   )
-  public crossFilters: Map<string, OffspringFilter>;
+  public offspringFilters: Map<string, OffspringFilter>;
 
-  // @Transform((data: { obj: any }) => {
-  // const nodes = data?.obj?.nodes;
-  // nodes.forEach(
-  //   (node: Node) => {
-  //     if (node.type === FlowType.Strain) {
-  //       // Menu items deserialized as [] -- should be undefined
-  //       node.data.getMenuItems = undefined;
-  //       node.data.strain = Strain.fromJSON(JSON.stringify(node.data.strain));
-  //     }
-  //   },
-  //   { toClassOnly: true }
-  // );
-  // return nodes;
-  // })
+  @Transform(
+    (data: { obj: any }) => {
+      const nodes: Node[] = data?.obj?.nodes ?? [];
+      return nodes.map((node) => {
+        if (node.type === NodeType.Strain)
+          node.data = new Strain((node as Node<Strain>).data);
+        return node;
+      });
+    },
+    { toClassOnly: true }
+  )
   public nodes: Node[];
 
   public edges: Edge[];
 
-  constructor(params: ICrossTree) {
+  constructor(params: ICrossDesign) {
     if (params === null || params === undefined) {
       params = {
         name: '',
         nodes: [],
         edges: [],
-        invisibleNodes: new Set(),
-        crossFilters: new Map(),
+        offspringFilters: new Map(),
         lastSaved: new Date(),
-        editable: true,
+        editable: false,
       };
     }
-    this.id = ulid();
+    this.id = params.id ?? ulid();
     this.name = params.name;
     this.lastSaved = params.lastSaved;
     this.edges = [...params.edges];
     this.nodes = [...params.nodes];
-    this.invisibleNodes = new Set(params.invisibleNodes);
-    this.crossFilters = new Map(params.crossFilters);
+    this.offspringFilters = new Map(params.offspringFilters);
     this.editable = params.editable;
   }
 
@@ -150,7 +132,7 @@ export default class CrossTree {
    * @param refNode Strain node that is the direct parent of the self icon
    * @returns XY coordinates of where to place the self icon in the editor
    */
-  public static getSelfIconPos(): XYPosition {
+  public static getSelfNodePos(): XYPosition {
     return {
       x: STRAIN_NODE_WIDTH / 2 - MIDDLE_NODE_WIDTH / 2,
       y: STRAIN_NODE_HEIGHT + NODE_PADDING,
@@ -161,9 +143,9 @@ export default class CrossTree {
    * @param refNode Strain node that is the direct parent of the X icon
    * @returns XY coordinates of where to place the X icon in the editor
    */
-  public static getXIconPos(refNode: Node): XYPosition {
+  public static getXNodePos(refNode: Node<Strain>): XYPosition {
     const x =
-      refNode.data.strain.sex === Sex.Male
+      refNode.data.sex === Sex.Male
         ? STRAIN_NODE_WIDTH + NODE_PADDING
         : -MIDDLE_NODE_WIDTH - NODE_PADDING;
     const y = STRAIN_NODE_HEIGHT / 2 - MIDDLE_NODE_HEIGHT / 2;
@@ -187,7 +169,7 @@ export default class CrossTree {
    * where each index corresponds with the indices in the children list
    */
   public static calculateChildPositions(
-    middleNodeType: FlowType.XIcon | FlowType.SelfIcon,
+    middleNodeType: NodeType.X | NodeType.Self,
     childOptions: StrainOption[]
   ): XYPosition[] {
     const positions: XYPosition[] = [];
@@ -197,7 +179,7 @@ export default class CrossTree {
     const deltaY = STRAIN_NODE_HEIGHT + NODE_PADDING;
 
     let y =
-      middleNodeType === FlowType.XIcon
+      middleNodeType === NodeType.X
         ? MIDDLE_NODE_HEIGHT / 2 + STRAIN_NODE_HEIGHT / 2 + 3 * NODE_PADDING
         : MIDDLE_NODE_HEIGHT + NODE_PADDING;
     for (let i = 0; i < childOptions.length; i += maxNodesInRow) {
@@ -214,9 +196,9 @@ export default class CrossTree {
     return positions;
   }
 
-  static fromJSON(json: string): CrossTree {
+  static fromJSON(json: string): CrossDesign {
     return plainToInstance(
-      CrossTree,
+      CrossDesign,
       JSON.parse(json) as Record<string, unknown>
     );
   }
@@ -229,31 +211,25 @@ export default class CrossTree {
     return ulid();
   }
 
-  public clone(): CrossTree {
-    const treeProps: ICrossTree = {
-      name: this.name,
+  public clone(newId = false): CrossDesign {
+    return new CrossDesign({
+      ...this,
+      id: newId ? this.createId() : this.id,
       nodes: [...this.nodes],
-      invisibleNodes: new Set(this.invisibleNodes),
-      crossFilters: new Map(this.crossFilters),
+      offspringFilters: new Map(this.offspringFilters),
       edges: [...this.edges],
       lastSaved: new Date(),
-      editable: this.editable,
-    };
-    const tree = new CrossTree(treeProps);
-    return tree;
+    });
   }
 
   /**
-   * @param editable Mark whether this tree can be edited or not
    * @returns db record of this tree
    */
-  public generateRecord(editable: boolean): db_Tree {
+  public generateRecord(): db_CrossDesign {
     return {
-      id: this.id,
-      name: this.name,
+      ...this,
       data: this.toJSON(),
       lastEdited: this.lastSaved.toString(),
-      editable,
     };
   }
 
@@ -319,14 +295,14 @@ export default class CrossTree {
 
     const task = new Task({
       id: ulid(),
-      due_date: moment().toDate().toString(), // todo calculate this
+      dueDate: moment().toDate().toString(), // todo calculate this
       action,
       strain1,
       strain2: strain2 ?? null,
       result,
       notes: null,
       completed: false,
-      tree_id: this.id,
+      crossDesignId: this.id,
     });
     return {
       task,
@@ -350,9 +326,8 @@ export default class CrossTree {
     }
 
     // self-cross task
-    const parent0 = taskDeps.taskParents[0].task.result;
-    let maturationDays =
-      parent0?.strain.getMaturationDays() ?? defaultMaturationDay;
+    const parent1 = taskDeps.taskParents[0].task.result;
+    let maturationDays = parent1?.getMaturationDays() ?? defaultMaturationDay;
     if (taskDeps.taskParents.length === 1) {
       taskDeps.task.dueDate = this.addDays(
         maturationDays,
@@ -362,23 +337,23 @@ export default class CrossTree {
     }
 
     // cross between 2 strains.
-    const parent1 = taskDeps.taskParents[1].task.result;
+    const parent2 = taskDeps.taskParents[1].task.result;
     maturationDays = Math.max(
-      parent0?.strain.getMaturationDays() ?? defaultMaturationDay,
-      parent1?.strain.getMaturationDays() ?? defaultMaturationDay
+      parent1?.getMaturationDays() ?? defaultMaturationDay,
+      parent2?.getMaturationDays() ?? defaultMaturationDay
     );
-    const parent0DueDate = moment(taskDeps.taskParents[0].task.dueDate);
-    const parent1DueDate = moment(taskDeps.taskParents[1].task.dueDate);
-    const latestParentDate = parent0DueDate.isAfter(parent1DueDate)
-      ? parent0DueDate.toDate()
-      : parent1DueDate.toDate();
+    const parent1DueDate = moment(taskDeps.taskParents[0].task.dueDate);
+    const parent2DueDate = moment(taskDeps.taskParents[1].task.dueDate);
+    const latestParentDate = parent1DueDate.isAfter(parent2DueDate)
+      ? parent1DueDate.toDate()
+      : parent2DueDate.toDate();
 
     taskDeps.task.dueDate = this.addDays(maturationDays, latestParentDate);
 
     // Determine if a parent tree needs to be started later in time (rather than today)
-    const dueDateDiff = parent0DueDate.diff(parent1DueDate, 'days');
+    const dueDateDiff = parent1DueDate.diff(parent2DueDate, 'days');
     if (Math.abs(dueDateDiff) >= maturationDays) {
-      const parentToBump = parent0DueDate.isAfter(parent1DueDate)
+      const parentToBump = parent1DueDate.isAfter(parent2DueDate)
         ? taskDeps.taskParents[1]
         : taskDeps.taskParents[0];
 
@@ -442,6 +417,6 @@ export default class CrossTree {
  * and link parents with one or more parents, etc.
  */
 interface StrainAncestry {
-  strain: StrainData;
+  strain: Strain;
   parents: StrainAncestry[];
 }

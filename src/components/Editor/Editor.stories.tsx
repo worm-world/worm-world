@@ -2,7 +2,7 @@ import { StoryFn, Meta } from '@storybook/react';
 import Editor, {
   EditorProps,
 } from 'components/Editor/Editor';
-import * as mockCrossTree from 'models/frontend/CrossTree/CrossTree.mock';
+import * as crossDesigns from 'models/frontend/CrossDesign/CrossDesign.mock';
 import { BrowserRouter } from 'react-router-dom';
 import { ReactFlowProvider } from 'reactflow';
 
@@ -22,7 +22,7 @@ const Template: StoryFn<typeof Editor> = (args: EditorProps) => {
 };
 
 export const primary = Template.bind({});
-primary.args = { crossTree: mockCrossTree.simpleCrossTree };
+primary.args = { crossDesign: crossDesigns.simpleCrossDesign };
 
 export const secondary = Template.bind({});
-secondary.args = { crossTree: mockCrossTree.mediumCrossTree };
+secondary.args = { crossDesign: crossDesigns.mediumCrossDesign };

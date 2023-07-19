@@ -10,6 +10,16 @@
     },
     "query": "INSERT INTO expr_relations (\n                allele_name,\n                expressing_phenotype_name,\n                expressing_phenotype_wild,\n                altering_phenotype_name,\n                altering_phenotype_wild,\n                altering_condition,\n                is_suppressing\n            )\n            VALUES(?, ?, ?, ?, ?, ?, ?)\n            "
   },
+  "08101cabbd1d75187b9f21b560713ae09f1332fd8ec5df0569fa39682e8873b4": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "DELETE FROM cross_designs\n            WHERE id = ?"
+  },
   "085f125d4d675142f2643f1266026768ce4f72435bd018727c1e2d2ed759bf3e": {
     "describe": {
       "columns": [
@@ -29,7 +39,11 @@
           "type_info": "Text"
         }
       ],
-      "nullable": [false, false, true],
+      "nullable": [
+        false,
+        false,
+        true
+      ],
       "parameters": {
         "Right": 0
       }
@@ -46,16 +60,6 @@
     },
     "query": "INSERT INTO conditions (name, description, male_mating, lethal, female_sterile, arrested, maturation_days)\n            VALUES(?, ?, ?, ?, ?, ?, ?)\n            "
   },
-  "0d6bfb47f90cb182a9bb9c3f045e7d1fe9c0d9df0860764297ee46fd0710c68a": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 5
-      }
-    },
-    "query": "INSERT INTO trees (id, name, last_edited, data, editable)\n            VALUES(?, ?, ?, ?, ?)\n            "
-  },
   "1a74b1682e8ccaa5190ed221709a54346f48266a87cfac6b480a81491bdd5a49": {
     "describe": {
       "columns": [
@@ -70,7 +74,10 @@
           "type_info": "Text"
         }
       ],
-      "nullable": [false, false],
+      "nullable": [
+        false,
+        false
+      ],
       "parameters": {
         "Right": 0
       }
@@ -97,16 +104,6 @@
     },
     "query": "\n            INSERT INTO strains (name, genotype, description)\n            VALUES (?, ?, ?)\n            "
   },
-  "29ad8590277064dd9750ffc182166e0567bb8993c3efeeb4ca27429b8449a391": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 5
-      }
-    },
-    "query": "UPDATE trees\n            SET name = ?,\n                last_edited = ?,\n                data = ?,\n                editable = ?\n            WHERE\n                id = ?"
-  },
   "2b74d64926eb5a7b83549ff6229db287db7d125f0f767fcc4d05d7dc64fbcc07": {
     "describe": {
       "columns": [],
@@ -126,6 +123,72 @@
       }
     },
     "query": "INSERT INTO genes (systematic_name, descriptive_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end)\n            VALUES(?, ?, ?, ?, ?, ?, ?)\n            "
+  },
+  "51eb8d1782f37f4cf571d679d8ca19e2438df35a4c869f79d335247440ff21c3": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "due_date",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "action",
+          "ordinal": 2,
+          "type_info": "Int64"
+        },
+        {
+          "name": "strain1",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "strain2",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "result",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "notes",
+          "ordinal": 6,
+          "type_info": "Text"
+        },
+        {
+          "name": "cross_design_id",
+          "ordinal": 7,
+          "type_info": "Text"
+        },
+        {
+          "name": "completed",
+          "ordinal": 8,
+          "type_info": "Int64"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT id, due_date, action, strain1, strain2, result, notes, cross_design_id, completed FROM tasks ORDER BY id\n            "
   },
   "548a79e78c8a52e1e400926c95612c998df9513d552a8db71724f5ffdcb76129": {
     "describe": {
@@ -176,7 +239,15 @@
           "type_info": "Int64"
         }
       ],
-      "nullable": [false, true, true, true, true, true, true],
+      "nullable": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
       "parameters": {
         "Right": 0
       }
@@ -232,7 +303,17 @@
           "type_info": "Float"
         }
       ],
-      "nullable": [false, false, false, true, true, true, true, true, true],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
       "parameters": {
         "Right": 0
       }
@@ -263,14 +344,19 @@
           "type_info": "Int64"
         }
       ],
-      "nullable": [false, false, false, false],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
       "parameters": {
         "Right": 0
       }
     },
     "query": "\n            SELECT strain_name, allele_name, is_on_top, is_on_bot FROM strain_alleles ORDER BY strain_name\n            "
   },
-  "74b4f60e8ac939b41bf0b79900fa5cb82ed53d5ef71205292661e05b24f75ef7": {
+  "700f48d147a3e482db602fe11a11cd5368f3855a34c010b8e34563cbef0a6b46": {
     "describe": {
       "columns": [],
       "nullable": [],
@@ -278,7 +364,7 @@
         "Right": 9
       }
     },
-    "query": "UPDATE tasks\n            SET due_date = ?,\n                action = ?,\n                strain1 = ?,\n                strain2 = ?,\n                result = ?,\n                notes = ?,\n                tree_id = ?,\n                completed = ?\n            WHERE\n                id = ?"
+    "query": "UPDATE tasks\n            SET due_date = ?,\n                action = ?,\n                strain1 = ?,\n                strain2 = ?,\n                result = ?,\n                notes = ?,\n                cross_design_id = ?,\n                completed = ?\n            WHERE\n                id = ?"
   },
   "7a6aad4fe7ca12cdb2af2312b9e88d8f351526092a6bf86ff5ad5cb4e576afb1": {
     "describe": {
@@ -324,7 +410,14 @@
           "type_info": "Int64"
         }
       ],
-      "nullable": [false, true, true, true, true, true],
+      "nullable": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
       "parameters": {
         "Right": 0
       }
@@ -365,22 +458,17 @@
           "type_info": "Int64"
         }
       ],
-      "nullable": [false, false, false, false],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
       "parameters": {
         "Right": 0
       }
     },
     "query": "\n            SELECT allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance \n            FROM allele_exprs \n            ORDER BY allele_name, expressing_phenotype_name, expressing_phenotype_wild\n            "
-  },
-  "8961c7180084b5f1c65f90f98baeb53a239f6f0c16784378081bfca0045dc2a7": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 1
-      }
-    },
-    "query": "DELETE FROM tasks\n            WHERE tree_id = ?"
   },
   "89de9146eafad7c2cb5ac9b10041fdd9cf961f8106daf09691e5136b8d92d94a": {
     "describe": {
@@ -421,22 +509,20 @@
           "type_info": "Float"
         }
       ],
-      "nullable": [false, true, true, true, true, true, true],
+      "nullable": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
       "parameters": {
         "Right": 0
       }
     },
     "query": "\n            SELECT\n                name,\n                description,\n                male_mating,\n                lethal,\n                female_sterile,\n                arrested,\n                maturation_days\n            FROM conditions\n            ORDER BY name\n            "
-  },
-  "8cf0732ae6ca9644525a07453f75006558bbf64ba864329d42fe5f2e5d7da83c": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 9
-      }
-    },
-    "query": "INSERT INTO tasks (id, due_date, action, strain1, strain2, result, notes, tree_id, completed)\n            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)\n            "
   },
   "90417d9f5c5b2a15298e843666919a169f3851026b4083729f242bae9c2400f8": {
     "describe": {
@@ -462,7 +548,12 @@
           "type_info": "Text"
         }
       ],
-      "nullable": [false, true, true, true],
+      "nullable": [
+        false,
+        true,
+        true,
+        true
+      ],
       "parameters": {
         "Right": 0
       }
@@ -478,6 +569,26 @@
       }
     },
     "query": "INSERT INTO task_deps (parent_id, child_id)\n            VALUES(?, ?)\n            "
+  },
+  "9f51a4244baef959d9a57ba17ea8228995a75a9f4c1700d0e7bfd1a44c13bd79": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 9
+      }
+    },
+    "query": "INSERT INTO tasks (id, due_date, action, strain1, strain2, result, notes, cross_design_id, completed)\n            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)\n            "
+  },
+  "a87518b7632e75e60cf8da5e63f0b409da6793c8278089b15037814cb09813a7": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 5
+      }
+    },
+    "query": "INSERT INTO cross_designs (id, name, last_edited, data, editable)\n            VALUES(?, ?, ?, ?, ?)\n            "
   },
   "aaefdfe03ae74278cfcc8cd542b48d06fb30b6de47eee46e5f6a80445e758c99": {
     "describe": {
@@ -498,6 +609,48 @@
       }
     },
     "query": "INSERT INTO allele_exprs (allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance)\n            VALUES(?, ?, ?, ?)\n            "
+  },
+  "b02e6fb71ff33885a8ed8260ec722ec9a6b69bbaa184c593340b82682d1ab62f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "last_edited",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "data",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "editable",
+          "ordinal": 4,
+          "type_info": "Int64"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT id, name, last_edited, data, editable FROM cross_designs ORDER BY id\n            "
   },
   "c1e43fa299477f63abcf76b9c75bf94de3c769eaaa917790ffbe3829a282c32f": {
     "describe": {
@@ -538,7 +691,15 @@
           "type_info": "Int64"
         }
       ],
-      "nullable": [false, false, false, true, true, true, false],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false
+      ],
       "parameters": {
         "Right": 0
       }
@@ -559,7 +720,10 @@
           "type_info": "Text"
         }
       ],
-      "nullable": [false, false],
+      "nullable": [
+        false,
+        false
+      ],
       "parameters": {
         "Right": 0
       }
@@ -576,7 +740,17 @@
     },
     "query": "DELETE FROM tasks\n            WHERE id = ?"
   },
-  "db20278d858f2790dfed4f99d22e482536f4b7c176acd4c16baad73adbec848f": {
+  "e238fffe5479fc106c5bd3d3615ed9dbb4f31587f729036bd7f89b5059576a4b": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 5
+      }
+    },
+    "query": "UPDATE cross_designs\n            SET name = ?,\n                last_edited = ?,\n                data = ?,\n                editable = ?\n            WHERE\n                id = ?"
+  },
+  "f13b14ca2870cb5c8f5733d108b6430898d76a574f2d691d326e535f987a8cfb": {
     "describe": {
       "columns": [],
       "nullable": [],
@@ -584,63 +758,7 @@
         "Right": 1
       }
     },
-    "query": "DELETE FROM trees\n            WHERE id = ?"
-  },
-  "e01ab89aed1f41b5e8dd3677e9160d15b8722928a28a06a9accbede5c71cec71": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Text"
-        },
-        {
-          "name": "due_date",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "action",
-          "ordinal": 2,
-          "type_info": "Int64"
-        },
-        {
-          "name": "strain1",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "strain2",
-          "ordinal": 4,
-          "type_info": "Text"
-        },
-        {
-          "name": "result",
-          "ordinal": 5,
-          "type_info": "Text"
-        },
-        {
-          "name": "notes",
-          "ordinal": 6,
-          "type_info": "Text"
-        },
-        {
-          "name": "tree_id",
-          "ordinal": 7,
-          "type_info": "Text"
-        },
-        {
-          "name": "completed",
-          "ordinal": 8,
-          "type_info": "Int64"
-        }
-      ],
-      "nullable": [false, true, false, false, true, true, true, false, false],
-      "parameters": {
-        "Right": 0
-      }
-    },
-    "query": "\n            SELECT id, due_date, action, strain1, strain2, result, notes, tree_id, completed FROM tasks ORDER BY id\n            "
+    "query": "DELETE FROM tasks\n            WHERE cross_design_id = ?"
   },
   "f319df8083350ed2ef8cef43879c4f795ca98ff04ab07b85e4978ce821ef8c4f": {
     "describe": {
@@ -651,41 +769,5 @@
       }
     },
     "query": "INSERT INTO phenotypes (name, wild, short_name, description, male_mating, lethal, female_sterile, arrested, maturation_days)\n            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)\n            "
-  },
-  "f96cb531d7a4bd06ddd9fdfc008d2e6a761c04983d9a1f03301c407220db7a14": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Text"
-        },
-        {
-          "name": "name",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "last_edited",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "data",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "editable",
-          "ordinal": 4,
-          "type_info": "Int64"
-        }
-      ],
-      "nullable": [false, false, false, false, false],
-      "parameters": {
-        "Right": 0
-      }
-    },
-    "query": "\n            SELECT id, name, last_edited, data, editable FROM trees ORDER BY id\n            "
   }
 }

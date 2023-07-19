@@ -1,21 +1,21 @@
 import { expect, test, describe } from 'vitest';
-import { maleManyPairs } from 'models/frontend/StrainData/StrainData.stories';
 import { Task } from 'models/frontend/Task/Task';
 import { TaskCondition } from 'models/frontend/Task/TaskCondition';
 import { TaskDependency } from 'models/frontend/Task/TaskDependency';
+import * as strains from 'models/frontend/Strain/Strain.mock';
 
 describe('Task', () => {
   test('(De)serializes', () => {
     const task = new Task({
       id: '0',
-      due_date: null,
+      dueDate: null,
       action: 'SelfCross',
-      strain1: maleManyPairs.toJSON(),
+      strain1: strains.wildManyPairs.toMale().toJSON(),
       strain2: null,
       result: null,
       notes: null,
       completed: false,
-      tree_id: '3',
+      crossDesignId: '3',
     });
     const str = task.toJSON();
     const taskBack = Task.fromJSON(str);

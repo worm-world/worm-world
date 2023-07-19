@@ -4,7 +4,7 @@ import {
   ed3HeteroHerm,
   ed3HeteroMale,
   ed3HomoHerm,
-} from 'models/frontend/CrossTree/CrossTree.mock';
+} from 'models/frontend/CrossDesign/CrossDesign.mock';
 
 export default {
   title: 'Components/FilteredOutModal',

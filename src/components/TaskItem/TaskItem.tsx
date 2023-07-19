@@ -1,4 +1,4 @@
-import StrainNode from 'components/StrainNode/StrainNode';
+import StrainCard from 'components/StrainCard/StrainCard';
 import { type Task, getConditionsFromTask } from 'models/frontend/Task/Task';
 import TaskModal from 'components/TaskItem/TaskModal';
 import {
@@ -21,7 +21,7 @@ const TaskItem = (props: TaskItemProps): React.JSX.Element => {
   const action = props.task.action;
   const shouldSwap =
     action === 'Cross' &&
-    props.task.strain1.strain.sex === Sex.Hermaphrodite &&
+    props.task.strain1.sex === Sex.Hermaphrodite &&
     props.task.strain2 !== undefined;
   const leftStrain = shouldSwap ? props.task.strain2 : props.task.strain1;
   const rightStrain = shouldSwap ? props.task.strain1 : props.task.strain2;
@@ -51,7 +51,9 @@ const TaskItem = (props: TaskItemProps): React.JSX.Element => {
         </div>
         <div className='mr-4 flex grow flex-row items-center justify-between py-8 pl-6 pr-3'>
           <div className='flex flex-row justify-center'>
-            {leftStrain !== undefined && <StrainNode data={leftStrain} />}
+            {leftStrain !== undefined && (
+              <StrainCard data={leftStrain} id={''} />
+            )}
             <div className='mx-4 flex flex-col justify-center'>
               <div className='indicator'>
                 {conditionAmount > 0 && (
@@ -78,13 +80,13 @@ const TaskItem = (props: TaskItemProps): React.JSX.Element => {
               </div>
             </div>
             {action === 'Cross' && rightStrain !== undefined && (
-              <StrainNode data={rightStrain} />
+              <StrainCard data={rightStrain} id={''} />
             )}
             {action === 'SelfCross' && <div className='ml-4 w-60' />}
             <div className='my-auto p-2'>
               <RightIcon size='20' />
             </div>
-            {result !== undefined && <StrainNode data={result} />}
+            {result !== undefined && <StrainCard data={result} id={''} />}
           </div>
           <textarea
             className='textarea-accent textarea ml-16 h-32 w-32 justify-self-end'

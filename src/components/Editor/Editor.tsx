@@ -1,4 +1,4 @@
-import { insertTree, updateTree } from 'api/tree';
+import { insertCrossDesign } from 'api/crossDesign';
 import { insertTasks } from 'api/task';
 import {
   ContextMenu,
@@ -9,51 +9,46 @@ import {
   type OffspringFilterUpdate,
 } from 'components/OffspringFilter/OffspringFilter';
 import { OffspringFilterModal } from 'components/OffspringFilterModal/OffspringFilterModal';
-import CrossFlow, { FlowType } from 'components/CrossFlow/CrossFlow';
 import EditorTop from 'components/EditorTop/EditorTop';
 import FilteredOutModal from 'components/FilteredOutModal/FilteredOutModal';
-import {
+import FilteredOutNode, {
   FILTERED_OUT_NODE_WIDTH,
-  type FilteredOutNodeProps,
 } from 'components/FilteredOutNode/FilteredOutNode';
 import { type MenuItem } from 'components/Menu/Menu';
 import NoteForm from 'components/NoteForm/NoteForm';
-import { NoteNodeProps } from 'components/NoteNode/NoteNodeProps';
 import StrainForm from 'components/StrainForm/StrainForm';
 import { Sex } from 'models/enums';
 import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
-import CrossTree, { NODE_PADDING } from 'models/frontend/CrossTree/CrossTree';
+import CrossDesign, {
+  NODE_PADDING,
+} from 'models/frontend/CrossDesign/CrossDesign';
 import { Strain, type StrainOption } from 'models/frontend/Strain/Strain';
-import { StrainData } from 'models/frontend/StrainData/StrainData';
 import {
   Fragment,
-  createContext,
   useCallback,
-  useEffect,
   useRef,
   useState,
+  useMemo,
   type MouseEvent as ReactMouseEvent,
   type TouchEvent as ReactTouchEvent,
 } from 'react';
-import { BsUiChecks as ScheduleIcon } from 'react-icons/bs';
+import { BsUiChecks as ScheduleIcon, BsCardImage } from 'react-icons/bs';
 import {
   FaRegStickyNote as NoteIcon,
   FaSave as SaveIcon,
+  FaPlus,
+  FaMinus,
+  FaEye,
 } from 'react-icons/fa';
 import { FiPlusCircle as AddIcon } from 'react-icons/fi';
 import { ImLoop2 as SelfCrossIcon } from 'react-icons/im';
 import { TbArrowsCross as CrossIcon } from 'react-icons/tb';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import {
+import ReactFlow, {
   Position,
   applyNodeChanges,
-  useEdgesState,
-  type Connection,
-  type Edge,
-  type Node,
   type NodeAddChange,
-  type NodeChange,
   type NodeDimensionChange,
   type NodePositionChange,
   type NodeRemoveChange,
@@ -62,45 +57,184 @@ import {
   type OnConnectStartParams,
   type ReactFlowInstance,
   type XYPosition,
+  MiniMap,
+  Controls,
+  ControlButton,
+  Background,
+  type Node,
+  type Edge,
+  type NodeChange,
+  type Connection,
+  ConnectionMode,
+  useReactFlow,
+  useUpdateNodeInternals,
 } from 'reactflow';
 import { BiX as CloseIcon } from 'react-icons/bi';
 import SaveStrainModal from 'components/SaveStrainModal/SaveStrainModal';
+import { toPng, toSvg } from 'html-to-image';
+import 'reactflow/dist/style.css';
+import { open } from '@tauri-apps/api/dialog';
+import { fs, path } from '@tauri-apps/api';
+import { type Options } from 'html-to-image/lib/types';
+import { NoteNode } from 'components/NoteNode/NoteNode';
+import { SelfNode } from 'components/SelfNode/SelfNode';
+import StrainNode from 'components/StrainNode/StrainNode';
+import { XNode } from 'components/XNode/XNode';
+import EditorContext from 'components/EditorContext/EditorContext';
 
-export interface EditorProps {
-  crossTree: CrossTree;
-  testing?: boolean; // This is used to determine if the context menu should be shown (testing workaround)
+export enum NodeType {
+  Strain = 'strain',
+  X = 'x',
+  Self = 'self',
+  Note = 'note',
+  FilteredOut = 'filteredOut',
 }
 
-export const ShowGenesContext = createContext(true);
+export interface EditorProps {
+  crossDesign: CrossDesign;
+  setCrossDesign: React.Dispatch<React.SetStateAction<CrossDesign | undefined>>;
+  testing?: boolean; // This is used to determine if the context menu should be shown (testing workaround)
+}
 
 type DrawerState = 'addStrain' | 'cross' | 'addNote' | 'editNote';
 
 const Editor = (props: EditorProps): React.JSX.Element => {
   const navigate = useNavigate();
+  const reactFlowInstance = useReactFlow();
+  const currNodeId = useRef<string>('');
   const [rightDrawerOpen, setEditorDrawerSideOpen] = useState(false);
   const [drawerState, setDrawerState] = useState<DrawerState>('addStrain');
-  const [edges, setEdges] = useEdgesState(props.crossTree.edges);
   const [noteFormContent, setNoteFormContent] = useState('');
-  const [nodeMap, setNodeMap] = useState<Map<string, Node>>(
-    new Map(props.crossTree.nodes.map((node) => [node.id, node]))
-  );
   const [showGenes, setShowGenes] = useState(true);
-  const [invisibleNodes, setInvisibleNodes] = useState<Set<string>>(
-    new Set(props.crossTree.invisibleNodes)
-  );
-  const [crossFilters, setOffspringFilters] = useState(
-    new Map(props.crossTree.crossFilters)
-  );
   const [saveStrainModalIsOpen, setSaveStrainModalIsOpen] = useState(false);
-
-  const [reactFlowInstance, setReactFlowInstance] =
-    useState<ReactFlowInstance>();
-
-  const currNodeId = useRef<string>('');
   const onConnectParams = useRef<OnConnectStartParams | null>(null);
+  const nodes = props.crossDesign.nodes;
+  const edges = props.crossDesign.edges;
+  const offspringFilters = props.crossDesign.offspringFilters;
+
+  const setNodes = (newNodes: Node[]): void => {
+    props.setCrossDesign(
+      new CrossDesign({ ...props.crossDesign, nodes: newNodes })
+    );
+  };
+
+  const setEdges = (newEdges: Edge[]): void => {
+    props.setCrossDesign(
+      new CrossDesign({ ...props.crossDesign, edges: newEdges })
+    );
+  };
+
+  const setOffspringFilters = (
+    newOffspringFilters: Map<string, OffspringFilter>
+  ): void => {
+    props.setCrossDesign(
+      new CrossDesign({
+        ...props.crossDesign,
+        offspringFilters: newOffspringFilters,
+      })
+    );
+  };
+
+  const getStrainNodeMenuItems = (id: string): MenuItem[] => {
+    const strainNode: Node<Strain> = reactFlowInstance.getNode(
+      id
+    ) as Node<Strain>;
+    if (strainNode === undefined || strainNode.type !== NodeType.Strain) {
+      console.error(
+        'Cannot get menu items for an undefined or non-strain node.'
+      );
+      return [];
+    }
+
+    const self: MenuItem = {
+      icon: <SelfCrossIcon />,
+      text: 'Self-cross',
+      menuCallback: () => {
+        console.log(id);
+        selfCross(id).catch(console.error);
+      },
+    };
+    const cross: MenuItem = {
+      icon: <CrossIcon />,
+      text: 'Cross',
+      menuCallback: () => {
+        currNodeId.current = id;
+        setDrawerState('cross');
+        setEditorDrawerSideOpen(true);
+      },
+    };
+    const schedule: MenuItem = {
+      icon: <ScheduleIcon />,
+      text: 'Schedule',
+      menuCallback: () => {
+        scheduleNode(id);
+      },
+    };
+    const saveStrain: MenuItem = {
+      icon: <SaveIcon />,
+      text: 'Save strain',
+      menuCallback: () => {
+        currNodeId.current = id;
+        setSaveStrainModalIsOpen(true);
+      },
+    };
+
+    const menuOptions = [schedule];
+    if (!strainNode.data.isParent) menuOptions.push(cross);
+    if (strainNode.data.sex === Sex.Hermaphrodite && !strainNode.data.isParent)
+      menuOptions.push(self);
+    if (strainNode.data.name === undefined) menuOptions.push(saveStrain);
+    return menuOptions;
+  };
+
+  const editorContextValue = {
+    showGenes: true,
+    toggleSex: (id: string): void => {
+      const node = reactFlowInstance.getNode(id);
+      if (node === undefined || node.type !== NodeType.Strain) {
+        console.error(
+          'Cannot toggle sex of node that is undefined or not a strain'
+        );
+        return;
+      }
+
+      setNodes(
+        addNode(nodes, {
+          ...node,
+          data: (node as Node<Strain>).data.toggleSex(),
+        })
+      );
+    },
+    toggleHetPair: (id: string, pair: AllelePair): void => {
+      const node = reactFlowInstance.getNode(id);
+      if (node === undefined || node.type !== NodeType.Strain) {
+        console.error(
+          'Cannot toggle het pair on a node that is undefined/not a strain'
+        );
+        return;
+      }
+      const strain: Strain = node.data;
+
+      pair.flip();
+      Strain.build({
+        allelePairs: strain.getAllelePairs(),
+        sex: strain.sex,
+      })
+        .then((strain) => {
+          setNodes(addNode(nodes, { ...node, data: strain }));
+        })
+        .catch(console.error);
+    },
+    openNote: (id: string) => {
+      setNoteFormContent(reactFlowInstance.getNode(id)?.data);
+      setDrawerState('editNote');
+      setEditorDrawerSideOpen(true);
+    },
+    getMenuItems: getStrainNodeMenuItems,
+  };
 
   const getCurrentNode = (): Node | undefined => {
-    return nodeMap.get(currNodeId.current);
+    return reactFlowInstance.getNode(currNodeId.current);
   };
 
   /**
@@ -110,29 +244,25 @@ const Editor = (props: EditorProps): React.JSX.Element => {
    */
   const { rightClickXPos, rightClickYPos, showRightClickMenu } =
     useContextMenuState(['react-flow__pane'], props.testing);
-  const flowRef = useRef<HTMLElement>(null);
+  const flowRef = useRef<HTMLDivElement>(null);
 
-  const updateNodeMap = (node: Node): void => {
-    setNodeMap((nodeMap) => new Map(nodeMap.set(node.id, node)));
+  const addNode = (nodes: Node[], node: Node): Node[] => {
+    return [...nodes.filter((nd) => nd.id !== node.id), node];
   };
 
-  /**
-   * Callback used by react flow to update the positions of each node when dragged
-   */
   const onNodesChange = (changes: NodeChange[]): void => {
-    const newNodeMap = new Map<string, Node>();
-    const nodes = [...nodeMap.values()];
     const [additions, deletions, dimensions, movements, resets, selections] =
       filterNodeChanges(changes);
 
-    // handle deletions
     let canDelete = deletions.length > 0;
-    const selected = deletions.filter((del) => nodeMap.get(del.id)?.selected);
+    const selected = deletions.filter(
+      (del) => reactFlowInstance.getNode(del.id)?.selected
+    );
     selected.forEach((selectedNode) => {
-      const toDelete = nodeMap.get(selectedNode.id);
+      const toDelete = reactFlowInstance.getNode(selectedNode.id);
       if (
         toDelete?.parentNode !== undefined &&
-        toDelete.type === FlowType.Strain
+        toDelete.type === NodeType.Strain
       ) {
         toast.error("You can't remove a node that is the child of a cross");
         canDelete = false;
@@ -146,10 +276,10 @@ const Editor = (props: EditorProps): React.JSX.Element => {
 
     // Determine invisible and visible deletions
     const visibleDelSet = new Set(deletions.map((d) => d.id));
-    const invisibleDeletions = nodes
+    const invisibleDeletions = props.crossDesign.nodes
       .filter(
         (node) =>
-          invisibleNodes.has(node.id) &&
+          node.hidden === true &&
           node.parentNode !== undefined &&
           visibleDelSet.has(node.parentNode)
       )
@@ -169,31 +299,24 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       resets,
       selections,
     ].flat();
-    applyNodeChanges(toApply, nodes).forEach((node) =>
-      newNodeMap.set(node.id, node)
-    );
+    let newNodes = applyNodeChanges(toApply, props.crossDesign.nodes);
 
     if (canDelete) {
       // update parent nodes
-      const parentNodes = parentIds.flatMap((id) => nodeMap.get(id) ?? []);
+      const parentNodes = parentIds.flatMap(
+        (id) => reactFlowInstance.getNode(id) ?? []
+      );
       const parentIdSet = new Set(parentIds);
       parentNodes.forEach((node) => {
-        node.data = copyNodeData(node, {
-          isParent: false,
-          toggleNodeSex: () => {
-            toggleStrainNodeSex(node.id);
-          },
-          toggleNodeHetPair: (pair) => {
-            toggleHetPair(pair, node.id);
-          },
-        });
+        node.data = node.data.clone();
+        node.data.isParent = false;
 
         // clear parent relationship between 2 nodes crossed together
         const clearParentId =
           node.parentNode !== undefined && parentIdSet.has(node.parentNode);
         node.parentNode = clearParentId ? undefined : node.parentNode;
 
-        newNodeMap.set(node.id, node);
+        newNodes = addNode(newNodes, node);
       });
 
       // remove unneeded edges
@@ -205,9 +328,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       setEdges(newEdges);
     }
 
-    setNodeMap(newNodeMap);
-
-    if (deletions.length > 0) saveTree();
+    setNodes(newNodes);
   };
 
   /**
@@ -257,7 +378,6 @@ const Editor = (props: EditorProps): React.JSX.Element => {
    */
   const onConnect = useCallback((args: Connection) => {
     onConnectParams.current = null; // prevent onConnectEnd from being called
-    // check for invalid connection types
     if (
       args.sourceHandle === 'top' ||
       args.sourceHandle === 'bottom' ||
@@ -270,34 +390,30 @@ const Editor = (props: EditorProps): React.JSX.Element => {
         ? [args.source, args.target]
         : [args.target, args.source];
 
-    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
-      const lNode = nodeMap.get(lNodeId ?? '');
-      const rNode = nodeMap.get(rNodeId ?? '');
-      if (lNode === undefined || rNode === undefined) {
-        console.error('Cannot cross with an undefined node');
-        return nodeMap;
-      }
-      if (lNode.type !== FlowType.Strain || rNode.type !== FlowType.Strain) {
-        console.error('Cannot cross with a non-strain node');
-        return nodeMap;
-      }
+    const lNode = reactFlowInstance.getNode(lNodeId ?? '');
+    const rNode = reactFlowInstance.getNode(rNodeId ?? '');
+    if (lNode === undefined || rNode === undefined) {
+      console.error('Cannot cross with an undefined node');
+      return;
+    }
+    if (lNode.type !== NodeType.Strain || rNode.type !== NodeType.Strain) {
+      console.error('Cannot cross with a non-strain node');
+      return;
+    }
 
-      const lData: StrainData = lNode.data;
-      const rData: StrainData = rNode.data;
+    const lStrain: Strain = lNode.data;
+    const rStrain: Strain = rNode.data;
 
-      if (lData.strain.sex === rData.strain.sex) {
-        toast.error('Can only mate strains that are different sexes');
-        return nodeMap;
-      }
+    if (lStrain.sex === rStrain.sex) {
+      toast.error('Can only mate strains that are different sexes');
+      return;
+    }
 
-      if (lData.isParent || rData.isParent) {
-        toast.error("A single strain can't be involved in multiple crosses");
-        return nodeMap;
-      }
-
-      matedCross(lNode, rNode).catch(console.error);
-      return nodeMap;
-    });
+    if (lStrain.isParent || rStrain.isParent) {
+      toast.error("A single strain can't be involved in multiple crosses");
+      return;
+    }
+    matedCross(lNode, rNode).catch(console.error);
   }, []);
 
   /** Called after onConnect or after dragging an edge */
@@ -307,373 +423,103 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       params === null ||
       params === undefined ||
       params.handleType === 'target' ||
-      !props.crossTree.editable
+      !props.crossDesign.editable
     )
       return;
-    const nodeId = params.nodeId;
-    if (nodeId === null || nodeId === undefined) {
-      console.error('NodeId is null or undefined');
+    const id = params.nodeId;
+    if (id === null || id === undefined) {
+      console.error('Id is null or undefined');
       return;
     }
 
-    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
-      const currNode = nodeMap.get(params.nodeId ?? '');
+    const currNode = reactFlowInstance.getNode(id);
 
-      if (currNode === undefined) return nodeMap;
-      if (currNode.type !== FlowType.Strain) return nodeMap;
-      const currStrain = currNode.data as StrainData;
+    if (currNode === undefined) return;
+    if (currNode.type !== NodeType.Strain) return;
+    const currStrain: Strain = currNode.data;
 
-      if (currStrain.isParent) {
-        toast.error('Cannot cross a strain already involved in a cross');
-        return nodeMap;
-      }
+    if (currStrain.isParent) {
+      toast.error('Cannot cross a strain already involved in a cross');
+      return nodes;
+    }
 
-      if (params.handleId === Position.Bottom) {
-        const refNode = nodeMap.get(nodeId);
-        if (refNode === undefined || refNode.type !== FlowType.Strain) {
-          console.error(
-            'Cannot self-cross a node that is undefined/not a strain'
-          );
-        } else {
-          selfCross(refNode.id).catch(console.error);
-        }
+    if (params.handleId === Position.Bottom) {
+      const refNode = reactFlowInstance.getNode(id);
+      if (refNode === undefined || refNode.type !== NodeType.Strain) {
+        console.error(
+          'Cannot self-cross a node that is undefined/not a strain'
+        );
       } else {
-        currNodeId.current = nodeId;
-        setDrawerState('cross');
-        setEditorDrawerSideOpen(true);
+        selfCross(refNode.id).catch(console.error);
       }
-      return nodeMap;
-    });
+    } else {
+      currNodeId.current = id;
+      setDrawerState('cross');
+      setEditorDrawerSideOpen(true);
+    }
   }, []);
 
-  /**
-   * When we deserialize from a cross tree, all function member variables are
-   * undefined. Because of this, we need to "re-hydrate them" with our current
-   * functionality if we want to still be able to call/interact with them.
-   */
-  useEffect(() => {
-    setOffspringFilters(
-      (filters: Map<string, OffspringFilter>): Map<string, OffspringFilter> => {
-        setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
-          const nodes = [...nodeMap.values()];
-          const refreshedNodes = nodes.map((node) => {
-            if (node.type === FlowType.Strain) {
-              const data: StrainData = node.data;
-              node.data = new StrainData({
-                strain: data.strain,
-                probability: data.probability,
-                isParent: data.isParent,
-                isChild: data.isChild,
-                getMenuItems: (model: StrainData) =>
-                  getStrainNodeMenuItems(model, node.id, data.isParent),
-                toggleSex: () => {
-                  toggleStrainNodeSex(node.id);
-                },
-                toggleHetPair: (pair) => {
-                  toggleHetPair(pair, node.id);
-                },
-              });
-            } else if (node.type === FlowType.Note)
-              node.data = new NoteNodeProps({
-                content: node.data.content,
-                onDoubleClick: () => {
-                  currNodeId.current = node.id;
-                  setNoteFormContent(node.data.content);
-                  setDrawerState('editNote');
-                  setEditorDrawerSideOpen(true);
-                },
-              });
-            else node.data = { id: node.id };
-            return node;
-          });
-          refreshedNodes.forEach((node) => nodeMap.set(node.id, node));
-          return new Map(nodeMap);
-        });
-        return filters;
-      }
-    );
-  }, []);
-
-  // #region Flow Component Creation
-  /** Creates a node representing a strain */
-  const createStrainNode = ({
-    strain,
-    position,
-    isParent,
-    isChild,
-    parentNode,
-    probability,
-    id,
-  }: {
-    strain: Strain;
-    position: XYPosition;
-    isParent: boolean;
-    isChild: boolean;
-    parentNode?: string;
-    probability?: number;
-    id?: string;
-  }): Node<StrainData> => {
-    const nodeId = id ?? props.crossTree.createId();
-    const strainNode: Node = {
-      id: nodeId,
-      type: FlowType.Strain,
-      position,
-      parentNode,
-      data: new StrainData({
-        strain,
-        probability,
-        isParent,
-        isChild,
-        getMenuItems: (node: StrainData) =>
-          getStrainNodeMenuItems(node, nodeId, isParent),
-        toggleSex: () => {
-          toggleStrainNodeSex(nodeId);
-        },
-        toggleHetPair: (pair) => {
-          toggleHetPair(pair, nodeId);
-        },
-      }),
-      className: 'nowheel',
-    };
-    return strainNode;
-  };
-
-  /** Create a node representing all offspring excluded by filter */
-  const createFilteredOutNode = (
-    position: XYPosition,
-    parentNode: string
-  ): Node<FilteredOutNodeProps> => {
-    const newNode: Node<FilteredOutNodeProps> = {
-      id: props.crossTree.createId(),
-      type: FlowType.FilteredOut,
-      position,
-      parentNode,
-      data: { nodeId: parentNode },
-    };
-    return newNode;
-  };
-
-  /** Creates a node representing the x icon */
-  const createXIcon = (parentNode: Node<StrainData>): Node => {
-    return {
-      id: props.crossTree.createId(),
-      type: FlowType.XIcon,
-      position: CrossTree.getXIconPos(parentNode),
-      parentNode: parentNode.id,
-      data: {},
-    };
-  };
-
-  /** Creates a node representing the self icon */
-  const createSelfIcon = (parentNode: string): Node => {
-    return {
-      id: props.crossTree.createId(),
-      type: FlowType.SelfIcon,
-      position: CrossTree.getSelfIconPos(),
-      parentNode,
-      data: {},
-    };
-  };
-
-  /** Creates an edge connecting a source node to a target node */
-  const createEdge = (
-    sourceId: string,
-    targetId: string,
-    args?: { sourceHandle?: string; targetHandle?: string }
-  ): Edge => {
-    const edge: Edge = {
-      id: props.crossTree.createId(),
-      source: sourceId,
-      target: targetId,
-      sourceHandle: args?.sourceHandle,
-      targetHandle: args?.targetHandle,
-    };
-    return edge;
-  };
-
-  /** Creates a node representing a note with content */
-  const createNote = (content: string, position: XYPosition): Node => {
-    const noteNode: Node = {
-      id: props.crossTree.createId(),
-      type: FlowType.Note,
-      position,
-      data: new NoteNodeProps({
-        content,
-        onDoubleClick: () => {
-          currNodeId.current = noteNode.id;
-          setNoteFormContent(content);
-          setDrawerState('editNote');
-          setEditorDrawerSideOpen(true);
-        },
-      }),
-      className: 'nowheel',
-    };
-    return noteNode;
-  };
-
-  /** Passed to strain node, determines what happens when the sex icon is clicked */
-  const toggleStrainNodeSex = (nodeId: string): void => {
-    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
-      const node = nodeMap.get(nodeId);
-      if (node === undefined || node.type !== FlowType.Strain) {
-        console.error(
-          'Cannot toggle the sex of a node that is undefined/not a strain'
-        );
-        return nodeMap;
-      }
-
-      const data: StrainData = node.data;
-      if (data.strain.sex === undefined || data.strain.sex === null)
-        return nodeMap;
-
-      // need to create a new node with the updated data so the state knows something has changed
-      data.strain.sex =
-        data.strain.sex === Sex.Male ? Sex.Hermaphrodite : Sex.Male;
-      const newNode = createStrainNode({
-        strain: data.strain,
-        position: node.position,
-        isParent: false,
-        isChild: data.isChild,
-        parentNode: node.parentNode,
-        probability: data.probability,
-        id: node.id,
-      });
-
-      // update the map with the new data for the node
-      nodeMap.set(node.id, newNode);
-      return new Map(nodeMap);
-    });
-    saveTree();
-  };
-
-  const toggleHetPair = (pair: AllelePair, nodeId: string): void => {
-    setNodeMap((nodeMap) => {
-      const node = nodeMap.get(nodeId);
-      if (node === undefined || node.type !== FlowType.Strain) {
-        console.error(
-          'Cannot toggle het pair on a node that is undefined/not a strain'
-        );
-        return nodeMap;
-      }
-      const data: StrainData = node.data;
-
-      pair.flip();
-      Strain.build({
-        allelePairs: data.strain.getAllelePairs(),
-        sex: data.strain.sex,
-      })
-        .then((strain) => {
-          // Replace node with new node of toggled pair
-          const newNode = createStrainNode({
-            strain,
-            position: node.position,
-            isParent: false, // If toggled before, should be able to toggle again
-            isChild: false,
-            parentNode: node.parentNode,
-            probability: data.probability,
-            id: node.id,
-          });
-          setNodeMap((nodeMap) => {
-            nodeMap.set(newNode.id, newNode);
-            return new Map(nodeMap);
-          });
-        })
-        .catch(console.error);
-      saveTree();
-      return nodeMap;
-    });
-  };
-
-  /** Show the filterOut node child of nodeId if any strain children of nodeId are hidden */
-  const updateFilterOutNodeVisibility = (nodeId: string): void => {
-    const filterOutNode = [...nodeMap.values()]
+  /** Show the filterOut node child of id if any strain children of id are hidden */
+  const updateFilterOutNodeVisibility = (id: string): void => {
+    const filterOutNode = props.crossDesign.nodes
       .filter(
-        (node) =>
-          node.parentNode === nodeId && node.type === FlowType.FilteredOut
+        (node) => node.parentNode === id && node.type === NodeType.FilteredOut
       )
       .at(0);
-    const strainNodes = [...nodeMap.values()].filter(
-      (node) => node.parentNode === nodeId && node.type === FlowType.Strain
+    const strainNodes = props.crossDesign.nodes.filter(
+      (node) => node.parentNode === id && node.type === NodeType.Strain
     );
-    if (filterOutNode !== undefined) {
-      setInvisibleNodes((invisibleNodes: Set<string>) => {
-        if (strainNodes.some((node) => invisibleNodes.has(node.id))) {
-          invisibleNodes.delete(filterOutNode.id);
-        } else {
-          invisibleNodes.add(filterOutNode.id);
-        }
-        return new Set(invisibleNodes);
-      });
-    }
+    if (filterOutNode !== undefined)
+      filterOutNode.hidden = !strainNodes.some((node) => node.hidden);
   };
 
-  const toggleNodeVisibility = (nodeId: string): void => {
-    const children = [...nodeMap.values()].filter(
-      (node: Node) => node.parentNode === nodeId
+  const toggleNodeVisibility = (id: string): void => {
+    const children = props.crossDesign.nodes.filter(
+      (node: Node) => node.parentNode === id
     );
     if (children.length > 0) {
       toast.error("Can't mark a parent node as invisible");
       return;
     }
-    setInvisibleNodes((invisibleNodes: Set<string>): Set<string> => {
-      invisibleNodes.has(nodeId)
-        ? invisibleNodes.delete(nodeId)
-        : invisibleNodes.add(nodeId);
-      return new Set(invisibleNodes);
-    });
-    const parentNodeId = nodeMap.get(nodeId)?.parentNode;
+    const node = reactFlowInstance.getNode(id);
+    if (node?.hidden !== undefined) node.hidden = !node.hidden;
+    const parentNodeId = reactFlowInstance.getNode(id)?.parentNode;
     if (parentNodeId !== undefined) updateFilterOutNodeVisibility(parentNodeId);
-    saveTree();
   };
 
   const handleFilterUpdate = (update: OffspringFilterUpdate): void => {
-    setOffspringFilters((filters): Map<string, OffspringFilter> => {
-      const filter =
-        filters.get(update.nodeId) ??
-        new OffspringFilter({
-          alleleNames: new Set(),
-          exprPhenotypes: new Set(),
-          reqConditions: new Set(),
-          supConditions: new Set(),
-        });
-      if (update.action === 'add') filter[update.field].add(update.name);
-      if (update.action === 'remove') filter[update.field].delete(update.name);
-      if (update.action === 'clear') filter[update.field].clear();
-      filters.set(update.nodeId, filter);
-
-      // Mark nodes as (in)visible
-      setNodeMap((nodeMap) => {
-        setInvisibleNodes((invisibleNodes: Set<string>): Set<string> => {
-          const childList: Array<Node<StrainData>> = [
-            ...nodeMap.values(),
-          ].filter(
-            (node) =>
-              node.parentNode === update.nodeId && node.type === FlowType.Strain
-          );
-
-          if (filter.isEmpty()) {
-            filters.delete(update.nodeId);
-            childList.forEach((node) => invisibleNodes.delete(node.id));
-          } else {
-            childList.forEach((node) => {
-              if (
-                !OffspringFilter.includedInFilter(node, filter) &&
-                !node.data.isParent
-              )
-                invisibleNodes.add(node.id);
-              else invisibleNodes.delete(node.id);
-            });
-          }
-
-          return new Set(invisibleNodes);
-        });
-        return nodeMap;
+    const filter =
+      offspringFilters.get(update.nodeId) ??
+      new OffspringFilter({
+        alleleNames: new Set(),
+        exprPhenotypes: new Set(),
+        reqConditions: new Set(),
+        supConditions: new Set(),
       });
+    if (update.action === 'add') filter[update.field].add(update.name);
+    if (update.action === 'remove') filter[update.field].delete(update.name);
+    if (update.action === 'clear') filter[update.field].clear();
+    offspringFilters.set(update.nodeId, filter);
 
-      return new Map(filters);
-    });
+    // Hide nodes
+    const childList: Array<Node<Strain>> = [...nodes.values()].filter(
+      (node) =>
+        node.parentNode === update.nodeId && node.type === NodeType.Strain
+    );
+
+    if (filter.isEmpty()) {
+      offspringFilters.delete(update.nodeId);
+      childList.forEach((node) => (node.hidden = false));
+    } else {
+      childList.forEach((node) => {
+        node.hidden =
+          !OffspringFilter.includedInFilter(node, filter) &&
+          !node.data.isParent;
+      });
+    }
+
+    setOffspringFilters(new Map(offspringFilters));
     updateFilterOutNodeVisibility(update.nodeId);
-    saveTree();
   };
 
   const getNodePositionFromLastClick = (): XYPosition => {
@@ -689,162 +535,170 @@ const Editor = (props: EditorProps): React.JSX.Element => {
     );
   };
 
-  /** Adds note to editor */
   const addNote = (): void => {
-    const position = getNodePositionFromLastClick();
-    const newNote = createNote(noteFormContent, position);
-    updateNodeMap(newNote);
+    const noteNode: Node<string> = {
+      id: props.crossDesign.createId(),
+      data: noteFormContent,
+      position: getNodePositionFromLastClick(),
+      type: NodeType.Note,
+    };
     setEditorDrawerSideOpen(false);
-    saveTree();
+    setNodes(addNode(nodes, noteNode));
   };
 
-  /** Edits a current note's content */
   const editNote = (): void => {
     const noteNode = getCurrentNode();
-    if (noteNode === undefined || noteNode.type !== FlowType.Note) {
+    if (noteNode === undefined || noteNode.type !== NodeType.Note) {
       console.error(
         'Cannot edit note when currNode is undefined or is not a note type'
       );
       return;
     }
-
-    const noteData: NoteNodeProps = noteNode.data;
-    noteData.content = noteFormContent;
-    updateNodeMap(noteNode);
+    noteNode.data = noteFormContent;
     setEditorDrawerSideOpen(false);
-    saveTree();
+    setNodes(addNode(nodes, noteNode));
   };
 
-  /** Adds a "floating" strain node to the editor */
   const addStrain = (strain: Strain): void => {
-    const position = getNodePositionFromLastClick();
-    const newStrain = createStrainNode({
-      strain,
-      position,
-      isParent: false,
-      isChild: false,
-    });
-    updateNodeMap(newStrain);
+    const strainNode: Node<Strain> = {
+      id: props.crossDesign.createId(),
+      data: strain,
+      position: getNodePositionFromLastClick(),
+      type: NodeType.Strain,
+    };
+    setNodes(addNode(nodes, strainNode));
     setEditorDrawerSideOpen(false);
-    saveTree();
   };
 
   const selfCross = async (parentNodeId: string): Promise<void> => {
-    let parentNode: Node | undefined;
-    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
-      parentNode = nodeMap.get(parentNodeId);
-      return nodeMap;
-    });
-    if (parentNode === undefined || parentNode.type !== FlowType.Strain) {
+    const parentNode: Node<Strain> = reactFlowInstance.getNode(
+      parentNodeId
+    ) as Node<Strain>;
+    if (parentNode === undefined || parentNode.type !== NodeType.Strain) {
       console.error('Cannot self-cross a node that is undefined/not a strain');
       return;
     }
 
-    // Mark as parent
-    parentNode.data = copyNodeData(parentNode, { isParent: true });
-
-    // Create nodes and edges
-    const selfNode = createSelfIcon(parentNode.id);
-    selfNode.data = { id: selfNode.id };
-    const edgeToIcon = createEdge(parentNode.id, selfNode.id, {
+    parentNode.data = new Strain({ ...parentNode.data, isParent: true });
+    const selfNode: Node = {
+      id: props.crossDesign.createId(),
+      position: CrossDesign.getSelfNodePos(),
+      parentNode: parentNode.id,
+      data: {},
+      type: NodeType.Self,
+    };
+    const parentToSelf: Edge = {
+      id: props.crossDesign.createId(),
+      source: parentNode.id,
+      target: selfNode.id,
       sourceHandle: 'bottom',
-    });
-    const parentStrain = parentNode.data as StrainData;
-    const childStrains = await parentStrain.strain.selfCross();
+    };
+    const childStrains = await parentNode.data.selfCross();
     const childNodes = getChildNodes(selfNode, childStrains);
-    const childEdges = childNodes.map((node) =>
-      createEdge(selfNode.id, node.id)
-    );
-
-    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
-      [parentNode, selfNode, ...childNodes].forEach(
-        (node) => node !== undefined && nodeMap.set(node.id, node)
-      );
-      setEdges((edges) => [...edges, edgeToIcon, ...childEdges]);
-      return new Map(nodeMap);
+    const childEdges = childNodes.map((node) => {
+      return {
+        id: props.crossDesign.createId(),
+        source: selfNode.id,
+        target: node.id,
+      };
     });
-    saveTree();
+
+    setNodes([...addNode(nodes, parentNode), selfNode, ...childNodes]);
+    setEdges([...edges, parentToSelf, ...childEdges]);
   };
 
   const matedCross = async (
-    lNode: Node<StrainData>,
-    rNode: Node<StrainData>
+    lNode: Node<Strain>,
+    rNode: Node<Strain>
   ): Promise<void> => {
     // Mark as parents
-    lNode.data = copyNodeData(lNode, { isParent: true });
-    rNode.data = copyNodeData(rNode, { isParent: true });
+    lNode.data = new Strain({ ...lNode.data, isParent: true });
+    rNode.data = new Strain({ ...rNode.data, isParent: true });
 
     // Update positioning of one of the parent strains
     const lControlsR = rNode.parentNode === undefined;
     if (lControlsR) {
       rNode.parentNode = lNode.id;
-      rNode.position = CrossTree.getMatedStrainPos(lNode.data.strain.sex);
+      rNode.position = CrossDesign.getMatedStrainPos(lNode.data.sex);
     } else {
       lNode.parentNode = rNode.id;
-      lNode.position = CrossTree.getMatedStrainPos(rNode.data.strain.sex);
+      lNode.position = CrossDesign.getMatedStrainPos(rNode.data.sex);
     }
 
     // Create new nodes and edges
-    const xNode = createXIcon(lNode);
-    xNode.data = { id: xNode.id };
-    const lData = lNode.data;
-    const rData = rNode.data;
-    const e1 = createEdge(lNode.id, xNode.id, {
-      sourceHandle: lData.strain.sex === Sex.Hermaphrodite ? 'left' : 'right',
-      targetHandle: lData.strain.sex === Sex.Male ? 'left' : 'right',
-    });
-    const e2 = createEdge(rNode.id, xNode.id, {
-      sourceHandle: rData.strain.sex === Sex.Hermaphrodite ? 'left' : 'right',
-      targetHandle: rData.strain.sex === Sex.Male ? 'left' : 'right',
-    });
-    const childOptions = await lData.strain.crossWith(rData.strain);
+    const xNode: Node = {
+      id: props.crossDesign.createId(),
+      data: {},
+      position: CrossDesign.getXNodePos(lNode),
+      type: NodeType.X,
+    };
+    const lStrain = lNode.data;
+    const rStrain = rNode.data;
+    const edge1 = {
+      id: props.crossDesign.createId(),
+      source: lNode.id,
+      target: xNode.id,
+      sourceHandle: lStrain.sex === Sex.Hermaphrodite ? 'left' : 'right',
+      targetHandle: lStrain.sex === Sex.Male ? 'left' : 'right',
+    };
+    const edge2 = {
+      id: props.crossDesign.createId(),
+      source: rNode.id,
+      target: xNode.id,
+      sourceHandle: rStrain.sex === Sex.Hermaphrodite ? 'left' : 'right',
+      targetHandle: rStrain.sex === Sex.Male ? 'left' : 'right',
+    };
+    const childOptions = await lStrain.crossWith(rStrain);
     const childNodes = getChildNodes(xNode, childOptions);
-    const childEdges = childNodes.map((node) => createEdge(xNode.id, node.id));
-
-    setNodeMap((nodeMap) => {
-      [lNode, rNode, xNode, ...childNodes].forEach((node) =>
-        nodeMap.set(node.id, node)
-      );
-      return new Map(nodeMap);
+    const childEdges = childNodes.map((node) => {
+      return {
+        id: props.crossDesign.createId(),
+        source: xNode.id,
+        target: node.id,
+      };
     });
-    setEdges((edges) => [...edges, e1, e2, ...childEdges]);
 
-    saveTree();
+    let newNodes: Node[] = [];
+    [lNode, rNode, xNode, ...childNodes].forEach((node) => {
+      newNodes = addNode(nodes, node);
+    });
+    setNodes(newNodes);
+    setEdges([...edges, edge1, edge2, ...childEdges]);
   };
 
   /** Create a collection of strain nodes to represent children of a cross, from child strain options */
   const getChildNodes = (
     middleNode: Node,
     childOptions: StrainOption[]
-  ): Array<Node<StrainData>> => {
-    const childPositions = CrossTree.calculateChildPositions(
-      middleNode.type === FlowType.XIcon ? FlowType.XIcon : FlowType.SelfIcon,
+  ): Array<Node<Strain>> => {
+    const childPositions = CrossDesign.calculateChildPositions(
+      middleNode.type === NodeType.X ? NodeType.X : NodeType.Self,
       childOptions
     );
 
-    const childNodes: Node[] = childOptions.map((child, i) => {
-      return createStrainNode({
-        strain: child.strain,
+    const childNodes: Array<Node<Strain>> = childOptions.map((child, i) => {
+      return {
+        id: props.crossDesign.createId(),
+        data: child.strain,
         position: childPositions[i],
-        isParent: false,
-        isChild: true,
-        probability: child.prob,
         parentNode: middleNode.id,
-      });
+        type: NodeType.Strain,
+      } satisfies Node<Strain>;
     });
 
     if (childNodes.length > 0) {
-      const filteredOutNode = createFilteredOutNode(
-        {
+      const filteredOutNode: Node = {
+        id: props.crossDesign.createId(),
+        position: {
           x: childPositions[0].x - FILTERED_OUT_NODE_WIDTH - NODE_PADDING,
           y: childPositions[0].y,
         },
-        middleNode.id
-      );
-      setInvisibleNodes((invisibleNodes) => {
-        invisibleNodes.add(filteredOutNode.id);
-        return invisibleNodes;
-      });
+        parentNode: middleNode.id,
+        data: {},
+        hidden: true,
+        type: NodeType.FilteredOut,
+      };
+      setNodes(addNode(nodes, filteredOutNode));
       childNodes.unshift(filteredOutNode);
     }
     return childNodes;
@@ -853,165 +707,52 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   /**
    * Params are provided by the strainNode form's onSubmit callback function
    */
-  const matedCrossWithFormData = (strain: Strain): void => {
-    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
-      const startingNode = getCurrentNode();
-      if (startingNode === undefined || startingNode.type !== FlowType.Strain) {
-        console.error(
-          'Cannot cross currNode with a form node when currNode is undefined or not a strain'
-        );
-        return nodeMap;
-      }
-
-      const currData: StrainData = startingNode.data;
-      const formNode = createStrainNode({
-        strain,
-        position: CrossTree.getMatedStrainPos(currData.strain.sex),
-        isParent: true,
-        isChild: false,
-      });
-
-      currData.strain.sex === Sex.Male
-        ? matedCross(startingNode, formNode).catch(console.error)
-        : matedCross(formNode, startingNode).catch(console.error);
-
-      setEditorDrawerSideOpen(false);
-      return nodeMap;
-    });
-  };
-
-  /** Clones the passed node's data and optionally marks as a parent/child */
-  const copyNodeData = (
-    node: Node<StrainData>,
-    {
-      isChild = node.data.isChild,
-      isParent = node.data.isParent,
-      toggleNodeSex = node.data.toggleSex,
-      toggleNodeHetPair = node.data.toggleHetPair,
+  const matedCrossWithFormStrain = (strain: Strain): void => {
+    const startingNode = getCurrentNode();
+    if (startingNode === undefined || startingNode.type !== NodeType.Strain) {
+      console.error(
+        'Cannot cross currNode with a form node when currNode is undefined or not a strain'
+      );
+      return;
     }
-  ): StrainData => {
-    const updatedParentData = new StrainData({
-      strain: node.data.strain,
-      isChild,
-      isParent,
-      probability: node.data.probability,
-      getMenuItems: () => getStrainNodeMenuItems(node.data, node.id, isParent),
-      toggleHetPair: isParent || isChild ? undefined : toggleNodeHetPair,
-      toggleSex: isParent ? undefined : toggleNodeSex, // disable toggle action
-    });
-    return updatedParentData;
+
+    const currStrain: Strain = startingNode.data;
+    const formNode: Node<Strain> = {
+      id: props.crossDesign.createId(),
+      data: strain,
+      position: CrossDesign.getMatedStrainPos(currStrain.sex),
+      type: NodeType.Strain,
+    };
+
+    currStrain.sex === Sex.Male
+      ? matedCross(startingNode, formNode).catch(console.error)
+      : matedCross(formNode, startingNode).catch(console.error);
+
+    setEditorDrawerSideOpen(false);
   };
 
-  const getStrainNodeMenuItems = (
-    strainNode: StrainData | null | undefined,
-    nodeId: string,
-    isParent: boolean = false
-  ): MenuItem[] => {
-    if (strainNode === undefined || strainNode === null) return [];
-    const selfOption: MenuItem = {
-      icon: <SelfCrossIcon />,
-      text: 'Self-cross',
-      menuCallback: () => {
-        selfCross(nodeId).catch(console.error);
-      },
-    };
-    const crossOption: MenuItem = {
-      icon: <CrossIcon />,
-      text: 'Cross',
-      menuCallback: () => {
-        currNodeId.current = nodeId;
-        setDrawerState('cross');
-        setEditorDrawerSideOpen(true);
-      },
-    };
-    const scheduleOption: MenuItem = {
-      icon: <ScheduleIcon />,
-      text: 'Schedule',
-      menuCallback: () => {
-        scheduleNode(nodeId);
-      },
-    };
-    const saveStrainOption: MenuItem = {
-      icon: <SaveIcon />,
-      text: 'Save strain',
-      menuCallback: () => {
-        currNodeId.current = nodeId;
-        setSaveStrainModalIsOpen(true);
-      },
-    };
+  const scheduleNode = (id: string): void => {
+    const node = reactFlowInstance.getNode(id);
+    if (node === undefined || node.type !== NodeType.Strain) {
+      console.error(
+        'The node you are trying to schedule is undefined/not a strain'
+      );
+      return;
+    }
 
-    const menuOptions = [scheduleOption];
-    if (!isParent) menuOptions.push(crossOption);
-    if (strainNode.strain.sex === Sex.Hermaphrodite && !isParent)
-      menuOptions.push(selfOption);
-    if (strainNode.strain.name === undefined)
-      menuOptions.push(saveStrainOption);
-    return menuOptions;
-  };
-
-  const scheduleNode = (nodeId: string): void => {
-    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
-      setEdges((edges: Edge[]): Edge[] => {
-        const node = nodeMap.get(nodeId);
-        if (node === undefined || node.type !== FlowType.Strain) {
-          console.error(
-            'The node you are trying to schedule is undefined/not a strain'
-          );
-          return edges;
-        }
-
-        const clonedTree = props.crossTree.clone();
-        clonedTree.editable = false;
-        const tasks = clonedTree
-          .generateTasks(node)
-          .map((task) => task.generateRecord());
-        insertTree(clonedTree.generateRecord(clonedTree.editable))
-          .then(async () => {
-            await insertTasks(tasks);
-          })
-          .then(() => {
-            navigate('/schedules/todo');
-          })
-          .catch(console.error);
-
-        return edges;
-      });
-      return nodeMap;
-    });
-  };
-
-  const saveTree = (showSuccessMessage = false): void => {
-    setNodeMap((nodeMap: Map<string, Node>): Map<string, Node> => {
-      setEdges((edges: Edge[]): Edge[] => {
-        setInvisibleNodes((invisibleNodes: Set<string>): Set<string> => {
-          setOffspringFilters(
-            (
-              crossFilters: Map<string, OffspringFilter>
-            ): Map<string, OffspringFilter> => {
-              const tree = props.crossTree;
-              tree.nodes = [...nodeMap.values()];
-              tree.edges = edges;
-              tree.invisibleNodes = invisibleNodes;
-              tree.crossFilters = crossFilters;
-              tree.lastSaved = new Date();
-              updateTree(tree.generateRecord(props.crossTree.editable))
-                .then(() => {
-                  if (showSuccessMessage)
-                    toast.success('Successfully saved design');
-                })
-                .catch(() => {
-                  toast.error('Unable to save design');
-                });
-
-              return crossFilters;
-            }
-          );
-          return invisibleNodes;
-        });
-        return edges;
-      });
-      return nodeMap;
-    });
+    const clonedCrossDesign = props.crossDesign.clone(true);
+    clonedCrossDesign.editable = false;
+    const tasks = clonedCrossDesign
+      .generateTasks(node)
+      .map((task) => task.generateRecord());
+    insertCrossDesign(clonedCrossDesign.generateRecord())
+      .then(async () => {
+        await insertTasks(tasks);
+      })
+      .then(() => {
+        navigate('/schedules/todo');
+      })
+      .catch(console.error);
   };
 
   /** Gets onSubmit callback for the strain form based on current state  */
@@ -1020,7 +761,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       case 'addStrain':
         return addStrain;
       case 'cross':
-        return matedCrossWithFormData;
+        return matedCrossWithFormStrain;
       default:
         return () => {};
     }
@@ -1039,169 +780,352 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   };
 
   const enforcedSex =
-    drawerState === 'cross'
+    drawerState !== 'cross'
       ? undefined
-      : getCurrentNode()?.data?.strain.sex === Sex.Male
+      : getCurrentNode()?.data?.sex === Sex.Male
       ? Sex.Hermaphrodite
       : Sex.Male;
 
+  const nodeTypes = useMemo(
+    () => ({
+      strain: StrainNode,
+      x: XNode,
+      self: SelfNode,
+      note: NoteNode,
+      filteredOut: FilteredOutNode,
+    }),
+    []
+  );
+
   return (
-    <ShowGenesContext.Provider value={showGenes}>
-      <div className='drawer drawer-end'>
-        <input
-          id='cross-editor-drawer'
-          type='checkbox'
-          className='drawer-toggle'
-        />
-        <div className='drawer-content'>
-          {[...nodeMap.values()]
-            .filter(
-              (node) =>
-                node.type === FlowType.SelfIcon || node.type === FlowType.XIcon
-            )
-            .map((iconNode, idx) => (
-              <Fragment key={idx}>
-                <OffspringFilterModal
-                  nodeId={iconNode.id}
-                  childNodes={[...nodeMap.values()].filter(
-                    (node) =>
-                      node.parentNode === iconNode.id &&
-                      node.type === FlowType.Strain
-                  )}
-                  invisibleSet={new Set([...invisibleNodes])}
-                  toggleVisible={toggleNodeVisibility}
-                  filter={crossFilters.get(iconNode.id)}
-                  updateFilter={handleFilterUpdate}
-                />
-                <FilteredOutModal
-                  nodeId={iconNode.id}
-                  excludedNodes={[...nodeMap.values()].filter(
-                    (node) =>
-                      node.parentNode === iconNode.id &&
-                      node.type === FlowType.Strain &&
-                      invisibleNodes.has(node.id)
-                  )}
-                />
-              </Fragment>
-            ))}
-          <div className='drawer drawer-end'>
-            <input
-              id='right-drawer'
-              type='checkbox'
-              className='drawer-toggle'
-              checked={rightDrawerOpen}
-              readOnly
-            />
-            <div className='drawer-content flex h-screen flex-col'>
-              {showRightClickMenu && props.crossTree.editable && (
-                <ContextMenu xPos={rightClickXPos} yPos={rightClickYPos}>
-                  <li
-                    onClick={() => {
-                      setEditorDrawerSideOpen(true);
-                      setDrawerState('addStrain');
-                    }}
-                  >
-                    <button className='flex flex-row' name='add-cross-node'>
-                      <AddIcon className='text-xl text-base-content' />
-                      <p>Add Strain</p>
-                    </button>
-                  </li>
-                  <li
-                    onClick={() => {
-                      setDrawerState('addNote');
-                      setNoteFormContent('');
-                      setEditorDrawerSideOpen(true);
-                    }}
-                  >
-                    <button className='flex flex-row' name='add-note'>
-                      <div>
-                        <NoteIcon className='fill-base-content text-xl' />
-                      </div>
-                      <p>Add Note</p>
-                    </button>
-                  </li>
-                </ContextMenu>
-              )}
-              <EditorTop tree={props.crossTree} />
-              <CrossFlow
-                innerRef={flowRef}
-                onInit={(flow) => {
-                  setReactFlowInstance(flow);
-                }}
-                nodes={[...nodeMap.values()].filter(
-                  (node) => !invisibleNodes.has(node.id)
+    <div className='drawer drawer-end'>
+      <input
+        id='cross-editor-drawer'
+        type='checkbox'
+        className='drawer-toggle'
+      />
+      <div className='drawer-content'>
+        {[...nodes.values()]
+          .filter(
+            (node) => node.type === NodeType.Self || node.type === NodeType.X
+          )
+          .map((iconNode, idx) => (
+            <Fragment key={idx}>
+              <OffspringFilterModal
+                nodeId={iconNode.id}
+                childNodes={[...nodes.values()].filter(
+                  (node) =>
+                    node.parentNode === iconNode.id &&
+                    node.type === NodeType.Strain
                 )}
+                invisibleSet={
+                  new Set(
+                    nodes
+                      .filter((node) => node.hidden === true)
+                      .map((node) => node.id)
+                  )
+                }
+                toggleVisible={toggleNodeVisibility}
+                filter={offspringFilters.get(iconNode.id)}
+                updateFilter={handleFilterUpdate}
+              />
+              <FilteredOutModal
+                nodeId={iconNode.id}
+                excludedNodes={[...nodes.values()].filter(
+                  (node) =>
+                    node.parentNode === iconNode.id &&
+                    node.type === NodeType.Strain &&
+                    nodes.some(
+                      (nd) => nd.id === node.id && node.hidden === true
+                    )
+                )}
+              />
+            </Fragment>
+          ))}
+        <div className='drawer drawer-end'>
+          <input
+            id='right-drawer'
+            type='checkbox'
+            className='drawer-toggle'
+            checked={rightDrawerOpen}
+            readOnly
+          />
+          <div className='drawer-content flex h-screen flex-col'>
+            {showRightClickMenu && props.crossDesign.editable && (
+              <ContextMenu xPos={rightClickXPos} yPos={rightClickYPos}>
+                <li
+                  onClick={() => {
+                    setEditorDrawerSideOpen(true);
+                    setDrawerState('addStrain');
+                  }}
+                >
+                  <button className='flex flex-row' name='add-cross-node'>
+                    <AddIcon className='text-xl text-base-content' />
+                    <p>Add Strain</p>
+                  </button>
+                </li>
+                <li
+                  onClick={() => {
+                    setDrawerState('addNote');
+                    setNoteFormContent('');
+                    setEditorDrawerSideOpen(true);
+                  }}
+                >
+                  <button className='flex flex-row' name='add-note'>
+                    <div>
+                      <NoteIcon className='fill-base-content text-xl' />
+                    </div>
+                    <p>Add Note</p>
+                  </button>
+                </li>
+              </ContextMenu>
+            )}
+            <EditorTop crossDesign={props.crossDesign} />
+            <EditorContext.Provider value={editorContextValue}>
+              <ReactFlow
+                ref={flowRef}
+                zoomOnScroll={true}
+                nodeTypes={nodeTypes}
+                fitView
+                defaultViewport={{ x: 0, y: 0, zoom: 5 }}
+                nodes={nodes}
                 edges={edges}
                 onNodesChange={onNodesChange}
-                onEdgesChange={() => {}}
-                onConnectStart={onConnectStart}
                 onConnect={onConnect}
+                onConnectStart={onConnectStart}
                 onConnectEnd={onConnectEnd}
-                onNodeDragStop={() => {
-                  saveTree();
-                }}
-                reactFlowInstance={reactFlowInstance}
-                toggleShowGenes={() => {
-                  setShowGenes(!showGenes);
-                }}
-                treeEditable={props.crossTree.editable}
-              />
-            </div>
-            <div className={'drawer-side'}>
-              <label
-                htmlFor='cross-editor-drawer'
-                className='drawer-overlay'
+                nodesFocusable
+                connectionMode={ConnectionMode.Loose}
+                nodesDraggable={props.crossDesign.editable}
+                nodesConnectable={props.crossDesign.editable}
+                elementsSelectable={props.crossDesign.editable}
+              >
+                <CustomControls
+                  reactFlowInstance={reactFlowInstance}
+                  toggleShowGenes={() => {
+                    setShowGenes(!showGenes);
+                  }}
+                  crossDesignEditable={props.crossDesign.editable}
+                />
+                <MiniMap
+                  position='bottom-left'
+                  className='bg-base-300'
+                  nodeClassName='bg-base-100'
+                />
+                <Background className='-z-50 bg-base-300' size={1} gap={16} />
+              </ReactFlow>
+            </EditorContext.Provider>
+          </div>
+          <div className={'drawer-side'}>
+            <label
+              htmlFor='cross-editor-drawer'
+              className='drawer-overlay'
+              onClick={() => {
+                setEditorDrawerSideOpen(false);
+              }}
+            />
+            <div
+              className={
+                'flex h-screen flex-col overflow-y-auto bg-base-100 p-4'
+              }
+              hidden={!rightDrawerOpen}
+            >
+              <button
+                className='self-end'
                 onClick={() => {
                   setEditorDrawerSideOpen(false);
                 }}
-              />
-              <div
-                className={
-                  'flex h-screen flex-col overflow-y-auto bg-base-100 p-4'
-                }
-                hidden={!rightDrawerOpen}
               >
-                <button
-                  className='self-end'
-                  onClick={() => {
-                    setEditorDrawerSideOpen(false);
-                  }}
-                >
-                  <CloseIcon className='text-3xl' />
-                </button>
-                {drawerState === 'addNote' ? (
-                  <NoteForm
-                    header='Add note'
-                    buttonText='Create'
-                    content={noteFormContent}
-                    setContent={setNoteFormContent}
-                    callback={getOnSubmitForNoteForm()}
-                  />
-                ) : drawerState === 'editNote' ? (
-                  <NoteForm
-                    header='Edit note'
-                    buttonText='Save changes'
-                    content={noteFormContent}
-                    setContent={setNoteFormContent}
-                    callback={getOnSubmitForNoteForm()}
-                  />
-                ) : (
-                  <StrainForm
-                    onSubmit={getOnSubmitForStrainForm()}
-                    enforcedSex={enforcedSex}
-                  />
-                )}
-              </div>
+                <CloseIcon className='text-3xl' />
+              </button>
+              {drawerState === 'addNote' ? (
+                <NoteForm
+                  header='Add note'
+                  buttonText='Create'
+                  content={noteFormContent}
+                  setContent={setNoteFormContent}
+                  callback={getOnSubmitForNoteForm()}
+                />
+              ) : drawerState === 'editNote' ? (
+                <NoteForm
+                  header='Edit note'
+                  buttonText='Save changes'
+                  content={noteFormContent}
+                  setContent={setNoteFormContent}
+                  callback={getOnSubmitForNoteForm()}
+                />
+              ) : (
+                <StrainForm
+                  onSubmit={getOnSubmitForStrainForm()}
+                  enforcedSex={enforcedSex}
+                  newId={props.crossDesign.createId()}
+                  showGenes={showGenes}
+                />
+              )}
             </div>
           </div>
-          <SaveStrainModal
-            isOpen={saveStrainModalIsOpen}
-            setIsOpen={setSaveStrainModalIsOpen}
-            strainNode={getCurrentNode()}
-          />
         </div>
+        <SaveStrainModal
+          isOpen={saveStrainModalIsOpen}
+          setIsOpen={setSaveStrainModalIsOpen}
+          strainNode={getCurrentNode()}
+        />
       </div>
-    </ShowGenesContext.Provider>
+    </div>
+  );
+};
+
+type SaveMethod = 'png' | 'svg';
+const saveMethodFuncs: Record<
+  SaveMethod,
+  (node: HTMLElement, options: Options) => Promise<string>
+> = {
+  png: toPng,
+  svg: toSvg,
+};
+
+const downloadImage = async (
+  strainUrl: string,
+  saveMethod: SaveMethod,
+  dir: string | null
+): Promise<void> => {
+  const a = document.createElement('a');
+  let filename = `cross-crossDesign-${new Date().toISOString()}.${saveMethod}`;
+  // workaround  because of this: https://github.com/tauri-apps/tauri/issues/4633
+  if (window.__TAURI_IPC__ !== undefined) {
+    if (dir !== null && dir !== undefined) {
+      filename = await path.join(dir, filename);
+    }
+    const strainBlob = await (await fetch(strainUrl)).blob();
+    switch (saveMethod) {
+      case 'png':
+        fs.writeBinaryFile(filename, await strainBlob.arrayBuffer(), {
+          dir: dir === null ? fs.BaseDirectory.Download : undefined,
+        })
+          .then(() => toast.success('Exported PNG to ' + filename))
+          .catch(toast.error);
+        break;
+      case 'svg':
+        fs.writeTextFile(filename, await strainBlob.text(), {
+          dir: dir === null ? fs.BaseDirectory.Download : undefined,
+        })
+          .then(() => toast.success('Exported SVG to ' + filename))
+          .catch(toast.error);
+        break;
+    }
+  } else {
+    a.setAttribute('download', filename);
+    a.setAttribute('href', strainUrl);
+    a.click();
+  }
+};
+
+const saveImg = (saveMethod: SaveMethod): void => {
+  const saveFunc = saveMethodFuncs[saveMethod];
+  const reactFlowElem = document.querySelector('.react-flow');
+  if (reactFlowElem === null) {
+    alert('Could not find react-flow element');
+    return;
+  }
+  Promise.all([
+    open({
+      directory: true,
+    }),
+    saveFunc(reactFlowElem as HTMLElement, {
+      width: 1920,
+      height: 1080,
+      quality: 1,
+      skipAutoScale: false,
+      pixelRatio: 1,
+      filter: (node: Element | undefined) => {
+        // we don't want to add the minimap and the controls to the image
+        if (node === undefined) {
+          return false;
+        } else if (
+          node.classList !== undefined &&
+          (node.classList.contains('react-flow__minimap') ||
+            node.classList.contains('react-flow__controls') ||
+            node.classList.contains('react-flow__background') ||
+            node.classList.contains('react-flow__attribution'))
+        ) {
+          return false;
+        }
+        return true;
+      },
+    }),
+  ])
+    .then(async ([dir, strainUrl]) => {
+      await downloadImage(strainUrl, saveMethod, dir as string | null);
+    })
+    .catch((e) => {
+      alert(e);
+    });
+};
+
+interface CustomControlsProps {
+  reactFlowInstance?: ReactFlowInstance;
+  toggleShowGenes: () => void;
+  crossDesignEditable: boolean;
+}
+
+const CustomControls = (props: CustomControlsProps): React.JSX.Element => {
+  return (
+    <Controls
+      position='top-left'
+      className='bg-base-100 text-base-content'
+      showZoom={false}
+      showInteractive={props.crossDesignEditable}
+    >
+      <ControlButton
+        onClick={() => props.reactFlowInstance?.zoomIn({ duration: 150 })}
+      >
+        <FaPlus className='hover:cursor-pointer' />
+      </ControlButton>
+      <ControlButton
+        onClick={() => props.reactFlowInstance?.zoomOut({ duration: 150 })}
+      >
+        <FaMinus className='hover:cursor-pointer' />
+      </ControlButton>
+      <ControlButton className='drowndown-hover dropdown'>
+        <div>
+          <label tabIndex={0} className=''>
+            <BsCardImage className='text-3xl text-base-content hover:cursor-pointer' />
+          </label>
+          <ul
+            tabIndex={0}
+            className='dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow'
+          >
+            <li>
+              <a
+                target='_blank'
+                onClick={() => {
+                  saveImg('png');
+                }}
+              >
+                Export to PNG
+              </a>
+            </li>
+            <li>
+              <a
+                target='_blank'
+                onClick={() => {
+                  saveImg('svg');
+                }}
+              >
+                Export to SVG
+              </a>
+            </li>
+          </ul>
+        </div>
+      </ControlButton>
+      <ControlButton
+        onClick={() => {
+          props.toggleShowGenes();
+        }}
+      >
+        <FaEye />
+      </ControlButton>
+    </Controls>
   );
 };
 
