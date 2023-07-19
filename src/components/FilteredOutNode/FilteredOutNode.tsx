@@ -4,7 +4,6 @@ import { Handle, Position } from 'reactflow';
 export const FILTERED_OUT_NODE_WIDTH = 144; // w-36
 
 const FilteredOutNode = (props: { id: string }): React.JSX.Element => {
-  console.log('fon id', props.id);
   return (
     <div>
       <Handle key='top' id='top' type='target' position={Position.Top} />

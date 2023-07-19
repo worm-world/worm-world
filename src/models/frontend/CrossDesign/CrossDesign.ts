@@ -140,16 +140,17 @@ export default class CrossDesign {
   }
 
   /**
-   * @param refNode Strain node that is the direct parent of the X icon
+   * @param node Strain node that is the direct parent of the X icon
    * @returns XY coordinates of where to place the X icon in the editor
    */
-  public static getXNodePos(refNode: Node<Strain>): XYPosition {
-    const x =
-      refNode.data.sex === Sex.Male
-        ? STRAIN_NODE_WIDTH + NODE_PADDING
-        : -MIDDLE_NODE_WIDTH - NODE_PADDING;
-    const y = STRAIN_NODE_HEIGHT / 2 - MIDDLE_NODE_HEIGHT / 2;
-    return { x, y };
+  public static getXNodePos(parentNode: Node<Strain>): XYPosition {
+    return {
+      x:
+        parentNode.data.sex === Sex.Male
+          ? STRAIN_NODE_WIDTH + NODE_PADDING
+          : -MIDDLE_NODE_WIDTH - NODE_PADDING,
+      y: STRAIN_NODE_HEIGHT / 2 - MIDDLE_NODE_HEIGHT / 2,
+    };
   }
 
   /**

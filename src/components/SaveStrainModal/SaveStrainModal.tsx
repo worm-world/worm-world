@@ -6,13 +6,13 @@ import { type Node } from 'reactflow';
 interface SaveStrainModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  strainNode?: Node<Strain>;
+  strain: Strain;
 }
 
 const SaveStrainModal = (props: SaveStrainModalProps): React.JSX.Element => {
   const [strainNameInput, setStrainNameInput] = useState('');
   const [descriptionInput, setDescriptionInput] = useState('');
-  const strain = props.strainNode?.data;
+  const strain = props.strain;
   return (
     <>
       <input

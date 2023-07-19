@@ -1,9 +1,8 @@
 export interface NoteFormProps {
-  content: string;
-  setContent: (newContent: string) => void;
   callback: () => void;
   header: string;
   buttonText: string;
+  nodeId: string;
 }
 
 const NoteForm = (props: NoteFormProps): React.JSX.Element => {
@@ -12,23 +11,12 @@ const NoteForm = (props: NoteFormProps): React.JSX.Element => {
       <h1 className='text-lg'>{props.header}</h1>
       <div className='mb-2 mt-2 flex h-3/4 flex-col'>
         <textarea
-          value={props.content}
-          onChange={(e) => {
-            props.setContent(e.target.value);
-          }}
           id='noteContent'
           className='input-bordered input mr-2 h-full w-full resize-none p-2'
         />
       </div>
       <div className='mb-2 mt-4'>
-        <button
-          className='btn-primary btn w-full'
-          onClick={() => {
-            props.callback();
-          }}
-        >
-          {props.buttonText}
-        </button>
+        <button className='btn-primary btn w-full'>{props.buttonText}</button>
       </div>
     </div>
   );

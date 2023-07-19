@@ -2,9 +2,7 @@ import { type MenuItem } from 'components/Menu/Menu';
 import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { createContext } from 'react';
 
-const defaultFunction = (): void => {
-  console.log('default');
-};
+const defaultFunction = (): void => {};
 
 const EditorContext = createContext<{
   showGenes: boolean;

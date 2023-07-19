@@ -48,12 +48,7 @@ import { toast } from 'react-toastify';
 import ReactFlow, {
   Position,
   applyNodeChanges,
-  type NodeAddChange,
-  type NodeDimensionChange,
-  type NodePositionChange,
   type NodeRemoveChange,
-  type NodeResetChange,
-  type NodeSelectionChange,
   type OnConnectStartParams,
   type ReactFlowInstance,
   type XYPosition,
@@ -67,7 +62,9 @@ import ReactFlow, {
   type Connection,
   ConnectionMode,
   useReactFlow,
-  useUpdateNodeInternals,
+  getIncomers,
+  getConnectedEdges,
+  getOutgoers,
 } from 'reactflow';
 import { BiX as CloseIcon } from 'react-icons/bi';
 import SaveStrainModal from 'components/SaveStrainModal/SaveStrainModal';
@@ -96,95 +93,54 @@ export interface EditorProps {
   testing?: boolean; // This is used to determine if the context menu should be shown (testing workaround)
 }
 
-type DrawerState = 'addStrain' | 'cross' | 'addNote' | 'editNote';
+interface DrawerState {
+  type: DrawerType;
+  isOpen: boolean;
+  id?: string;
+}
+type DrawerType = 'addStrain' | 'cross' | 'addNote' | 'editNote';
+
+interface StrainModalState {
+  isOpen: boolean;
+  strain?: Strain;
+}
 
 const Editor = (props: EditorProps): React.JSX.Element => {
   const navigate = useNavigate();
   const reactFlowInstance = useReactFlow();
-  const currNodeId = useRef<string>('');
-  const [rightDrawerOpen, setEditorDrawerSideOpen] = useState(false);
-  const [drawerState, setDrawerState] = useState<DrawerState>('addStrain');
-  const [noteFormContent, setNoteFormContent] = useState('');
-  const [showGenes, setShowGenes] = useState(true);
-  const [saveStrainModalIsOpen, setSaveStrainModalIsOpen] = useState(false);
   const onConnectParams = useRef<OnConnectStartParams | null>(null);
+  const [drawerState, setDrawerState] = useState<DrawerState>({
+    type: 'addStrain',
+    isOpen: false,
+  });
+  const [saveStrainModalState, setSaveStrainModalState] =
+    useState<StrainModalState>({ isOpen: false, strain: new Strain() });
+  const [showGenes, setShowGenes] = useState(true);
+
+  const closeDrawer = (): void => {
+    setDrawerState({
+      type: 'addStrain',
+      isOpen: false,
+    });
+  };
+
   const nodes = props.crossDesign.nodes;
   const edges = props.crossDesign.edges;
   const offspringFilters = props.crossDesign.offspringFilters;
 
-  const setNodes = (newNodes: Node[]): void => {
-    props.setCrossDesign(
-      new CrossDesign({ ...props.crossDesign, nodes: newNodes })
-    );
-  };
-
-  const setEdges = (newEdges: Edge[]): void => {
-    props.setCrossDesign(
-      new CrossDesign({ ...props.crossDesign, edges: newEdges })
-    );
-  };
-
-  const setOffspringFilters = (
-    newOffspringFilters: Map<string, OffspringFilter>
-  ): void => {
+  const updateCrossDesign = ({
+    nodes = props.crossDesign.nodes,
+    edges = props.crossDesign.edges,
+    offspringFilters = props.crossDesign.offspringFilters,
+  }): void => {
     props.setCrossDesign(
       new CrossDesign({
         ...props.crossDesign,
-        offspringFilters: newOffspringFilters,
+        nodes,
+        edges,
+        offspringFilters,
       })
     );
-  };
-
-  const getStrainNodeMenuItems = (id: string): MenuItem[] => {
-    const strainNode: Node<Strain> = reactFlowInstance.getNode(
-      id
-    ) as Node<Strain>;
-    if (strainNode === undefined || strainNode.type !== NodeType.Strain) {
-      console.error(
-        'Cannot get menu items for an undefined or non-strain node.'
-      );
-      return [];
-    }
-
-    const self: MenuItem = {
-      icon: <SelfCrossIcon />,
-      text: 'Self-cross',
-      menuCallback: () => {
-        console.log(id);
-        selfCross(id).catch(console.error);
-      },
-    };
-    const cross: MenuItem = {
-      icon: <CrossIcon />,
-      text: 'Cross',
-      menuCallback: () => {
-        currNodeId.current = id;
-        setDrawerState('cross');
-        setEditorDrawerSideOpen(true);
-      },
-    };
-    const schedule: MenuItem = {
-      icon: <ScheduleIcon />,
-      text: 'Schedule',
-      menuCallback: () => {
-        scheduleNode(id);
-      },
-    };
-    const saveStrain: MenuItem = {
-      icon: <SaveIcon />,
-      text: 'Save strain',
-      menuCallback: () => {
-        currNodeId.current = id;
-        setSaveStrainModalIsOpen(true);
-      },
-    };
-
-    const menuOptions = [schedule];
-    if (!strainNode.data.isParent) menuOptions.push(cross);
-    if (strainNode.data.sex === Sex.Hermaphrodite && !strainNode.data.isParent)
-      menuOptions.push(self);
-    if (strainNode.data.name === undefined) menuOptions.push(saveStrain);
-    return menuOptions;
   };
 
   const editorContextValue = {
@@ -198,12 +154,12 @@ const Editor = (props: EditorProps): React.JSX.Element => {
         return;
       }
 
-      setNodes(
-        addNode(nodes, {
+      updateCrossDesign({
+        nodes: addNodes(nodes, {
           ...node,
           data: (node as Node<Strain>).data.toggleSex(),
-        })
-      );
+        }),
+      });
     },
     toggleHetPair: (id: string, pair: AllelePair): void => {
       const node = reactFlowInstance.getNode(id);
@@ -221,20 +177,65 @@ const Editor = (props: EditorProps): React.JSX.Element => {
         sex: strain.sex,
       })
         .then((strain) => {
-          setNodes(addNode(nodes, { ...node, data: strain }));
+          updateCrossDesign({
+            nodes: addNodes(nodes, { ...node, data: strain }),
+          });
         })
         .catch(console.error);
     },
     openNote: (id: string) => {
-      setNoteFormContent(reactFlowInstance.getNode(id)?.data);
-      setDrawerState('editNote');
-      setEditorDrawerSideOpen(true);
+      setDrawerState({ type: 'editNote', isOpen: true, id });
     },
-    getMenuItems: getStrainNodeMenuItems,
-  };
+    getMenuItems: (id: string): MenuItem[] => {
+      const strainNode: Node<Strain> = reactFlowInstance.getNode(
+        id
+      ) as Node<Strain>;
+      if (strainNode === undefined || strainNode.type !== NodeType.Strain) {
+        console.error(
+          'Cannot get menu items for an undefined or non-strain node.'
+        );
+        return [];
+      }
 
-  const getCurrentNode = (): Node | undefined => {
-    return reactFlowInstance.getNode(currNodeId.current);
+      const self: MenuItem = {
+        icon: <SelfCrossIcon />,
+        text: 'Self-cross',
+        menuCallback: () => {
+          selfCross(id).catch(console.error);
+        },
+      };
+      const cross: MenuItem = {
+        icon: <CrossIcon />,
+        text: 'Cross',
+        menuCallback: () => {
+          setDrawerState({ type: 'cross', isOpen: true, id });
+        },
+      };
+      const schedule: MenuItem = {
+        icon: <ScheduleIcon />,
+        text: 'Schedule',
+        menuCallback: () => {
+          scheduleNode(id);
+        },
+      };
+      const saveStrain: MenuItem = {
+        icon: <SaveIcon />,
+        text: 'Save strain',
+        menuCallback: () => {
+          setSaveStrainModalState({ isOpen: true });
+        },
+      };
+
+      const menuOptions = [schedule];
+      if (!strainNode.data.isParent) menuOptions.push(cross);
+      if (
+        strainNode.data.sex === Sex.Hermaphrodite &&
+        !strainNode.data.isParent
+      )
+        menuOptions.push(self);
+      if (strainNode.data.name === undefined) menuOptions.push(saveStrain);
+      return menuOptions;
+    },
   };
 
   /**
@@ -246,124 +247,118 @@ const Editor = (props: EditorProps): React.JSX.Element => {
     useContextMenuState(['react-flow__pane'], props.testing);
   const flowRef = useRef<HTMLDivElement>(null);
 
-  const addNode = (nodes: Node[], node: Node): Node[] => {
-    return [...nodes.filter((nd) => nd.id !== node.id), node];
+  const addNodes = (existingNodes: Node[], ...newNodes: Node[]): Node[] => {
+    const newIds = newNodes.map((newNode) => newNode.id);
+    return [
+      ...existingNodes.filter((node) => !newIds.includes(node.id)),
+      ...newNodes,
+    ];
+  };
+
+  const isValidNodeRemoveChange = (
+    nodeRemoveChange: NodeRemoveChange,
+    nodeRemoveChanges: NodeRemoveChange[]
+  ): boolean => {
+    const node = reactFlowInstance.getNode(nodeRemoveChange.id);
+    if (node === undefined) return false;
+    if (node.type !== NodeType.Strain) return true;
+
+    // Strain nodes must not be involved in a cross not slated for removal
+    const involvedMiddleNodes = [
+      ...getIncomers(node, nodes, edges),
+      ...getOutgoers(node, nodes, edges).filter(
+        (outNode) => outNode.type === NodeType.X
+      ),
+    ].map((node) => node.id);
+    const removalChangeIds = nodeRemoveChanges.map(
+      (nodeRemoveChange) => nodeRemoveChange.id
+    );
+    return (
+      involvedMiddleNodes.length === 0 ||
+      involvedMiddleNodes.every((involvedMiddleNode) =>
+        removalChangeIds.includes(involvedMiddleNode)
+      )
+    );
   };
 
   const onNodesChange = (changes: NodeChange[]): void => {
-    const [additions, deletions, dimensions, movements, resets, selections] =
-      filterNodeChanges(changes);
+    const [nodeRemoveChanges, othehermNodeChanges] =
+      categorizeNodeChanges(changes);
 
-    let canDelete = deletions.length > 0;
-    const selected = deletions.filter(
-      (del) => reactFlowInstance.getNode(del.id)?.selected
-    );
-    selected.forEach((selectedNode) => {
-      const toDelete = reactFlowInstance.getNode(selectedNode.id);
-      if (
-        toDelete?.parentNode !== undefined &&
-        toDelete.type === NodeType.Strain
-      ) {
-        toast.error("You can't remove a node that is the child of a cross");
-        canDelete = false;
-      }
-    });
-    const parentIds = selected.flatMap((selectedNode) =>
-      edges
-        .filter((edge) => edge.target === selectedNode.id)
-        .map((edge) => edge.source)
+    // console.log('nodeRemoveChanges', nodeRemoveChanges);
+    // Don't remove any child strains
+    const validNodeRemoveChanges: NodeRemoveChange[] = nodeRemoveChanges.every(
+      (nodeRemoveChange) =>
+        isValidNodeRemoveChange(nodeRemoveChange, nodeRemoveChanges)
+    )
+      ? nodeRemoveChanges
+      : [];
+
+    if (nodeRemoveChanges.length > 0 && validNodeRemoveChanges.length === 0)
+      toast.error('Cannot remove a strain involved in a cross');
+
+    const removed = validNodeRemoveChanges.flatMap(
+      (nodeRemoveChange) => reactFlowInstance.getNode(nodeRemoveChange.id) ?? []
     );
 
-    // Determine invisible and visible deletions
-    const visibleDelSet = new Set(deletions.map((d) => d.id));
-    const invisibleDeletions = props.crossDesign.nodes
-      .filter(
-        (node) =>
-          node.hidden === true &&
+    const parentsOfRemoved = removed.flatMap((node) =>
+      getIncomers(node, nodes, edges)
+    );
+
+    const updatedParentsOfRemoved = parentsOfRemoved.map((node) => {
+      if (node.type === NodeType.Strain) {
+        node.data = new Strain({ ...node.data, isParent: false });
+        // Remove parent node relationship between previously mated strains
+        if (
           node.parentNode !== undefined &&
-          visibleDelSet.has(node.parentNode)
-      )
-      .map((node) => node.id);
+          getOutgoers(node, nodes, edges)
+            .filter((outNode) => outNode.type === NodeType.X)
+            .every((involvedXNode) =>
+              validNodeRemoveChanges
+                .map((nodeRemoveChange) => nodeRemoveChange.id)
+                .includes(involvedXNode.id)
+            )
+        )
+          node.parentNode = undefined;
+      }
+      return node;
+    });
 
-    // Mark invisible nodes for deletion
-    invisibleDeletions.forEach((del) =>
-      deletions.push({ id: del, type: 'remove' })
+    const newNodes = applyNodeChanges(
+      [validNodeRemoveChanges, othehermNodeChanges].flat(),
+      addNodes(nodes, ...updatedParentsOfRemoved)
     );
 
-    // Apply all changes
-    const toApply = [
-      canDelete ? deletions : [],
-      movements,
-      dimensions,
-      additions,
-      resets,
-      selections,
-    ].flat();
-    let newNodes = applyNodeChanges(toApply, props.crossDesign.nodes);
+    // console.log('newNodes', newNodes);
 
-    if (canDelete) {
-      // update parent nodes
-      const parentNodes = parentIds.flatMap(
-        (id) => reactFlowInstance.getNode(id) ?? []
-      );
-      const parentIdSet = new Set(parentIds);
-      parentNodes.forEach((node) => {
-        node.data = node.data.clone();
-        node.data.isParent = false;
+    const newEdges =
+      validNodeRemoveChanges.length > 0
+        ? edges.filter(
+            (edge) =>
+              !getConnectedEdges(removed, edges)
+                .map((conEdge) => conEdge.id)
+                .includes(edge.id)
+          )
+        : edges;
 
-        // clear parent relationship between 2 nodes crossed together
-        const clearParentId =
-          node.parentNode !== undefined && parentIdSet.has(node.parentNode);
-        node.parentNode = clearParentId ? undefined : node.parentNode;
-
-        newNodes = addNode(newNodes, node);
-      });
-
-      // remove unneeded edges
-      const allDeletions = new Set(deletions.map((d) => d.id));
-      const edgesToDelete = new Set(
-        edges.filter((edge) => allDeletions.has(edge.target)).map((e) => e.id)
-      );
-      const newEdges = edges.filter((edge) => !edgesToDelete.has(edge.id));
-      setEdges(newEdges);
-    }
-
-    setNodes(newNodes);
+    updateCrossDesign({
+      nodes: newNodes,
+      edges: newEdges,
+    });
   };
 
-  /**
-   * Filters a generic NodeChange[] list into distinct change lists
-   */
-  const filterNodeChanges = (
+  const categorizeNodeChanges = (
     changes: NodeChange[]
-  ): [
-    NodeAddChange[],
-    NodeRemoveChange[],
-    NodeDimensionChange[],
-    NodePositionChange[],
-    NodeResetChange[],
-    NodeSelectionChange[]
-  ] => {
-    const additions: NodeAddChange[] = changes.flatMap((change) =>
-      change.type === 'add' ? change : []
-    );
-    const deletions: NodeRemoveChange[] = changes.flatMap((change) =>
-      change.type === 'remove' ? change : []
-    );
-    const dimensions: NodeDimensionChange[] = changes.flatMap((change) =>
-      change.type === 'dimensions' ? change : []
-    );
-    const movements: NodePositionChange[] = changes.flatMap((change) =>
-      change.type === 'position' ? change : []
-    );
-    const resets: NodeResetChange[] = changes.flatMap((change) =>
-      change.type === 'reset' ? change : []
-    );
-    const selections: NodeSelectionChange[] = changes.flatMap((change) =>
-      change.type === 'select' ? change : []
-    );
+  ): [NodeRemoveChange[], NodeChange[]] => {
+    const removals: NodeRemoveChange[] = [];
+    const otherChanges: NodeChange[] = [];
+    changes.forEach((change) => {
+      change.type === 'remove'
+        ? removals.push(change)
+        : otherChanges.push(change);
+    });
 
-    return [additions, deletions, dimensions, movements, resets, selections];
+    return [removals, otherChanges];
   };
 
   const onConnectStart = useCallback(
@@ -385,35 +380,39 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       args.targetHandle === 'bottom'
     )
       return;
-    const [lNodeId, rNodeId] =
+    const [maleNodeId, hermNodeId] =
       args.sourceHandle === 'right'
         ? [args.source, args.target]
         : [args.target, args.source];
 
-    const lNode = reactFlowInstance.getNode(lNodeId ?? '');
-    const rNode = reactFlowInstance.getNode(rNodeId ?? '');
-    if (lNode === undefined || rNode === undefined) {
+    const maleNode = reactFlowInstance.getNode(maleNodeId ?? '');
+    const hermNode = reactFlowInstance.getNode(hermNodeId ?? '');
+    if (maleNode === undefined || hermNode === undefined) {
       console.error('Cannot cross with an undefined node');
       return;
     }
-    if (lNode.type !== NodeType.Strain || rNode.type !== NodeType.Strain) {
+    if (
+      maleNode.type !== NodeType.Strain ||
+      hermNode.type !== NodeType.Strain
+    ) {
       console.error('Cannot cross with a non-strain node');
       return;
     }
 
-    const lStrain: Strain = lNode.data;
-    const rStrain: Strain = rNode.data;
+    const maleStrain: Strain = maleNode.data;
+    const hermStrain: Strain = hermNode.data;
 
-    if (lStrain.sex === rStrain.sex) {
+    if (maleStrain.sex === hermStrain.sex) {
       toast.error('Can only mate strains that are different sexes');
       return;
     }
 
-    if (lStrain.isParent || rStrain.isParent) {
+    if (maleStrain.isParent || hermStrain.isParent) {
       toast.error("A single strain can't be involved in multiple crosses");
       return;
     }
-    matedCross(lNode, rNode).catch(console.error);
+
+    matedCross(maleNode, hermNode).catch(console.error);
   }, []);
 
   /** Called after onConnect or after dragging an edge */
@@ -432,31 +431,19 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       return;
     }
 
-    const currNode = reactFlowInstance.getNode(id);
+    const curhermNode = reactFlowInstance.getNode(id);
 
-    if (currNode === undefined) return;
-    if (currNode.type !== NodeType.Strain) return;
-    const currStrain: Strain = currNode.data;
+    if (curhermNode === undefined) return;
+    if (curhermNode.type !== NodeType.Strain) return;
+    const curhermStrain: Strain = curhermNode.data;
 
-    if (currStrain.isParent) {
+    if (curhermStrain.isParent) {
       toast.error('Cannot cross a strain already involved in a cross');
       return nodes;
     }
 
-    if (params.handleId === Position.Bottom) {
-      const refNode = reactFlowInstance.getNode(id);
-      if (refNode === undefined || refNode.type !== NodeType.Strain) {
-        console.error(
-          'Cannot self-cross a node that is undefined/not a strain'
-        );
-      } else {
-        selfCross(refNode.id).catch(console.error);
-      }
-    } else {
-      currNodeId.current = id;
-      setDrawerState('cross');
-      setEditorDrawerSideOpen(true);
-    }
+    if (params.handleId === Position.Bottom) selfCross(id).catch(console.error);
+    else setDrawerState({ type: 'cross', isOpen: true, id });
   }, []);
 
   /** Show the filterOut node child of id if any strain children of id are hidden */
@@ -518,45 +505,45 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       });
     }
 
-    setOffspringFilters(new Map(offspringFilters));
+    updateCrossDesign({ offspringFilters: new Map(offspringFilters) });
     updateFilterOutNodeVisibility(update.nodeId);
   };
 
   const getNodePositionFromLastClick = (): XYPosition => {
-    const bounds = flowRef?.current?.getBoundingClientRect() ?? {
+    const bounodes = flowRef?.current?.getBoundingClientRect() ?? {
       left: 0,
       top: 0,
     };
     return (
       reactFlowInstance?.project({
-        x: rightClickXPos - bounds.left,
-        y: rightClickYPos - bounds.top,
+        x: rightClickXPos - bounodes.left,
+        y: rightClickYPos - bounodes.top,
       }) ?? { x: 0, y: 0 }
     );
   };
 
-  const addNote = (): void => {
+  const addNote = (content: string): void => {
     const noteNode: Node<string> = {
       id: props.crossDesign.createId(),
-      data: noteFormContent,
+      data: content,
       position: getNodePositionFromLastClick(),
       type: NodeType.Note,
     };
-    setEditorDrawerSideOpen(false);
-    setNodes(addNode(nodes, noteNode));
+    updateCrossDesign({ nodes: addNodes(nodes, noteNode) });
+    closeDrawer();
   };
 
-  const editNote = (): void => {
-    const noteNode = getCurrentNode();
+  const editNote = (content: string, id: string): void => {
+    const noteNode = reactFlowInstance.getNode(id);
     if (noteNode === undefined || noteNode.type !== NodeType.Note) {
       console.error(
-        'Cannot edit note when currNode is undefined or is not a note type'
+        'Cannot edit note when curhermNode is undefined or is not a note type'
       );
       return;
     }
-    noteNode.data = noteFormContent;
-    setEditorDrawerSideOpen(false);
-    setNodes(addNode(nodes, noteNode));
+    noteNode.data = content;
+    updateCrossDesign({ nodes: addNodes(nodes, noteNode) });
+    closeDrawer();
   };
 
   const addStrain = (strain: Strain): void => {
@@ -566,8 +553,8 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       position: getNodePositionFromLastClick(),
       type: NodeType.Strain,
     };
-    setNodes(addNode(nodes, strainNode));
-    setEditorDrawerSideOpen(false);
+    updateCrossDesign({ nodes: addNodes(nodes, strainNode) });
+    closeDrawer();
   };
 
   const selfCross = async (parentNodeId: string): Promise<void> => {
@@ -603,52 +590,55 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       };
     });
 
-    setNodes([...addNode(nodes, parentNode), selfNode, ...childNodes]);
-    setEdges([...edges, parentToSelf, ...childEdges]);
+    props.setCrossDesign(
+      new CrossDesign({
+        ...props.crossDesign,
+        nodes: addNodes(nodes, parentNode, selfNode, ...childNodes),
+        edges: [...edges, parentToSelf, ...childEdges],
+      })
+    );
   };
 
   const matedCross = async (
-    lNode: Node<Strain>,
-    rNode: Node<Strain>
+    maleNode: Node<Strain>,
+    hermNode: Node<Strain>
   ): Promise<void> => {
     // Mark as parents
-    lNode.data = new Strain({ ...lNode.data, isParent: true });
-    rNode.data = new Strain({ ...rNode.data, isParent: true });
+    maleNode.data = new Strain({ ...maleNode.data, isParent: true });
+    hermNode.data = new Strain({ ...hermNode.data, isParent: true });
 
-    // Update positioning of one of the parent strains
-    const lControlsR = rNode.parentNode === undefined;
-    if (lControlsR) {
-      rNode.parentNode = lNode.id;
-      rNode.position = CrossDesign.getMatedStrainPos(lNode.data.sex);
-    } else {
-      lNode.parentNode = rNode.id;
-      lNode.position = CrossDesign.getMatedStrainPos(rNode.data.sex);
-    }
+    hermNode.position = CrossDesign.getMatedStrainPos(maleNode.data.sex);
+    maleNode.position = CrossDesign.getMatedStrainPos(hermNode.data.sex);
 
-    // Create new nodes and edges
     const xNode: Node = {
       id: props.crossDesign.createId(),
       data: {},
-      position: CrossDesign.getXNodePos(lNode),
+      position: CrossDesign.getXNodePos(maleNode),
       type: NodeType.X,
     };
-    const lStrain = lNode.data;
-    const rStrain = rNode.data;
+
+    [xNode.parentNode, maleNode.parentNode, hermNode.parentNode] =
+      maleNode.parentNode !== undefined || hermNode.parentNode === undefined
+        ? [maleNode.id, maleNode.parentNode, maleNode.id]
+        : [hermNode.id, hermNode.id, hermNode.parentNode];
+
+    const maleStrain = maleNode.data;
+    const hermStrain = hermNode.data;
     const edge1 = {
       id: props.crossDesign.createId(),
-      source: lNode.id,
+      source: maleNode.id,
       target: xNode.id,
-      sourceHandle: lStrain.sex === Sex.Hermaphrodite ? 'left' : 'right',
-      targetHandle: lStrain.sex === Sex.Male ? 'left' : 'right',
+      sourceHandle: maleStrain.sex === Sex.Hermaphrodite ? 'left' : 'right',
+      targetHandle: maleStrain.sex === Sex.Male ? 'left' : 'right',
     };
     const edge2 = {
       id: props.crossDesign.createId(),
-      source: rNode.id,
+      source: hermNode.id,
       target: xNode.id,
-      sourceHandle: rStrain.sex === Sex.Hermaphrodite ? 'left' : 'right',
-      targetHandle: rStrain.sex === Sex.Male ? 'left' : 'right',
+      sourceHandle: hermStrain.sex === Sex.Hermaphrodite ? 'left' : 'right',
+      targetHandle: hermStrain.sex === Sex.Male ? 'left' : 'right',
     };
-    const childOptions = await lStrain.crossWith(rStrain);
+    const childOptions = await maleStrain.crossWith(hermStrain);
     const childNodes = getChildNodes(xNode, childOptions);
     const childEdges = childNodes.map((node) => {
       return {
@@ -658,12 +648,10 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       };
     });
 
-    let newNodes: Node[] = [];
-    [lNode, rNode, xNode, ...childNodes].forEach((node) => {
-      newNodes = addNode(nodes, node);
+    updateCrossDesign({
+      nodes: addNodes(nodes, maleNode, hermNode, xNode, ...childNodes),
+      edges: [...edges, edge1, edge2, ...childEdges],
     });
-    setNodes(newNodes);
-    setEdges([...edges, edge1, edge2, ...childEdges]);
   };
 
   /** Create a collection of strain nodes to represent children of a cross, from child strain options */
@@ -698,7 +686,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
         hidden: true,
         type: NodeType.FilteredOut,
       };
-      setNodes(addNode(nodes, filteredOutNode));
+      updateCrossDesign({ nodes: addNodes(nodes, filteredOutNode) });
       childNodes.unshift(filteredOutNode);
     }
     return childNodes;
@@ -707,28 +695,27 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   /**
    * Params are provided by the strainNode form's onSubmit callback function
    */
-  const matedCrossWithFormStrain = (strain: Strain): void => {
-    const startingNode = getCurrentNode();
-    if (startingNode === undefined || startingNode.type !== NodeType.Strain) {
+  const matedCrossWithForm = (strain: Strain, existingNodeId: string): void => {
+    const existingNode = reactFlowInstance.getNode(existingNodeId);
+    if (existingNode === undefined || existingNode.type !== NodeType.Strain) {
       console.error(
-        'Cannot cross currNode with a form node when currNode is undefined or not a strain'
+        'Cannot cross with a form-created node when existing node is undefined or not a strain'
       );
       return;
     }
 
-    const currStrain: Strain = startingNode.data;
-    const formNode: Node<Strain> = {
+    const newNode: Node<Strain> = {
       id: props.crossDesign.createId(),
       data: strain,
-      position: CrossDesign.getMatedStrainPos(currStrain.sex),
+      position: CrossDesign.getMatedStrainPos(existingNode.data.sex),
       type: NodeType.Strain,
     };
 
-    currStrain.sex === Sex.Male
-      ? matedCross(startingNode, formNode).catch(console.error)
-      : matedCross(formNode, startingNode).catch(console.error);
-
-    setEditorDrawerSideOpen(false);
+    (existingNode.data.sex === Sex.Male
+      ? matedCross(existingNode, newNode)
+      : matedCross(newNode, existingNode)
+    ).catch(console.error);
+    closeDrawer();
   };
 
   const scheduleNode = (id: string): void => {
@@ -756,35 +743,28 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   };
 
   /** Gets onSubmit callback for the strain form based on current state  */
-  const getOnSubmitForStrainForm = (): ((strain: Strain) => void) => {
-    switch (drawerState) {
-      case 'addStrain':
-        return addStrain;
-      case 'cross':
-        return matedCrossWithFormStrain;
-      default:
-        return () => {};
-    }
+  const getOnSubmitFohermStrainForm = (
+    id?: string
+  ): ((strain: Strain) => void) => {
+    if (drawerState.type === 'addStrain') return addStrain;
+    if (drawerState.type === 'cross' && id !== undefined)
+      return (strain: Strain) => {
+        matedCrossWithForm(strain, id);
+      };
+    console.error('Drawer not properly set up');
+    return () => {};
   };
 
   /** Gets onSubmit callback for the note form based on current state  */
-  const getOnSubmitForNoteForm = (): (() => void) => {
-    switch (drawerState) {
-      case 'addNote':
-        return addNote;
-      case 'editNote':
-        return editNote;
-      default:
-        return () => {};
-    }
+  const getOnSubmitForNoteForm = (id?: string): ((content: string) => void) => {
+    if (drawerState.type === 'addNote') return addNote;
+    if (drawerState.type === 'editNote' && id !== undefined)
+      return (content: string) => {
+        editNote(content, id);
+      };
+    console.error('Drawer not properly set up');
+    return () => {};
   };
-
-  const enforcedSex =
-    drawerState !== 'cross'
-      ? undefined
-      : getCurrentNode()?.data?.sex === Sex.Male
-      ? Sex.Hermaphrodite
-      : Sex.Male;
 
   const nodeTypes = useMemo(
     () => ({
@@ -847,7 +827,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
             id='right-drawer'
             type='checkbox'
             className='drawer-toggle'
-            checked={rightDrawerOpen}
+            checked={drawerState.isOpen}
             readOnly
           />
           <div className='drawer-content flex h-screen flex-col'>
@@ -855,8 +835,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
               <ContextMenu xPos={rightClickXPos} yPos={rightClickYPos}>
                 <li
                   onClick={() => {
-                    setEditorDrawerSideOpen(true);
-                    setDrawerState('addStrain');
+                    setDrawerState({ type: 'addStrain', isOpen: true });
                   }}
                 >
                   <button className='flex flex-row' name='add-cross-node'>
@@ -866,9 +845,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
                 </li>
                 <li
                   onClick={() => {
-                    setDrawerState('addNote');
-                    setNoteFormContent('');
-                    setEditorDrawerSideOpen(true);
+                    setDrawerState({ type: 'addNote', isOpen: true });
                   }}
                 >
                   <button className='flex flex-row' name='add-note'>
@@ -920,55 +897,53 @@ const Editor = (props: EditorProps): React.JSX.Element => {
             <label
               htmlFor='cross-editor-drawer'
               className='drawer-overlay'
-              onClick={() => {
-                setEditorDrawerSideOpen(false);
-              }}
+              onClick={closeDrawer}
             />
             <div
               className={
                 'flex h-screen flex-col overflow-y-auto bg-base-100 p-4'
               }
-              hidden={!rightDrawerOpen}
+              hidden={!drawerState.isOpen}
             >
-              <button
-                className='self-end'
-                onClick={() => {
-                  setEditorDrawerSideOpen(false);
-                }}
-              >
+              <button className='self-end' onClick={closeDrawer}>
                 <CloseIcon className='text-3xl' />
               </button>
-              {drawerState === 'addNote' ? (
+              {drawerState.type === 'addNote' ||
+              drawerState.type === 'editNote' ? (
                 <NoteForm
-                  header='Add note'
+                  header={
+                    drawerState.type === 'addNote' ? 'Add note' : 'Edit note'
+                  }
                   buttonText='Create'
-                  content={noteFormContent}
-                  setContent={setNoteFormContent}
-                  callback={getOnSubmitForNoteForm()}
-                />
-              ) : drawerState === 'editNote' ? (
-                <NoteForm
-                  header='Edit note'
-                  buttonText='Save changes'
-                  content={noteFormContent}
-                  setContent={setNoteFormContent}
-                  callback={getOnSubmitForNoteForm()}
+                  callback={function (): void {
+                    throw new Error('Function not implemented.');
+                  }}
+                  nodeId={''}
                 />
               ) : (
                 <StrainForm
-                  onSubmit={getOnSubmitForStrainForm()}
-                  enforcedSex={enforcedSex}
+                  onSubmit={getOnSubmitFohermStrainForm(drawerState.id)}
                   newId={props.crossDesign.createId()}
                   showGenes={showGenes}
+                  enforcedSex={
+                    drawerState.id === undefined
+                      ? undefined
+                      : reactFlowInstance.getNode(drawerState.id)?.data.sex ===
+                        Sex.Hermaphrodite
+                      ? Sex.Male
+                      : Sex.Hermaphrodite
+                  }
                 />
               )}
             </div>
           </div>
         </div>
         <SaveStrainModal
-          isOpen={saveStrainModalIsOpen}
-          setIsOpen={setSaveStrainModalIsOpen}
-          strainNode={getCurrentNode()}
+          isOpen={saveStrainModalState.isOpen}
+          setIsOpen={(isOpen: boolean) => {
+            setSaveStrainModalState({ ...saveStrainModalState, isOpen });
+          }}
+          strain={saveStrainModalState.strain ?? new Strain()}
         />
       </div>
     </div>

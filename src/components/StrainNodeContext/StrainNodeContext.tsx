@@ -2,9 +2,7 @@ import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { createContext } from 'react';
 
-const defaultFunction = (): void => {
-  console.log('default');
-};
+const defaultFunction = (): void => {};
 
 const StrainNodeContext = createContext<{
   strain: Strain;

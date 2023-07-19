@@ -40,6 +40,7 @@ const StrainNode = (props: StrainNodeProps): React.JSX.Element => {
         type='source'
         position={Position.Bottom}
       />
+      <div className='text-sm'>{props.id}</div>
       <StrainCard {...props} />
     </div>
   );
