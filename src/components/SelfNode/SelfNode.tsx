@@ -14,6 +14,7 @@ export const SelfNode = (props: { id: string }): React.JSX.Element => {
         type='source'
         position={Position.Bottom}
       />
+      <div className='text-sm'>{props.id}</div>
       {/* <label key={props.id} htmlFor={`cross-filter-modal-${props.id}`}> */}
       <div className='h-16 w-16 rounded-full bg-secondary p-4 shadow transition hover:cursor-pointer hover:bg-secondary-focus'>
         <SelfIcon className='h-8 w-8 text-3xl text-primary-content' />

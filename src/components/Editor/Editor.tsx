@@ -1,4 +1,4 @@
-import { insertCrossDesign } from 'api/crossDesign';
+import { insertCrossDesign, updateCrossDesign } from 'api/crossDesign';
 import { insertTasks } from 'api/task';
 import {
   ContextMenu,
@@ -31,6 +31,7 @@ import {
   useMemo,
   type MouseEvent as ReactMouseEvent,
   type TouchEvent as ReactTouchEvent,
+  useEffect,
 } from 'react';
 import { BsUiChecks as ScheduleIcon, BsCardImage } from 'react-icons/bs';
 import {
@@ -41,7 +42,7 @@ import {
   FaEye,
 } from 'react-icons/fa';
 import { FiPlusCircle as AddIcon } from 'react-icons/fi';
-import { ImLoop2 as SelfCrossIcon } from 'react-icons/im';
+import { ImLoop2 as SelfIcon } from 'react-icons/im';
 import { TbArrowsCross as CrossIcon } from 'react-icons/tb';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -89,7 +90,6 @@ export enum NodeType {
 
 export interface EditorProps {
   crossDesign: CrossDesign;
-  setCrossDesign: React.Dispatch<React.SetStateAction<CrossDesign | undefined>>;
   testing?: boolean; // This is used to determine if the context menu should be shown (testing workaround)
 }
 
@@ -109,6 +109,12 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   const navigate = useNavigate();
   const reactFlowInstance = useReactFlow();
   const onConnectParams = useRef<OnConnectStartParams | null>(null);
+  const [name, setName] = useState(props.crossDesign.name);
+  const [nodes, setNodes] = useState(props.crossDesign.nodes);
+  const [edges, setEdges] = useState(props.crossDesign.edges);
+  const [offspringFilters, setOffspringFilters] = useState(
+    props.crossDesign.offspringFilters
+  );
   const [drawerState, setDrawerState] = useState<DrawerState>({
     type: 'addStrain',
     isOpen: false,
@@ -116,31 +122,45 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   const [saveStrainModalState, setSaveStrainModalState] =
     useState<StrainModalState>({ isOpen: false, strain: new Strain() });
   const [showGenes, setShowGenes] = useState(true);
+  const [saveState, setSaveState] = useState({
+    isSaving: false,
+    lastSaved: props.crossDesign.lastSaved,
+  });
+  const timeout = useRef<NodeJS.Timeout>();
+
+  useEffect(() => {
+    setSaveState((saveState) => {
+      return { ...saveState, isSaving: true };
+    });
+    clearTimeout(timeout.current);
+    timeout.current = setTimeout(() => {
+      const time = new Date();
+      updateCrossDesign(
+        new CrossDesign({
+          ...props.crossDesign,
+          nodes,
+          edges,
+          offspringFilters,
+          name,
+          lastSaved: time,
+        }).generateRecord()
+      )
+        .then(() => {
+          setSaveState((saveState) => {
+            return { lastSaved: time, isSaving: false };
+          });
+        })
+        .catch(() => {
+          toast.error('Unable to save design');
+        });
+    }, 1000);
+  }, [nodes, edges, offspringFilters, name]);
 
   const closeDrawer = (): void => {
     setDrawerState({
       type: 'addStrain',
       isOpen: false,
     });
-  };
-
-  const nodes = props.crossDesign.nodes;
-  const edges = props.crossDesign.edges;
-  const offspringFilters = props.crossDesign.offspringFilters;
-
-  const updateCrossDesign = ({
-    nodes = props.crossDesign.nodes,
-    edges = props.crossDesign.edges,
-    offspringFilters = props.crossDesign.offspringFilters,
-  }): void => {
-    props.setCrossDesign(
-      new CrossDesign({
-        ...props.crossDesign,
-        nodes,
-        edges,
-        offspringFilters,
-      })
-    );
   };
 
   const editorContextValue = {
@@ -154,12 +174,12 @@ const Editor = (props: EditorProps): React.JSX.Element => {
         return;
       }
 
-      updateCrossDesign({
-        nodes: addNodes(nodes, {
+      setNodes((nodes) =>
+        addNodes(nodes, {
           ...node,
           data: (node as Node<Strain>).data.toggleSex(),
-        }),
-      });
+        })
+      );
     },
     toggleHetPair: (id: string, pair: AllelePair): void => {
       const node = reactFlowInstance.getNode(id);
@@ -177,9 +197,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
         sex: strain.sex,
       })
         .then((strain) => {
-          updateCrossDesign({
-            nodes: addNodes(nodes, { ...node, data: strain }),
-          });
+          setNodes((nodes) => addNodes(nodes, { ...node, data: strain }));
         })
         .catch(console.error);
     },
@@ -198,7 +216,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       }
 
       const self: MenuItem = {
-        icon: <SelfCrossIcon />,
+        icon: <SelfIcon />,
         text: 'Self-cross',
         menuCallback: () => {
           selfCross(id).catch(console.error);
@@ -285,7 +303,6 @@ const Editor = (props: EditorProps): React.JSX.Element => {
     const [nodeRemoveChanges, othehermNodeChanges] =
       categorizeNodeChanges(changes);
 
-    // console.log('nodeRemoveChanges', nodeRemoveChanges);
     // Don't remove any child strains
     const validNodeRemoveChanges: NodeRemoveChange[] = nodeRemoveChanges.every(
       (nodeRemoveChange) =>
@@ -324,14 +341,14 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       return node;
     });
 
-    const newNodes = applyNodeChanges(
-      [validNodeRemoveChanges, othehermNodeChanges].flat(),
-      addNodes(nodes, ...updatedParentsOfRemoved)
+    setNodes((nodes) =>
+      applyNodeChanges(
+        [validNodeRemoveChanges, othehermNodeChanges].flat(),
+        addNodes(nodes, ...updatedParentsOfRemoved)
+      )
     );
 
-    // console.log('newNodes', newNodes);
-
-    const newEdges =
+    setEdges((edges) =>
       validNodeRemoveChanges.length > 0
         ? edges.filter(
             (edge) =>
@@ -339,12 +356,8 @@ const Editor = (props: EditorProps): React.JSX.Element => {
                 .map((conEdge) => conEdge.id)
                 .includes(edge.id)
           )
-        : edges;
-
-    updateCrossDesign({
-      nodes: newNodes,
-      edges: newEdges,
-    });
+        : edges
+    );
   };
 
   const categorizeNodeChanges = (
@@ -425,25 +438,23 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       !props.crossDesign.editable
     )
       return;
-    const id = params.nodeId;
-    if (id === null || id === undefined) {
+    if (params.nodeId === null || params.nodeId === undefined) {
       console.error('Id is null or undefined');
       return;
     }
+    const node = reactFlowInstance.getNode(params.nodeId);
 
-    const curhermNode = reactFlowInstance.getNode(id);
-
-    if (curhermNode === undefined) return;
-    if (curhermNode.type !== NodeType.Strain) return;
-    const curhermStrain: Strain = curhermNode.data;
-
-    if (curhermStrain.isParent) {
+    if (node === undefined || node.type !== NodeType.Strain) {
+      toast.error('Node is not a defined strain');
+      return;
+    } else if ((node as Node<Strain>).data.isParent) {
       toast.error('Cannot cross a strain already involved in a cross');
-      return nodes;
+      return;
     }
 
-    if (params.handleId === Position.Bottom) selfCross(id).catch(console.error);
-    else setDrawerState({ type: 'cross', isOpen: true, id });
+    if (params.handleId === Position.Bottom)
+      selfCross(node.id).catch(console.error);
+    else setDrawerState({ type: 'cross', isOpen: true, id: node.id });
   }, []);
 
   /** Show the filterOut node child of id if any strain children of id are hidden */
@@ -505,7 +516,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       });
     }
 
-    updateCrossDesign({ offspringFilters: new Map(offspringFilters) });
+    setOffspringFilters((offspringFilters) => new Map(offspringFilters));
     updateFilterOutNodeVisibility(update.nodeId);
   };
 
@@ -529,7 +540,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       position: getNodePositionFromLastClick(),
       type: NodeType.Note,
     };
-    updateCrossDesign({ nodes: addNodes(nodes, noteNode) });
+    setNodes((nodes) => addNodes(nodes, noteNode));
     closeDrawer();
   };
 
@@ -537,12 +548,12 @@ const Editor = (props: EditorProps): React.JSX.Element => {
     const noteNode = reactFlowInstance.getNode(id);
     if (noteNode === undefined || noteNode.type !== NodeType.Note) {
       console.error(
-        'Cannot edit note when curhermNode is undefined or is not a note type'
+        'Cannot edit note when hermNode is undefined or is not a note type'
       );
       return;
     }
     noteNode.data = content;
-    updateCrossDesign({ nodes: addNodes(nodes, noteNode) });
+    setNodes((nodes) => addNodes(nodes, noteNode));
     closeDrawer();
   };
 
@@ -553,7 +564,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       position: getNodePositionFromLastClick(),
       type: NodeType.Strain,
     };
-    updateCrossDesign({ nodes: addNodes(nodes, strainNode) });
+    setNodes((nodes) => addNodes(nodes, strainNode));
     closeDrawer();
   };
 
@@ -580,6 +591,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       target: selfNode.id,
       sourceHandle: 'bottom',
     };
+    console.log('pts', parentToSelf);
     const childStrains = await parentNode.data.selfCross();
     const childNodes = getChildNodes(selfNode, childStrains);
     const childEdges = childNodes.map((node) => {
@@ -590,13 +602,13 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       };
     });
 
-    props.setCrossDesign(
-      new CrossDesign({
-        ...props.crossDesign,
-        nodes: addNodes(nodes, parentNode, selfNode, ...childNodes),
-        edges: [...edges, parentToSelf, ...childEdges],
-      })
+    console.log('nodes', nodes);
+    console.log(
+      'newNodes',
+      addNodes(nodes, parentNode, selfNode, ...childNodes)
     );
+    setNodes((nodes) => addNodes(nodes, parentNode, selfNode, ...childNodes));
+    setEdges((edges) => [...edges, parentToSelf, ...childEdges]);
   };
 
   const matedCross = async (
@@ -648,10 +660,10 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       };
     });
 
-    updateCrossDesign({
-      nodes: addNodes(nodes, maleNode, hermNode, xNode, ...childNodes),
-      edges: [...edges, edge1, edge2, ...childEdges],
-    });
+    setNodes((nodes) =>
+      addNodes(nodes, maleNode, hermNode, xNode, ...childNodes)
+    );
+    setEdges((edges) => [...edges, edge1, edge2, ...childEdges]);
   };
 
   /** Create a collection of strain nodes to represent children of a cross, from child strain options */
@@ -686,7 +698,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
         hidden: true,
         type: NodeType.FilteredOut,
       };
-      updateCrossDesign({ nodes: addNodes(nodes, filteredOutNode) });
+      setNodes((nodes) => addNodes(nodes, filteredOutNode));
       childNodes.unshift(filteredOutNode);
     }
     return childNodes;
@@ -857,13 +869,20 @@ const Editor = (props: EditorProps): React.JSX.Element => {
                 </li>
               </ContextMenu>
             )}
-            <EditorTop crossDesign={props.crossDesign} />
+            <EditorTop
+              crossDesign={props.crossDesign}
+              isSaving={saveState.isSaving}
+              lastSaved={saveState.lastSaved}
+              name={name}
+              setName={setName}
+            />
             <EditorContext.Provider value={editorContextValue}>
               <ReactFlow
+                fitView
+                nodesFocusable
                 ref={flowRef}
                 zoomOnScroll={true}
                 nodeTypes={nodeTypes}
-                fitView
                 defaultViewport={{ x: 0, y: 0, zoom: 5 }}
                 nodes={nodes}
                 edges={edges}
@@ -871,7 +890,6 @@ const Editor = (props: EditorProps): React.JSX.Element => {
                 onConnect={onConnect}
                 onConnectStart={onConnectStart}
                 onConnectEnd={onConnectEnd}
-                nodesFocusable
                 connectionMode={ConnectionMode.Loose}
                 nodesDraggable={props.crossDesign.editable}
                 nodesConnectable={props.crossDesign.editable}

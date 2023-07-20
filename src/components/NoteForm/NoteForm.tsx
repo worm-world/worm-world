@@ -1,8 +1,8 @@
 export interface NoteFormProps {
-  callback: () => void;
+  callback: (content: string) => void;
   header: string;
   buttonText: string;
-  nodeId: string;
+  nodeId?: string;
 }
 
 const NoteForm = (props: NoteFormProps): React.JSX.Element => {

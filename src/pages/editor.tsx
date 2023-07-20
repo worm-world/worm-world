@@ -7,19 +7,11 @@ import Spinner from 'components/Spinner/Spinner';
 import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { type Strain } from 'models/frontend/Strain/Strain';
 import { ReactFlowProvider, type Node } from 'reactflow';
-import { toast } from 'react-toastify';
 import { ChromosomePair } from 'models/frontend/ChromosomePair/ChromosomePair';
 
 const EditorPage = (): React.JSX.Element => {
   const [crossDesign, setCrossDesign] = useState<CrossDesign>();
   const crossDesignId: string = useLocation().state.crossDesignId;
-
-  useEffect(() => {
-    if (crossDesign !== undefined)
-      updateCrossDesign(crossDesign.generateRecord()).catch(() => {
-        toast.error('Unable to save design');
-      });
-  }, [crossDesign]);
 
   useEffect(() => {
     getCrossDesign(crossDesignId)
@@ -36,7 +28,7 @@ const EditorPage = (): React.JSX.Element => {
   } else {
     return (
       <ReactFlowProvider>
-        <Editor crossDesign={crossDesign} setCrossDesign={setCrossDesign} />
+        <Editor crossDesign={crossDesign} />
       </ReactFlowProvider>
     );
   }

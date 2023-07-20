@@ -18,33 +18,14 @@ describe('Editable div', () => {
     expect(editableDiv).toBeDefined();
   });
 
-  test('Displays placeholder if empty value', async () => {
-    const value = '';
-    const placeholder = 'placeholder';
-    render(
-      <EditableDiv
-        value={value}
-        setValue={() => {}}
-        editable={false}
-        onFinishEditing={() => {}}
-        placeholder={placeholder}
-      />
-    );
-
-    const editableDiv = screen.getByText(placeholder);
-    expect(editableDiv).toBeDefined();
-  });
-
-  test('Displays value instead of placeholder', async () => {
+  test('Displays value', async () => {
     const value = 'something';
-    const placeholder = 'placeholder';
     render(
       <EditableDiv
         value={value}
         setValue={() => {}}
         editable={false}
         onFinishEditing={() => {}}
-        placeholder={placeholder}
       />
     );
 

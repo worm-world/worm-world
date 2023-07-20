@@ -10,7 +10,6 @@ interface EditableDivProps {
   editable: boolean;
   onFinishEditing: () => void;
   onClick?: MouseEventHandler;
-  placeholder?: string;
   autoFocus?: boolean;
 }
 
@@ -24,10 +23,10 @@ const EditableDiv = (props: EditableDivProps): React.JSX.Element => {
     props.onFinishEditing();
   };
   return (
-    <div data-testid='editableDiv'>
+    <div className='h-full w-full' data-testid='editableDiv'>
       {props.editable ? (
         <input
-          className='input-ghost w-full border-2 border-base-300 bg-transparent'
+          className='input-ghost w-full border-2 border-base-300 bg-transparent p-1'
           onClick={(e) => {
             e.preventDefault();
           }}
@@ -42,15 +41,13 @@ const EditableDiv = (props: EditableDivProps): React.JSX.Element => {
         />
       ) : (
         <div
-          className={`w-full truncate border-2 border-transparent ${
+          className={`h-full w-full truncate border-2 border-transparent p-1 ${
             props.onClick !== undefined
               ? 'hover:cursor-text hover:border-base-300'
               : ''
           }`}
           onClick={props.onClick}
-        >
-          {props.value !== '' ? props.value : props.placeholder}
-        </div>
+        />
       )}
     </div>
   );

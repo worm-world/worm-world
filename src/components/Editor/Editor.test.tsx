@@ -30,20 +30,9 @@ describe('Editor', () => {
   });
 
   const renderComponent = (tree: CrossDesign): void => {
-    render(
-      <Editor
-        crossDesign={tree}
-        testing={true}
-        setCrossDesign={function (
-          value: SetStateAction<CrossDesign | undefined>
-        ): void {
-          throw new Error('Function not implemented.');
-        }}
-      />,
-      {
-        wrapper: Wrapper, // Need this wrapper since the component uses the react router
-      }
-    );
+    render(<Editor crossDesign={tree} testing={true} />, {
+      wrapper: Wrapper, // Need this wrapper since the component uses the react router
+    });
   };
 
   test('Renders', () => {
