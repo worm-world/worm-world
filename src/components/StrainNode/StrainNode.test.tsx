@@ -5,7 +5,7 @@ import * as strains from 'models/frontend/Strain/Strain.mock';
 describe('StrainNode component', () => {
   test('Empty node shows "wild" label', () => {
     const emptyNode = strains.emptyWild.toMale();
-    render(<StrainNode data={emptyNode} id={''} />);
+    render(<StrainNode xPos={0} yPos={0} data={emptyNode} id={''} />);
 
     const body = screen.getByTestId('strainNodeBody');
     expect(body).toHaveTextContent(/wild/i);
@@ -15,7 +15,7 @@ describe('StrainNode component', () => {
     const data = strains.emptyWild.toMale();
     data.probability = 0.25;
     data.isChild = true;
-    render(<StrainNode data={data} id={''} />);
+    render(<StrainNode data={data} id={''} xPos={0} yPos={0} />);
     const prob1 = screen.getByTestId('progress-0.8');
     expect(prob1).not.toBeNull();
     const prob2 = screen.getByTestId('progress-0.9');

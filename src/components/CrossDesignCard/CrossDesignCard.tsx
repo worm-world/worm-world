@@ -30,46 +30,44 @@ const CrossDesignCard = (props: CrossDesignCardProps): React.JSX.Element => {
     setName(props.crossDesign.name);
   }, [props.crossDesign.name]);
 
-  const getMenuItems = (): MenuItem[] => {
-    return [
-      {
-        text: 'Open',
-        menuCallback: () => {
-          navigate('/editor', {
-            state: { crossDesignId: props.crossDesign.id.toString() },
+  const menuItems = [
+    {
+      text: 'Open',
+      menuCallback: () => {
+        navigate('/editor', {
+          state: { crossDesignId: props.crossDesign.id.toString() },
+        });
+      },
+    },
+    {
+      text: 'Rename',
+      menuCallback: () => {
+        setNameEditable(true);
+      },
+    },
+    {
+      text: 'Export',
+      menuCallback: () => {
+        exportCrossDesign(props.crossDesign).catch(console.error);
+      },
+    },
+    {
+      text: 'Copy',
+      menuCallback: () => {
+        copyCrossDesign(props.crossDesign)
+          .then(props.refreshCrossDesigns)
+          .catch((err) => {
+            console.error(err);
           });
-        },
       },
-      {
-        text: 'Rename',
-        menuCallback: () => {
-          setNameEditable(true);
-        },
+    },
+    {
+      text: 'Delete',
+      menuCallback: () => {
+        setDeleteModalOpen(true);
       },
-      {
-        text: 'Export',
-        menuCallback: () => {
-          exportCrossDesign(props.crossDesign).catch(console.error);
-        },
-      },
-      {
-        text: 'Copy',
-        menuCallback: () => {
-          copyCrossDesign(props.crossDesign)
-            .then(props.refreshCrossDesigns)
-            .catch((err) => {
-              console.error(err);
-            });
-        },
-      },
-      {
-        text: 'Delete',
-        menuCallback: () => {
-          setDeleteModalOpen(true);
-        },
-      },
-    ];
-  };
+    },
+  ];
 
   const updateCrossDesignName = (): void => {
     props.crossDesign.name = name.trim();
@@ -88,14 +86,10 @@ const CrossDesignCard = (props: CrossDesignCardProps): React.JSX.Element => {
         state={{ crossDesignId: props.crossDesign.id.toString() }}
       >
         <div className='flex h-1/2 justify-end rounded-t-lg bg-primary'>
-          <Menu
-            items={getMenuItems()}
-            title='Actions'
-            icon={<MoreHorizIcon />}
-          />
+          <Menu items={menuItems} title='Actions' icon={<MoreHorizIcon />} />
         </div>
         <div className='h-1/2 bg-base-200 p-4 pt-2 text-base-content'>
-          <div className='card-title w-full truncate'>
+          <div className='card-title h-12 w-full truncate'>
             <EditableDiv
               value={name}
               setValue={setName}

@@ -33,13 +33,10 @@ import {
   type TouchEvent as ReactTouchEvent,
   useEffect,
 } from 'react';
-import { BsUiChecks as ScheduleIcon, BsCardImage } from 'react-icons/bs';
+import { BsUiChecks as ScheduleIcon } from 'react-icons/bs';
 import {
   FaRegStickyNote as NoteIcon,
   FaSave as SaveIcon,
-  FaPlus,
-  FaMinus,
-  FaEye,
 } from 'react-icons/fa';
 import { FiPlusCircle as AddIcon } from 'react-icons/fi';
 import { ImLoop2 as SelfIcon } from 'react-icons/im';
@@ -51,11 +48,8 @@ import ReactFlow, {
   applyNodeChanges,
   type NodeRemoveChange,
   type OnConnectStartParams,
-  type ReactFlowInstance,
   type XYPosition,
   MiniMap,
-  Controls,
-  ControlButton,
   Background,
   type Node,
   type Edge,
@@ -69,16 +63,13 @@ import ReactFlow, {
 } from 'reactflow';
 import { BiX as CloseIcon } from 'react-icons/bi';
 import SaveStrainModal from 'components/SaveStrainModal/SaveStrainModal';
-import { toPng, toSvg } from 'html-to-image';
 import 'reactflow/dist/style.css';
-import { open } from '@tauri-apps/api/dialog';
-import { fs, path } from '@tauri-apps/api';
-import { type Options } from 'html-to-image/lib/types';
 import { NoteNode } from 'components/NoteNode/NoteNode';
 import { SelfNode } from 'components/SelfNode/SelfNode';
 import StrainNode from 'components/StrainNode/StrainNode';
 import { XNode } from 'components/XNode/XNode';
 import EditorContext from 'components/EditorContext/EditorContext';
+import CustomControls from 'components/CustomControls/CustomControls';
 
 export enum NodeType {
   Strain = 'strain',
@@ -129,6 +120,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   const timeout = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
+    console.log('nodes', JSON.parse(JSON.stringify(nodes)));
     setSaveState((saveState) => {
       return { ...saveState, isSaving: true };
     });
@@ -173,7 +165,6 @@ const Editor = (props: EditorProps): React.JSX.Element => {
         );
         return;
       }
-
       setNodes((nodes) =>
         addNodes(nodes, {
           ...node,
@@ -302,6 +293,8 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   const onNodesChange = (changes: NodeChange[]): void => {
     const [nodeRemoveChanges, othehermNodeChanges] =
       categorizeNodeChanges(changes);
+
+    console.log('nodeRemoveChanges', nodeRemoveChanges);
 
     // Don't remove any child strains
     const validNodeRemoveChanges: NodeRemoveChange[] = nodeRemoveChanges.every(
@@ -591,7 +584,6 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       target: selfNode.id,
       sourceHandle: 'bottom',
     };
-    console.log('pts', parentToSelf);
     const childStrains = await parentNode.data.selfCross();
     const childNodes = getChildNodes(selfNode, childStrains);
     const childEdges = childNodes.map((node) => {
@@ -602,25 +594,18 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       };
     });
 
-    console.log('nodes', nodes);
-    console.log(
-      'newNodes',
-      addNodes(nodes, parentNode, selfNode, ...childNodes)
-    );
     setNodes((nodes) => addNodes(nodes, parentNode, selfNode, ...childNodes));
     setEdges((edges) => [...edges, parentToSelf, ...childEdges]);
   };
 
   const matedCross = async (
     maleNode: Node<Strain>,
-    hermNode: Node<Strain>
+    hermNode: Node<Strain>,
+    fromMale = true
   ): Promise<void> => {
     // Mark as parents
     maleNode.data = new Strain({ ...maleNode.data, isParent: true });
     hermNode.data = new Strain({ ...hermNode.data, isParent: true });
-
-    hermNode.position = CrossDesign.getMatedStrainPos(maleNode.data.sex);
-    maleNode.position = CrossDesign.getMatedStrainPos(hermNode.data.sex);
 
     const xNode: Node = {
       id: props.crossDesign.createId(),
@@ -629,10 +614,31 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       type: NodeType.X,
     };
 
+    const maleNodeIsParent =
+      maleNode.parentNode !== undefined || hermNode.parentNode === undefined;
+
     [xNode.parentNode, maleNode.parentNode, hermNode.parentNode] =
-      maleNode.parentNode !== undefined || hermNode.parentNode === undefined
+      maleNodeIsParent
         ? [maleNode.id, maleNode.parentNode, maleNode.id]
         : [hermNode.id, hermNode.id, hermNode.parentNode];
+
+    if (fromMale) {
+      hermNode.position = CrossDesign.getRelStrainPos(maleNode);
+      if (!maleNodeIsParent) {
+        hermNode.position = CrossDesign.getAbsolutePos(
+          hermNode.position,
+          maleNode
+        );
+      }
+    } else {
+      maleNode.position = CrossDesign.getRelStrainPos(hermNode);
+      if (maleNodeIsParent) {
+        maleNode.position = CrossDesign.getAbsolutePos(
+          maleNode.position,
+          hermNode
+        );
+      }
+    }
 
     const maleStrain = maleNode.data;
     const hermStrain = hermNode.data;
@@ -660,8 +666,11 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       };
     });
 
+    console.log('m', JSON.parse(JSON.stringify(maleNode)));
+    console.log('h', JSON.parse(JSON.stringify(hermNode)));
+
     setNodes((nodes) =>
-      addNodes(nodes, maleNode, hermNode, xNode, ...childNodes)
+      addNodes(nodes, hermNode, maleNode, xNode, ...childNodes)
     );
     setEdges((edges) => [...edges, edge1, edge2, ...childEdges]);
   };
@@ -719,13 +728,13 @@ const Editor = (props: EditorProps): React.JSX.Element => {
     const newNode: Node<Strain> = {
       id: props.crossDesign.createId(),
       data: strain,
-      position: CrossDesign.getMatedStrainPos(existingNode.data.sex),
+      position: { x: 0, y: 0 },
       type: NodeType.Strain,
     };
 
     (existingNode.data.sex === Sex.Male
       ? matedCross(existingNode, newNode)
-      : matedCross(newNode, existingNode)
+      : matedCross(newNode, existingNode, false)
     ).catch(console.error);
     closeDrawer();
   };
@@ -755,9 +764,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   };
 
   /** Gets onSubmit callback for the strain form based on current state  */
-  const getOnSubmitFohermStrainForm = (
-    id?: string
-  ): ((strain: Strain) => void) => {
+  const getStrainFormCallback = (id?: string): ((strain: Strain) => void) => {
     if (drawerState.type === 'addStrain') return addStrain;
     if (drawerState.type === 'cross' && id !== undefined)
       return (strain: Strain) => {
@@ -879,7 +886,6 @@ const Editor = (props: EditorProps): React.JSX.Element => {
             <EditorContext.Provider value={editorContextValue}>
               <ReactFlow
                 fitView
-                nodesFocusable
                 ref={flowRef}
                 zoomOnScroll={true}
                 nodeTypes={nodeTypes}
@@ -940,7 +946,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
                 />
               ) : (
                 <StrainForm
-                  onSubmit={getOnSubmitFohermStrainForm(drawerState.id)}
+                  onSubmit={getStrainFormCallback(drawerState.id)}
                   newId={props.crossDesign.createId()}
                   showGenes={showGenes}
                   enforcedSex={
@@ -965,160 +971,6 @@ const Editor = (props: EditorProps): React.JSX.Element => {
         />
       </div>
     </div>
-  );
-};
-
-type SaveMethod = 'png' | 'svg';
-const saveMethodFuncs: Record<
-  SaveMethod,
-  (node: HTMLElement, options: Options) => Promise<string>
-> = {
-  png: toPng,
-  svg: toSvg,
-};
-
-const downloadImage = async (
-  strainUrl: string,
-  saveMethod: SaveMethod,
-  dir: string | null
-): Promise<void> => {
-  const a = document.createElement('a');
-  let filename = `cross-crossDesign-${new Date().toISOString()}.${saveMethod}`;
-  // workaround  because of this: https://github.com/tauri-apps/tauri/issues/4633
-  if (window.__TAURI_IPC__ !== undefined) {
-    if (dir !== null && dir !== undefined) {
-      filename = await path.join(dir, filename);
-    }
-    const strainBlob = await (await fetch(strainUrl)).blob();
-    switch (saveMethod) {
-      case 'png':
-        fs.writeBinaryFile(filename, await strainBlob.arrayBuffer(), {
-          dir: dir === null ? fs.BaseDirectory.Download : undefined,
-        })
-          .then(() => toast.success('Exported PNG to ' + filename))
-          .catch(toast.error);
-        break;
-      case 'svg':
-        fs.writeTextFile(filename, await strainBlob.text(), {
-          dir: dir === null ? fs.BaseDirectory.Download : undefined,
-        })
-          .then(() => toast.success('Exported SVG to ' + filename))
-          .catch(toast.error);
-        break;
-    }
-  } else {
-    a.setAttribute('download', filename);
-    a.setAttribute('href', strainUrl);
-    a.click();
-  }
-};
-
-const saveImg = (saveMethod: SaveMethod): void => {
-  const saveFunc = saveMethodFuncs[saveMethod];
-  const reactFlowElem = document.querySelector('.react-flow');
-  if (reactFlowElem === null) {
-    alert('Could not find react-flow element');
-    return;
-  }
-  Promise.all([
-    open({
-      directory: true,
-    }),
-    saveFunc(reactFlowElem as HTMLElement, {
-      width: 1920,
-      height: 1080,
-      quality: 1,
-      skipAutoScale: false,
-      pixelRatio: 1,
-      filter: (node: Element | undefined) => {
-        // we don't want to add the minimap and the controls to the image
-        if (node === undefined) {
-          return false;
-        } else if (
-          node.classList !== undefined &&
-          (node.classList.contains('react-flow__minimap') ||
-            node.classList.contains('react-flow__controls') ||
-            node.classList.contains('react-flow__background') ||
-            node.classList.contains('react-flow__attribution'))
-        ) {
-          return false;
-        }
-        return true;
-      },
-    }),
-  ])
-    .then(async ([dir, strainUrl]) => {
-      await downloadImage(strainUrl, saveMethod, dir as string | null);
-    })
-    .catch((e) => {
-      alert(e);
-    });
-};
-
-interface CustomControlsProps {
-  reactFlowInstance?: ReactFlowInstance;
-  toggleShowGenes: () => void;
-  crossDesignEditable: boolean;
-}
-
-const CustomControls = (props: CustomControlsProps): React.JSX.Element => {
-  return (
-    <Controls
-      position='top-left'
-      className='bg-base-100 text-base-content'
-      showZoom={false}
-      showInteractive={props.crossDesignEditable}
-    >
-      <ControlButton
-        onClick={() => props.reactFlowInstance?.zoomIn({ duration: 150 })}
-      >
-        <FaPlus className='hover:cursor-pointer' />
-      </ControlButton>
-      <ControlButton
-        onClick={() => props.reactFlowInstance?.zoomOut({ duration: 150 })}
-      >
-        <FaMinus className='hover:cursor-pointer' />
-      </ControlButton>
-      <ControlButton className='drowndown-hover dropdown'>
-        <div>
-          <label tabIndex={0} className=''>
-            <BsCardImage className='text-3xl text-base-content hover:cursor-pointer' />
-          </label>
-          <ul
-            tabIndex={0}
-            className='dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow'
-          >
-            <li>
-              <a
-                target='_blank'
-                onClick={() => {
-                  saveImg('png');
-                }}
-              >
-                Export to PNG
-              </a>
-            </li>
-            <li>
-              <a
-                target='_blank'
-                onClick={() => {
-                  saveImg('svg');
-                }}
-              >
-                Export to SVG
-              </a>
-            </li>
-          </ul>
-        </div>
-      </ControlButton>
-      <ControlButton
-        onClick={() => {
-          props.toggleShowGenes();
-        }}
-      >
-        <FaEye />
-      </ControlButton>
-    </Controls>
   );
 };
 

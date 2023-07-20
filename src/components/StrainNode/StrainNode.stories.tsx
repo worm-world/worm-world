@@ -18,7 +18,7 @@ export default {
 const Template: StoryFn<typeof StrainNode> = (args: StrainNodeProps) => {
   return (
     <ReactFlowProvider>
-      <StrainNode data={args.data} id={''}></StrainNode>
+      <StrainNode data={args.data} id={''} xPos={0} yPos={0} />
     </ReactFlowProvider>
   );
 };

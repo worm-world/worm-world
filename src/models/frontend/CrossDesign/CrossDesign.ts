@@ -139,28 +139,40 @@ export default class CrossDesign {
     };
   }
 
-  /**
-   * @param node Strain node that is the direct parent of the X icon
-   * @returns XY coordinates of where to place the X icon in the editor
-   */
-  public static getXNodePos(parentNode: Node<Strain>): XYPosition {
-    return {
-      x:
-        parentNode.data.sex === Sex.Male
-          ? STRAIN_NODE_WIDTH + NODE_PADDING
-          : -MIDDLE_NODE_WIDTH - NODE_PADDING,
-      y: STRAIN_NODE_HEIGHT / 2 - MIDDLE_NODE_HEIGHT / 2,
-    };
+  public static getXNodePos(
+    maleParentNode: Node<Strain>,
+    relative = true
+  ): XYPosition {
+    const x = STRAIN_NODE_WIDTH + NODE_PADDING;
+    const y = STRAIN_NODE_HEIGHT / 2 - MIDDLE_NODE_HEIGHT / 2;
+    return relative
+      ? {
+          x,
+          y,
+        }
+      : { x: x + maleParentNode.position.x, y: y + maleParentNode.position.y };
   }
 
-  /**
-   * @returns XY coordinates of where to place the other strain created from the form
-   */
-  public static getMatedStrainPos(sex: Sex): XYPosition {
+  public static getRelStrainPos(
+    matedNode: Node<Strain>,
+    relative = true
+  ): XYPosition {
     const x =
       (STRAIN_NODE_WIDTH + NODE_PADDING + MIDDLE_NODE_WIDTH + NODE_PADDING) *
-      (sex === Sex.Male ? 1 : -1);
+      (matedNode.data.sex === Sex.Male ? 1 : -1);
+    console.log({
+      x,
+      y: 0,
+    });
     return { x, y: 0 };
+  }
+
+  public static getAbsolutePos(relPos: XYPosition, node: Node): XYPosition {
+    console.log({
+      x: relPos.x + node.position.x,
+      y: relPos.y + node.position.y,
+    });
+    return { x: relPos.x + node.position.x, y: relPos.y + node.position.y };
   }
 
   /**

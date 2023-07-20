@@ -9,6 +9,8 @@ export const STRAIN_NODE_HEIGHT = 144; // w-36
 export interface StrainNodeProps {
   data: Strain;
   id: string;
+  xPos: number;
+  yPos: number;
 }
 
 const StrainNode = (props: StrainNodeProps): React.JSX.Element => {
@@ -41,6 +43,9 @@ const StrainNode = (props: StrainNodeProps): React.JSX.Element => {
         position={Position.Bottom}
       />
       <div className='text-sm'>{props.id}</div>
+      <div className='text-sm'>
+        {Math.round(props.xPos)},{Math.round(props.yPos)}
+      </div>
       <StrainCard {...props} />
     </div>
   );
