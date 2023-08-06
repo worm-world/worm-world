@@ -96,7 +96,9 @@ describe('StrainFilter', () => {
     };
     const options = StrainFilter.getFilterOptions([node]);
 
-    expect(options.alleleNames).toEqual(new Set(['n765', '+', 'ed3']));
+    expect(options.alleleNames).toEqual(
+      new Set(['lin-15B(n765)', 'lin-15B(+)', 'unc-119(ed3)'])
+    );
     expect(options.exprPhenotypes).toEqual(new Set(['unc-119', 'lin-15B']));
     expect(options.reqConditions).toEqual(new Set(['25C']));
     expect(options.supConditions).toEqual(new Set<string>());
@@ -119,7 +121,9 @@ describe('StrainFilter', () => {
     };
     const options = StrainFilter.getFilterOptions([node1, node2]);
 
-    expect(options.alleleNames).toEqual(new Set(['n765', '+', 'ed3']));
+    expect(options.alleleNames).toEqual(
+      new Set(['lin-15B(n765)', 'lin-15B(+)', 'unc-119(ed3)'])
+    );
     expect(options.exprPhenotypes).toEqual(new Set(['unc-119', 'lin-15B']));
     expect(options.reqConditions).toEqual(new Set(['25C']));
     expect(options.supConditions).toEqual(new Set<string>());

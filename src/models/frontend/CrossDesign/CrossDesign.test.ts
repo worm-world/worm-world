@@ -282,9 +282,9 @@ describe('cross crossDesign', () => {
 
     const tasks = crossDesign.getTasks(nodes[5]);
     expect(tasks).toHaveLength(2);
-    expect(tasks[0].action).toBe('self-cross');
+    expect(tasks[0].action).toBe('SelfCross');
     expect(tasks[0].maleStrain).toBeUndefined();
-    expect(tasks[1].action).toBe('cross');
+    expect(tasks[1].action).toBe('Cross');
     const today = new Date().getDate();
     const todayPlusThree = moment().add(3, 'days').toDate().getDate();
     expect(tasks[0].dueDate?.getDate()).toBe(todayPlusThree);

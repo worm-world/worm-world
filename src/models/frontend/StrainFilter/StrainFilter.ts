@@ -32,7 +32,7 @@ export class StrainFilter implements IStrainFilter {
   @Transform((data: any) => new Set(data?.obj?.hidden))
   public hidden: Set<string> = new Set<string>();
 
-  constructor(props?: IStrainFilter) {
+  constructor(props?: Partial<IStrainFilter>) {
     if (props !== undefined) Object.assign(this, props);
   }
 

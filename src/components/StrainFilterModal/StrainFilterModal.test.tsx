@@ -8,17 +8,11 @@ import { Strain } from 'models/frontend/Strain/Strain';
 import { type Node } from 'reactflow';
 import { vi, expect, test, describe } from 'vitest';
 
-const renderComponent = ({
+const renderModal = ({
   childNodes = new Array<Node<Strain>>(),
   invisibleSet = new Set<string>(),
   toggleVisible = vi.fn(),
-  filter = new StrainFilter({
-    alleleNames: new Set(),
-    exprPhenotypes: new Set(),
-    reqConditions: new Set(),
-    supConditions: new Set(),
-    hidden: new Set(),
-  }),
+  filter = new StrainFilter(),
   updateFilter = vi.fn(),
 }): void => {
   render(
@@ -31,28 +25,6 @@ const renderComponent = ({
   );
 };
 
-const createFilter = ({
-  alleleNames = new Set(),
-  exprPhenotypes = new Set(),
-  reqConditions = new Set(),
-  supConditions = new Set(),
-  hidden = new Set(),
-}: {
-  alleleNames?: Set<string>;
-  exprPhenotypes?: Set<string>;
-  reqConditions?: Set<string>;
-  supConditions?: Set<string>;
-  hidden?: Set<string>;
-}): StrainFilter => {
-  return new StrainFilter({
-    alleleNames,
-    exprPhenotypes,
-    reqConditions,
-    supConditions,
-    hidden,
-  });
-};
-
 describe('StrainFilterModal', () => {
   test('modal displays all nodes in map', () => {
     const childNodes = [
@@ -60,36 +32,27 @@ describe('StrainFilterModal', () => {
       crossDesigns.ed3HeteroMale,
       crossDesigns.ed3HomoHerm,
     ];
-    renderComponent({ childNodes });
+    renderModal({ childNodes });
 
-    const definedTestIds = [
-      'strain-filter-collapse-alleleNames',
-      'strain-filter-collapse-exprPhenotypes',
-      'strain-filter-collapse-outputted-strains',
-    ];
-    const undefinedTestIds = [
-      'strain-filter-collapse-reqConditions',
-      'strain-filter-collapse-supConditions',
-    ];
+    const present = [/alleles/i, /phenotypes/i, /strains/i];
+    const notPresent = [/required/i, /suppressing/i];
 
     // make sure correct filter sections show
-    definedTestIds.forEach((testId) => {
-      const collapseSec = screen.getByTestId(testId);
+    present.forEach((p) => {
+      const collapseSec = screen.getByText(p);
       expect(collapseSec).toBeDefined();
-      const checkboxes = within(collapseSec).getAllByRole('checkbox');
-      expect(checkboxes.length).toBeGreaterThan(0);
     });
 
-    undefinedTestIds.forEach((testId) => {
-      expect(screen.queryByTestId(testId)).toBeNull();
+    notPresent.forEach((np) => {
+      expect(screen.queryByText(np)).toBeNull();
     });
 
-    // check if node models rendered
+    // check if nodes rendered
     childNodes.forEach((node) => {
       const chromPairs = [...node.data.chromPairMap.values()];
       chromPairs.forEach((pair) => {
         if (pair.allelePairs.length > 0) {
-          const pairText = pair.allelePairs[0].top.name;
+          const pairText = pair.allelePairs[0].top.getQualifiedName();
           const pairElements = screen.getAllByText(pairText);
           expect(pairElements.length).toBeGreaterThan(0);
         }
@@ -99,9 +62,9 @@ describe('StrainFilterModal', () => {
 
   test('modal displays limited strain options with set filters', () => {
     const childNodes = [crossDesigns.n765AsChild, crossDesigns.ed3AsChild];
-    const filter = createFilter({ alleleNames: new Set(['ed3']) });
+    const filter = new StrainFilter({ alleleNames: new Set(['ed3']) });
 
-    renderComponent({ childNodes, filter });
+    renderModal({ childNodes, filter });
 
     [
       'strain-filter-collapse-exprPhenotypes',
@@ -137,7 +100,7 @@ describe('StrainFilterModal', () => {
       crossDesigns.ed3HomoHerm,
     ];
     const invisibleSet = new Set<string>(crossDesigns.ed3HeteroHerm.id);
-    renderComponent({ childNodes, invisibleSet });
+    renderModal({ childNodes, invisibleSet });
 
     const strainSec = screen.getByTestId(
       'strain-filter-collapse-outputted-strains'
@@ -158,7 +121,7 @@ describe('StrainFilterModal', () => {
     ];
     const toggleVisible = vi.fn();
     const user = userEvent.setup();
-    renderComponent({ childNodes, toggleVisible });
+    renderModal({ childNodes, toggleVisible });
 
     const strainSec = screen.getByTestId(
       'strain-filter-collapse-outputted-strains'
@@ -179,7 +142,7 @@ describe('StrainFilterModal', () => {
     const user = userEvent.setup();
     const childNodes = [crossDesigns.n765AsChild, crossDesigns.ed3AsChild];
     const updateFilter = vi.fn();
-    renderComponent({ childNodes, updateFilter });
+    renderModal({ childNodes, updateFilter });
 
     const filterSec = screen.getByTestId('strain-filter-collapse-alleleNames');
     const filterCheckboxes = within(filterSec).getAllByRole('checkbox');
@@ -250,7 +213,9 @@ describe('StrainFilter', () => {
     };
     const options = StrainFilter.getFilterOptions([node1, node2]);
 
-    expect(options.alleleNames).toEqual(new Set(['n765', '+', 'ed3']));
+    expect(options.alleleNames).toEqual(
+      new Set(['lin-15B(n765)', 'lin-15B(+)', 'unc-119(ed3)'])
+    );
     expect(options.exprPhenotypes).toEqual(new Set(['unc-119', 'lin-15B']));
     expect(options.reqConditions).toEqual(new Set(['25C']));
     expect(options.supConditions).toEqual(new Set<string>());

@@ -680,7 +680,6 @@ const Editor = (props: EditorProps): React.JSX.Element => {
     const tasks = clonedCrossDesign
       .getTasks(node)
       .map((task) => task.generateRecord());
-    console.log(tasks);
     insertCrossDesign(clonedCrossDesign.generateRecord())
       .then(async () => {
         await insertTasks(tasks);

@@ -87,6 +87,12 @@ const TaskRescheduleModal = (props: {
 }): React.JSX.Element => {
   const [preview, setPreview] = useState(false);
   const [date, setDate] = useState<Date>(props.task.dueDate ?? new Date());
+  const [prevTaskId, setPrevTaskId] = useState<string>();
+  if (prevTaskId !== props.task.id) {
+    setPrevTaskId(props.task.id);
+    setPreview(false);
+    setDate(props.task.dueDate ?? new Date());
+  }
   const delta =
     props.task.dueDate === undefined
       ? undefined
@@ -135,8 +141,9 @@ const TaskRescheduleModal = (props: {
                   className='btn btn-primary'
                   htmlFor='task-reschedule-modal'
                   onClick={() => {
-                    props.tasks.forEach((task) => {
-                      const dbTask = task.generateRecord();
+                    props.task.getDescendents(props.tasks).forEach((task) => {
+                      task.dueDate = getNewDate(task.dueDate);
+                      props.updateTask(task);
                     });
                   }}
                 >
@@ -169,13 +176,6 @@ const TaskRescheduleModal = (props: {
                   className='border-2 bg-base-100'
                   onChange={(event) => {
                     const newDate = new Date(event.target.value);
-                    console.log(
-                      'new',
-                      new Date(
-                        newDate.getTime() +
-                          newDate.getTimezoneOffset() * 60 * 1000
-                      )
-                    );
                     setDate(
                       new Date(
                         newDate.getTime() +
