@@ -3,6 +3,8 @@ import { type Edge, type Node } from 'reactflow';
 import { NodeType } from 'components/Editor/Editor';
 import * as strains from 'models/frontend/Strain/Strain.mock';
 import { type Strain } from 'models/frontend/Strain/Strain';
+import { type MiddleNodeProps } from 'components/MiddleNode/MiddleNode';
+import StrainFilter from '../StrainFilter/StrainFilter';
 
 export const emptyCrossDesign = new CrossDesign({
   name: 'Empty cross tree',
@@ -43,10 +45,10 @@ export const ed3HomoHerm: Node<Strain> = {
   },
 };
 
-export const xNode: Node = {
+export const xNode: Node<StrainFilter> = {
   id: '3',
   type: NodeType.X,
-  data: null,
+  data: new StrainFilter(),
   position: {
     x: 96,
     y: -276,

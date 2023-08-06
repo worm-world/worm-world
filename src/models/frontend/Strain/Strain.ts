@@ -28,11 +28,6 @@ import {
 import { chromosomes } from 'models/frontend/Chromosome';
 import type StrainFilter from 'models/frontend/StrainFilter/StrainFilter';
 
-export interface StrainOption {
-  strain: Strain;
-  prob: number;
-}
-
 export interface GameteOption {
   chromosomes: Allele[][];
   prob: number;
@@ -61,7 +56,7 @@ export class Strain {
   public genotype: string = '.';
 
   public description?: string;
-  public probability?: number;
+  public probability: number = 1;
 
   // Make sure that chromosome pairs in map are correctly deserialized
   @Transform(
@@ -90,7 +85,7 @@ export class Strain {
       new Map<ChromosomeName | undefined, ChromosomePair>();
 
     this.description = params.description;
-    this.probability = params.probability;
+    this.probability = params.probability ?? 1;
 
     if (params.allelePairs !== undefined && params.chromPairMap === undefined)
       this.addPairsToStrain(params.allelePairs);
@@ -416,7 +411,7 @@ export class Strain {
    * Crosses this strain with itself
    * @returns Permuted list of all possible strains and their respective probabilities
    */
-  public async selfCross(): Promise<StrainOption[]> {
+  public async selfCross(): Promise<Strain[]> {
     return await this.crossWith(this);
   }
 
@@ -425,7 +420,7 @@ export class Strain {
    * @param other strain to cross against
    * @returns Permuted list of all possible strains and their respective probabilities
    */
-  public async crossWith(other: Strain): Promise<StrainOption[]> {
+  public async crossWith(other: Strain): Promise<Strain[]> {
     this.fillWildsFrom(other);
     other.fillWildsFrom(this);
 
@@ -443,49 +438,48 @@ export class Strain {
   public static async fertilize(
     gameteOpts1: GameteOption[],
     gameteOpts2: GameteOption[] = gameteOpts1
-  ): Promise<StrainOption[]> {
-    const strainOpts = await Promise.all(
+  ): Promise<Strain[]> {
+    const strains = await Promise.all(
       gameteOpts1.flatMap((gameteOpt1) =>
         gameteOpts2.map(async (gameteOpt2) => {
           const chromPairs = gameteOpt1.chromosomes.map((chrom, idx) =>
             ChromosomePair.buildFromChroms(chrom, gameteOpt2.chromosomes[idx])
           );
-          return {
-            strain: await Strain.buildFromChromPairs(chromPairs),
-            prob: gameteOpt1.prob * gameteOpt2.prob,
-          };
+          const strain = await Strain.buildFromChromPairs(chromPairs);
+          strain.probability = gameteOpt1.prob * gameteOpt2.prob;
+          return strain;
         })
       )
     );
-    Strain.reduceStrainOptions(strainOpts);
-    Strain.normalizeEcaOptions(strainOpts);
-    strainOpts.sort((a, b) => b.prob - a.prob);
-    return strainOpts;
+    Strain.reduceStrains(strains);
+    Strain.normalizeEcaOptions(strains);
+    strains.sort((a, b) => (b?.probability ?? 1) - (a?.probability ?? 1));
+    return strains;
   }
 
   /** Strain options differing only by extrachromosomal array contents should have same probability
    * (for simplicity, not necessarily biologically accurate) */
-  private static normalizeEcaOptions(strainOpts: StrainOption[]): void {
+  private static normalizeEcaOptions(strains: Strain[]): void {
     // Partition options according to non-ECA equality
-    const partition = new Map<string, StrainOption[]>();
-    strainOpts.forEach((option) => {
-      const genotype = option.strain.toString({
+    const partition = new Map<string, Strain[]>();
+    strains.forEach((strain) => {
+      const genotype = strain.toString({
         simplify: false,
         excludeEca: true,
       });
       partition.has(genotype)
-        ? partition.get(genotype)?.push(option)
-        : partition.set(genotype, [option]);
+        ? partition.get(genotype)?.push(strain)
+        : partition.set(genotype, [strain]);
     });
 
     // Normalize each set
     [...partition.values()].forEach((optionSet) => {
       const totalProb = optionSet.reduce<number>(
-        (totalProb, currOpt) => totalProb + currOpt.prob,
+        (totalProb, currOpt) => totalProb + (currOpt.probability ?? 0),
         0
       );
       optionSet.forEach(
-        (option) => (option.prob = totalProb / optionSet.length)
+        (option) => (option.probability = totalProb / optionSet.length)
       );
     });
   }
@@ -615,21 +609,22 @@ export class Strain {
   }
 
   /**
-   * Combines probabilities of duplicate StrainOptions such that the resulting list has unique strains
+   * Combines probabilities of duplicate Strains such that the resulting list has unique strains
    */
-  private static reduceStrainOptions(strainOpts: StrainOption[]): void {
+  private static reduceStrains(strains: Strain[]): void {
     // Check each strain against every other strain
-    for (let i = 0; i < strainOpts.length; i++) {
-      const currStrain = strainOpts[i];
+    for (let i = 0; i < strains.length; i++) {
+      const currStrain = strains[i];
 
       // Check for duplicates and combine probabilities
-      for (let j = i + 1; j < strainOpts.length; ) {
-        const strainOpt = strainOpts[j];
-        const duplicate = currStrain.strain.equals(strainOpt.strain);
+      for (let j = i + 1; j < strains.length; ) {
+        const strain = strains[j];
+        const duplicate = currStrain.equals(strain);
 
         if (duplicate) {
-          currStrain.prob += strainOpt.prob;
-          strainOpts.splice(j, 1);
+          currStrain.probability =
+            (currStrain.probability ?? 0) + strain.probability;
+          strains.splice(j, 1);
         } else {
           j++;
         }

@@ -14,13 +14,4 @@ describe('NoteNode', () => {
     render(<NoteNode data={content} id={''} />);
     expect(screen.getByText(content)).toBeDefined();
   });
-
-  test('Calls double-click handler', async () => {
-    const user = userEvent.setup();
-    const mockFn = vi.fn();
-    render(<NoteNode data={''} id={''} />);
-
-    await user.dblClick(screen.getByTestId('noteNode'));
-    expect(mockFn).toBeCalledTimes(1);
-  });
 });

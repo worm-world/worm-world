@@ -9,7 +9,7 @@ import { Handle, Position } from 'reactflow';
 import { NodeType } from 'components/Editor/Editor';
 import { BiX as CloseIcon } from 'react-icons/bi';
 
-interface MiddleNodeProps {
+export interface MiddleNodeProps {
   id: string;
   data: StrainFilter;
   type: string;

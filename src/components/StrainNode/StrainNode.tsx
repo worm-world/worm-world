@@ -42,10 +42,6 @@ const StrainNode = (props: StrainNodeProps): React.JSX.Element => {
         type='source'
         position={Position.Bottom}
       />
-      {/* <div className='text-sm'>{props.id}</div>
-      <div className='text-sm'>
-        {Math.round(props.xPos)},{Math.round(props.yPos)}
-      </div> */}
       <StrainCard strain={props.data} {...props} />
     </div>
   );

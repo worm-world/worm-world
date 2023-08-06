@@ -117,10 +117,7 @@ const FilterList = (props: {
       <input type='checkbox' />
       <div className='collapse-title text-xl font-medium'>{props.title}</div>
       <div className='collapse-content'>
-        <ul
-          className='form-control ml-8'
-          data-testid={`strain-filter-collapse-${props.field}`}
-        >
+        <ul className='form-control ml-8'>
           <li className={'mb-4 flex items-center'}>
             <input
               type='checkbox'

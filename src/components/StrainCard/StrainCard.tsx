@@ -14,13 +14,12 @@ import { RiArrowUpDownLine as SwapIcon } from 'react-icons/ri';
 interface StrainCardProps {
   strain: Strain;
   id: string;
-  variableWidth?: boolean;
 }
 
 const StrainCard = (props: StrainCardProps): JSX.Element => {
   const probability =
     props.strain.probability === undefined
-      ? ''
+      ? 'No Prob'
       : `${(props.strain.probability * 100).toFixed(2)}%`;
 
   const context = useContext(EditorContext);
@@ -44,26 +43,22 @@ const StrainCard = (props: StrainCardProps): JSX.Element => {
       >
         <div className='flex h-6 justify-between'>
           <SexButton />
-          {props.strain.isChild && (
-            <div className='dropdown dropdown-top'>
-              <label
-                tabIndex={0}
-                className='btn btn-ghost btn-xs text-accent ring-0 hover:bg-base-200 hover:ring-0'
-              >
-                {probability}
-              </label>
-              <div
-                tabIndex={0}
-                className='card dropdown-content compact rounded-box w-full bg-base-100 shadow'
-              >
-                <div className='card-body'>
-                  <BreedCountProbability
-                    probability={props.strain.probability}
-                  />
-                </div>
+          <div className='dropdown dropdown-top'>
+            <label
+              tabIndex={0}
+              className='btn btn-ghost btn-xs text-accent ring-0 hover:bg-base-200 hover:ring-0'
+            >
+              {probability}
+            </label>
+            <div
+              tabIndex={0}
+              className='card dropdown-content compact rounded-box w-full bg-base-100 shadow'
+            >
+              <div className='card-body'>
+                <BreedCountProbability probability={props.strain.probability} />
               </div>
             </div>
-          )}
+          </div>
           {menuItems.length > 0 && (
             <Menu
               title='Actions'

@@ -1,11 +1,7 @@
 import { clearMocks, mockIPC } from '@tauri-apps/api/mocks';
 import * as alleles from 'models/frontend/Allele/Allele.mock';
 import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
-import {
-  Strain,
-  type GameteOption,
-  type StrainOption,
-} from 'models/frontend/Strain/Strain';
+import { Strain, type GameteOption } from 'models/frontend/Strain/Strain';
 import * as strains from 'models/frontend/Strain/Strain.mock';
 import { expect, test, describe } from 'vitest';
 import {
@@ -33,19 +29,14 @@ function testGameteOptions(
   }
 }
 
-function testStrainOptions(
-  actualOpts: StrainOption[],
-  expectedOpts: StrainOption[]
-): void {
-  expect(actualOpts).toHaveLength(expectedOpts.length);
+function testStrains(actualStrains: Strain[], expectedStrains: Strain[]): void {
+  expect(actualStrains).toHaveLength(expectedStrains.length);
 
-  for (let i = 0; i < actualOpts.length; i++) {
-    const expected = expectedOpts[i];
-    const actual = actualOpts[i];
-    console.log('expected', expected);
-    console.log('actual', actual);
-    expect(actual.strain.equals(expected.strain)).toBe(true);
-    expect(actual.prob).toBeCloseTo(expected.prob, PRECISION);
+  for (let i = 0; i < actualStrains.length; i++) {
+    const expected = expectedStrains[i];
+    const actual = actualStrains[i];
+    expect(actual.equals(expected)).toBe(true);
+    expect(actual.probability).toBeCloseTo(expected.probability, PRECISION);
   }
 }
 
@@ -317,11 +308,9 @@ describe('Cross algorithm', () => {
     const gameteOpts1: GameteOption[] = [{ chromosomes: [], prob: 1.0 }];
     const gameteOpts2: GameteOption[] = [{ chromosomes: [], prob: 1.0 }];
     const zygotes = await Strain.fertilize(gameteOpts1, gameteOpts2);
-    const expected: StrainOption[] = [
-      { strain: new Strain({ allelePairs: [] }), prob: 1 },
-    ];
+    const expected = [new Strain({ allelePairs: [] })];
 
-    testStrainOptions(zygotes, expected);
+    testStrains(zygotes, expected);
   });
 
   test('fertilize() homozygous', async () => {
@@ -329,9 +318,9 @@ describe('Cross algorithm', () => {
       { chromosomes: [[alleles.cn64]], prob: 1.0 },
     ];
     const zygotes = await Strain.fertilize(gameteOpts);
-    const expected: StrainOption[] = [{ strain: strains.TN64, prob: 1 }];
+    const expected: Strain[] = [strains.TN64];
 
-    testStrainOptions(zygotes, expected);
+    testStrains(zygotes, expected);
   });
 
   test('cross between homozygous and wild strain', async () => {
@@ -341,7 +330,7 @@ describe('Cross algorithm', () => {
     const homoStrain = new Strain({ allelePairs: homoPairs });
     const wildStrain = new Strain({ allelePairs: wildPairs });
     const crossStrains = await homoStrain.crossWith(wildStrain);
-    testStrainOptions(crossStrains, strains.homoWildCross);
+    testStrains(crossStrains, strains.homoWildCross);
   });
 
   test('cross of homozygous and heterozygous strains', async () => {
@@ -351,21 +340,21 @@ describe('Cross algorithm', () => {
     const hetStrain = new Strain({ allelePairs: hetPairs });
     const homoStrain = new Strain({ allelePairs: homoPairs });
     const crossStrains = await homoStrain.crossWith(hetStrain);
-    testStrainOptions(crossStrains, strains.homoHetCross);
+    testStrains(crossStrains, strains.homoHetCross);
   });
 
   test('self-cross of homozygous pair returns same child strain', async () => {
     const allelePairs: AllelePair[] = [alleles.e204.toHomo()];
     const strain = new Strain({ allelePairs });
     const crossStrains = await strain.selfCross();
-    testStrainOptions(crossStrains, strains.homozygousCross);
+    testStrains(crossStrains, strains.homozygousCross);
   });
 
   test('self-cross of heterozygous pair returns correct strains', async () => {
     const allelePairs: AllelePair[] = [alleles.e204.toTopHet()];
     const strain = new Strain({ allelePairs });
     const crossStrains = await strain.selfCross();
-    testStrainOptions(crossStrains, strains.heterozygousCross);
+    testStrains(crossStrains, strains.heterozygousCross);
   });
 
   test('self-cross of chromosome with homozygous and heterozygous pairs', async () => {
@@ -375,7 +364,7 @@ describe('Cross algorithm', () => {
     ];
     const strain = new Strain({ allelePairs });
     const crossStrains = await strain.selfCross();
-    testStrainOptions(crossStrains, strains.homoHetSelfCross);
+    testStrains(crossStrains, strains.homoHetSelfCross);
   });
 
   test('intermediate self-cross on single chromosome', async () => {
@@ -386,7 +375,7 @@ describe('Cross algorithm', () => {
 
     const strain = new Strain({ allelePairs });
     const crossStrains = await strain.selfCross();
-    testStrainOptions(crossStrains, strains.intermediateSelfCross);
+    testStrains(crossStrains, strains.intermediateSelfCross);
   });
 
   test('simple self-cross of het alleles on different chromosomes', async () => {
@@ -396,7 +385,7 @@ describe('Cross algorithm', () => {
     ];
     const strain = new Strain({ allelePairs });
     const crossStrains = await strain.selfCross();
-    testStrainOptions(crossStrains, strains.difChromSimpleSelfCross);
+    testStrains(crossStrains, strains.difChromSimpleSelfCross);
   });
 
   test('advanced self-cross on multiple chromosomes', async () => {
@@ -415,12 +404,15 @@ describe('Cross algorithm', () => {
 
     expect(crossStrains.length).toBe(90);
 
-    const probSum = crossStrains.reduce((prev, curr) => prev + curr.prob, 0);
+    const probSum = crossStrains.reduce(
+      (prev, curr) => prev + curr.probability,
+      0
+    );
     expect(probSum).toBeCloseTo(1.0);
 
     // test all strains >= 0.1%
-    testStrainOptions(
-      crossStrains.filter((strainOpt) => strainOpt.prob >= 0.001),
+    testStrains(
+      crossStrains.filter((strainOpt) => strainOpt.probability >= 0.001),
       strains.partialAdvancedSelfCross
     );
   });
@@ -444,7 +436,7 @@ describe('Cross algorithm', () => {
     const strain2 = new Strain({ allelePairs: allelePairs2 });
     const crossStrains = await strain1.crossWith(strain2);
 
-    testStrainOptions(crossStrains, strains.intermediateCross);
+    testStrains(crossStrains, strains.intermediateCross);
   });
 
   test('ECA cross', async () => {
@@ -455,7 +447,7 @@ describe('Cross algorithm', () => {
       allelePairs: [alleles.oxEx2254.toTopHet()],
     });
     const crossStrains = await strain1.crossWith(strain2);
-    testStrainOptions(crossStrains, strains.ecaCross);
+    testStrains(crossStrains, strains.ecaCross);
   });
 
   test('should output a single child for wild-wild crosses', async () => {
@@ -464,7 +456,7 @@ describe('Cross algorithm', () => {
     const selfCrossStrains = await wildStrain1.selfCross();
     const wildToWildCrossStrains = await wildStrain1.crossWith(wildStrain2);
 
-    testStrainOptions(selfCrossStrains, strains.wildToWildCross);
-    testStrainOptions(wildToWildCrossStrains, strains.wildToWildCross);
+    testStrains(selfCrossStrains, strains.wildToWildCross);
+    testStrains(wildToWildCrossStrains, strains.wildToWildCross);
   });
 });

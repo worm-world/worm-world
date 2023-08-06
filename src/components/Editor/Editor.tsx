@@ -18,7 +18,7 @@ import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import CrossDesign, {
   addToArray,
 } from 'models/frontend/CrossDesign/CrossDesign';
-import { Strain, type StrainOption } from 'models/frontend/Strain/Strain';
+import { Strain } from 'models/frontend/Strain/Strain';
 import {
   Fragment,
   useCallback,
@@ -547,8 +547,10 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       target: selfNode.id,
       sourceHandle: 'bottom',
     };
-    const childStrains = await parentNode.data.selfCross();
-    const childNodes = getChildNodes(selfNode, childStrains);
+    const strainOpts = await parentNode.data.selfCross();
+    console.log(strainOpts);
+    const childNodes = getChildNodes(selfNode, strainOpts);
+    console.log(childNodes);
     const childEdges = childNodes.map((node) => {
       return {
         id: props.crossDesign.createId(),
@@ -556,7 +558,6 @@ const Editor = (props: EditorProps): React.JSX.Element => {
         target: node.id,
       };
     });
-
     setNodes((nodes) => addToArray(nodes, parentNode, selfNode, ...childNodes));
     setEdges((edges) => [...edges, parentToSelf, ...childEdges]);
   };
@@ -570,7 +571,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
     maleNode.data = new Strain({ ...maleNode.data, isParent: true });
     hermNode.data = new Strain({ ...hermNode.data, isParent: true });
 
-    const xNode: Node = {
+    const xNode: Node<StrainFilter> = {
       id: props.crossDesign.createId(),
       data: new StrainFilter(),
       position: CrossDesign.getXNodePos(hermNode),
@@ -621,17 +622,17 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   /** Create a collection of strain nodes to represent children of a cross, from child strain options */
   const getChildNodes = (
     middleNode: Node,
-    childOptions: StrainOption[]
+    childStrains: Strain[]
   ): Array<Node<Strain>> => {
     const childPositions = CrossDesign.calculateChildPositions(
       middleNode.type === NodeType.X ? NodeType.X : NodeType.Self,
-      childOptions.length
+      childStrains.length
     );
 
-    const childNodes: Array<Node<Strain>> = childOptions.map((child, i) => {
+    const childNodes: Array<Node<Strain>> = childStrains.map((child, i) => {
       return {
         id: props.crossDesign.createId(),
-        data: child.strain,
+        data: child,
         position: childPositions[i],
         parentNode: middleNode.id,
         type: NodeType.Strain,

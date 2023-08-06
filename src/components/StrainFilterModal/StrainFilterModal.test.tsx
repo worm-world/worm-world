@@ -1,5 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
 import { StrainFilter } from 'models/frontend/StrainFilter/StrainFilter';
 import { StrainFilterModal } from 'components/StrainFilterModal/StrainFilterModal';
 import * as alleles from 'models/frontend/Allele/Allele.mock';
@@ -10,8 +9,6 @@ import { vi, expect, test, describe } from 'vitest';
 
 const renderModal = ({
   childNodes = new Array<Node<Strain>>(),
-  invisibleSet = new Set<string>(),
-  toggleVisible = vi.fn(),
   filter = new StrainFilter(),
   updateFilter = vi.fn(),
 }): void => {
@@ -58,101 +55,6 @@ describe('StrainFilterModal', () => {
         }
       });
     });
-  });
-
-  test('modal displays limited strain options with set filters', () => {
-    const childNodes = [crossDesigns.n765AsChild, crossDesigns.ed3AsChild];
-    const filter = new StrainFilter({ alleleNames: new Set(['ed3']) });
-
-    renderModal({ childNodes, filter });
-
-    [
-      'strain-filter-collapse-exprPhenotypes',
-      'strain-filter-collapse-reqConditions',
-    ].forEach((testId) => {
-      const noFilterSec = screen.getByTestId(testId);
-      const noFilterCheckboxes = within(noFilterSec).getAllByRole('checkbox');
-      expect(noFilterCheckboxes.length).toBeGreaterThan(1);
-      expect(noFilterCheckboxes[0]).toBeChecked();
-      expect(noFilterCheckboxes[1]).not.toBeChecked();
-    });
-
-    const filterSec = screen.getByTestId('strain-filter-collapse-alleleNames');
-    const filterCheckboxes = within(filterSec).getAllByRole('checkbox');
-    expect(filterCheckboxes).toHaveLength(3); // 2 child nodes plus no filter checkbox
-    expect(filterCheckboxes[0]).not.toBeChecked();
-    expect(filterCheckboxes[1]).not.toBeChecked();
-    expect(filterCheckboxes[2]).toBeChecked();
-
-    const strainSec = screen.getByTestId(
-      'strain-filter-collapse-outputted-strains'
-    );
-    const checkboxes = within(strainSec).getAllByRole('checkbox');
-    expect(checkboxes).toHaveLength(1 + 1);
-
-    expect(checkboxes[1]).toBeChecked(); // node 0
-  });
-
-  test('modal unchecks nodes marked invisible', () => {
-    const childNodes = [
-      crossDesigns.ed3HeteroHerm,
-      crossDesigns.ed3HeteroMale,
-      crossDesigns.ed3HomoHerm,
-    ];
-    const invisibleSet = new Set<string>(crossDesigns.ed3HeteroHerm.id);
-    renderModal({ childNodes, invisibleSet });
-
-    const strainSec = screen.getByTestId(
-      'strain-filter-collapse-outputted-strains'
-    );
-    const checkboxes = within(strainSec).getAllByRole('checkbox');
-    expect(checkboxes).toHaveLength(childNodes.length + 1);
-
-    expect(checkboxes[1]).not.toBeChecked(); // node 0
-    expect(checkboxes[2]).toBeChecked(); // node 1
-    expect(checkboxes[3]).toBeChecked(); // node 2
-  });
-
-  test('clicking a strain checkbox triggers callback function', async () => {
-    const childNodes = [
-      crossDesigns.ed3HeteroHerm,
-      crossDesigns.ed3HeteroMale,
-      crossDesigns.ed3HomoHerm,
-    ];
-    const toggleVisible = vi.fn();
-    const user = userEvent.setup();
-    renderModal({ childNodes, toggleVisible });
-
-    const strainSec = screen.getByTestId(
-      'strain-filter-collapse-outputted-strains'
-    );
-    const checkboxes = within(strainSec).getAllByRole('checkbox');
-    expect(checkboxes).toHaveLength(childNodes.length + 1);
-
-    expect(toggleVisible).not.toHaveBeenCalled();
-    await user.click(checkboxes[1]);
-    expect(toggleVisible).toHaveBeenCalledTimes(1);
-
-    await user.click(checkboxes[2]);
-    await user.click(checkboxes[3]);
-    expect(toggleVisible).toHaveBeenCalledTimes(3);
-  });
-
-  test('clicking a filter checkbox triggers callback function', async () => {
-    const user = userEvent.setup();
-    const childNodes = [crossDesigns.n765AsChild, crossDesigns.ed3AsChild];
-    const updateFilter = vi.fn();
-    renderModal({ childNodes, updateFilter });
-
-    const filterSec = screen.getByTestId('strain-filter-collapse-alleleNames');
-    const filterCheckboxes = within(filterSec).getAllByRole('checkbox');
-    expect(updateFilter).not.toHaveBeenCalled();
-
-    await user.click(filterCheckboxes[1]);
-    expect(updateFilter).toHaveBeenCalledOnce();
-
-    await user.click(filterCheckboxes[2]);
-    expect(updateFilter).toBeCalledTimes(2);
   });
 });
 

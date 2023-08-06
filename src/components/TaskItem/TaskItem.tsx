@@ -60,9 +60,7 @@ const TaskItem = (props: TaskItemProps): React.JSX.Element => {
             props.onTaskChecked(props.task);
           }}
         />
-        {hermStrain !== undefined && (
-          <StrainCard strain={hermStrain} id={''} variableWidth={true} />
-        )}
+        {hermStrain !== undefined && <StrainCard strain={hermStrain} id={''} />}
         <div
           className={`flex h-8 w-8 items-center justify-center rounded-full text-primary-content ${getIconColor(
             action
@@ -70,12 +68,10 @@ const TaskItem = (props: TaskItemProps): React.JSX.Element => {
         >
           <ActionIcon action={action} />
         </div>
-        {maleStrain !== undefined && (
-          <StrainCard strain={maleStrain} id={''} variableWidth={true} />
-        )}
+        {maleStrain !== undefined && <StrainCard strain={maleStrain} id={''} />}
         <RightIcon size='20' />
         {resultStrain !== undefined && (
-          <StrainCard strain={resultStrain} id={''} variableWidth={true} />
+          <StrainCard strain={resultStrain} id={''} />
         )}
         <div className='invisible ml-auto mr-6 self-start group-hover:visible'>
           <div className='tooltip tooltip-bottom' data-tip={'Add comment'}>
