@@ -36,7 +36,7 @@ export interface ICrossDesign {
 
 export interface TaskTree {
   task: Task;
-  taskParents: TaskTree[];
+  parents: TaskTree[];
 }
 
 export const addToArray = <T extends { id: string }>(
@@ -237,7 +237,6 @@ export default class CrossDesign {
     if (taskTree === undefined) {
       return [];
     }
-    this.addDatesToTasks(taskTree);
     const tasks: Task[] = [];
     this.makeTreeIntoArray(taskTree, tasks);
     return tasks;
@@ -245,7 +244,7 @@ export default class CrossDesign {
 
   private makeTreeIntoArray(tree: TaskTree, tasks: Task[]): void {
     tasks.push(tree.task);
-    tree.taskParents.forEach((parent) => {
+    tree.parents.forEach((parent) => {
       this.makeTreeIntoArray(parent, tasks);
     });
   }
@@ -273,72 +272,21 @@ export default class CrossDesign {
       childTaskId: childTaskId ?? null,
     });
 
-    const taskParents = ancestorTree.parents.flatMap(
+    const parents = ancestorTree.parents.flatMap(
       (parent: AncestorTree) => this.getTaskTree(parent, task.id) ?? []
     );
 
+    task.dueDate =
+      parents[0] === undefined
+        ? new Date()
+        : moment(parents[0]?.task.dueDate)
+            .add(ancestorTree.strain.getMaturationDays(), 'days')
+            .toDate();
+
     return {
       task,
-      taskParents,
+      parents,
     };
-  }
-
-  private addDays(days: number, date?: Date): Date {
-    return moment(date).add(days, 'days').toDate();
-  }
-
-  private addDatesToTasks(taskDeps: TaskTree): void {
-    const defaultMaturationDay = 3;
-    taskDeps.taskParents.forEach((parent) => {
-      this.addDatesToTasks(parent);
-    });
-
-    if (taskDeps.taskParents.length === 0) {
-      taskDeps.task.dueDate = moment().toDate();
-      return;
-    }
-
-    // self-cross task
-    const parent1 = taskDeps.taskParents[0].task.resultStrain;
-    let maturationDays = parent1?.getMaturationDays() ?? defaultMaturationDay;
-    if (taskDeps.taskParents.length === 1) {
-      taskDeps.task.dueDate = this.addDays(
-        maturationDays,
-        taskDeps.taskParents[0].task.dueDate
-      );
-      return;
-    }
-
-    // cross between 2 strains.
-    const parent2 = taskDeps.taskParents[1].task.resultStrain;
-    maturationDays = Math.max(
-      parent1?.getMaturationDays() ?? defaultMaturationDay,
-      parent2?.getMaturationDays() ?? defaultMaturationDay
-    );
-    const parent1DueDate = moment(taskDeps.taskParents[0].task.dueDate);
-    const parent2DueDate = moment(taskDeps.taskParents[1].task.dueDate);
-    const latestParentDate = parent1DueDate.isAfter(parent2DueDate)
-      ? parent1DueDate.toDate()
-      : parent2DueDate.toDate();
-
-    taskDeps.task.dueDate = this.addDays(maturationDays, latestParentDate);
-
-    // Determine if a parent tree needs to be started later in time (rather than today)
-    const dueDateDiff = parent1DueDate.diff(parent2DueDate, 'days');
-    if (Math.abs(dueDateDiff) >= maturationDays) {
-      const parentToBump = parent1DueDate.isAfter(parent2DueDate)
-        ? taskDeps.taskParents[1]
-        : taskDeps.taskParents[0];
-
-      this.bumpDatesBack(parentToBump, dueDateDiff);
-    }
-  }
-
-  private bumpDatesBack(tree: TaskTree, daysToBumpBack: number): void {
-    tree.task.dueDate = this.addDays(daysToBumpBack, tree.task.dueDate);
-    tree.taskParents.forEach((parent) => {
-      this.bumpDatesBack(parent, daysToBumpBack);
-    });
   }
 
   public getParentStrains(strain: Node<Strain>): Array<Node<Strain>> {

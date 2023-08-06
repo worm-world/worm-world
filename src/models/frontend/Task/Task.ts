@@ -21,7 +21,7 @@ export interface ITask {
 export class Task {
   id: string;
   @Type(() => Date)
-  dueDate?: Date;
+  dueDate: Date;
 
   action: Action;
 
@@ -46,9 +46,11 @@ export class Task {
       this.hermStrain = new Strain();
       this.completed = false;
       this.crossDesignId = '';
+      this.dueDate = new Date();
     } else {
       this.id = task.id;
-      this.dueDate = task.dueDate !== null ? new Date(task.dueDate) : undefined;
+      this.dueDate =
+        task.dueDate === null ? new Date() : new Date(task.dueDate);
       this.action = task.action;
       this.hermStrain = Strain.fromJSON(task.hermStrain);
       this.maleStrain =
@@ -67,7 +69,7 @@ export class Task {
   public generateRecord(): db_Task {
     return {
       id: this.id,
-      dueDate: this.dueDate?.toISOString() ?? null,
+      dueDate: this.dueDate?.toString() ?? null,
       action: this.action,
       hermStrain: this.hermStrain.toJSON(),
       maleStrain: this.maleStrain?.toJSON() ?? null,

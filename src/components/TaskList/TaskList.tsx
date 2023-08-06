@@ -4,6 +4,24 @@ import TaskItem, { TaskStatement } from 'components/TaskItem/TaskItem';
 import { useState } from 'react';
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+const getDateStr = (date: Date): string => {
+  const str = [
+    date.getFullYear(),
+    date.getMonth() < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1,
+    date.getDate() < 10 ? `0${date.getDate()}` : date.getDate(),
+  ].join('-');
+  return str;
+};
+
+const diffDays = (start: Date, end: Date): number => {
+  return (
+    (Date.UTC(end.getFullYear(), end.getMonth(), end.getDate()) -
+      Date.UTC(start.getFullYear(), start.getMonth(), start.getDate())) /
+    MS_PER_DAY
+  );
+};
+
 interface TaskListProps {
   tasks: Task[];
   updateTask: (task: Task) => void;
@@ -27,7 +45,7 @@ export const TaskList = (props: TaskListProps): React.JSX.Element => {
   const sections = Array.from(getDateSections(props.tasks)).sort(
     ([date1], [date2]) => (moment(date1).isAfter(moment(date2)) ? 1 : -1)
   );
-  const [task, setTask] = useState<Task>(new Task());
+  const [task, setTask] = useState<Task>(props.tasks[0] ?? new Task());
 
   return (
     <>
@@ -72,12 +90,12 @@ const TaskRescheduleModal = (props: {
   const delta =
     props.task.dueDate === undefined
       ? undefined
-      : (date.getTime() -
-          (date.getTime() % MS_PER_DAY) -
-          (props.task.dueDate.getTime() -
-            (props.task.dueDate.getTime() % MS_PER_DAY))) /
-        MS_PER_DAY;
-  const dateValue = date.toISOString().split('T')[0];
+      : diffDays(props.task.dueDate, date);
+  const getNewDate = (oldDate: Date): Date => {
+    return date === undefined || delta === undefined
+      ? date
+      : new Date(oldDate.getTime() + delta * MS_PER_DAY);
+  };
   return (
     <div>
       <input
@@ -102,21 +120,28 @@ const TaskRescheduleModal = (props: {
               <div className='divider' />
               <TaskDelayPreview
                 tasks={props.task.getDescendents(props.tasks)}
-                updateTask={function (task: Task): void {
-                  throw new Error('Function not implemented.');
-                }}
-                proposedDelay={delta}
+                getNewDate={getNewDate}
               />
               <div className='modal-action'>
                 <button
-                  className='btn btn-primary'
+                  className='btn btn-secondary'
                   onClick={() => {
                     setPreview(false);
                   }}
                 >
                   Back
                 </button>
-                <button className='btn btn-primary'>Reschedule</button>
+                <label
+                  className='btn btn-primary'
+                  htmlFor='task-reschedule-modal'
+                  onClick={() => {
+                    props.tasks.forEach((task) => {
+                      const dbTask = task.generateRecord();
+                    });
+                  }}
+                >
+                  Reschedule
+                </label>
               </div>
             </div>
           ) : (
@@ -127,21 +152,36 @@ const TaskRescheduleModal = (props: {
               </h3>
               <div className='divider' />
               <div>
-                Current date:{' '}
-                {props.task?.dueDate?.toLocaleDateString('en', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                })}
+                Current date:
+                <span>
+                  {props.task?.dueDate.toLocaleDateString('en', {
+                    year: 'numeric',
+                    day: '2-digit',
+                    month: '2-digit',
+                  })}
+                </span>
               </div>
               <div>
                 <span>Reschedule to </span>
                 <input
                   type='date'
-                  value={dateValue}
+                  value={getDateStr(date)}
                   className='border-2 bg-base-100'
-                  onChange={(e) => {
-                    setDate(new Date(e.target.value));
+                  onChange={(event) => {
+                    const newDate = new Date(event.target.value);
+                    console.log(
+                      'new',
+                      new Date(
+                        newDate.getTime() +
+                          newDate.getTimezoneOffset() * 60 * 1000
+                      )
+                    );
+                    setDate(
+                      new Date(
+                        newDate.getTime() +
+                          newDate.getTimezoneOffset() * 60 * 1000
+                      )
+                    );
                   }}
                 />
               </div>
@@ -165,19 +205,12 @@ const TaskRescheduleModal = (props: {
 };
 
 const TaskDelayPreview = (props: {
-  updateTask: (task: Task) => void;
   tasks: Task[];
-  proposedDelay?: number;
+  getNewDate: (date: Date) => Date;
 }): React.JSX.Element => {
   const sections = Array.from(getDateSections(props.tasks)).sort(
     ([date1], [date2]) => (moment(date1).isAfter(moment(date2)) ? 1 : -1)
   );
-  console.log(props.tasks);
-  const getNewDate = (date: string): string => {
-    return new Date(
-      new Date(date).getTime() + (props.proposedDelay ?? 0) * MS_PER_DAY
-    ).toDateString();
-  };
   return (
     <>
       <div className='flex flex-col gap-2'>
@@ -186,7 +219,9 @@ const TaskDelayPreview = (props: {
             <div className='text-l border-b-2'>
               {date}
               {' \u2192 '}
-              <span className='font-bold text-primary'>{getNewDate(date)}</span>
+              <span className='font-bold text-primary'>
+                {props.getNewDate(new Date(date)).toDateString()}
+              </span>
             </div>
             <ul className='list-disc'>
               {[...section].map((task, i) => (
