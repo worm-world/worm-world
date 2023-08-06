@@ -43,7 +43,7 @@ const StrainCard = (props: StrainCardProps): JSX.Element => {
       >
         <div className='flex h-6 justify-between'>
           <SexButton />
-          <div className='dropdown dropdown-top'>
+          <div className='dropdown dropdown-top justify-self-center'>
             <label
               tabIndex={0}
               className='btn btn-ghost btn-xs text-accent ring-0 hover:bg-base-200 hover:ring-0'
@@ -59,14 +59,14 @@ const StrainCard = (props: StrainCardProps): JSX.Element => {
               </div>
             </div>
           </div>
-          {menuItems.length > 0 && (
+          <div className={`${menuItems.length === 0 ? 'invisible' : ''}`}>
             <Menu
               title='Actions'
               top={true}
               icon={<MenuIcon />}
               items={menuItems}
             />
-          )}
+          </div>
         </div>
         <div className='overflow-x-auto'>
           <div

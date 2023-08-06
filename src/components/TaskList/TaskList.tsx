@@ -159,7 +159,7 @@ const TaskRescheduleModal = (props: {
               </h3>
               <div className='divider' />
               <div>
-                Current date:
+                <span>Current date: </span>
                 <span>
                   {props.task?.dueDate.toLocaleDateString('en', {
                     year: 'numeric',
