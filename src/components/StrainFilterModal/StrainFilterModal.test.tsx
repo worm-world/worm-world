@@ -1,7 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { OffspringFilter } from 'components/OffspringFilter/OffspringFilter';
-import { OffspringFilterModal } from 'components/OffspringFilterModal/OffspringFilterModal';
+import { StrainFilter } from 'models/frontend/StrainFilter/StrainFilter';
+import { StrainFilterModal } from 'components/StrainFilterModal/StrainFilterModal';
 import * as alleles from 'models/frontend/Allele/Allele.mock';
 import * as crossDesigns from 'models/frontend/CrossDesign/CrossDesign.mock';
 import { Strain } from 'models/frontend/Strain/Strain';
@@ -12,21 +12,21 @@ const renderComponent = ({
   childNodes = new Array<Node<Strain>>(),
   invisibleSet = new Set<string>(),
   toggleVisible = vi.fn(),
-  filter = new OffspringFilter({
+  filter = new StrainFilter({
     alleleNames: new Set(),
     exprPhenotypes: new Set(),
     reqConditions: new Set(),
     supConditions: new Set(),
+    hidden: new Set(),
   }),
   updateFilter = vi.fn(),
 }): void => {
   render(
-    <OffspringFilterModal
+    <StrainFilterModal
       childNodes={childNodes}
-      invisibleSet={invisibleSet}
-      toggleVisible={toggleVisible}
       filter={filter}
       updateFilter={updateFilter}
+      filterId={''}
     />
   );
 };
@@ -36,21 +36,24 @@ const createFilter = ({
   exprPhenotypes = new Set(),
   reqConditions = new Set(),
   supConditions = new Set(),
+  hidden = new Set(),
 }: {
   alleleNames?: Set<string>;
   exprPhenotypes?: Set<string>;
   reqConditions?: Set<string>;
   supConditions?: Set<string>;
-}): OffspringFilter => {
-  return new OffspringFilter({
+  hidden?: Set<string>;
+}): StrainFilter => {
+  return new StrainFilter({
     alleleNames,
     exprPhenotypes,
     reqConditions,
     supConditions,
+    hidden,
   });
 };
 
-describe('OffspringFilterModal', () => {
+describe('StrainFilterModal', () => {
   test('modal displays all nodes in map', () => {
     const childNodes = [
       crossDesigns.ed3HeteroHerm,
@@ -60,13 +63,13 @@ describe('OffspringFilterModal', () => {
     renderComponent({ childNodes });
 
     const definedTestIds = [
-      'cross-filter-collapse-alleleNames',
-      'cross-filter-collapse-exprPhenotypes',
-      'cross-filter-collapse-outputted-strains',
+      'strain-filter-collapse-alleleNames',
+      'strain-filter-collapse-exprPhenotypes',
+      'strain-filter-collapse-outputted-strains',
     ];
     const undefinedTestIds = [
-      'cross-filter-collapse-reqConditions',
-      'cross-filter-collapse-supConditions',
+      'strain-filter-collapse-reqConditions',
+      'strain-filter-collapse-supConditions',
     ];
 
     // make sure correct filter sections show
@@ -101,8 +104,8 @@ describe('OffspringFilterModal', () => {
     renderComponent({ childNodes, filter });
 
     [
-      'cross-filter-collapse-exprPhenotypes',
-      'cross-filter-collapse-reqConditions',
+      'strain-filter-collapse-exprPhenotypes',
+      'strain-filter-collapse-reqConditions',
     ].forEach((testId) => {
       const noFilterSec = screen.getByTestId(testId);
       const noFilterCheckboxes = within(noFilterSec).getAllByRole('checkbox');
@@ -111,7 +114,7 @@ describe('OffspringFilterModal', () => {
       expect(noFilterCheckboxes[1]).not.toBeChecked();
     });
 
-    const filterSec = screen.getByTestId('cross-filter-collapse-alleleNames');
+    const filterSec = screen.getByTestId('strain-filter-collapse-alleleNames');
     const filterCheckboxes = within(filterSec).getAllByRole('checkbox');
     expect(filterCheckboxes).toHaveLength(3); // 2 child nodes plus no filter checkbox
     expect(filterCheckboxes[0]).not.toBeChecked();
@@ -119,7 +122,7 @@ describe('OffspringFilterModal', () => {
     expect(filterCheckboxes[2]).toBeChecked();
 
     const strainSec = screen.getByTestId(
-      'cross-filter-collapse-outputted-strains'
+      'strain-filter-collapse-outputted-strains'
     );
     const checkboxes = within(strainSec).getAllByRole('checkbox');
     expect(checkboxes).toHaveLength(1 + 1);
@@ -137,7 +140,7 @@ describe('OffspringFilterModal', () => {
     renderComponent({ childNodes, invisibleSet });
 
     const strainSec = screen.getByTestId(
-      'cross-filter-collapse-outputted-strains'
+      'strain-filter-collapse-outputted-strains'
     );
     const checkboxes = within(strainSec).getAllByRole('checkbox');
     expect(checkboxes).toHaveLength(childNodes.length + 1);
@@ -158,7 +161,7 @@ describe('OffspringFilterModal', () => {
     renderComponent({ childNodes, toggleVisible });
 
     const strainSec = screen.getByTestId(
-      'cross-filter-collapse-outputted-strains'
+      'strain-filter-collapse-outputted-strains'
     );
     const checkboxes = within(strainSec).getAllByRole('checkbox');
     expect(checkboxes).toHaveLength(childNodes.length + 1);
@@ -178,7 +181,7 @@ describe('OffspringFilterModal', () => {
     const updateFilter = vi.fn();
     renderComponent({ childNodes, updateFilter });
 
-    const filterSec = screen.getByTestId('cross-filter-collapse-alleleNames');
+    const filterSec = screen.getByTestId('strain-filter-collapse-alleleNames');
     const filterCheckboxes = within(filterSec).getAllByRole('checkbox');
     expect(updateFilter).not.toHaveBeenCalled();
 
@@ -190,20 +193,21 @@ describe('OffspringFilterModal', () => {
   });
 });
 
-describe('OffspringFilter', () => {
+describe('StrainFilter', () => {
   test('correctly instantiates', () => {
-    const filter = new OffspringFilter({
+    const filter = new StrainFilter({
       alleleNames: new Set(['a', 'b', 'c']),
       exprPhenotypes: new Set(['1', '2']),
       reqConditions: new Set(['cond1']),
       supConditions: new Set(),
+      hidden: new Set(),
     });
     expect(filter.alleleNames).toHaveLength(3);
     expect(filter.alleleNames.has('a')).toBe(true);
     expect(filter.exprPhenotypes).toHaveLength(2);
     expect(filter.exprPhenotypes.has('2')).toBe(true);
     expect(filter.reqConditions).toHaveLength(1);
-    expect(filter.has('cond1')).toBe(true);
+    expect(filter.reqConditions.has('cond1')).toBe(true);
     expect(filter.supConditions).toHaveLength(0);
   });
 
@@ -212,11 +216,13 @@ describe('OffspringFilter', () => {
     const exprPhenotypes = new Set(['1', '2']);
     const reqConditions = new Set(['cond1']);
     const supConditions = new Set<string>();
-    const filter = new OffspringFilter({
+    const hidden = new Set<string>();
+    const filter = new StrainFilter({
       alleleNames,
       exprPhenotypes,
       reqConditions,
       supConditions,
+      hidden,
     });
     const clone = filter.clone();
 
@@ -227,103 +233,26 @@ describe('OffspringFilter', () => {
     expect(clone.supConditions).toEqual(supConditions);
   });
 
-  test('.has() returns true if the filter contains the query', () => {
-    const filter = new OffspringFilter({
-      alleleNames: new Set(['a', 'b', 'c']),
-      exprPhenotypes: new Set(['1', '2']),
-      reqConditions: new Set(['cond1']),
-      supConditions: new Set(),
-    });
-    expect(filter.has('a')).toBe(true);
-    expect(filter.has('b')).toBe(true);
-    expect(filter.has('c')).toBe(true);
-    expect(filter.has('1')).toBe(true);
-    expect(filter.has('2')).toBe(true);
-    expect(filter.has('cond1')).toBe(true);
-  });
-  test('.has() returns false if the filter does not contain the query', () => {
-    const filter = new OffspringFilter({
-      alleleNames: new Set(['a', 'b', 'c']),
-      exprPhenotypes: new Set(['1', '2']),
-      reqConditions: new Set(['cond1']),
-      supConditions: new Set(),
-    });
+  test('.getStrainFilterOptionSets() pulls info from multiple strains', () => {
+    const node1 = {
+      data: new Strain({
+        allelePairs: [alleles.n765.toTopHet()],
+      }),
+      id: '',
+      position: { x: 0, y: 0 },
+    };
+    const node2 = {
+      data: new Strain({
+        allelePairs: [alleles.ed3.toHomo(), alleles.n765.toTopHet()],
+      }),
+      id: '',
+      position: { x: 0, y: 0 },
+    };
+    const options = StrainFilter.getFilterOptions([node1, node2]);
 
-    expect(filter.has('')).toBe(false);
-    expect(filter.has('random')).toBe(false);
-    expect(filter.has('not a value')).toBe(false);
-    expect(filter.has('idk')).toBe(false);
-  });
-
-  test('.isEmpty() to return true on an empty filter', () => {
-    const filter = new OffspringFilter({
-      alleleNames: new Set(),
-      exprPhenotypes: new Set(),
-      reqConditions: new Set(),
-      supConditions: new Set(),
-    });
-    expect(filter.isEmpty()).toBe(true);
-  });
-  test('.isEmpty() to return false on an set filter', () => {
-    const filter = new OffspringFilter({
-      alleleNames: new Set(),
-      exprPhenotypes: new Set(),
-      reqConditions: new Set(['cond1']),
-      supConditions: new Set(),
-    });
-    expect(filter.isEmpty()).toBe(false);
-  });
-
-  test('.extractOffspringFilterNames() to pull info from strain', () => {
-    const strain = new Strain({
-      allelePairs: [alleles.n765.toTopHet(), alleles.ed3.toHomo()],
-    });
-    const names = OffspringFilter.extractOffspringFilterNames(strain);
-
-    expect(names.alleleNames).toEqual(new Set(['n765', '+', 'ed3']));
-    expect(names.exprPhenotypes).toEqual(new Set(['unc-119', 'lin-15B']));
-    expect(names.reqConditions).toEqual(new Set(['25C']));
-    expect(names.supConditions).toEqual(new Set<string>());
-  });
-
-  test('.condenseOffspringFilterNames() pulls info from multiple strains', () => {
-    const strain1 = new Strain({
-      allelePairs: [alleles.n765.toTopHet()],
-    });
-    const strain2 = new Strain({
-      allelePairs: [alleles.ed3.toHomo(), alleles.n765.toTopHet()],
-    });
-    const names = OffspringFilter.condenseOffspringFilterNames([
-      strain1,
-      strain2,
-    ]);
-
-    expect(names.alleleNames).toEqual(new Set(['n765', '+', 'ed3']));
-    expect(names.exprPhenotypes).toEqual(new Set(['unc-119', 'lin-15B']));
-    expect(names.reqConditions).toEqual(new Set(['25C']));
-    expect(names.supConditions).toEqual(new Set<string>());
-  });
-
-  test('includedInFilter() correctly includes a node', () => {
-    const filter = new OffspringFilter({
-      alleleNames: new Set(['ed3']),
-      exprPhenotypes: new Set(['unc-119']),
-      reqConditions: new Set(),
-      supConditions: new Set(),
-    });
-    expect(
-      OffspringFilter.includedInFilter(crossDesigns.ed3HomoHerm, filter)
-    ).toBe(true);
-  });
-  test('includedInFilter() correctly excludes a node', () => {
-    const filter = new OffspringFilter({
-      alleleNames: new Set(),
-      exprPhenotypes: new Set(),
-      reqConditions: new Set(['badCondition']),
-      supConditions: new Set(),
-    });
-    expect(
-      OffspringFilter.includedInFilter(crossDesigns.ed3HomoHerm, filter)
-    ).toBe(false);
+    expect(options.alleleNames).toEqual(new Set(['n765', '+', 'ed3']));
+    expect(options.exprPhenotypes).toEqual(new Set(['unc-119', 'lin-15B']));
+    expect(options.reqConditions).toEqual(new Set(['25C']));
+    expect(options.supConditions).toEqual(new Set<string>());
   });
 });

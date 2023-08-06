@@ -1,7 +1,8 @@
 import { path, fs } from '@tauri-apps/api';
 import { toPng, toSvg } from 'html-to-image';
 import { BsCardImage } from 'react-icons/bs';
-import { FaPlus, FaMinus, FaEye } from 'react-icons/fa6';
+import { FaPlus, FaMinus } from 'react-icons/fa6';
+import { SiMicrogenetics as GeneIcon } from 'react-icons/si';
 import { toast } from 'react-toastify';
 import { type ReactFlowInstance, Controls, ControlButton } from 'reactflow';
 import { open } from '@tauri-apps/api/dialog';
@@ -38,7 +39,7 @@ const CustomControls = (props: CustomControlsProps): React.JSX.Element => {
           </label>
           <ul
             tabIndex={0}
-            className='dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow'
+            className='menu dropdown-content rounded-box w-52 bg-base-100 p-2 shadow'
           >
             <li>
               <a
@@ -63,12 +64,8 @@ const CustomControls = (props: CustomControlsProps): React.JSX.Element => {
           </ul>
         </div>
       </ControlButton>
-      <ControlButton
-        onClick={() => {
-          props.toggleShowGenes();
-        }}
-      >
-        <FaEye />
+      <ControlButton onClick={props.toggleShowGenes}>
+        <GeneIcon />
       </ControlButton>
     </Controls>
   );

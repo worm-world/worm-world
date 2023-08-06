@@ -60,30 +60,6 @@
     },
     "query": "INSERT INTO conditions (name, description, male_mating, lethal, female_sterile, arrested, maturation_days)\n            VALUES(?, ?, ?, ?, ?, ?, ?)\n            "
   },
-  "1a74b1682e8ccaa5190ed221709a54346f48266a87cfac6b480a81491bdd5a49": {
-    "describe": {
-      "columns": [
-        {
-          "name": "parent_id",
-          "ordinal": 0,
-          "type_info": "Text"
-        },
-        {
-          "name": "child_id",
-          "ordinal": 1,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 0
-      }
-    },
-    "query": "\n            SELECT parent_id, child_id FROM task_deps ORDER BY parent_id\n            "
-  },
   "238550f0a7163a06b7f86c123a662190342aabc45dfe6bb21f7b9dfa377c7400": {
     "describe": {
       "columns": [],
@@ -123,72 +99,6 @@
       }
     },
     "query": "INSERT INTO genes (systematic_name, descriptive_name, chromosome, phys_loc, gen_loc, recomb_suppressor_start, recomb_suppressor_end)\n            VALUES(?, ?, ?, ?, ?, ?, ?)\n            "
-  },
-  "51eb8d1782f37f4cf571d679d8ca19e2438df35a4c869f79d335247440ff21c3": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Text"
-        },
-        {
-          "name": "due_date",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "action",
-          "ordinal": 2,
-          "type_info": "Int64"
-        },
-        {
-          "name": "strain1",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "strain2",
-          "ordinal": 4,
-          "type_info": "Text"
-        },
-        {
-          "name": "result",
-          "ordinal": 5,
-          "type_info": "Text"
-        },
-        {
-          "name": "notes",
-          "ordinal": 6,
-          "type_info": "Text"
-        },
-        {
-          "name": "cross_design_id",
-          "ordinal": 7,
-          "type_info": "Text"
-        },
-        {
-          "name": "completed",
-          "ordinal": 8,
-          "type_info": "Int64"
-        }
-      ],
-      "nullable": [
-        false,
-        true,
-        false,
-        false,
-        true,
-        true,
-        true,
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 0
-      }
-    },
-    "query": "\n            SELECT id, due_date, action, strain1, strain2, result, notes, cross_design_id, completed FROM tasks ORDER BY id\n            "
   },
   "548a79e78c8a52e1e400926c95612c998df9513d552a8db71724f5ffdcb76129": {
     "describe": {
@@ -356,26 +266,6 @@
     },
     "query": "\n            SELECT strain_name, allele_name, is_on_top, is_on_bot FROM strain_alleles ORDER BY strain_name\n            "
   },
-  "700f48d147a3e482db602fe11a11cd5368f3855a34c010b8e34563cbef0a6b46": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 9
-      }
-    },
-    "query": "UPDATE tasks\n            SET due_date = ?,\n                action = ?,\n                strain1 = ?,\n                strain2 = ?,\n                result = ?,\n                notes = ?,\n                cross_design_id = ?,\n                completed = ?\n            WHERE\n                id = ?"
-  },
-  "7a6aad4fe7ca12cdb2af2312b9e88d8f351526092a6bf86ff5ad5cb4e576afb1": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 2
-      }
-    },
-    "query": "INSERT INTO task_conds (task_id, cond_name)\n            VALUES(?, ?)\n            "
-  },
   "7e525302a65cdcfe11e7e54b16e6c5048ba96f704ff0467e26040878e7421231": {
     "describe": {
       "columns": [
@@ -470,6 +360,78 @@
     },
     "query": "\n            SELECT allele_name, expressing_phenotype_name, expressing_phenotype_wild, dominance \n            FROM allele_exprs \n            ORDER BY allele_name, expressing_phenotype_name, expressing_phenotype_wild\n            "
   },
+  "88fedc562b2228f7b50a30dabefaf1fe0df452f54816bab43e9bfc9f163be55a": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "due_date",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "action",
+          "ordinal": 2,
+          "type_info": "Int64"
+        },
+        {
+          "name": "herm_strain",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "male_strain",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "result_strain",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "notes",
+          "ordinal": 6,
+          "type_info": "Text"
+        },
+        {
+          "name": "cross_design_id",
+          "ordinal": 7,
+          "type_info": "Text"
+        },
+        {
+          "name": "child_task_id",
+          "ordinal": 8,
+          "type_info": "Text"
+        },
+        {
+          "name": "completed",
+          "ordinal": 9,
+          "type_info": "Int64"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT id, due_date, action, herm_strain, male_strain, result_strain, notes, cross_design_id, child_task_id, completed FROM tasks ORDER BY id\n            "
+  },
   "89de9146eafad7c2cb5ac9b10041fdd9cf961f8106daf09691e5136b8d92d94a": {
     "describe": {
       "columns": [
@@ -560,25 +522,15 @@
     },
     "query": "\n            SELECT name, contents, systematic_gene_name, variation_name FROM alleles ORDER BY name\n            "
   },
-  "9ab4e6119b2e23cf86fd96b0956f95f4a8b175258f0d02c4f72a9d65dafd5f97": {
+  "a75c3021a378b7f162c88456bfb4b6be93b7e359ac591ef37fda2a65f5e560b7": {
     "describe": {
       "columns": [],
       "nullable": [],
       "parameters": {
-        "Right": 2
+        "Right": 10
       }
     },
-    "query": "INSERT INTO task_deps (parent_id, child_id)\n            VALUES(?, ?)\n            "
-  },
-  "9f51a4244baef959d9a57ba17ea8228995a75a9f4c1700d0e7bfd1a44c13bd79": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 9
-      }
-    },
-    "query": "INSERT INTO tasks (id, due_date, action, strain1, strain2, result, notes, cross_design_id, completed)\n            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)\n            "
+    "query": "INSERT INTO tasks (id, due_date, action, herm_strain, male_strain, result_strain, notes, cross_design_id, completed, child_task_id)\n            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n            "
   },
   "a87518b7632e75e60cf8da5e63f0b409da6793c8278089b15037814cb09813a7": {
     "describe": {
@@ -706,30 +658,6 @@
     },
     "query": "\n            SELECT\n                allele_name,\n                expressing_phenotype_name,\n                expressing_phenotype_wild,\n                altering_phenotype_name,\n                altering_phenotype_wild,\n                altering_condition,\n                is_suppressing\n            FROM\n                expr_relations\n            ORDER BY\n                allele_name,\n                expressing_phenotype_name,\n                expressing_phenotype_wild,\n                altering_phenotype_name,\n                altering_phenotype_wild,\n                altering_condition\n            "
   },
-  "cc897c8284a72da83addf0fcd097dbcf49097900f4d859816d6033d1697d66ee": {
-    "describe": {
-      "columns": [
-        {
-          "name": "task_id",
-          "ordinal": 0,
-          "type_info": "Text"
-        },
-        {
-          "name": "cond_name",
-          "ordinal": 1,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 0
-      }
-    },
-    "query": "\n            SELECT * FROM task_conds ORDER BY task_id\n            "
-  },
   "d6d7fc85f5bb7989d9b92e1b6f26e1b88b07e87eecb7b3d209c942a7e196d33e": {
     "describe": {
       "columns": [],
@@ -749,6 +677,16 @@
       }
     },
     "query": "UPDATE cross_designs\n            SET name = ?,\n                last_edited = ?,\n                data = ?,\n                editable = ?\n            WHERE\n                id = ?"
+  },
+  "f008fd868c5e3e86b41928f7b623cbe48d94a203ecb6c0190b53500d41df4edc": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 10
+      }
+    },
+    "query": "UPDATE tasks\n            SET due_date = ?,\n                action = ?,\n                herm_strain = ?,\n                male_strain = ?,\n                result_strain = ?,\n                notes = ?,\n                cross_design_id = ?,\n                completed = ?,\n                child_task_id = ?\n            WHERE\n                id = ?"
   },
   "f13b14ca2870cb5c8f5733d108b6430898d76a574f2d691d326e535f987a8cfb": {
     "describe": {

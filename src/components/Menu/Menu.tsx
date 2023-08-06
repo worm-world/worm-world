@@ -22,14 +22,14 @@ export const Menu = (props: MenuProps): React.JSX.Element => {
     >
       <label
         tabIndex={0}
-        className='btn-ghost btn-xs btn m-1 text-base ring-0 hover:bg-base-200 hover:ring-0'
+        className='btn btn-ghost btn-xs m-1 text-base ring-0 hover:bg-base-200 hover:ring-0'
       >
         {props.icon}
       </label>
       {props.items.length > 0 && (
         <ul
           tabIndex={0}
-          className='menu-compact dropdown-content menu z-50 w-40 rounded-md bg-base-100 p-1 drop-shadow-lg'
+          className='menu-compact menu dropdown-content z-50 w-40 rounded-md bg-base-100 p-1 drop-shadow-lg'
         >
           <li className='menu-title'>
             <span>{props.title}</span>

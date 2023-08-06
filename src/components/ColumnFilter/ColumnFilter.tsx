@@ -61,7 +61,7 @@ const FilterTextInput = (props: FilterTextInputProps): React.JSX.Element => {
         <label className='label'>{props.label}</label>
       )}
       <input
-        className='input-bordered input'
+        className='input input-bordered'
         type={props.type}
         placeholder={props.placeholder}
         value={props.filterValues[props.index].toString()}
@@ -141,7 +141,7 @@ const FilterInput = <T,>(props: FilterInputProps<T>): React.JSX.Element => {
         // if select, render a select input
         <div className='form-control'>
           <select
-            className='input-bordered input select'
+            className='input select input-bordered'
             onChange={(e) => {
               const newFilterValues = [...props.filterValues];
               newFilterValues[0] = e.target.value;

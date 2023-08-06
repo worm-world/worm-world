@@ -1,7 +1,7 @@
 import { open } from '@tauri-apps/api/dialog';
 import { readTextFile } from '@tauri-apps/api/fs';
 import { getFilteredCrossDesigns, insertCrossDesign } from 'api/crossDesign';
-import { type OffspringFilter } from 'components/OffspringFilter/OffspringFilter';
+import { type StrainFilter } from 'models/frontend/StrainFilter/StrainFilter';
 import CrossDesignCard from 'components/CrossDesignCard/CrossDesignCard';
 import { TopNav } from 'components/TopNav/TopNav';
 import CrossDesign from 'models/frontend/CrossDesign/CrossDesign';
@@ -24,8 +24,6 @@ const Index = (): React.JSX.Element => {
       crossDesigns.map((crossDesign) => CrossDesign.fromJSON(crossDesign.data))
     );
   };
-
-  // if (newCrossDesignId !== undefined) setNewCrossDesignId(undefined);
 
   useEffect(() => {
     refreshCrossDesigns()
@@ -113,7 +111,7 @@ const NoCrossDesignPlaceholder = (): React.JSX.Element => {
     <div className='m-14 flex flex-col items-center justify-center'>
       <h2 className='text-2xl'>Cross designs can be found here.</h2>
       <h2 className='my-4 flex flex-row text-xl'>
-        Click the &quot;New CrossDesign&quot; button to start.
+        Click the &quot;new design&quot; button to start.
       </h2>
       <WormIcon className='my-8 text-9xl text-base-300' />
     </div>
@@ -147,7 +145,7 @@ const addCrossDesign = async (): Promise<string | undefined> => {
       lastSaved: new Date(),
       nodes: [],
       edges: [],
-      offspringFilters: new Map<string, OffspringFilter>(),
+      strainFilters: new Map<string, StrainFilter>(),
       editable: true,
     });
     await insertCrossDesign(newCrossDesign.generateRecord());

@@ -4,9 +4,10 @@ export type TaskFieldName =
   | 'Id'
   | 'DueDate'
   | 'Action'
-  | 'Strain1'
-  | 'Strain2'
-  | 'Result'
+  | 'HermStrain'
+  | 'MaleStrain'
+  | 'ResultStrain'
   | 'Notes'
   | 'Completed'
-  | 'CrossDesignId';
+  | 'CrossDesignId'
+  | 'ChildTaskId';

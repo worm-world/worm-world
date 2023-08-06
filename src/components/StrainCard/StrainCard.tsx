@@ -1,7 +1,7 @@
 import BreedCountProbability from 'components/BreedCountProbability/BreedCountProbability';
 import EditorContext from 'components/EditorContext/EditorContext';
 import { Menu } from 'components/Menu/Menu';
-import StrainNodeContext from 'components/StrainNodeContext/StrainNodeContext';
+import StrainNodeContext from 'components/StrainCardContext/StrainCardContext';
 import { Sex } from 'models/enums';
 import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { type ChromosomePair } from 'models/frontend/ChromosomePair/ChromosomePair';
@@ -11,16 +11,22 @@ import { BsLightningCharge as MenuIcon } from 'react-icons/bs';
 import { IoMale as MaleIcon, IoMaleFemale as HermIcon } from 'react-icons/io5';
 import { RiArrowUpDownLine as SwapIcon } from 'react-icons/ri';
 
-const StrainCard = (props: { data: Strain; id: string }): JSX.Element => {
+interface StrainCardProps {
+  strain: Strain;
+  id: string;
+  variableWidth?: boolean;
+}
+
+const StrainCard = (props: StrainCardProps): JSX.Element => {
   const probability =
-    props.data.probability === undefined
+    props.strain.probability === undefined
       ? ''
-      : `${(props.data.probability * 100).toFixed(2)}%`;
+      : `${(props.strain.probability * 100).toFixed(2)}%`;
 
   const context = useContext(EditorContext);
   const menuItems = context.getMenuItems(props.id);
   const strainNodeContextValue = {
-    strain: props.data,
+    strain: props.strain,
     toggleHetPair: (pair: AllelePair) => {
       context.toggleHetPair(props.id, pair);
     },
@@ -34,24 +40,26 @@ const StrainCard = (props: { data: Strain; id: string }): JSX.Element => {
     <StrainNodeContext.Provider value={strainNodeContextValue}>
       <div
         data-testid='strainNode'
-        className='flex h-36 w-64 flex-col rounded bg-base-100 shadow'
+        className='flex h-36 w-64 flex-col rounded bg-base-100 shadow-md'
       >
         <div className='flex h-6 justify-between'>
           <SexButton />
-          {props.data.isChild && (
-            <div className='dropdown-top dropdown'>
+          {props.strain.isChild && (
+            <div className='dropdown dropdown-top'>
               <label
                 tabIndex={0}
-                className='btn-ghost btn-xs btn text-accent ring-0 hover:bg-base-200 hover:ring-0'
+                className='btn btn-ghost btn-xs text-accent ring-0 hover:bg-base-200 hover:ring-0'
               >
                 {probability}
               </label>
               <div
                 tabIndex={0}
-                className='compact card dropdown-content rounded-box w-full bg-base-100 shadow'
+                className='card dropdown-content compact rounded-box w-full bg-base-100 shadow'
               >
                 <div className='card-body'>
-                  <BreedCountProbability probability={props.data.probability} />
+                  <BreedCountProbability
+                    probability={props.strain.probability}
+                  />
                 </div>
               </div>
             </div>
@@ -70,12 +78,10 @@ const StrainCard = (props: { data: Strain; id: string }): JSX.Element => {
             className='flex h-24 min-w-min justify-center text-sm'
             data-testid='strainNodeBody'
           >
-            <MainContentArea strain={props.data} />
+            <MainContentArea strain={props.strain} />
           </div>
         </div>
-        <div className='h-6 text-center text-sm font-bold'>
-          {props.data.name}
-        </div>
+        <div className='h-6 text-center font-bold'>{props.strain.name}</div>
       </div>
     </StrainNodeContext.Provider>
   );
@@ -88,7 +94,7 @@ const SexButton = (): React.JSX.Element => {
   return (
     <button
       className={
-        'btn-ghost btn-xs btn m-1 ring-0 hover:bg-base-200 hover:ring-0' +
+        'btn btn-ghost btn-xs m-1 ring-0 hover:bg-base-200 hover:ring-0' +
         (context.strain.isParent ? ' btn-transparent hover:bg-transparent' : '')
       }
       onClick={() => {
@@ -110,7 +116,7 @@ const SexButton = (): React.JSX.Element => {
 // Return the main content area of the strain node, which will show genotype information
 const MainContentArea = (props: { strain: Strain }): React.JSX.Element => {
   return props.strain.isEmptyWild() ? (
-    <div className='flex h-12 flex-col justify-center'>(Wild)</div>
+    <div className='flex flex-col items-center justify-center'>(Wild)</div>
   ) : (
     <>
       {Array.from(props.strain.getSortedChromPairs())
@@ -119,7 +125,7 @@ const MainContentArea = (props: { strain: Strain }): React.JSX.Element => {
           return (
             <div key={idx} className='flex'>
               <ChromPairBox chromPair={chromPair} />
-              <div className='flex flex-col justify-center pt-3 font-light text-base-content'>
+              <div className='flex flex-col justify-center pt-2 font-light text-base-content'>
                 {idx < chromPairs.length - 1 ? ';' : ''}
               </div>
             </div>
@@ -152,7 +158,10 @@ const ChromPairBox = (props: {
   const chromName = props.chromPair.getChromName() ?? '?';
 
   return (
-    <div key={chromName} className='mx-2  flex flex-col items-center'>
+    <div
+      key={chromName}
+      className='mx-2 flex flex-col items-center justify-start text-lg'
+    >
       <div className='font-bold'>{chromName}</div>
       <div className='my-auto flex flex-row'>{mutationBoxes}</div>
     </div>
@@ -180,7 +189,7 @@ const MutationBox = (props: {
       : '';
 
     return (
-      <div className={`group relative flex flex-col whitespace-nowrap`}>
+      <div className={`group relative flex flex-col whitespace-nowrap text-lg`}>
         {props.toggleEnabled && (
           <div
             className={`invisible absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-primary hover:cursor-pointer group-hover:visible `}
@@ -196,9 +205,7 @@ const MutationBox = (props: {
             ? props.allelePair.top.getQualifiedName()
             : props.allelePair.top.name}
         </div>
-        <div>
-          <hr className={`my-1 border-base-content ${hiddenStyling}`} />
-        </div>
+        <hr className={`border-base-content ${hiddenStyling}`} />
         <div className='text-align w-full px-2 text-center'>
           {context.strain.sex === Sex.Male && props.isX
             ? '0'

@@ -14,9 +14,9 @@ export interface StrainNodeProps {
 }
 
 const StrainNode = (props: StrainNodeProps): React.JSX.Element => {
-  const isMale = props.data.sex === Sex.Male;
-  const rStyling = isMale ? '' : 'invisible';
-  const bLStyling = isMale ? 'invisible' : '';
+  const isHerm = props.data.sex === Sex.Hermaphrodite;
+  const bRStyling = isHerm ? '' : 'invisible';
+  const lStyling = isHerm ? 'invisible' : '';
 
   return (
     <div className='strain-node h-fit w-fit'>
@@ -24,29 +24,29 @@ const StrainNode = (props: StrainNodeProps): React.JSX.Element => {
       <Handle
         key='right'
         id='right'
-        className={rStyling}
+        className={bRStyling}
         type='source'
         position={Position.Right}
       />
       <Handle
         key='left'
-        className={bLStyling}
+        className={lStyling}
         id='left'
         type='source'
         position={Position.Left}
       />
       <Handle
         key='bottom'
-        className={bLStyling}
+        className={bRStyling}
         id='bottom'
         type='source'
         position={Position.Bottom}
       />
-      <div className='text-sm'>{props.id}</div>
+      {/* <div className='text-sm'>{props.id}</div>
       <div className='text-sm'>
         {Math.round(props.xPos)},{Math.round(props.yPos)}
-      </div>
-      <StrainCard {...props} />
+      </div> */}
+      <StrainCard strain={props.data} {...props} />
     </div>
   );
 };

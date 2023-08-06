@@ -69,14 +69,14 @@ export const AlleleMultiSelect = (
           id={`AlleleMultiSelect-${props.label}`}
           type='text'
           placeholder={props.placeholder}
-          className='input-bordered input w-full max-w-xs'
+          className='input input-bordered w-full max-w-xs'
           onChange={onInputChange}
           value={userInput}
         />
         {searchRes.length === 0 ? (
           <></> // Don't show list if no results
         ) : (
-          <ul className='dropdown-content menu rounded-box z-50 my-2 w-52 overflow-auto bg-base-100 p-2 shadow'>
+          <ul className='menu dropdown-content rounded-box z-50 my-2 w-52 overflow-auto bg-base-100 p-2 shadow'>
             {searchRes.map((record, idx) => {
               const [allele, gene] = record;
               const optionText =

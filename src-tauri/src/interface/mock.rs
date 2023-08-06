@@ -19,8 +19,4 @@ pub mod strain_allele;
 #[cfg(test)]
 pub mod task;
 #[cfg(test)]
-pub mod task_cond;
-#[cfg(test)]
-pub mod task_dep;
-#[cfg(test)]
 pub mod variation;

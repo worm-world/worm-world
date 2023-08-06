@@ -1,7 +1,7 @@
 import { BiDotsHorizontalRounded as MoreHorizIcon } from 'react-icons/bi';
 import { Link, useNavigate } from 'react-router-dom';
-import type CrossDesign from 'models/frontend/CrossDesign/CrossDesign';
-import { Menu, type MenuItem } from 'components/Menu/Menu';
+import CrossDesign from 'models/frontend/CrossDesign/CrossDesign';
+import { Menu } from 'components/Menu/Menu';
 import { useEffect, useState } from 'react';
 import {
   deleteCrossDesign,
@@ -13,6 +13,7 @@ import { writeTextFile } from '@tauri-apps/api/fs';
 import { sep } from '@tauri-apps/api/path';
 import { toast } from 'react-toastify';
 import EditableDiv from 'components/EditableDiv/EditableDiv';
+import { ulid } from 'ulid';
 
 export interface CrossDesignCardProps {
   crossDesign: CrossDesign;
@@ -120,7 +121,7 @@ const CrossDesignCard = (props: CrossDesignCardProps): React.JSX.Element => {
           </h1>
           <div className='modal-action flex justify-center'>
             <button
-              className='btn-error btn'
+              className='btn btn-error'
               onClick={() => {
                 deleteCrossDesign(props.crossDesign.id)
                   .then(props.refreshCrossDesigns)
@@ -145,10 +146,12 @@ const CrossDesignCard = (props: CrossDesignCardProps): React.JSX.Element => {
 };
 
 const copyCrossDesign = async (crossDesign: CrossDesign): Promise<void> => {
-  const newCrossDesign = crossDesign.clone();
-  newCrossDesign.name = `Copy of ${crossDesign.name}`;
-  newCrossDesign.lastSaved = new Date();
-  newCrossDesign.editable = true;
+  const newCrossDesign = new CrossDesign({
+    ...crossDesign,
+    id: ulid(),
+    name: `Copy of ${crossDesign.name}`,
+    lastSaved: new Date(),
+  });
   await insertCrossDesign(newCrossDesign.generateRecord());
 };
 

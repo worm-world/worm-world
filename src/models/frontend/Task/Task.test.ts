@@ -10,12 +10,13 @@ describe('Task', () => {
       id: '0',
       dueDate: null,
       action: 'SelfCross',
-      strain1: strains.wildManyPairs.toMale().toJSON(),
-      strain2: null,
-      result: null,
+      hermStrain: strains.wildManyPairs.toMale().toJSON(),
+      maleStrain: null,
+      resultStrain: null,
       notes: null,
       completed: false,
       crossDesignId: '3',
+      childTaskId: null,
     });
     const str = task.toJSON();
     const taskBack = Task.fromJSON(str);

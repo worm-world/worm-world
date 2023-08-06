@@ -26,6 +26,7 @@ import {
   ChromosomePair,
 } from 'models/frontend/ChromosomePair/ChromosomePair';
 import { chromosomes } from 'models/frontend/Chromosome';
+import type StrainFilter from 'models/frontend/StrainFilter/StrainFilter';
 
 export interface StrainOption {
   strain: Strain;
@@ -113,6 +114,41 @@ export class Strain {
     });
   }
 
+  public passesFilter(filter: StrainFilter): boolean {
+    const passesAlleleNames =
+      filter.alleleNames.size === 0 ||
+      [...filter.alleleNames].every((alleleName) =>
+        this.getAlleles()
+          .map((allele) => allele.getQualifiedName())
+          .includes(alleleName)
+      );
+    const passesReqConds =
+      filter.reqConditions.size === 0 ||
+      [...filter.reqConditions].every((reqCondName) =>
+        this.getReqConditions()
+          .map((reqCond) => reqCond.name)
+          .includes(reqCondName)
+      );
+    const passesSupConds =
+      filter.supConditions.size === 0 ||
+      [...filter.supConditions].every((supCondName) =>
+        this.getReqConditions()
+          .map((supCond) => supCond.name)
+          .includes(supCondName)
+      );
+    const passesExprPhens =
+      filter.exprPhenotypes.size === 0 ||
+      [...filter.exprPhenotypes].every((exprPhenName) =>
+        this.getExprPhenotypes()
+          .map((exprPhen) => exprPhen.name)
+          .includes(exprPhenName)
+      );
+
+    return (
+      passesAlleleNames && passesReqConds && passesSupConds && passesExprPhens
+    );
+  }
+
   public toggleSex(): Strain {
     const strain = this.clone();
     strain.sex =
@@ -186,18 +222,17 @@ export class Strain {
       excludeEca: false,
     }
   ): string {
-    return (
-      this.getSortedChromPairs()
-        .filter(
-          (chromPair) =>
-            !(
-              (options.simplify && chromPair.isWild()) ||
-              (options.excludeEca && chromPair.isEca())
-            )
-        )
-        .map((chromPair) => chromPair.toString(true))
-        .join('; ') + '.'
-    );
+    const str = this.getSortedChromPairs()
+      .filter(
+        (chromPair) =>
+          !(
+            (options.simplify && chromPair.isWild()) ||
+            (options.excludeEca && chromPair.isEca())
+          )
+      )
+      .map((chromPair) => chromPair.toString(true))
+      .join('; ');
+    return str === '' ? '(Wild)' : str + '.';
   }
 
   static async createFromRecord(record: db_Strain): Promise<Strain> {
@@ -494,23 +529,33 @@ export class Strain {
   }
 
   public getExprPhenotypes(): Phenotype[] {
-    return this.getAlleleExpressions().map((expr) => expr.expressingPhenotype);
+    return [
+      ...new Set(
+        this.getAlleleExpressions().map((expr) => expr.expressingPhenotype)
+      ),
+    ];
   }
 
   public getReqConditions(): Condition[] {
-    return this.getAlleleExpressions().flatMap(
-      (expr) => expr.requiredConditions
-    );
+    return [
+      ...new Set(
+        this.getAlleleExpressions().flatMap((expr) => expr.requiredConditions)
+      ),
+    ];
   }
 
   public getSupConditions(): Condition[] {
-    return this.getAlleleExpressions().flatMap(
-      (expr) => expr.suppressingConditions
-    );
+    return [
+      ...new Set(
+        this.getAlleleExpressions().flatMap(
+          (expr) => expr.suppressingConditions
+        )
+      ),
+    ];
   }
 
   public getMaturationDays(): number {
-    const maturationDays = this.getExprPhenotypes().flatMap(
+    const maturationDays = [...this.getExprPhenotypes()].flatMap(
       (phen) => phen.maturationDays ?? []
     );
     if (maturationDays.length === 0) maturationDays.push(3); // default

@@ -1,5 +1,7 @@
 BEGIN TRANSACTION;
-INSERT INTO genes (
+
+INSERT INTO
+    genes (
         systematic_name,
         descriptive_name,
         chromosome,
@@ -8,7 +10,8 @@ INSERT INTO genes (
         recomb_suppressor_start,
         recomb_suppressor_end
     )
-VALUES (
+VALUES
+    (
         "F57H12.2",
         "unc-24",
         "IV",
@@ -80,7 +83,9 @@ VALUES (
         NULL,
         NULL
     );
-INSERT INTO variations (
+
+INSERT INTO
+    variations (
         allele_name,
         chromosome,
         phys_loc,
@@ -88,7 +93,8 @@ INSERT INTO variations (
         recomb_suppressor_start,
         recomb_suppressor_end
     )
-VALUES ("oxIs363", "IV", NULL, NULL, NULL, NULL),
+VALUES
+    ("oxIs363", "IV", NULL, NULL, NULL, NULL),
     ("oxIs644", NULL, NULL, NULL, NULL, NULL),
     ("oxIs12", "X", NULL, NULL, NULL, NULL),
     ("oxTi302", "I", 10166146, 4.72, NULL, NULL),
@@ -107,7 +113,9 @@ VALUES ("oxIs363", "IV", NULL, NULL, NULL, NULL),
     ("oxEx219999", 'Ex', NULL, NULL, NULL, NULL),
     ("eT1(V)", "V", NULL, NULL, 1, 8934697),
     ("eT1(III)", "III", NULL, NULL, 8192365, 13783733);
-INSERT INTO phenotypes (
+
+INSERT INTO
+    phenotypes (
         name,
         wild,
         male_mating,
@@ -117,7 +125,8 @@ INSERT INTO phenotypes (
         maturation_days,
         short_name
     )
-VALUES (
+VALUES
+    (
         "eT1Vhomozygote_aneuploid",
         0,
         0,
@@ -218,7 +227,9 @@ VALUES (
     ("NeoR", 0, 3, 0, 0, 0, 3, "NeoR"),
     ("paralyzed", 0, 0, 0, 0, 0, NULL, "paralyzed"),
     ("lethal", 0, 0, 0, 0, 1, NULL, "lethal");
-INSERT INTO conditions (
+
+INSERT INTO
+    conditions (
         name,
         male_mating,
         female_sterile,
@@ -226,17 +237,21 @@ INSERT INTO conditions (
         lethal,
         maturation_days
     )
-VALUES ("15C", 3, 0, 0, 0, 4),
+VALUES
+    ("15C", 3, 0, 0, 0, 4),
     ("25C", 3, 0, 0, 0, 3),
     ("Tetracycline", 3, 0, 0, 0, 3),
     ("Histamine", 3, 0, 0, 0, 3);
-INSERT INTO alleles (
+
+INSERT INTO
+    alleles (
         name,
         systematic_gene_name,
         variation_name,
         contents
     )
-VALUES ("cn64", "T14B4.7", NULL, NULL),
+VALUES
+    ("cn64", "T14B4.7", NULL, NULL),
     ("e128", "T14B4.7", NULL, NULL),
     ("e1282", "T22B3.1", NULL, NULL),
     ("e138", "F57H12.2", NULL, NULL),
@@ -303,13 +318,16 @@ VALUES ("cn64", "T14B4.7", NULL, NULL),
         "tmC5[F36H1.3(tmIs1220)]",
         "[Pmyo-2::YFP]"
     );
-INSERT INTO allele_exprs (
+
+INSERT INTO
+    allele_exprs (
         allele_name,
         expressing_phenotype_name,
         expressing_phenotype_wild,
         dominance
     )
-VALUES ("ed3", "unc-119", 0, 0),
+VALUES
+    ("ed3", "unc-119", 0, 0),
     ("n765", "lin-15B", 0, 0),
     ("md299", "unc-18", 0, 0),
     ("cn64", "dpy-10", 0, 0),
@@ -344,8 +362,10 @@ VALUES ("ed3", "unc-119", 0, 0),
     ("oxSi1168", "unc-119", 1, 2),
     ("oxSi1168", "NeoR", 0, 2),
     ("oxEx219999", "paralyzed", 0, 2);
+
 -- is_suppressing == 0 means phenotype req
-INSERT INTO expr_relations (
+INSERT INTO
+    expr_relations (
         allele_name,
         expressing_phenotype_name,
         expressing_phenotype_wild,
@@ -354,7 +374,8 @@ INSERT INTO expr_relations (
         altering_condition,
         is_suppressing
     )
-VALUES (
+VALUES
+    (
         "eT1(III)",
         "eT1IIIhomozygote_aneuploid",
         0,
@@ -401,22 +422,28 @@ VALUES (
         "Histamine",
         0
     );
-INSERT INTO cross_designs (id, name, last_edited, data, editable)
-VALUES (1, "test1", "2012-01-01", "{}", 1),
+
+INSERT INTO
+    cross_designs (id, name, last_edited, data, editable)
+VALUES
+    (1, "test1", "2012-01-01", "{}", 1),
     (2, "test2", "2012-01-02", "{}", 0),
     (3, "test3", "2012-01-03", "{}", 1);
-INSERT INTO tasks (
+
+INSERT INTO
+    tasks (
         id,
         due_date,
         action,
-        strain1,
-        strain2,
-        result,
+        herm_strain,
+        male_strain,
+        result_strain,
         notes,
         cross_design_id,
         completed
     )
-VALUES (
+VALUES
+    (
         1,
         "2012-01-01",
         0,
@@ -451,16 +478,20 @@ VALUES (
         3,
         1
     );
-INSERT INTO task_conds (task_id, cond_name)
-VALUES (1, "Histamine"),
-    (2, "Tetracycline"),
-    (3, "Histamine");
-INSERT INTO task_deps (parent_id, child_id)
-VALUES (1, 2),
-    (2, 3);
-INSERT INTO strains (name, genotype, description)
-VALUES ('N2', 'C. elegans wild isolate.', 'C. elegans var Bristol. Generation time is about 3 days. Brood size is about 350. Also CGC reference 257. Isolated from mushroom compost near Bristol, England by L.N. Staniland.'),
-    ('EG6207', 'unc-199(ed3) III.', 'Reference: WBPaper00059962'),
+
+INSERT INTO
+    strains (name, genotype, description)
+VALUES
+    (
+        'N2',
+        'C. elegans wild isolate.',
+        'C. elegans var Bristol. Generation time is about 3 days. Brood size is about 350. Also CGC reference 257. Isolated from mushroom compost near Bristol, England by L.N. Staniland.'
+    ),
+    (
+        'EG6207',
+        'unc-199(ed3) III.',
+        'Reference: WBPaper00059962'
+    ),
     ('MT2495', 'lin-15B(n744) X.', NULL),
     ('CB128', 'dpy-10(e128) II.', 'Small Dpy.'),
     (
@@ -478,8 +509,11 @@ VALUES ('N2', 'C. elegans wild isolate.', 'C. elegans var Bristol. Generation ti
         'fbl-1(hd43)/dpy-20(e1282) unc-24(e138) IV.',
         'Heterozygotes are WT and segregate WT, Steriles (hd43 homozygotes) and Dpy Uncs.'
     );
-INSERT INTO strain_alleles (strain_name, allele_name, is_on_top, is_on_bot)
-VALUES ('EG6207', 'ed3', TRUE, TRUE),
+
+INSERT INTO
+    strain_alleles (strain_name, allele_name, is_on_top, is_on_bot)
+VALUES
+    ('EG6207', 'ed3', TRUE, TRUE),
     ('MT2495', 'n744', TRUE, TRUE),
     ('CB128', 'e128', TRUE, TRUE),
     ('TN64', 'cn64', TRUE, TRUE),
@@ -488,4 +522,5 @@ VALUES ('EG6207', 'ed3', TRUE, TRUE),
     ('BT14', 'hd43', TRUE, FALSE),
     ('BT14', 'e1282', TRUE, FALSE),
     ('BT14', 'e138', TRUE, TRUE);
+
 COMMIT TRANSACTION;

@@ -11,7 +11,7 @@ const Schedules = (): React.JSX.Element => {
           </Link>,
         ]}
       </TopNav>
-      <div className='px-6 pt-2'>
+      <div className='px-16 py-6'>
         <Outlet />
       </div>
     </>

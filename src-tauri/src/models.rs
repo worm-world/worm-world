@@ -6,6 +6,7 @@ pub mod allele;
 pub mod allele_expr;
 pub mod chromosome_name;
 pub mod condition;
+pub mod cross_design;
 pub mod expr_relation;
 pub mod filter;
 pub mod gene;
@@ -13,8 +14,4 @@ pub mod phenotype;
 pub mod strain;
 pub mod strain_allele;
 pub mod task;
-pub mod task_cond;
-pub mod task_dep;
-
-pub mod cross_design;
 pub mod variation;

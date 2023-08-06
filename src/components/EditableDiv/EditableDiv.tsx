@@ -41,7 +41,7 @@ const EditableDiv = (props: EditableDivProps): React.JSX.Element => {
         />
       ) : (
         <div
-          className={` w-full truncate border-2 border-transparent p-1 ${
+          className={`h-full w-full truncate border-2 border-transparent p-1 ${
             props.onClick !== undefined
               ? 'hover:cursor-text hover:border-base-300'
               : ''

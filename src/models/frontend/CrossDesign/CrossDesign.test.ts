@@ -1,5 +1,4 @@
-import { OffspringFilter } from 'components/OffspringFilter/OffspringFilter';
-import { type MenuItem } from 'components/Menu/Menu';
+import { StrainFilter } from 'models/frontend/StrainFilter/StrainFilter';
 import { Sex } from 'models/enums';
 import CrossDesign, {
   type ICrossDesign,
@@ -18,7 +17,7 @@ describe('cross crossDesign', () => {
     name = '',
     nodes = [],
     edges = [],
-    offspringFilters = new Map(),
+    strainFilters = new Map(),
     lastSaved = new Date(),
     editable = true,
   }: Partial<ICrossDesign>): CrossDesign => {
@@ -27,7 +26,7 @@ describe('cross crossDesign', () => {
       nodes,
       edges,
       lastSaved,
-      offspringFilters,
+      strainFilters,
       editable,
     });
   };
@@ -36,7 +35,7 @@ describe('cross crossDesign', () => {
     id = 0,
     type = NodeType.Strain,
     position = { x: 0, y: 0 },
-    strain = generateStrain({}),
+    strain = new Strain(),
     parentNode = undefined,
   }: {
     id?: number;
@@ -51,16 +50,6 @@ describe('cross crossDesign', () => {
       position,
       data: strain,
     };
-  };
-
-  const generateStrain = ({
-    allelePairs = [],
-    sex = Sex.Hermaphrodite,
-  }: {
-    allelePairs?: AllelePair[];
-    sex?: Sex;
-  }): Strain => {
-    return new Strain({ allelePairs, sex });
   };
 
   const generateEdge = ({
@@ -134,8 +123,8 @@ describe('cross crossDesign', () => {
   });
   test('constructs a crossDesign with edges and nodes', () => {
     let id = 0;
-    const maleStrain = generateStrain({ sex: Sex.Male });
-    const hermStrain = generateStrain({});
+    const maleStrain = new Strain({ sex: Sex.Male });
+    const hermStrain = new Strain();
 
     const maleNode = generateNode({ id: id++, strain: maleStrain });
     const hermNode = generateNode({ id: id++, strain: hermStrain });
@@ -165,7 +154,7 @@ describe('cross crossDesign', () => {
     let id = 0;
     const strainNode = generateNode({
       id: id++,
-      strain: generateStrain({}),
+      strain: new Strain(),
     });
     const selfNode = generateNode({ id: id++, type: NodeType.Self });
 
@@ -185,195 +174,16 @@ describe('cross crossDesign', () => {
     testTreeNodesAndEdges(crossDesign, nodes, edges);
   });
 
-  test('.removeEdges() leaves edges as is with undefined arguments', () => {
-    let id = 0;
-    const nodes = [
-      generateNode({ id: id++ }), // id: 0
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }),
-    ];
-    const edges = [
-      generateEdge({ id: id++, source: '0', target: '1' }), // id: 3
-      generateEdge({ id: id++, source: '0', target: '2' }),
-    ];
-    const crossDesign = generateTree({ nodes, edges });
-    testTreeNodesAndEdges(crossDesign, nodes, edges);
-    crossDesign.edges = CrossDesign.removeEdges(crossDesign.edges, {});
-    testTreeNodesAndEdges(crossDesign, nodes, edges);
-  });
-  test('.removeEdges() leaves edges as is with non-matching ids', () => {
-    let id = 0;
-    const nodes = [
-      generateNode({ id: id++ }), // id: 0
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }),
-    ];
-    const edges = [
-      generateEdge({ id: id++, source: '0', target: '1' }), // id: 3
-      generateEdge({ id: id++, source: '0', target: '2' }),
-    ];
-    const crossDesign = generateTree({ nodes, edges });
-    crossDesign.edges = CrossDesign.removeEdges(crossDesign.edges, {
-      sourceId: '3',
-    });
-    testTreeNodesAndEdges(crossDesign, nodes, edges);
-    crossDesign.edges = CrossDesign.removeEdges(crossDesign.edges, {
-      targetId: '4',
-    });
-    testTreeNodesAndEdges(crossDesign, nodes, edges);
-    crossDesign.edges = CrossDesign.removeEdges(crossDesign.edges, {
-      sourceId: '0',
-      targetId: '4',
-    }); // source matches but target DOES NOT
-    testTreeNodesAndEdges(crossDesign, nodes, edges);
-  });
-  test('.removeEdges() removes all edges with same source id', () => {
-    let id = 0;
-    const nodes = [
-      generateNode({ id: id++ }), // id: 0
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }), // id: 5
-    ];
-    const edges = [
-      generateEdge({ id: id++, source: '0', target: '1' }), // id: 6
-      generateEdge({ id: id++, source: '0', target: '2' }),
-      generateEdge({ id: id++, source: '0', target: '4' }),
-      generateEdge({ id: id++, source: '1', target: '3' }), // id: 9
-      generateEdge({ id: id++, source: '1', target: '4' }),
-      generateEdge({ id: id++, source: '2', target: '3' }), // id: 11
-      generateEdge({ id: id++, source: '2', target: '4' }),
-      generateEdge({ id: id++, source: '2', target: '5' }), // id: 13
-    ];
-    const crossDesign = generateTree({ nodes, edges });
-    crossDesign.edges = CrossDesign.removeEdges(crossDesign.edges, {
-      sourceId: '1',
-    });
-    testTreeNodesAndEdges(crossDesign, nodes, [
-      ...edges.slice(0, 3),
-      ...edges.slice(5),
-    ]);
-
-    crossDesign.edges = CrossDesign.removeEdges(crossDesign.edges, {
-      sourceId: '2',
-    });
-    testTreeNodesAndEdges(crossDesign, nodes, [...edges.slice(0, 3)]);
-
-    crossDesign.edges = CrossDesign.removeEdges(crossDesign.edges, {
-      sourceId: '0',
-    });
-    testTreeNodesAndEdges(crossDesign, nodes, []);
-  });
-  test('.removeEdges() removes all edges with same target id', () => {
-    let id = 0;
-    const nodes = [
-      generateNode({ id: id++ }), // id: 0
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }), // id: 5
-    ];
-    const edges = [
-      generateEdge({ id: id++, source: '0', target: '1' }), // id: 6
-      generateEdge({ id: id++, source: '0', target: '2' }),
-      generateEdge({ id: id++, source: '0', target: '4' }),
-      generateEdge({ id: id++, source: '1', target: '3' }), // id: 9
-      generateEdge({ id: id++, source: '1', target: '4' }),
-      generateEdge({ id: id++, source: '2', target: '3' }), // id: 11
-      generateEdge({ id: id++, source: '2', target: '4' }),
-      generateEdge({ id: id++, source: '2', target: '5' }), // id: 13
-    ];
-    const crossDesign = generateTree({ nodes, edges });
-    crossDesign.edges = CrossDesign.removeEdges(crossDesign.edges, {
-      targetId: '3',
-    });
-    testTreeNodesAndEdges(crossDesign, nodes, [
-      ...edges.slice(0, 3),
-      edges[4],
-      ...edges.slice(6),
-    ]);
-
-    crossDesign.edges = CrossDesign.removeEdges(crossDesign.edges, {
-      targetId: '4',
-    });
-    testTreeNodesAndEdges(crossDesign, nodes, [...edges.slice(0, 2), edges[7]]);
-
-    crossDesign.edges = CrossDesign.removeEdges(crossDesign.edges, {
-      targetId: '5',
-    });
-    crossDesign.edges = CrossDesign.removeEdges(crossDesign.edges, {
-      targetId: '1',
-    });
-    testTreeNodesAndEdges(crossDesign, nodes, [edges[1]]);
-
-    crossDesign.edges = CrossDesign.removeEdges(crossDesign.edges, {
-      targetId: '2',
-    });
-    testTreeNodesAndEdges(crossDesign, nodes, []);
-  });
-  test('.removeEdges() removes all edges with same source AND target ids', () => {
-    let id = 0;
-    const nodes = [
-      generateNode({ id: id++ }), // id: 0
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }),
-      generateNode({ id: id++ }), // id: 5
-    ];
-    const edges = [
-      generateEdge({ id: id++, source: '0', target: '1' }), // id: 6
-      generateEdge({ id: id++, source: '0', target: '2' }),
-      generateEdge({ id: id++, source: '0', target: '4' }),
-      generateEdge({ id: id++, source: '1', target: '3' }), // id: 9
-      generateEdge({ id: id++, source: '1', target: '4' }),
-      generateEdge({ id: id++, source: '2', target: '3' }), // id: 11
-      generateEdge({ id: id++, source: '2', target: '4' }),
-      generateEdge({ id: id++, source: '2', target: '5' }), // id: 13
-    ];
-    const crossDesign = generateTree({ nodes, edges });
-    crossDesign.edges = CrossDesign.removeEdges(crossDesign.edges, {
-      sourceId: '1',
-      targetId: '4',
-    });
-    testTreeNodesAndEdges(crossDesign, nodes, [
-      ...edges.slice(0, 4),
-      ...edges.slice(5),
-    ]);
-
-    crossDesign.edges = CrossDesign.removeEdges(crossDesign.edges, {
-      sourceId: '0',
-      targetId: '2',
-    });
-    crossDesign.edges = CrossDesign.removeEdges(crossDesign.edges, {
-      sourceId: '1',
-      targetId: '3',
-    });
-    crossDesign.edges = CrossDesign.removeEdges(crossDesign.edges, {
-      sourceId: '2',
-      targetId: '3',
-    });
-    crossDesign.edges = CrossDesign.removeEdges(crossDesign.edges, {
-      sourceId: '2',
-      targetId: '5',
-    });
-
-    testTreeNodesAndEdges(crossDesign, nodes, [edges[0], edges[2], edges[6]]);
-  });
-
-  test('.generateTasks() returns empty list from no crosses', () => {
+  test('.getTasks() returns empty list from no crosses', () => {
     const nodes = [generateNode({})];
     const crossDesign = generateTree({ nodes });
-    expect(crossDesign.generateTasks(nodes[0])).toHaveLength(0);
+    expect(crossDesign.getTasks(nodes[0])).toHaveLength(0);
   });
-  test('.generateTasks() returns self-cross tasks', () => {
+  test('.getTasks() returns self-cross tasks', () => {
     let id = 0;
-    const strain1 = generateStrain({});
+    const hermStrain = new Strain();
     const nodes = [
-      generateNode({ id: id++, strain: strain1 }),
+      generateNode({ id: id++, strain: hermStrain }),
       generateNode({ id: id++, type: NodeType.Self }),
       generateNode({ id: id++ }),
     ];
@@ -388,21 +198,21 @@ describe('cross crossDesign', () => {
     ];
 
     const crossDesign = generateTree({ nodes, edges });
-    expect(crossDesign.generateTasks(nodes[0])).toHaveLength(0);
+    expect(crossDesign.getTasks(nodes[0])).toHaveLength(0);
 
-    const tasks = crossDesign.generateTasks(nodes[2]);
+    const tasks = crossDesign.getTasks(nodes[2]);
     expect(tasks).toHaveLength(1);
     expect(tasks[0].action).toBe('SelfCross');
-    // expect(tasks[0].strain1).toBe(JSON.stringify(strain1));
-    expect(tasks[0].strain2).toBeUndefined();
+    // expect(tasks[0].hermStrain).toBe(JSON.stringify(hermStrain));
+    expect(tasks[0].maleStrain).toBeUndefined();
   });
-  test('.generateTasks() returns regular cross tasks', () => {
+  test('.getTasks() returns regular cross tasks', () => {
     let id = 0;
-    const strain1 = generateStrain({});
-    const strain2 = generateStrain({});
+    const hermStrain = new Strain();
+    const maleStrain = new Strain();
     const nodes = [
-      generateNode({ id: id++, strain: strain1 }),
-      generateNode({ id: id++, strain: strain2 }),
+      generateNode({ id: id++, strain: hermStrain }),
+      generateNode({ id: id++, strain: maleStrain }),
       generateNode({ id: id++, type: NodeType.X }),
       generateNode({ id: id++ }),
     ];
@@ -424,24 +234,24 @@ describe('cross crossDesign', () => {
     ];
 
     const crossDesign = generateTree({ nodes, edges });
-    expect(crossDesign.generateTasks(nodes[0])).toHaveLength(0);
-    expect(crossDesign.generateTasks(nodes[1])).toHaveLength(0);
+    expect(crossDesign.getTasks(nodes[0])).toHaveLength(0);
+    expect(crossDesign.getTasks(nodes[1])).toHaveLength(0);
 
-    const tasks = crossDesign.generateTasks(nodes[3]);
+    const tasks = crossDesign.getTasks(nodes[3]);
     expect(tasks).toHaveLength(1);
     expect(tasks[0].action).toBe('Cross');
-    // expect(tasks[0].strain1).toBe(JSON.stringify(strain1));
-    // expect(tasks[0].strain2).toBe(JSON.stringify(strain2));
+    // expect(tasks[0].hermStrain).toBe(JSON.stringify(hermStrain));
+    // expect(tasks[0].maleStrain).toBe(JSON.stringify(maleStrain));
     expect(tasks[0].dueDate?.getDay()).toBe(new Date().getDay());
   });
-  test('.generateTasks() generates multiple tasks', () => {
+  test('.getTasks() generates multiple tasks', () => {
     let id = 0;
-    const strain1 = generateStrain({ sex: Sex.Hermaphrodite });
-    const strain2 = generateStrain({ sex: Sex.Male });
-    const strain3 = generateStrain({});
+    const hermStrain = new Strain({ sex: Sex.Hermaphrodite });
+    const maleStrain = new Strain({ sex: Sex.Male });
+    const strain3 = new Strain();
     const nodes = [
-      generateNode({ id: id++, strain: strain1 }),
-      generateNode({ id: id++, strain: strain2 }),
+      generateNode({ id: id++, strain: hermStrain }),
+      generateNode({ id: id++, strain: maleStrain }),
       generateNode({ id: id++, type: NodeType.X }),
       generateNode({ id: id++ }),
       generateNode({ id: id++, type: NodeType.Self }),
@@ -467,36 +277,33 @@ describe('cross crossDesign', () => {
     ];
 
     const crossDesign = generateTree({ nodes, edges });
-    expect(crossDesign.generateTasks(nodes[0])).toHaveLength(0);
-    expect(crossDesign.generateTasks(nodes[1])).toHaveLength(0);
+    expect(crossDesign.getTasks(nodes[0])).toHaveLength(0);
+    expect(crossDesign.getTasks(nodes[1])).toHaveLength(0);
 
-    const tasks = crossDesign.generateTasks(nodes[5]);
+    const tasks = crossDesign.getTasks(nodes[5]);
     expect(tasks).toHaveLength(2);
-    expect(tasks[0].action).toBe('SelfCross');
-    // expect(tasks[0].strain1).toBe(JSON.stringify(strain3));
-    expect(tasks[0].strain2).toBeUndefined();
-    expect(tasks[1].action).toBe('Cross');
+    expect(tasks[0].action).toBe('self-cross');
+    expect(tasks[0].maleStrain).toBeUndefined();
+    expect(tasks[1].action).toBe('cross');
     const today = new Date().getDate();
     const todayPlusThree = moment().add(3, 'days').toDate().getDate();
     expect(tasks[0].dueDate?.getDate()).toBe(todayPlusThree);
     expect(tasks[1].dueDate?.getDate()).toBe(today);
-    // expect(tasks[1].strain1).toBe(JSON.stringify(strain1));
-    // expect(tasks[1].strain2).toBe(JSON.stringify(strain2));
   });
-  test('.generateTasks() correctly bumps dates', () => {
+  test('.getTasks() correctly bumps dates', () => {
     let id = 0;
-    const strain1 = generateStrain({});
-    const strain2 = generateStrain({});
+    const hermStrain = new Strain();
+    const maleStrain = new Strain();
     const nodes = [
-      generateNode({ id: id++, strain: strain1 }),
-      generateNode({ id: id++, strain: strain2 }),
-      generateNode({ id: id++, strain: strain1 }),
-      generateNode({ id: id++, strain: strain2 }),
-      generateNode({ id: id++, strain: strain1 }),
-      generateNode({ id: id++, strain: strain2 }),
-      generateNode({ id: id++, strain: strain1 }),
-      generateNode({ id: id++, strain: strain2 }),
-      generateNode({ id: id++, strain: strain2 }),
+      generateNode({ id: id++, strain: hermStrain }),
+      generateNode({ id: id++, strain: maleStrain }),
+      generateNode({ id: id++, strain: hermStrain }),
+      generateNode({ id: id++, strain: maleStrain }),
+      generateNode({ id: id++, strain: hermStrain }),
+      generateNode({ id: id++, strain: maleStrain }),
+      generateNode({ id: id++, strain: hermStrain }),
+      generateNode({ id: id++, strain: maleStrain }),
+      generateNode({ id: id++, strain: maleStrain }),
       generateNode({ id: id++, type: NodeType.X }),
       generateNode({ id: id++, type: NodeType.X }),
       generateNode({ id: id++, type: NodeType.X }),
@@ -557,7 +364,7 @@ describe('cross crossDesign', () => {
       generateEdge({ id: id++, source: '11', target: '8' }),
     ];
     const crossDesign = generateTree({ nodes, edges });
-    const tasks = crossDesign.generateTasks(nodes[8]);
+    const tasks = crossDesign.getTasks(nodes[8]);
     expect(tasks).toHaveLength(5);
     const today = new Date().getDate();
     const todayPlusThree = moment().add(3, 'days').toDate().getDate();
@@ -571,22 +378,22 @@ describe('cross crossDesign', () => {
 
   test('should be able to serialize and deserialize', () => {
     let id = 0;
-    const strain1 = generateStrain({
+    const hermStrain = new Strain({
       allelePairs: [
         new AllelePair({ top: ed3, bot: ed3.toWild() }),
         new AllelePair({ top: ox1059, bot: ox1059.toWild() }),
       ],
       sex: Sex.Hermaphrodite,
     });
-    const strain2 = generateStrain({});
-    const strain3 = generateStrain({
+    const maleStrain = new Strain();
+    const strain3 = new Strain({
       allelePairs: [new AllelePair({ top: n765, bot: n765 })],
       sex: Sex.Hermaphrodite,
     });
     const selfNode = generateNode({ id: id++, type: NodeType.Self });
     const nodes = [
-      generateNode({ id: id++, strain: strain1 }),
-      generateNode({ id: id++, strain: strain2 }),
+      generateNode({ id: id++, strain: hermStrain }),
+      generateNode({ id: id++, strain: maleStrain }),
       generateNode({ id: id++, type: NodeType.X }),
       generateNode({ id: id++ }),
       generateNode({ id: id++, strain: strain3, parentNode: selfNode.id }),
@@ -610,18 +417,19 @@ describe('cross crossDesign', () => {
       generateEdge({ id: id++, source: '4', target: '5' }),
     ];
 
-    const offspringFilters = new Map<string, OffspringFilter>();
-    offspringFilters.set(
+    const strainFilters = new Map<string, StrainFilter>();
+    strainFilters.set(
       nodes[4].id,
-      new OffspringFilter({
+      new StrainFilter({
         alleleNames: new Set(['n766']),
         exprPhenotypes: new Set(),
         supConditions: new Set(),
         reqConditions: new Set(),
+        hidden: new Set(),
       })
     );
 
-    const crossDesign = generateTree({ nodes, edges, offspringFilters });
+    const crossDesign = generateTree({ nodes, edges, strainFilters });
     const crossDesignBack = CrossDesign.fromJSON(crossDesign.toJSON());
 
     expect(crossDesignBack.toJSON()).toEqual(crossDesign.toJSON());

@@ -48,7 +48,7 @@ const Fields = <T,>(props: FieldsProps<T>): React.JSX.Element => {
               <label className='label'>
                 <span className='label-text'>{field.title}</span>
                 <select
-                  className='select-bordered select w-full max-w-xs'
+                  className='select select-bordered w-full max-w-xs'
                   key={key}
                   name={field.name.toString()}
                 >
@@ -70,7 +70,7 @@ const Fields = <T,>(props: FieldsProps<T>): React.JSX.Element => {
                 <span className='label-text'>{field.title}</span>
                 <input
                   type='text'
-                  className='input-bordered input w-full max-w-xs'
+                  className='input input-bordered w-full max-w-xs'
                   key={'key-' + field.name.toString()}
                   name={field.name.toString()}
                 />

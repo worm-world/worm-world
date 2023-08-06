@@ -10,8 +10,6 @@ pub mod phenotype;
 pub mod strain;
 pub mod strain_allele;
 pub mod task;
-pub mod task_cond;
-pub mod task_dep;
 pub mod variation;
 
 pub const SQLITE_BIND_LIMIT: usize = 32766;

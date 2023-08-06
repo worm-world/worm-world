@@ -5,22 +5,18 @@ import {
   useContextMenuState,
 } from 'components/ContextMenu/ContextMenu';
 import {
-  OffspringFilter,
-  type OffspringFilterUpdate,
-} from 'components/OffspringFilter/OffspringFilter';
-import { OffspringFilterModal } from 'components/OffspringFilterModal/OffspringFilterModal';
+  StrainFilter,
+  type StrainFilterUpdate,
+} from 'models/frontend/StrainFilter/StrainFilter';
+import { StrainFilterModal } from 'components/StrainFilterModal/StrainFilterModal';
 import EditorTop from 'components/EditorTop/EditorTop';
-import FilteredOutModal from 'components/FilteredOutModal/FilteredOutModal';
-import FilteredOutNode, {
-  FILTERED_OUT_NODE_WIDTH,
-} from 'components/FilteredOutNode/FilteredOutNode';
 import { type MenuItem } from 'components/Menu/Menu';
 import NoteForm from 'components/NoteForm/NoteForm';
 import StrainForm from 'components/StrainForm/StrainForm';
 import { Sex } from 'models/enums';
 import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import CrossDesign, {
-  NODE_PADDING,
+  addToArray,
 } from 'models/frontend/CrossDesign/CrossDesign';
 import { Strain, type StrainOption } from 'models/frontend/Strain/Strain';
 import {
@@ -65,11 +61,11 @@ import { BiX as CloseIcon } from 'react-icons/bi';
 import SaveStrainModal from 'components/SaveStrainModal/SaveStrainModal';
 import 'reactflow/dist/style.css';
 import { NoteNode } from 'components/NoteNode/NoteNode';
-import { SelfNode } from 'components/SelfNode/SelfNode';
 import StrainNode from 'components/StrainNode/StrainNode';
-import { XNode } from 'components/XNode/XNode';
 import EditorContext from 'components/EditorContext/EditorContext';
 import CustomControls from 'components/CustomControls/CustomControls';
+import MiddleNode from 'components/MiddleNode/MiddleNode';
+import FilteredOutModal from 'components/FilteredOutModal/FilteredOutModal';
 
 export enum NodeType {
   Strain = 'strain',
@@ -89,8 +85,13 @@ interface DrawerState {
   isOpen: boolean;
   id?: string;
 }
-type DrawerType = 'addStrain' | 'cross' | 'addNote' | 'editNote';
 
+enum DrawerType {
+  AddStrain,
+  Cross,
+  AddNote,
+  EditNote,
+}
 interface StrainModalState {
   isOpen: boolean;
   strain?: Strain;
@@ -103,60 +104,59 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   const [name, setName] = useState(props.crossDesign.name);
   const [nodes, setNodes] = useState(props.crossDesign.nodes);
   const [edges, setEdges] = useState(props.crossDesign.edges);
-  const [offspringFilters, setOffspringFilters] = useState(
-    props.crossDesign.offspringFilters
-  );
   const [drawerState, setDrawerState] = useState<DrawerState>({
-    type: 'addStrain',
+    type: DrawerType.AddStrain,
     isOpen: false,
   });
   const [saveStrainModalState, setSaveStrainModalState] =
     useState<StrainModalState>({ isOpen: false, strain: new Strain() });
   const [showGenes, setShowGenes] = useState(true);
-  const [saveState, setSaveState] = useState({
-    isSaving: false,
-    lastSaved: props.crossDesign.lastSaved,
-  });
+  const [isSaving, setIsSaving] = useState(false);
   const timeout = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
-    console.log('nodes', JSON.parse(JSON.stringify(nodes)));
-    setSaveState((saveState) => {
-      return { ...saveState, isSaving: true };
-    });
+    setIsSaving(true);
     clearTimeout(timeout.current);
     timeout.current = setTimeout(() => {
-      const time = new Date();
       updateCrossDesign(
         new CrossDesign({
           ...props.crossDesign,
           nodes,
           edges,
-          offspringFilters,
           name,
-          lastSaved: time,
+          lastSaved: new Date(),
         }).generateRecord()
       )
         .then(() => {
-          setSaveState((saveState) => {
-            return { lastSaved: time, isSaving: false };
-          });
+          setIsSaving(false);
         })
         .catch(() => {
           toast.error('Unable to save design');
         });
     }, 1000);
-  }, [nodes, edges, offspringFilters, name]);
+  }, [nodes, edges, name]);
 
   const closeDrawer = (): void => {
     setDrawerState({
-      type: 'addStrain',
+      ...drawerState,
       isOpen: false,
     });
   };
 
+  const hideConnectedEdges = (node: Node, hidden = true): void => {
+    setEdges((edges) =>
+      addToArray(
+        edges,
+        ...getConnectedEdges([node], edges).map((conEdge) => {
+          conEdge.hidden = hidden;
+          return conEdge;
+        })
+      )
+    );
+  };
+
   const editorContextValue = {
-    showGenes: true,
+    showGenes,
     toggleSex: (id: string): void => {
       const node = reactFlowInstance.getNode(id);
       if (node === undefined || node.type !== NodeType.Strain) {
@@ -166,7 +166,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
         return;
       }
       setNodes((nodes) =>
-        addNodes(nodes, {
+        addToArray(nodes, {
           ...node,
           data: (node as Node<Strain>).data.toggleSex(),
         })
@@ -188,12 +188,12 @@ const Editor = (props: EditorProps): React.JSX.Element => {
         sex: strain.sex,
       })
         .then((strain) => {
-          setNodes((nodes) => addNodes(nodes, { ...node, data: strain }));
+          setNodes((nodes) => addToArray(nodes, { ...node, data: strain }));
         })
         .catch(console.error);
     },
     openNote: (id: string) => {
-      setDrawerState({ type: 'editNote', isOpen: true, id });
+      setDrawerState({ type: DrawerType.EditNote, isOpen: true, id });
     },
     getMenuItems: (id: string): MenuItem[] => {
       const strainNode: Node<Strain> = reactFlowInstance.getNode(
@@ -217,7 +217,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
         icon: <CrossIcon />,
         text: 'Cross',
         menuCallback: () => {
-          setDrawerState({ type: 'cross', isOpen: true, id });
+          setDrawerState({ type: DrawerType.Cross, isOpen: true, id });
         },
       };
       const schedule: MenuItem = {
@@ -256,14 +256,6 @@ const Editor = (props: EditorProps): React.JSX.Element => {
     useContextMenuState(['react-flow__pane'], props.testing);
   const flowRef = useRef<HTMLDivElement>(null);
 
-  const addNodes = (existingNodes: Node[], ...newNodes: Node[]): Node[] => {
-    const newIds = newNodes.map((newNode) => newNode.id);
-    return [
-      ...existingNodes.filter((node) => !newIds.includes(node.id)),
-      ...newNodes,
-    ];
-  };
-
   const isValidNodeRemoveChange = (
     nodeRemoveChange: NodeRemoveChange,
     nodeRemoveChanges: NodeRemoveChange[]
@@ -293,8 +285,6 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   const onNodesChange = (changes: NodeChange[]): void => {
     const [nodeRemoveChanges, othehermNodeChanges] =
       categorizeNodeChanges(changes);
-
-    console.log('nodeRemoveChanges', nodeRemoveChanges);
 
     // Don't remove any child strains
     const validNodeRemoveChanges: NodeRemoveChange[] = nodeRemoveChanges.every(
@@ -337,7 +327,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
     setNodes((nodes) =>
       applyNodeChanges(
         [validNodeRemoveChanges, othehermNodeChanges].flat(),
-        addNodes(nodes, ...updatedParentsOfRemoved)
+        addToArray(nodes, ...updatedParentsOfRemoved)
       )
     );
 
@@ -386,39 +376,40 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       args.targetHandle === 'bottom'
     )
       return;
-    const [maleNodeId, hermNodeId] =
+    const [hermNodeId, maleNodeId] =
       args.sourceHandle === 'right'
         ? [args.source, args.target]
         : [args.target, args.source];
 
-    const maleNode = reactFlowInstance.getNode(maleNodeId ?? '');
     const hermNode = reactFlowInstance.getNode(hermNodeId ?? '');
-    if (maleNode === undefined || hermNode === undefined) {
+    const maleNode = reactFlowInstance.getNode(maleNodeId ?? '');
+
+    if (hermNode === undefined || maleNode === undefined) {
       console.error('Cannot cross with an undefined node');
       return;
     }
     if (
-      maleNode.type !== NodeType.Strain ||
-      hermNode.type !== NodeType.Strain
+      hermNode.type !== NodeType.Strain ||
+      maleNode.type !== NodeType.Strain
     ) {
       console.error('Cannot cross with a non-strain node');
       return;
     }
 
-    const maleStrain: Strain = maleNode.data;
     const hermStrain: Strain = hermNode.data;
+    const maleStrain: Strain = maleNode.data;
 
-    if (maleStrain.sex === hermStrain.sex) {
+    if (hermStrain.sex === maleStrain.sex) {
       toast.error('Can only mate strains that are different sexes');
       return;
     }
 
-    if (maleStrain.isParent || hermStrain.isParent) {
+    if (hermStrain.isParent || maleStrain.isParent) {
       toast.error("A single strain can't be involved in multiple crosses");
       return;
     }
 
-    matedCross(maleNode, hermNode).catch(console.error);
+    matedCross(hermNode, maleNode).catch(console.error);
   }, []);
 
   /** Called after onConnect or after dragging an edge */
@@ -447,70 +438,42 @@ const Editor = (props: EditorProps): React.JSX.Element => {
 
     if (params.handleId === Position.Bottom)
       selfCross(node.id).catch(console.error);
-    else setDrawerState({ type: 'cross', isOpen: true, id: node.id });
+    else setDrawerState({ type: DrawerType.Cross, isOpen: true, id: node.id });
   }, []);
 
-  /** Show the filterOut node child of id if any strain children of id are hidden */
-  const updateFilterOutNodeVisibility = (id: string): void => {
-    const filterOutNode = props.crossDesign.nodes
-      .filter(
-        (node) => node.parentNode === id && node.type === NodeType.FilteredOut
-      )
-      .at(0);
-    const strainNodes = props.crossDesign.nodes.filter(
-      (node) => node.parentNode === id && node.type === NodeType.Strain
+  const updateFilter = (update: StrainFilterUpdate): void => {
+    const filter: StrainFilter =
+      reactFlowInstance.getNode(update.filterId)?.data ?? new StrainFilter();
+    filter.update(update);
+    const childNodes = nodes.filter(
+      (node) => node.parentNode === update.filterId
     );
-    if (filterOutNode !== undefined)
-      filterOutNode.hidden = !strainNodes.some((node) => node.hidden);
-  };
 
-  const toggleNodeVisibility = (id: string): void => {
-    const children = props.crossDesign.nodes.filter(
-      (node: Node) => node.parentNode === id
-    );
-    if (children.length > 0) {
-      toast.error("Can't mark a parent node as invisible");
+    childNodes.forEach((node: Node<Strain>) => {
+      node.hidden =
+        !node.data.passesFilter(filter) || filter.hidden.has(node.id);
+      hideConnectedEdges(node, node.hidden);
+    });
+    const middleNode = reactFlowInstance.getNode(update.filterId);
+    if (middleNode === undefined) {
+      console.error('Middle node undefined');
       return;
     }
-    const node = reactFlowInstance.getNode(id);
-    if (node?.hidden !== undefined) node.hidden = !node.hidden;
-    const parentNodeId = reactFlowInstance.getNode(id)?.parentNode;
-    if (parentNodeId !== undefined) updateFilterOutNodeVisibility(parentNodeId);
-  };
+    middleNode.data = new StrainFilter({ ...filter });
 
-  const handleFilterUpdate = (update: OffspringFilterUpdate): void => {
-    const filter =
-      offspringFilters.get(update.nodeId) ??
-      new OffspringFilter({
-        alleleNames: new Set(),
-        exprPhenotypes: new Set(),
-        reqConditions: new Set(),
-        supConditions: new Set(),
-      });
-    if (update.action === 'add') filter[update.field].add(update.name);
-    if (update.action === 'remove') filter[update.field].delete(update.name);
-    if (update.action === 'clear') filter[update.field].clear();
-    offspringFilters.set(update.nodeId, filter);
-
-    // Hide nodes
-    const childList: Array<Node<Strain>> = [...nodes.values()].filter(
-      (node) =>
-        node.parentNode === update.nodeId && node.type === NodeType.Strain
+    // Reposition child nodes
+    const visibleChildNodes = childNodes.filter(
+      (node) => !(node.hidden ?? false)
     );
+    const positions = CrossDesign.calculateChildPositions(
+      middleNode.type === NodeType.X ? NodeType.X : NodeType.Self,
+      visibleChildNodes.length
+    );
+    visibleChildNodes.forEach((childNode, idx) => {
+      childNode.position = positions[idx];
+    });
 
-    if (filter.isEmpty()) {
-      offspringFilters.delete(update.nodeId);
-      childList.forEach((node) => (node.hidden = false));
-    } else {
-      childList.forEach((node) => {
-        node.hidden =
-          !OffspringFilter.includedInFilter(node, filter) &&
-          !node.data.isParent;
-      });
-    }
-
-    setOffspringFilters((offspringFilters) => new Map(offspringFilters));
-    updateFilterOutNodeVisibility(update.nodeId);
+    setNodes((nodes) => addToArray(nodes, middleNode, ...childNodes));
   };
 
   const getNodePositionFromLastClick = (): XYPosition => {
@@ -533,7 +496,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       position: getNodePositionFromLastClick(),
       type: NodeType.Note,
     };
-    setNodes((nodes) => addNodes(nodes, noteNode));
+    setNodes((nodes) => addToArray(nodes, noteNode));
     closeDrawer();
   };
 
@@ -546,7 +509,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       return;
     }
     noteNode.data = content;
-    setNodes((nodes) => addNodes(nodes, noteNode));
+    setNodes((nodes) => addToArray(nodes, noteNode));
     closeDrawer();
   };
 
@@ -557,7 +520,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       position: getNodePositionFromLastClick(),
       type: NodeType.Strain,
     };
-    setNodes((nodes) => addNodes(nodes, strainNode));
+    setNodes((nodes) => addToArray(nodes, strainNode));
     closeDrawer();
   };
 
@@ -571,11 +534,11 @@ const Editor = (props: EditorProps): React.JSX.Element => {
     }
 
     parentNode.data = new Strain({ ...parentNode.data, isParent: true });
-    const selfNode: Node = {
+    const selfNode: Node<StrainFilter> = {
       id: props.crossDesign.createId(),
       position: CrossDesign.getSelfNodePos(),
       parentNode: parentNode.id,
-      data: {},
+      data: new StrainFilter(),
       type: NodeType.Self,
     };
     const parentToSelf: Edge = {
@@ -594,14 +557,14 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       };
     });
 
-    setNodes((nodes) => addNodes(nodes, parentNode, selfNode, ...childNodes));
+    setNodes((nodes) => addToArray(nodes, parentNode, selfNode, ...childNodes));
     setEdges((edges) => [...edges, parentToSelf, ...childEdges]);
   };
 
   const matedCross = async (
-    maleNode: Node<Strain>,
     hermNode: Node<Strain>,
-    fromMale = true
+    maleNode: Node<Strain>,
+    fromHerm = true
   ): Promise<void> => {
     // Mark as parents
     maleNode.data = new Strain({ ...maleNode.data, isParent: true });
@@ -609,52 +572,35 @@ const Editor = (props: EditorProps): React.JSX.Element => {
 
     const xNode: Node = {
       id: props.crossDesign.createId(),
-      data: {},
-      position: CrossDesign.getXNodePos(maleNode),
+      data: new StrainFilter(),
+      position: CrossDesign.getXNodePos(hermNode),
       type: NodeType.X,
     };
 
-    const maleNodeIsParent =
-      maleNode.parentNode !== undefined || hermNode.parentNode === undefined;
+    xNode.parentNode = hermNode.id;
+    maleNode.parentNode = maleNode.parentNode ?? hermNode.id;
 
-    [xNode.parentNode, maleNode.parentNode, hermNode.parentNode] =
-      maleNodeIsParent
-        ? [maleNode.id, maleNode.parentNode, maleNode.id]
-        : [hermNode.id, hermNode.id, hermNode.parentNode];
-
-    if (fromMale) {
-      hermNode.position = CrossDesign.getRelStrainPos(maleNode);
-      if (!maleNodeIsParent) {
-        hermNode.position = CrossDesign.getAbsolutePos(
-          hermNode.position,
-          maleNode
-        );
-      }
-    } else {
-      maleNode.position = CrossDesign.getRelStrainPos(hermNode);
-      if (maleNodeIsParent) {
-        maleNode.position = CrossDesign.getAbsolutePos(
-          maleNode.position,
-          hermNode
-        );
-      }
+    if (fromHerm) maleNode.position = CrossDesign.getRelStrainPos(hermNode);
+    else {
+      const tempPos = CrossDesign.getRelStrainPos(maleNode);
+      hermNode.position = CrossDesign.getAbsolutePos(tempPos, maleNode);
     }
 
-    const maleStrain = maleNode.data;
     const hermStrain = hermNode.data;
+    const maleStrain = maleNode.data;
     const edge1 = {
-      id: props.crossDesign.createId(),
-      source: maleNode.id,
-      target: xNode.id,
-      sourceHandle: maleStrain.sex === Sex.Hermaphrodite ? 'left' : 'right',
-      targetHandle: maleStrain.sex === Sex.Male ? 'left' : 'right',
-    };
-    const edge2 = {
       id: props.crossDesign.createId(),
       source: hermNode.id,
       target: xNode.id,
-      sourceHandle: hermStrain.sex === Sex.Hermaphrodite ? 'left' : 'right',
-      targetHandle: hermStrain.sex === Sex.Male ? 'left' : 'right',
+      sourceHandle: 'right',
+      targetHandle: 'left',
+    };
+    const edge2 = {
+      id: props.crossDesign.createId(),
+      source: maleNode.id,
+      target: xNode.id,
+      sourceHandle: 'left',
+      targetHandle: 'right',
     };
     const childOptions = await maleStrain.crossWith(hermStrain);
     const childNodes = getChildNodes(xNode, childOptions);
@@ -666,11 +612,8 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       };
     });
 
-    console.log('m', JSON.parse(JSON.stringify(maleNode)));
-    console.log('h', JSON.parse(JSON.stringify(hermNode)));
-
     setNodes((nodes) =>
-      addNodes(nodes, hermNode, maleNode, xNode, ...childNodes)
+      addToArray(nodes, hermNode, maleNode, xNode, ...childNodes)
     );
     setEdges((edges) => [...edges, edge1, edge2, ...childEdges]);
   };
@@ -682,7 +625,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   ): Array<Node<Strain>> => {
     const childPositions = CrossDesign.calculateChildPositions(
       middleNode.type === NodeType.X ? NodeType.X : NodeType.Self,
-      childOptions
+      childOptions.length
     );
 
     const childNodes: Array<Node<Strain>> = childOptions.map((child, i) => {
@@ -694,22 +637,6 @@ const Editor = (props: EditorProps): React.JSX.Element => {
         type: NodeType.Strain,
       } satisfies Node<Strain>;
     });
-
-    if (childNodes.length > 0) {
-      const filteredOutNode: Node = {
-        id: props.crossDesign.createId(),
-        position: {
-          x: childPositions[0].x - FILTERED_OUT_NODE_WIDTH - NODE_PADDING,
-          y: childPositions[0].y,
-        },
-        parentNode: middleNode.id,
-        data: {},
-        hidden: true,
-        type: NodeType.FilteredOut,
-      };
-      setNodes((nodes) => addNodes(nodes, filteredOutNode));
-      childNodes.unshift(filteredOutNode);
-    }
     return childNodes;
   };
 
@@ -732,7 +659,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       type: NodeType.Strain,
     };
 
-    (existingNode.data.sex === Sex.Male
+    (existingNode.data.sex === Sex.Hermaphrodite
       ? matedCross(existingNode, newNode)
       : matedCross(newNode, existingNode, false)
     ).catch(console.error);
@@ -751,8 +678,9 @@ const Editor = (props: EditorProps): React.JSX.Element => {
     const clonedCrossDesign = props.crossDesign.clone(true);
     clonedCrossDesign.editable = false;
     const tasks = clonedCrossDesign
-      .generateTasks(node)
+      .getTasks(node)
       .map((task) => task.generateRecord());
+    console.log(tasks);
     insertCrossDesign(clonedCrossDesign.generateRecord())
       .then(async () => {
         await insertTasks(tasks);
@@ -764,9 +692,10 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   };
 
   /** Gets onSubmit callback for the strain form based on current state  */
-  const getStrainFormCallback = (id?: string): ((strain: Strain) => void) => {
-    if (drawerState.type === 'addStrain') return addStrain;
-    if (drawerState.type === 'cross' && id !== undefined)
+  const getStrainFormCallback = (): ((strain: Strain) => void) => {
+    if (drawerState.type === DrawerType.AddStrain) return addStrain;
+    const id = drawerState.id;
+    if (drawerState.type === DrawerType.Cross && id !== undefined)
       return (strain: Strain) => {
         matedCrossWithForm(strain, id);
       };
@@ -775,9 +704,10 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   };
 
   /** Gets onSubmit callback for the note form based on current state  */
-  const getOnSubmitForNoteForm = (id?: string): ((content: string) => void) => {
-    if (drawerState.type === 'addNote') return addNote;
-    if (drawerState.type === 'editNote' && id !== undefined)
+  const getNoteFormCallback = (): ((content: string) => void) => {
+    if (drawerState.type === DrawerType.AddNote) return addNote;
+    const id = drawerState.id;
+    if (drawerState.type === DrawerType.EditNote && id !== undefined)
       return (content: string) => {
         editNote(content, id);
       };
@@ -788,10 +718,9 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   const nodeTypes = useMemo(
     () => ({
       strain: StrainNode,
-      x: XNode,
-      self: SelfNode,
+      self: MiddleNode,
+      x: MiddleNode,
       note: NoteNode,
-      filteredOut: FilteredOutNode,
     }),
     []
   );
@@ -804,39 +733,24 @@ const Editor = (props: EditorProps): React.JSX.Element => {
         className='drawer-toggle'
       />
       <div className='drawer-content'>
-        {[...nodes.values()]
+        {nodes
           .filter(
             (node) => node.type === NodeType.Self || node.type === NodeType.X
           )
-          .map((iconNode, idx) => (
+          .map((middleNode, idx) => (
             <Fragment key={idx}>
-              <OffspringFilterModal
-                nodeId={iconNode.id}
-                childNodes={[...nodes.values()].filter(
-                  (node) =>
-                    node.parentNode === iconNode.id &&
-                    node.type === NodeType.Strain
+              <StrainFilterModal
+                filterId={middleNode.id}
+                childNodes={nodes.filter(
+                  (node) => node.parentNode === middleNode.id
                 )}
-                invisibleSet={
-                  new Set(
-                    nodes
-                      .filter((node) => node.hidden === true)
-                      .map((node) => node.id)
-                  )
-                }
-                toggleVisible={toggleNodeVisibility}
-                filter={offspringFilters.get(iconNode.id)}
-                updateFilter={handleFilterUpdate}
+                filter={middleNode.data}
+                updateFilter={updateFilter}
               />
               <FilteredOutModal
-                nodeId={iconNode.id}
-                excludedNodes={[...nodes.values()].filter(
-                  (node) =>
-                    node.parentNode === iconNode.id &&
-                    node.type === NodeType.Strain &&
-                    nodes.some(
-                      (nd) => nd.id === node.id && node.hidden === true
-                    )
+                filterId={middleNode.id}
+                excludedNodes={nodes.filter(
+                  (node) => node.parentNode === middleNode.id && node.hidden
                 )}
               />
             </Fragment>
@@ -854,7 +768,10 @@ const Editor = (props: EditorProps): React.JSX.Element => {
               <ContextMenu xPos={rightClickXPos} yPos={rightClickYPos}>
                 <li
                   onClick={() => {
-                    setDrawerState({ type: 'addStrain', isOpen: true });
+                    setDrawerState({
+                      type: DrawerType.AddStrain,
+                      isOpen: true,
+                    });
                   }}
                 >
                   <button className='flex flex-row' name='add-cross-node'>
@@ -864,7 +781,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
                 </li>
                 <li
                   onClick={() => {
-                    setDrawerState({ type: 'addNote', isOpen: true });
+                    setDrawerState({ type: DrawerType.AddNote, isOpen: true });
                   }}
                 >
                   <button className='flex flex-row' name='add-note'>
@@ -878,8 +795,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
             )}
             <EditorTop
               crossDesign={props.crossDesign}
-              isSaving={saveState.isSaving}
-              lastSaved={saveState.lastSaved}
+              isSaving={isSaving}
               name={name}
               setName={setName}
             />
@@ -932,21 +848,29 @@ const Editor = (props: EditorProps): React.JSX.Element => {
               <button className='self-end' onClick={closeDrawer}>
                 <CloseIcon className='text-3xl' />
               </button>
-              {drawerState.type === 'addNote' ||
-              drawerState.type === 'editNote' ? (
+              {drawerState.type === DrawerType.AddNote ||
+              drawerState.type === DrawerType.EditNote ? (
                 <NoteForm
                   header={
-                    drawerState.type === 'addNote' ? 'Add note' : 'Edit note'
+                    drawerState.type === DrawerType.AddNote
+                      ? 'Add Note'
+                      : 'Edit Note'
                   }
-                  buttonText='Create'
-                  callback={function (): void {
-                    throw new Error('Function not implemented.');
-                  }}
-                  nodeId={''}
+                  buttonText={
+                    drawerState.type === DrawerType.AddNote
+                      ? 'Add Note'
+                      : 'Edit Note'
+                  }
+                  callback={getNoteFormCallback()}
+                  content={
+                    drawerState.id !== undefined
+                      ? reactFlowInstance.getNode(drawerState.id)?.data
+                      : ''
+                  }
                 />
               ) : (
                 <StrainForm
-                  onSubmit={getStrainFormCallback(drawerState.id)}
+                  onSubmit={getStrainFormCallback()}
                   newId={props.crossDesign.createId()}
                   showGenes={showGenes}
                   enforcedSex={

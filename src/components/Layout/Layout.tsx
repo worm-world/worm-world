@@ -73,7 +73,7 @@ const Layout = (props: LayoutProps): React.JSX.Element => {
 
       <div className='drawer-side z-50' data-testid='side-drawer'>
         <label htmlFor='nav-drawer' className='drawer-overlay' />
-        <div className='flex h-screen flex-col justify-between bg-base-100'>
+        <div className='flex h-screen flex-col justify-between bg-base-300'>
           <ul className='menu p-4'>
             <li key='wormworld'>
               <Link
@@ -92,7 +92,7 @@ const Layout = (props: LayoutProps): React.JSX.Element => {
           </ul>
           <div className='p-4'>
             <label className='label'>Theme</label>
-            <select className='select-bordered select' data-choose-theme>
+            <select className='select select-bordered' data-choose-theme>
               {allThemes.map((theme) => (
                 <option key={theme} value={theme}>
                   {theme}

@@ -12,12 +12,11 @@ describe('Editor Top', () => {
             nodes: [],
             edges: [],
             lastSaved: new Date(),
-            offspringFilters: new Map(),
+            strainFilters: new Map(),
             editable: true,
           })
         }
         isSaving={false}
-        lastSaved={new Date()}
         name={''}
         setName={function (name: string): void {
           throw new Error('Function not implemented.');

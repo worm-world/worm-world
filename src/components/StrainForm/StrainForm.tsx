@@ -32,8 +32,10 @@ const StrainForm = (props: StrainFormProps): React.JSX.Element => {
   };
   const [state, setState] = useState(defaultState);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [prevEnforcedSex, setPrevEnforcedSex] = useState<Sex>();
 
-  if (props.enforcedSex !== undefined && state.strain.sex !== props.enforcedSex)
+  if (prevEnforcedSex !== props.enforcedSex) {
+    setPrevEnforcedSex(props.enforcedSex);
     setState({
       ...state,
       strain: new Strain({
@@ -41,6 +43,7 @@ const StrainForm = (props: StrainFormProps): React.JSX.Element => {
         isParent: props.enforcedSex !== undefined,
       }),
     });
+  }
 
   const regAlleles = new Set(
     state.strain
@@ -92,13 +95,14 @@ const StrainForm = (props: StrainFormProps): React.JSX.Element => {
     },
     openNote: () => {},
     getMenuItems: () => [],
+    updateFilter: () => {},
   };
 
   return (
     <div className='form-control h-full gap-2'>
       <h1 className='text-lg'>Add Strain</h1>
       <EditorContext.Provider value={editorContextValue}>
-        <StrainCard data={state.strain} id={props.newId} />
+        <StrainCard strain={state.strain} id={props.newId} />
       </EditorContext.Provider>
       <StrainSelect
         strain={state.strain.generateRecord()}
@@ -137,7 +141,7 @@ const StrainForm = (props: StrainFormProps): React.JSX.Element => {
         />
       )}
       <button
-        className='btn-primary btn mt-4'
+        className='btn btn-primary mt-4'
         onClick={() => {
           props.onSubmit(state.strain);
           setState(defaultState);
@@ -146,7 +150,7 @@ const StrainForm = (props: StrainFormProps): React.JSX.Element => {
         Add Strain to Design
       </button>
       <button
-        className='btn-ghost btn mt-auto'
+        className='btn btn-ghost mt-auto'
         disabled={irregAlleles.size > 0}
         onClick={() => {
           setShowAdvanced(!showAdvanced);
@@ -202,14 +206,14 @@ export const StrainSelect = (props: StrainSelectProps): React.JSX.Element => {
           type='text'
           id='strain-select-input'
           placeholder='Type strain name'
-          className='input-bordered input w-full max-w-xs'
+          className='input input-bordered w-full max-w-xs'
           onChange={onInputChange}
           value={text}
         />
         {searchRes.length === 0 ? (
           <></>
         ) : (
-          <ul className='dropdown-content menu rounded-box z-50 my-2 max-h-80 w-52 overflow-auto bg-base-100 p-2 shadow'>
+          <ul className='menu dropdown-content rounded-box z-50 my-2 max-h-80 w-52 overflow-auto bg-base-100 p-2 shadow'>
             {searchRes.map((strain, idx) => {
               return (
                 <li

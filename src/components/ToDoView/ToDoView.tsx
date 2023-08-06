@@ -13,8 +13,8 @@ export const ToDoView = (): React.JSX.Element => {
   const [crossDesignNames, setCrossDesignNames] = useState(
     new Map<string, string>()
   );
-  const [filteredCrossDesignId, setFilteredCrossDesignId] = useState<string>();
-  const [promptRemovalTasks, setPromptRemovalTasks] = useState<Task[]>([]);
+  const [filteringId, setFilteringId] = useState<string>();
+  const [stagedId, setStagedId] = useState<string>();
   const [showCompleted, setShowCompleted] = useState(true);
 
   useEffect(() => {
@@ -47,104 +47,101 @@ export const ToDoView = (): React.JSX.Element => {
   };
 
   const handleUpdateTask = (task: Task): void => {
-    const filteredTasks = tasks.filter(
-      (t) => t.crossDesignId === task.crossDesignId
-    );
     updateTask(task.generateRecord())
-      .then(() => {
-        setPromptRemovalTasks(filteredTasks);
-      })
       .then(refreshTasks)
       .catch((e) => toast.error('Unable to update task: ' + JSON.stringify(e)));
   };
 
-  const handleDeleteTasks = (filteredCrossDesignId?: string): void => {
-    (filteredCrossDesignId === undefined
+  const handleDeleteTasks = (filteringId?: string): void => {
+    (filteringId === undefined
       ? deleteAllTasks().then(() => {
           [...crossDesignNames.keys()].map(
             async (crossDesignId) => await deleteCrossDesign(crossDesignId)
           );
         })
-      : deleteTasks(filteredCrossDesignId).then(async () => {
-          await deleteCrossDesign(filteredCrossDesignId);
+      : deleteTasks(filteringId).then(async () => {
+          await deleteCrossDesign(filteringId);
         })
     )
       .then(refreshTasks)
       .then(() => {
-        setFilteredCrossDesignId(undefined);
+        setFilteringId(undefined);
       })
       .catch((e) =>
         toast.error('Unable to delete tasks: ' + JSON.stringify(e))
       );
   };
 
-  const handleDeleteTasksWithPrompt = (): void => {
-    if (promptRemovalTasks.length === 0) return;
-    const crossDesignId = promptRemovalTasks[0].crossDesignId;
-    deleteTasks(crossDesignId)
-      .then(() => {
-        setPromptRemovalTasks([]);
-        setFilteredCrossDesignId(undefined);
-      })
-      .then(refreshTasks)
-      .catch((e) =>
-        toast.error('Unable to delete tasks: ' + JSON.stringify(e))
-      );
+  const onTaskChecked = (checkedTask: Task): void => {
+    if (
+      tasks
+        .filter((task) => task.crossDesignId === checkedTask.crossDesignId)
+        .every((task) => task.completed)
+    )
+      setStagedId(checkedTask.crossDesignId);
   };
 
-  const hasFilter = filteredCrossDesignId !== undefined;
+  const hasFilter = filteringId !== undefined;
   const crossDesignIds = new Set<string>(
     tasks.map((task) => task.crossDesignId)
   );
   const filteredTasks = tasks.filter(
     (task) =>
-      (!hasFilter || task.crossDesignId === filteredCrossDesignId) &&
+      (!hasFilter || task.crossDesignId === filteringId) &&
       (showCompleted || !task.completed)
   );
 
   return (
-    <>
-      {tasks.length === 0 && hasLoadedOnce && <NoTaskPlaceholder />}
-      {tasks.length > 0 && hasLoadedOnce && (
-        <>
-          <TaskDeletePrompt
-            tasks={promptRemovalTasks}
-            crossDesignNames={crossDesignNames}
-            deleteTasks={handleDeleteTasksWithPrompt}
-          />
-          <div className='flex items-center justify-between'>
-            <CrossDesignFilter
-              setFilteredCrossDesignId={setFilteredCrossDesignId}
-              crossDesignIds={crossDesignIds}
-              crossDesignNames={crossDesignNames}
-            />
-            <div className='flex flex-row items-end gap-2'>
-              <ShowCompletedButton
-                showCompleted={showCompleted}
-                toggleShowCompleted={() => {
-                  setShowCompleted(!showCompleted);
-                }}
+    <div>
+      {hasLoadedOnce && tasks.length === 0 ? (
+        <NoTaskPlaceholder />
+      ) : (
+        <div>
+          <div className='flex gap-2'>
+            <div className='flex-grow'>
+              <CrossDesignFilter
+                setFilteringId={setFilteringId}
+                crossDesignIds={crossDesignIds}
+                crossDesignNames={crossDesignNames}
               />
+            </div>
+            <ShowCompletedButton
+              showCompleted={showCompleted}
+              toggleShowCompleted={() => {
+                setShowCompleted(!showCompleted);
+              }}
+            />
+            <div className='justify-self-end'>
               <TaskRemovalBtn
                 hasFilter={hasFilter}
-                filteredCrossDesignId={filteredCrossDesignId}
+                filteringId={filteringId}
                 crossDesignName={
-                  filteredCrossDesignId === undefined
+                  filteringId === undefined
                     ? undefined
-                    : crossDesignNames.get(filteredCrossDesignId)
+                    : crossDesignNames.get(filteringId)
                 }
                 deleteTasks={handleDeleteTasks}
               />
             </div>
+            <TaskDeletePrompt
+              tasks={tasks.filter((task) => task.crossDesignId === filteringId)}
+              crossDesignNames={crossDesignNames}
+              stagedId={stagedId}
+              clearStagedId={() => {
+                setStagedId(undefined);
+              }}
+              deleteTasks={handleDeleteTasks}
+            />
           </div>
           <TaskList
             refresh={refreshTasks}
             tasks={filteredTasks}
             updateTask={handleUpdateTask}
+            onTaskChecked={onTaskChecked}
           />
-        </>
+        </div>
       )}
-    </>
+    </div>
   );
 };
 
@@ -173,7 +170,7 @@ const ShowCompletedButton = (
     : 'Show completed tasks';
   return (
     <div className='tooltip tooltip-bottom' data-tip={tooltipText}>
-      <button className='btn-outline btn' onClick={props.toggleShowCompleted}>
+      <button className='btn btn-outline' onClick={props.toggleShowCompleted}>
         {props.showCompleted ? <BiShow size='20' /> : <BiHide size='20' />}
       </button>
     </div>
@@ -182,7 +179,7 @@ const ShowCompletedButton = (
 
 const TaskRemovalBtn = (props: {
   hasFilter: boolean;
-  filteredCrossDesignId?: string;
+  filteringId?: string;
   crossDesignName?: string;
   deleteTasks: (crossDesignId?: string) => void;
 }): React.JSX.Element => {
@@ -193,7 +190,7 @@ const TaskRemovalBtn = (props: {
     : 'Are you sure you want to remove ALL tasks? This will delete every task from every cross design.';
   return (
     <div>
-      <label htmlFor='delete-tasks-modal' className='btn-error btn-outline btn'>
+      <label htmlFor='delete-tasks-modal' className='btn btn-error btn-outline'>
         {removeBtnTxt}
       </label>
       <input type='checkbox' id='delete-tasks-modal' className='modal-toggle' />
@@ -206,9 +203,9 @@ const TaskRemovalBtn = (props: {
           <div className='modal-action justify-center'>
             <label
               htmlFor='delete-tasks-modal'
-              className='btn-error btn'
+              className='btn btn-error'
               onClick={() => {
-                props.deleteTasks(props.filteredCrossDesignId);
+                props.deleteTasks(props.filteringId);
               }}
             >
               Delete
@@ -226,58 +223,54 @@ const TaskRemovalBtn = (props: {
 const TaskDeletePrompt = (props: {
   tasks: Task[];
   crossDesignNames: Map<string, string>;
+  stagedId?: string;
+  clearStagedId: () => void;
   deleteTasks: () => void;
 }): React.JSX.Element => {
-  const [modalOpen, setModalOpen] = useState(true);
-
-  const allCompleted = props.tasks.every((task) => task.completed);
-  if (props.tasks.length === 0 || !allCompleted) return <></>;
-
-  const modalClass = modalOpen
-    ? 'modal-open modal cursor-pointer'
-    : 'modal cursor-pointer';
-
-  const crossDesignName = props.crossDesignNames.get(
-    props.tasks[0].crossDesignId
-  );
-  const modalHeader = `"${crossDesignName}" complete`;
-  const confirmationText = `Great job! You've completed all tasks for "${crossDesignName}". Would you like to clear them?`;
+  const name =
+    props.stagedId !== undefined && props.crossDesignNames.get(props.stagedId);
   return (
     <>
-      <label htmlFor='task-delete-prompt-modal' className={modalClass}>
-        <label className='modal-box relative text-center' htmlFor=''>
-          <h2 className='text-3xl font-bold'>{modalHeader}</h2>
+      <input
+        type='checkbox'
+        id='task-delete-prompt-modal'
+        className='modal-toggle'
+      />
+      <div className={`modal ${props.stagedId !== undefined && 'modal-open'}`}>
+        <div className='modal-box relative text-center'>
+          <h2 className='text-3xl font-bold'>{name} Complete</h2>
           <div className='divider' />
-          <p className='text-lg'>{confirmationText}</p>
+          <p className='text-lg'>
+            You have completed all tasks for {name}. Would you like to remove
+            them?
+          </p>
           <div className='modal-action justify-center'>
-            <label
-              htmlFor='task-delete-prompt-modal'
-              className='btn-success btn'
+            <button
+              className='btn btn-success'
               onClick={() => {
                 props.deleteTasks();
-                setModalOpen(false);
+                props.clearStagedId();
               }}
             >
-              Clear them out!
-            </label>
-            <label
-              htmlFor='task-delete-prompt-modal'
+              Remove
+            </button>
+            <button
               className='btn'
               onClick={() => {
-                setModalOpen(false);
+                props.clearStagedId();
               }}
             >
-              No thanks
-            </label>
+              Keep
+            </button>
           </div>
-        </label>
-      </label>
+        </div>
+      </div>
     </>
   );
 };
 
 interface CrossDesignFilterProps {
-  setFilteredCrossDesignId: (id?: string) => void;
+  setFilteringId: (id?: string) => void;
   crossDesignIds: Set<string>;
   crossDesignNames: Map<string, string>;
 }
@@ -286,17 +279,17 @@ const CrossDesignFilter = (
   props: CrossDesignFilterProps
 ): React.JSX.Element => {
   return (
-    <div>
+    <div className='flex flex-col'>
       <label>
-        <span className='label-text'>Filter Tasks By Cross CrossDesign</span>
+        <span className='label-text'>Filter Tasks By Cross Design</span>
       </label>
       <select
         onChange={(e) => {
-          props.setFilteredCrossDesignId(
+          props.setFilteringId(
             e.target.value === '' ? undefined : e.target.value
           );
         }}
-        className='select-primary select w-full max-w-xs'
+        className='select select-primary w-full max-w-xs'
       >
         <option value={''}>{'No Filter'}</option>
         {Array.from(props.crossDesignIds).map((id: string) => {

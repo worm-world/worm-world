@@ -1,21 +1,21 @@
-import { type Action } from 'models/db/task/Action';
+import { type Action } from 'models/db/task/db_Action';
 import { type db_Task } from 'models/db/task/db_Task';
 import { Type, plainToInstance, instanceToPlain } from 'class-transformer';
-import { type Condition } from 'models/frontend/Condition/Condition';
 import { Strain } from 'models/frontend/Strain/Strain';
 
-export interface iTask {
+export interface ITask {
   id: string;
   dueDate?: Date;
   action: Action;
 
-  strain1: Strain;
-  strain2?: Strain;
+  hermStrain: Strain;
+  maleStrain?: Strain;
   result?: Strain;
 
   notes?: string;
   completed: boolean;
   crossDesignId: string;
+  childTaskId?: string;
 }
 
 export class Task {
@@ -24,38 +24,43 @@ export class Task {
   dueDate?: Date;
 
   action: Action;
-  @Type(() => Strain)
-  strain1: Strain;
 
   @Type(() => Strain)
-  strain2?: Strain;
+  hermStrain: Strain;
 
   @Type(() => Strain)
-  result?: Strain;
+  maleStrain?: Strain;
+
+  @Type(() => Strain)
+  resultStrain?: Strain;
 
   notes?: string;
   completed: boolean;
   crossDesignId: string;
+  childTaskId?: string;
 
-  constructor(task: db_Task) {
+  constructor(task?: db_Task) {
     if (task === null || task === undefined) {
       this.id = '';
       this.action = 'SelfCross';
-      this.strain1 = new Strain();
+      this.hermStrain = new Strain();
       this.completed = false;
       this.crossDesignId = '';
     } else {
       this.id = task.id;
       this.dueDate = task.dueDate !== null ? new Date(task.dueDate) : undefined;
       this.action = task.action;
-      this.strain1 = Strain.fromJSON(task.strain1);
-      this.strain2 =
-        task.strain2 !== null ? Strain.fromJSON(task.strain2) : undefined;
-      this.result =
-        task.result !== null ? Strain.fromJSON(task.result) : undefined;
+      this.hermStrain = Strain.fromJSON(task.hermStrain);
+      this.maleStrain =
+        task.maleStrain !== null ? Strain.fromJSON(task.maleStrain) : undefined;
+      this.resultStrain =
+        task.resultStrain !== null
+          ? Strain.fromJSON(task.resultStrain)
+          : undefined;
       this.notes = task.notes ?? undefined;
       this.completed = task.completed;
       this.crossDesignId = task.crossDesignId;
+      this.childTaskId = task.childTaskId ?? undefined;
     }
   }
 
@@ -64,13 +69,25 @@ export class Task {
       id: this.id,
       dueDate: this.dueDate?.toISOString() ?? null,
       action: this.action,
-      strain1: this.strain1.toJSON(),
-      strain2: this.strain2?.toJSON() ?? null,
-      result: this.result?.toJSON() ?? null,
+      hermStrain: this.hermStrain.toJSON(),
+      maleStrain: this.maleStrain?.toJSON() ?? null,
+      resultStrain: this.resultStrain?.toJSON() ?? null,
       notes: this.notes ?? null,
       completed: this.completed,
       crossDesignId: this.crossDesignId,
+      childTaskId: this.childTaskId ?? null,
     };
+  }
+
+  public equals(other: Task): boolean {
+    return (
+      this.action === other.action &&
+      this.hermStrain.equals(other.hermStrain) &&
+      (this.maleStrain === other.maleStrain ||
+        (this.maleStrain !== undefined &&
+          other.maleStrain !== undefined &&
+          this.maleStrain.equals(other.maleStrain)))
+    );
   }
 
   public toJSON(): string {
@@ -80,28 +97,18 @@ export class Task {
   static fromJSON(json: string): Task {
     return plainToInstance(Task, JSON.parse(json) as Record<string, unknown>);
   }
+
+  public getDescendents(tasks: Task[]): Task[] {
+    const descendents: Task[] = [this];
+    while (descendents.at(-1)?.childTaskId !== undefined) {
+      const next = tasks.find(
+        (task) => task.id === descendents.at(-1)?.childTaskId
+      );
+      if (next === undefined) {
+        console.error('Unable to find all descendents');
+        break;
+      } else descendents.push(next);
+    }
+    return descendents;
+  }
 }
-
-export const getConditionsFromTask = (
-  strain1: Strain,
-  strain2?: Strain
-): Map<string, Condition> => {
-  const conditions = new Map<string, Condition>();
-
-  [
-    ...strain1.chromPairMap.values(),
-    ...(strain2?.chromPairMap.values() ?? []),
-  ].forEach((chromPair) => {
-    chromPair.allelePairs.forEach((allelePair) => {
-      [
-        ...allelePair.bot.alleleExpressions,
-        ...allelePair.top.alleleExpressions,
-      ].forEach((ae) => {
-        [...ae.suppressingConditions, ...ae.requiredConditions].forEach((c) =>
-          conditions.set(c.name, c)
-        );
-      });
-    });
-  });
-  return conditions;
-};

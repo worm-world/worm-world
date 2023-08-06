@@ -16,6 +16,7 @@ CREATE TABLE allele_exprs (
         expressing_phenotype_wild
     ) REFERENCES phenotypes (name, wild)
 );
+
 CREATE TABLE alleles (
     name TEXT NOT NULL,
     contents TEXT NULL,
@@ -25,6 +26,7 @@ CREATE TABLE alleles (
     FOREIGN KEY (systematic_gene_name) REFERENCES genes (systematic_name),
     FOREIGN KEY (variation_name) REFERENCES "variations" (allele_name)
 );
+
 CREATE TABLE conditions (
     name TEXT NOT NULL,
     description TEXT NULL,
@@ -35,6 +37,7 @@ CREATE TABLE conditions (
     maturation_days REAL NULL,
     PRIMARY KEY (name)
 );
+
 CREATE TABLE expr_relations (
     allele_name TEXT NOT NULL,
     expressing_phenotype_name TEXT NOT NULL,
@@ -64,6 +67,7 @@ CREATE TABLE expr_relations (
         altering_condition
     )
 );
+
 CREATE TABLE genes (
     systematic_name TEXT NOT NULL,
     descriptive_name TEXT NULL,
@@ -74,6 +78,7 @@ CREATE TABLE genes (
     recomb_suppressor_end INTEGER NULL,
     PRIMARY KEY (systematic_name)
 );
+
 CREATE TABLE phenotypes (
     name TEXT NOT NULL,
     wild INTEGER NOT NULL,
@@ -86,6 +91,7 @@ CREATE TABLE phenotypes (
     maturation_days REAL NULL,
     PRIMARY KEY (name, wild)
 );
+
 CREATE TABLE strain_alleles (
     strain_name TEXT NOT NULL,
     allele_name TEXT NOT NULL,
@@ -95,39 +101,29 @@ CREATE TABLE strain_alleles (
     FOREIGN KEY (strain_name) REFERENCES strains (name) ON UPDATE CASCADE,
     FOREIGN KEY (allele_name) REFERENCES alleles (name)
 );
+
 CREATE TABLE strains (
     name TEXT NOT NULL,
     description TEXT NULL,
     genotype TEXT NOT NULL,
     PRIMARY KEY (name)
 );
-CREATE TABLE task_conds (
-    task_id TEXT NOT NULL,
-    cond_name TEXT NOT NULL,
-    PRIMARY KEY (task_id, cond_name),
-    FOREIGN KEY (task_id) REFERENCES tasks (id),
-    FOREIGN KEY (cond_name) REFERENCES conditions (name)
-);
-CREATE TABLE task_deps (
-    parent_id TEXT NOT NULL,
-    child_id TEXT NOT NULL,
-    PRIMARY KEY (parent_id, child_id),
-    FOREIGN KEY (parent_id) REFERENCES tasks (id),
-    FOREIGN KEY (child_id) REFERENCES tasks (id)
-);
+
 CREATE TABLE tasks (
     id TEXT NOT NULL,
     due_date TEXT NULL,
     action INTEGER NOT NULL,
-    strain1 TEXT NOT NULL,
-    strain2 TEXT NULL,
-    result TEXT NULL,
+    herm_strain TEXT NOT NULL,
+    male_strain TEXT NULL,
+    result_strain TEXT NULL,
     notes TEXT NULL,
     completed INTEGER NOT NULL,
     cross_design_id TEXT NOT NULL,
+    child_task_id TEXT NULL,
     FOREIGN KEY (cross_design_id) REFERENCES cross_designs (id),
     PRIMARY KEY (id)
 );
+
 CREATE TABLE cross_designs (
     id TEXT NOT NULL,
     name TEXT NOT NULL,
@@ -136,6 +132,7 @@ CREATE TABLE cross_designs (
     editable INTEGER NOT NULL,
     PRIMARY KEY (id)
 );
+
 CREATE TABLE variations (
     allele_name TEXT NOT NULL,
     chromosome TEXT NULL,
@@ -145,4 +142,5 @@ CREATE TABLE variations (
     recomb_suppressor_end INTEGER NULL,
     PRIMARY KEY (allele_name)
 );
+
 PRAGMA foreign_keys = ON;

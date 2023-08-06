@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event';
 import Editor from 'components/Editor/Editor';
 import type CrossDesign from 'models/frontend/CrossDesign/CrossDesign';
 import * as crossDesignss from 'models/frontend/CrossDesign/CrossDesign.mock';
-import { type SetStateAction } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { ReactFlowProvider } from 'reactflow';
 import { vi } from 'vitest';

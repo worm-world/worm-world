@@ -1,7 +1,6 @@
 import { type Strain } from 'models/frontend/Strain/Strain';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { type Node } from 'reactflow';
 
 interface SaveStrainModalProps {
   isOpen: boolean;
@@ -32,7 +31,7 @@ const SaveStrainModal = (props: SaveStrainModalProps): React.JSX.Element => {
                 Strain name
               </label>
               <input
-                className='input-bordered input w-full py-4'
+                className='input input-bordered w-full py-4'
                 id='strain-name-input'
                 value={strainNameInput}
                 onChange={(e) => {
@@ -45,7 +44,7 @@ const SaveStrainModal = (props: SaveStrainModalProps): React.JSX.Element => {
                 Description
               </label>
               <textarea
-                className='textarea-bordered textarea w-full py-4'
+                className='textarea textarea-bordered w-full py-4'
                 id='strain-description-textarea'
                 value={descriptionInput}
                 onChange={(e) => {
@@ -56,7 +55,7 @@ const SaveStrainModal = (props: SaveStrainModalProps): React.JSX.Element => {
             <div className='modal-action'>
               <button
                 disabled={strainNameInput === ''}
-                className='btn-primary btn my-2'
+                className='btn btn-primary my-2'
                 onClick={() => {
                   if (strain === undefined) return;
                   strain.name = strainNameInput;

@@ -12,10 +12,10 @@ export default {
 } as Meta<typeof FilteredOutModal>;
 
 const Template: StoryFn<typeof FilteredOutModal> = (args) => {
-  args.nodeId = 'fakeId';
+  args.filterId = 'fakeId';
   return (
     <>
-      <label htmlFor='filtered-out-modal-fakeId' className='btn-primary btn'>
+      <label htmlFor='filtered-out-modal-fakeId' className='btn btn-primary'>
         Click me to show modal
       </label>
       <FilteredOutModal {...args} />

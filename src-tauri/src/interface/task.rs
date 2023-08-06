@@ -11,7 +11,7 @@ impl InnerDbState {
         match sqlx::query_as!(
             TaskDb,
             "
-            SELECT id, due_date, action, strain1, strain2, result, notes, cross_design_id, completed FROM tasks ORDER BY id
+            SELECT id, due_date, action, herm_strain, male_strain, result_strain, notes, cross_design_id, child_task_id, completed FROM tasks ORDER BY id
             "
         )
         .fetch_all(&self.conn_pool)
@@ -30,7 +30,7 @@ impl InnerDbState {
         filter: &FilterGroup<TaskFieldName>,
     ) -> Result<Vec<Task>, DbError> {
         let mut qb: QueryBuilder<Sqlite> = QueryBuilder::new(
-            "SELECT id, due_date, action, strain1, strain2, result, notes, cross_design_id, completed FROM tasks",
+            "SELECT id, due_date, action, herm_strain, male_strain, result_strain, notes, cross_design_id, child_task_id, completed FROM tasks",
         );
         filter.add_filtered_query(&mut qb, true, true);
 
@@ -50,18 +50,19 @@ impl InnerDbState {
     pub async fn insert_task(&self, task: &Task) -> Result<(), DbError> {
         let action_val: i32 = (task.action as u8).into();
         match sqlx::query!(
-            "INSERT INTO tasks (id, due_date, action, strain1, strain2, result, notes, cross_design_id, completed)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
+            "INSERT INTO tasks (id, due_date, action, herm_strain, male_strain, result_strain, notes, cross_design_id, completed, child_task_id)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ",
             task.id,
             task.due_date,
             action_val,
-            task.strain1,
-            task.strain2,
-            task.result,
+            task.herm_strain,
+            task.male_strain,
+            task.result_strain,
             task.notes,
             task.cross_design_id,
             task.completed,
+            task.child_task_id,
         )
         .execute(&self.conn_pool)
         .await
@@ -80,23 +81,25 @@ impl InnerDbState {
             "UPDATE tasks
             SET due_date = ?,
                 action = ?,
-                strain1 = ?,
-                strain2 = ?,
-                result = ?,
+                herm_strain = ?,
+                male_strain = ?,
+                result_strain = ?,
                 notes = ?,
                 cross_design_id = ?,
-                completed = ?
+                completed = ?,
+                child_task_id = ?
             WHERE
                 id = ?",
             task.due_date,
             action_val,
-            task.strain1,
-            task.strain2,
-            task.result,
+            task.herm_strain,
+            task.male_strain,
+            task.result_strain,
             task.notes,
             task.cross_design_id,
             task.completed,
-            task.id,
+            task.child_task_id,
+            task.id
         )
         .execute(&self.conn_pool)
         .await
@@ -217,12 +220,13 @@ mod test {
             id: "1".to_string(),
             due_date: Some("2012-01-01".to_string()),
             action: Action::Cross,
-            strain1: "{}".to_string(),
-            strain2: Some("{}".to_string()),
-            result: Some("{}".to_string()),
+            herm_strain: "{}".to_string(),
+            male_strain: Some("{}".to_string()),
+            result_strain: Some("{}".to_string()),
             notes: None,
             cross_design_id: "1".to_string(),
             completed: true,
+            child_task_id: None,
         };
 
         state.insert_task(&expected).await?;
@@ -252,12 +256,13 @@ mod test {
             id: "1".to_string(),
             due_date: Some("2012-01-01".to_string()),
             action: Action::Cross,
-            strain1: "{}".to_string(),
-            strain2: Some("{}".to_string()),
-            result: Some("{}".to_string()),
+            herm_strain: "{}".to_string(),
+            male_strain: Some("{}".to_string()),
+            result_strain: Some("{}".to_string()),
             notes: None,
             cross_design_id: "1".to_string(),
             completed: true,
+            child_task_id: None,
         };
 
         state.insert_task(&expected).await?;
@@ -269,12 +274,13 @@ mod test {
             id: "1".to_string(),
             due_date: Some("2012-01-02".to_string()),
             action: Action::Cross,
-            strain1: "{blah}".to_string(),
-            strain2: Some("{foo}".to_string()),
-            result: Some("{}".to_string()),
+            herm_strain: "{blah}".to_string(),
+            male_strain: Some("{foo}".to_string()),
+            result_strain: Some("{}".to_string()),
             notes: Some("foo note".to_string()),
             cross_design_id: "1".to_string(),
             completed: false,
+            child_task_id: None,
         };
         state.update_task(&new_expected).await?;
         let tasks: Vec<Task> = state.get_tasks().await?;
@@ -303,12 +309,13 @@ mod test {
             id: "1".to_string(),
             due_date: Some("2012-01-01".to_string()),
             action: Action::Cross,
-            strain1: "{}".to_string(),
-            strain2: Some("{}".to_string()),
-            result: Some("{}".to_string()),
+            herm_strain: "{}".to_string(),
+            male_strain: Some("{}".to_string()),
+            result_strain: Some("{}".to_string()),
             notes: None,
             cross_design_id: "1".to_string(),
             completed: true,
+            child_task_id: None,
         };
 
         state.insert_task(&expected).await?;
@@ -351,34 +358,37 @@ mod test {
             id: "3".to_string(),
             due_date: Some("2012-01-01".to_string()),
             action: Action::Cross,
-            strain1: "{}".to_string(),
-            strain2: Some("{}".to_string()),
+            herm_strain: "{}".to_string(),
+            male_strain: Some("{}".to_string()),
             notes: None,
             cross_design_id: "1".to_string(),
             completed: true,
-            result: Some("".to_string()),
+            result_strain: Some("".to_string()),
+            child_task_id: None,
         };
         let task2 = Task {
             id: "4".to_string(),
             due_date: Some("2012-01-01".to_string()),
             action: Action::SelfCross,
-            strain1: "{}".to_string(),
-            strain2: None,
+            herm_strain: "{}".to_string(),
+            male_strain: None,
             notes: None,
             cross_design_id: "1".to_string(),
             completed: true,
-            result: Some("".to_string()),
+            result_strain: Some("".to_string()),
+            child_task_id: None,
         };
         let task3 = Task {
             id: "5".to_string(),
             due_date: Some("2012-01-01".to_string()),
             action: Action::Pcr,
-            strain1: "{}".to_string(),
-            strain2: None,
+            herm_strain: "{}".to_string(),
+            male_strain: None,
             notes: None,
             cross_design_id: "2".to_string(),
             completed: true,
-            result: Some("".to_string()),
+            result_strain: Some("".to_string()),
+            child_task_id: None,
         };
 
         state.insert_task(&task1).await?;
@@ -424,34 +434,37 @@ mod test {
             id: "3".to_string(),
             due_date: Some("2012-01-01".to_string()),
             action: Action::Cross,
-            strain1: "{}".to_string(),
-            strain2: Some("{}".to_string()),
+            herm_strain: "{}".to_string(),
+            male_strain: Some("{}".to_string()),
             notes: None,
             cross_design_id: "1".to_string(),
             completed: true,
-            result: Some("".to_string()),
+            result_strain: Some("".to_string()),
+            child_task_id: None,
         };
         let task2 = Task {
             id: "4".to_string(),
             due_date: Some("2012-01-01".to_string()),
             action: Action::SelfCross,
-            strain1: "{}".to_string(),
-            strain2: None,
+            herm_strain: "{}".to_string(),
+            male_strain: None,
             notes: None,
             cross_design_id: "1".to_string(),
             completed: true,
-            result: Some("".to_string()),
+            result_strain: Some("".to_string()),
+            child_task_id: None,
         };
         let task3 = Task {
             id: "5".to_string(),
             due_date: Some("2012-01-01".to_string()),
             action: Action::Pcr,
-            strain1: "{}".to_string(),
-            strain2: None,
+            herm_strain: "{}".to_string(),
+            male_strain: None,
             notes: None,
             cross_design_id: "2".to_string(),
             completed: true,
-            result: Some("".to_string()),
+            result_strain: Some("".to_string()),
+            child_task_id: None,
         };
 
         state.insert_task(&task1).await?;

@@ -28,8 +28,6 @@ use models::{
     strain::{Strain, StrainFieldName},
     strain_allele::{StrainAllele, StrainAlleleFieldName},
     task::{Task, TaskFieldName},
-    task_cond::{TaskCondition, TaskConditionFieldName},
-    task_dep::{TaskDependency, TaskDependencyFieldName},
     variation::{Variation, VariationDb, VariationFieldName},
 };
 
@@ -108,14 +106,6 @@ async fn main() {
             insert_cross_design,
             update_cross_design,
             delete_cross_design,
-            // task conditions/dependencies
-            get_task_conditions,
-            get_filtered_task_conditions,
-            get_count_filtered_conditions,
-            insert_task_condition,
-            get_task_dependencies,
-            get_filtered_task_dependency,
-            insert_task_dependency,
             // strains
             get_strains,
             get_filtered_strains,
@@ -677,58 +667,6 @@ async fn update_cross_design(
 async fn delete_cross_design(state: tauri::State<'_, DbState>, id: String) -> Result<(), DbError> {
     let state_guard = state.0.read().await;
     state_guard.delete_cross_design(id).await
-}
-
-#[tauri::command]
-async fn get_task_conditions(
-    state: tauri::State<'_, DbState>,
-) -> Result<Vec<TaskCondition>, DbError> {
-    let state_guard = state.0.read().await;
-    state_guard.get_task_conditions().await
-}
-
-#[tauri::command]
-async fn get_filtered_task_conditions(
-    state: tauri::State<'_, DbState>,
-    filter: FilterGroup<TaskConditionFieldName>,
-) -> Result<Vec<TaskCondition>, DbError> {
-    let state_guard = state.0.read().await;
-    state_guard.get_filtered_task_conditions(&filter).await
-}
-
-#[tauri::command]
-async fn insert_task_condition(
-    state: tauri::State<'_, DbState>,
-    task: TaskCondition,
-) -> Result<(), DbError> {
-    let state_guard = state.0.read().await;
-    state_guard.insert_task_condition(&task).await
-}
-
-#[tauri::command]
-async fn get_task_dependencies(
-    state: tauri::State<'_, DbState>,
-) -> Result<Vec<TaskDependency>, DbError> {
-    let state_guard = state.0.read().await;
-    state_guard.get_task_dependencies().await
-}
-
-#[tauri::command]
-async fn get_filtered_task_dependency(
-    state: tauri::State<'_, DbState>,
-    filter: FilterGroup<TaskDependencyFieldName>,
-) -> Result<Vec<TaskDependency>, DbError> {
-    let state_guard = state.0.read().await;
-    state_guard.get_filtered_task_dependency(&filter).await
-}
-
-#[tauri::command]
-async fn insert_task_dependency(
-    state: tauri::State<'_, DbState>,
-    task: TaskDependency,
-) -> Result<(), DbError> {
-    let state_guard = state.0.read().await;
-    state_guard.insert_task_dependency(&task).await
 }
 
 #[tauri::command]

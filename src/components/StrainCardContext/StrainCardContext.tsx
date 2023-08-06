@@ -4,7 +4,7 @@ import { createContext } from 'react';
 
 const defaultFunction = (): void => {};
 
-const StrainNodeContext = createContext<{
+const StrainCardContext = createContext<{
   strain: Strain;
   toggleHetPair: (pair: AllelePair) => void;
   toggleSex: () => void;
@@ -16,4 +16,4 @@ const StrainNodeContext = createContext<{
   showGenes: true,
 });
 
-export default StrainNodeContext;
+export default StrainCardContext;

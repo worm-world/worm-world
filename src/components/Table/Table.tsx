@@ -355,7 +355,7 @@ export const Table = <T, K>(props: TableProps<T, K>): React.JSX.Element => {
 
   return (
     <div className='m-auto flex w-full flex-col overflow-x-auto'>
-      <table className='table-compact m-auto table w-min p-5'>
+      <table className='table-compact table m-auto w-min p-5'>
         <TableHeader
           applyFilters={applyFilters}
           columns={props.columns}
