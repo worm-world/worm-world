@@ -7,16 +7,16 @@ import { GiCheckboxTree as CrossDesignIcon } from 'react-icons/gi';
 import { deleteCrossDesign, getFilteredCrossDesigns } from 'api/crossDesign';
 import { BiHide, BiShow } from 'react-icons/bi';
 import { SiMicrogenetics as GeneIcon } from 'react-icons/si';
+import EditorContext from 'components/EditorContext/EditorContext';
 
 export const ToDoView = (): React.JSX.Element => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
-  const [crossDesignNames, setCrossDesignNames] = useState(
-    new Map<string, string>()
-  );
-  const [filteringId, setFilteringId] = useState<string>();
-  const [stagedId, setStagedId] = useState<string>();
+  const [designNames, setDesignNames] = useState(new Map<string, string>());
+  const [filteredOnDesignId, setFilteredOnDesignId] = useState<string>();
+  const [stagedDesignId, setStagedDesignId] = useState<string>(); // Whose tasks are staged for deletion
   const [showCompleted, setShowCompleted] = useState(true);
+  const [showGenes, setShowGenes] = useState(true);
 
   useEffect(() => {
     refreshTasks()
@@ -25,7 +25,7 @@ export const ToDoView = (): React.JSX.Element => {
       }) // prevents text from flashing on screen while loading tasks from db
       .catch((e) => toast.error('Unable to get data: ' + JSON.stringify(e)));
 
-    refreshCrossDesignNames().catch((e) =>
+    refreshDesignNames().catch((e) =>
       toast.error('Unable to get crossDesignIds: ' + JSON.stringify(e))
     );
   }, []);
@@ -35,12 +35,12 @@ export const ToDoView = (): React.JSX.Element => {
     setTasks(tasks.map((task) => new Task(task)));
   };
 
-  const refreshCrossDesignNames = async (): Promise<void> => {
+  const refreshDesignNames = async (): Promise<void> => {
     const crossDesigns = await getFilteredCrossDesigns({
       filters: [[['Editable', 'False']]],
       orderBy: [],
     });
-    setCrossDesignNames(
+    setDesignNames(
       new Map(
         crossDesigns.map((crossDesign) => [crossDesign.id, crossDesign.name])
       )
@@ -53,33 +53,33 @@ export const ToDoView = (): React.JSX.Element => {
       .catch((e) => toast.error('Unable to update task: ' + JSON.stringify(e)));
   };
 
-  const handleDeleteTasks = (filteringId?: string): void => {
-    (filteringId === undefined
+  const handleDeleteTasks = (filteredOnDesignId?: string): void => {
+    (filteredOnDesignId === undefined
       ? deleteAllTasks().then(() => {
-          [...crossDesignNames.keys()].map(
+          [...designNames.keys()].map(
             async (crossDesignId) => await deleteCrossDesign(crossDesignId)
           );
         })
-      : deleteTasks(filteringId).then(async () => {
-          await deleteCrossDesign(filteringId);
+      : deleteTasks(filteredOnDesignId).then(async () => {
+          await deleteCrossDesign(filteredOnDesignId);
         })
     )
       .then(refreshTasks)
       .then(() => {
-        setFilteringId(undefined);
+        setFilteredOnDesignId(undefined);
       })
       .catch((e) =>
         toast.error('Unable to delete tasks: ' + JSON.stringify(e))
       );
   };
 
-  const hasFilter = filteringId !== undefined;
+  const hasFilter = filteredOnDesignId !== undefined;
   const crossDesignIds = new Set<string>(
     tasks.map((task) => task.crossDesignId)
   );
   const filteredTasks = tasks.filter(
     (task) =>
-      (!hasFilter || task.crossDesignId === filteringId) &&
+      (!hasFilter || task.crossDesignId === filteredOnDesignId) &&
       (showCompleted || !task.completed)
   );
 
@@ -88,16 +88,16 @@ export const ToDoView = (): React.JSX.Element => {
       {hasLoadedOnce && tasks.length === 0 ? (
         <NoTaskPlaceholder />
       ) : (
-        <div>
+        <EditorContext.Provider value={{ showGenes }}>
           <div className='flex gap-2'>
             <div className='flex-grow'>
               <CrossDesignFilter
-                setFilteringId={setFilteringId}
+                setFilteredOnDesignId={setFilteredOnDesignId}
                 crossDesignIds={crossDesignIds}
-                crossDesignNames={crossDesignNames}
+                designNames={designNames}
               />
             </div>
-            <div className='flex items-center gap-2 justify-self-end'>
+            <div className='flex gap-2 justify-self-end'>
               <ShowCompletedButton
                 showCompleted={showCompleted}
                 toggleShowCompleted={() => {
@@ -110,33 +110,24 @@ export const ToDoView = (): React.JSX.Element => {
                 }}
               />
               <TaskRemovalButton
+                tasks={tasks}
                 hasFilter={hasFilter}
-                filteringId={filteringId}
-                crossDesignName={
-                  filteringId === undefined
-                    ? undefined
-                    : crossDesignNames.get(filteringId)
-                }
+                filteredOnDesignId={filteredOnDesignId}
+                designNames={designNames}
                 deleteTasks={handleDeleteTasks}
+                clearStagedDesignId={() => {
+                  setStagedDesignId(undefined);
+                }}
               />
             </div>
-            <TaskDeletePrompt
-              tasks={tasks.filter((task) => task.crossDesignId === filteringId)}
-              crossDesignNames={crossDesignNames}
-              stagedId={stagedId}
-              clearStagedId={() => {
-                setStagedId(undefined);
-              }}
-              deleteTasks={handleDeleteTasks}
-            />
           </div>
           <TaskList
             refresh={refreshTasks}
             tasks={filteredTasks}
             updateTask={handleUpdateTask}
-            setStagedId={setStagedId}
+            setStagedDesignId={setStagedDesignId}
           />
-        </div>
+        </EditorContext.Provider>
       )}
     </div>
   );
@@ -188,10 +179,16 @@ const ShowGenesButton = (props: {
 
 const TaskRemovalButton = (props: {
   hasFilter: boolean;
-  filteringId?: string;
-  crossDesignName?: string;
+  filteredOnDesignId?: string;
+  designNames: Map<string, string>;
+  tasks: Task[];
   deleteTasks: (crossDesignId?: string) => void;
+  clearStagedDesignId: () => void;
 }): React.JSX.Element => {
+  const crossDesignName =
+    props.filteredOnDesignId === undefined
+      ? undefined
+      : props.designNames.get(props.filteredOnDesignId);
   return (
     <div>
       <label htmlFor='delete-tasks-modal' className='btn btn-error btn-outline'>
@@ -204,7 +201,7 @@ const TaskRemovalButton = (props: {
           <div className='divider' />
           <p className='text-lg'>
             {props.hasFilter
-              ? `Are you sure you want to remove tasks for "${props.crossDesignName}"? This cannot be undone.`
+              ? `Are you sure you want to remove tasks for "${crossDesignName}"? This cannot be undone.`
               : 'Are you sure you want to remove ALL tasks? This will delete every task from every cross design.'}
           </p>
 
@@ -213,7 +210,7 @@ const TaskRemovalButton = (props: {
               htmlFor='delete-tasks-modal'
               className='btn btn-error'
               onClick={() => {
-                props.deleteTasks(props.filteringId);
+                props.deleteTasks(props.filteredOnDesignId);
               }}
             >
               Delete
@@ -224,40 +221,44 @@ const TaskRemovalButton = (props: {
           </div>
         </label>
       </label>
+      <TaskDeleteModal
+        tasks={props.tasks.filter(
+          (task) => task.crossDesignId === props.filteredOnDesignId
+        )}
+        crossDesignName={crossDesignName}
+        clearStagedDesignId={props.clearStagedDesignId}
+        deleteTasks={props.deleteTasks}
+      />
     </div>
   );
 };
 
-const TaskDeletePrompt = (props: {
+const TaskDeleteModal = (props: {
   tasks: Task[];
-  crossDesignNames: Map<string, string>;
+  crossDesignName?: string;
   stagedId?: string;
-  clearStagedId: () => void;
+  clearStagedDesignId: () => void;
   deleteTasks: () => void;
 }): React.JSX.Element => {
-  const name =
-    props.stagedId !== undefined && props.crossDesignNames.get(props.stagedId);
   return (
     <>
-      <input
-        type='checkbox'
-        id='task-delete-prompt-modal'
-        className='modal-toggle'
-      />
+      <input type='checkbox' className='modal-toggle' />
       <div className={`modal ${props.stagedId !== undefined && 'modal-open'}`}>
         <div className='modal-box relative text-center'>
-          <h2 className='text-3xl font-bold'>{name} Complete</h2>
+          <h2 className='text-3xl font-bold'>
+            {props.crossDesignName} Complete
+          </h2>
           <div className='divider' />
           <p className='text-lg'>
-            You have completed all tasks for {name}. Would you like to remove
-            them?
+            You have completed all tasks for {props.crossDesignName}. Would you
+            like to remove them?
           </p>
           <div className='modal-action justify-center'>
             <button
               className='btn btn-success'
               onClick={() => {
                 props.deleteTasks();
-                props.clearStagedId();
+                props.clearStagedDesignId();
               }}
             >
               Remove
@@ -265,7 +266,7 @@ const TaskDeletePrompt = (props: {
             <button
               className='btn'
               onClick={() => {
-                props.clearStagedId();
+                props.clearStagedDesignId();
               }}
             >
               Keep
@@ -278,9 +279,9 @@ const TaskDeletePrompt = (props: {
 };
 
 interface CrossDesignFilterProps {
-  setFilteringId: (id?: string) => void;
+  setFilteredOnDesignId: (id?: string) => void;
   crossDesignIds: Set<string>;
-  crossDesignNames: Map<string, string>;
+  designNames: Map<string, string>;
 }
 
 const CrossDesignFilter = (
@@ -293,7 +294,7 @@ const CrossDesignFilter = (
       </label>
       <select
         onChange={(e) => {
-          props.setFilteringId(
+          props.setFilteredOnDesignId(
             e.target.value === '' ? undefined : e.target.value
           );
         }}
@@ -303,7 +304,7 @@ const CrossDesignFilter = (
         {Array.from(props.crossDesignIds).map((id: string) => {
           return (
             <option key={id} value={id}>
-              {props.crossDesignNames.get(id)}
+              {props.designNames.get(id)}
             </option>
           );
         })}

@@ -1,7 +1,7 @@
 import BreedCountProbability from 'components/BreedCountProbability/BreedCountProbability';
 import EditorContext from 'components/EditorContext/EditorContext';
 import { Menu } from 'components/Menu/Menu';
-import StrainNodeContext from 'components/StrainCardContext/StrainCardContext';
+import StrainCardContext from 'components/StrainCardContext/StrainCardContext';
 import { Sex } from 'models/enums';
 import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import { type ChromosomePair } from 'models/frontend/ChromosomePair/ChromosomePair';
@@ -23,42 +23,44 @@ const StrainCard = (props: StrainCardProps): JSX.Element => {
       : `${(props.strain.probability * 100).toFixed(2)}%`;
 
   const context = useContext(EditorContext);
-  const menuItems = context.getMenuItems(props.id);
-  const strainNodeContextValue = {
+  const menuItems = context.getMenuItems?.(props.id) ?? [];
+  const strainCardContextValue = {
     strain: props.strain,
     toggleHetPair: (pair: AllelePair) => {
-      context.toggleHetPair(props.id, pair);
+      context.toggleHetPair?.(props.id, pair);
     },
     toggleSex: () => {
-      context.toggleSex(props.id);
+      context.toggleSex?.(props.id);
     },
     showGenes: context.showGenes,
   };
 
+  console.log(context);
+
   return (
-    <StrainNodeContext.Provider value={strainNodeContextValue}>
+    <StrainCardContext.Provider value={strainCardContextValue}>
       <div
-        data-testid='strainNode'
+        data-testid='strainCard'
         className='flex h-36 w-64 flex-col rounded bg-base-100 shadow-md'
       >
         <div className='flex h-6 justify-between'>
           <SexButton />
-          <div className='dropdown dropdown-top justify-self-center'>
-            <label
-              tabIndex={0}
-              className='btn btn-ghost btn-xs text-accent ring-0 hover:bg-base-200 hover:ring-0'
-            >
-              {probability}
-            </label>
-            <div
-              tabIndex={0}
-              className='card dropdown-content compact rounded-box w-full bg-base-100 shadow'
-            >
-              <div className='card-body'>
+          {props.strain.isChild && (
+            <div className='dropdown dropdown-top justify-self-center'>
+              <label
+                tabIndex={0}
+                className='btn btn-ghost btn-xs text-accent ring-0 hover:bg-base-200 hover:ring-0'
+              >
+                {probability}
+              </label>
+              <div
+                tabIndex={0}
+                className='card-body dropdown-content rounded-box bg-base-100 shadow'
+              >
                 <BreedCountProbability probability={props.strain.probability} />
               </div>
             </div>
-          </div>
+          )}
           <div className={`${menuItems.length === 0 ? 'invisible' : ''}`}>
             <Menu
               title='Actions'
@@ -78,32 +80,29 @@ const StrainCard = (props: StrainCardProps): JSX.Element => {
         </div>
         <div className='h-6 text-center font-bold'>{props.strain.name}</div>
       </div>
-    </StrainNodeContext.Provider>
+    </StrainCardContext.Provider>
   );
 };
 
 const SexButton = (): React.JSX.Element => {
-  const context = useContext(StrainNodeContext);
-  const toggleStyling =
-    'text-base ' + (context.strain.isParent ? 'opacity-50' : '');
+  const context = useContext(StrainCardContext);
+  const buttonIsDisabled =
+    context.strain.isParent ||
+    context.strain.isChild ||
+    context.toggleSex === undefined;
   return (
     <button
-      className={
-        'btn btn-ghost btn-xs m-1 ring-0 hover:bg-base-200 hover:ring-0' +
-        (context.strain.isParent ? ' btn-transparent hover:bg-transparent' : '')
-      }
+      className={`btn btn-ghost btn-xs m-1 text-base ring-0 hover:bg-base-200 hover:ring-0 disabled:bg-transparent 
+        disabled:text-base`}
+      disabled={buttonIsDisabled}
       onClick={() => {
-        if (!context.strain.isParent) {
+        if (!context.strain.isParent && context.toggleSex !== undefined) {
           context.toggleSex();
         }
       }}
     >
-      {context.strain.sex === Sex.Male && (
-        <MaleIcon className={toggleStyling} />
-      )}
-      {context.strain.sex === Sex.Hermaphrodite && (
-        <HermIcon className={toggleStyling} />
-      )}
+      {context.strain.sex === Sex.Male && <MaleIcon />}
+      {context.strain.sex === Sex.Hermaphrodite && <HermIcon />}
     </button>
   );
 };
@@ -134,7 +133,7 @@ const MainContentArea = (props: { strain: Strain }): React.JSX.Element => {
 const ChromPairBox = (props: {
   chromPair: ChromosomePair;
 }): React.JSX.Element => {
-  const context = useContext(StrainNodeContext);
+  const context = useContext(StrainCardContext);
   const mutationBoxes = props.chromPair.allelePairs.map((allelePair, idx) => {
     const toggleEnabled =
       !context.strain.isParent &&
@@ -168,7 +167,7 @@ const MutationBox = (props: {
   toggleEnabled: boolean;
   isX: boolean;
 }): React.JSX.Element => {
-  const context = useContext(StrainNodeContext);
+  const context = useContext(StrainCardContext);
 
   if (props.allelePair.isEca())
     return props.allelePair.isWild() ? (
@@ -189,7 +188,7 @@ const MutationBox = (props: {
           <div
             className={`invisible absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-primary hover:cursor-pointer group-hover:visible `}
             onClick={() => {
-              context.toggleHetPair(props.allelePair);
+              context.toggleHetPair?.(props.allelePair);
             }}
           >
             <SwapIcon />

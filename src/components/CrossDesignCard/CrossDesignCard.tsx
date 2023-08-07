@@ -96,7 +96,7 @@ const CrossDesignCard = (props: CrossDesignCardProps): React.JSX.Element => {
               setValue={setName}
               editable={nameEditable}
               onFinishEditing={updateCrossDesignName}
-              autoFocus={true}
+              autoFocus
             />
           </div>
           <div className='flex h-8 w-full justify-between'>

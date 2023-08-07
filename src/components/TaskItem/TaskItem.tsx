@@ -15,6 +15,7 @@ import { FaArrowRight as RightIcon } from 'react-icons/fa';
 import { type Action } from 'models/db/task/db_Action';
 import { useNavigate } from 'react-router-dom';
 import React, { useCallback, useRef } from 'react';
+import { empty } from 'components/NoteNode/NoteNode.stories';
 
 const useFocus = (): [React.RefObject<HTMLTextAreaElement>, () => void] => {
   const htmlElRef = useRef<HTMLTextAreaElement>(null);
@@ -116,7 +117,7 @@ const TaskItem = (props: TaskItemProps): React.JSX.Element => {
             props.updateTask(props.task);
           }}
           className='ml-8 flex-grow resize-none rounded border-2 bg-inherit p-2'
-          autoFocus
+          autoFocus={props.task.notes === ''}
           onBlur={() => {
             if (props.task.notes === '') {
               props.task.notes = undefined;

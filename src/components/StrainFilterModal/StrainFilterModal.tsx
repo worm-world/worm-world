@@ -66,9 +66,7 @@ export const StrainFilterModal = (
           <div className='divider' />
           <div className='collapse rounded-box border border-base-300 bg-base-200 shadow-md'>
             <input type='checkbox' defaultChecked={true} />
-            <h2 className='collapse-title text-xl font-medium'>
-              Filtered Strains
-            </h2>
+            <h2 className='collapse-title text-xl'>Filtered Strains</h2>
             <div className='collapse-content'>
               <StrainList {...props} filter={props.filter} />
             </div>

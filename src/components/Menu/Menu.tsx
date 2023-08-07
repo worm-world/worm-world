@@ -34,21 +34,16 @@ export const Menu = (props: MenuProps): React.JSX.Element => {
           <li className='menu-title'>
             <span>{props.title}</span>
           </li>
-          {props.items.map((item, idx) => MenuOption(item, idx))}
+          {props.items.map((item, idx) => (
+            <li key={idx}>
+              <button onClick={item.menuCallback}>
+                {item.icon !== undefined ? <div>{item.icon}</div> : <div></div>}
+                {item.text}
+              </button>
+            </li>
+          ))}
         </ul>
       )}
     </div>
-  );
-};
-
-const MenuOption = (item: MenuItem, key: number): React.JSX.Element => {
-  const useIcon = item.icon !== undefined;
-  return (
-    <li key={key}>
-      <div onClick={item.menuCallback}>
-        {useIcon ? <div>{item.icon}</div> : <div></div>}
-        {item.text}
-      </div>
-    </li>
   );
 };

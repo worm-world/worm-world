@@ -12,7 +12,7 @@ export const NoteNode = (props: NoteNodeProps): React.JSX.Element => {
     <div
       data-testid='noteNode'
       onDoubleClick={() => {
-        context.openNote(props.id);
+        context.openNote?.(props.id);
       }}
       className='max-h-28 max-w-xs overflow-auto rounded-md border-2 border-base-300 bg-base-100 p-2 shadow-md hover:cursor-pointer'
     >

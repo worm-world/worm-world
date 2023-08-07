@@ -10,7 +10,7 @@ import { type Options } from 'html-to-image/lib/types';
 
 interface CustomControlsProps {
   reactFlowInstance?: ReactFlowInstance;
-  toggleShowGenes: () => void;
+  toggleGenes: () => void;
   crossDesignEditable: boolean;
 }
 
@@ -64,7 +64,7 @@ const CustomControls = (props: CustomControlsProps): React.JSX.Element => {
           </ul>
         </div>
       </ControlButton>
-      <ControlButton onClick={props.toggleShowGenes}>
+      <ControlButton onClick={props.toggleGenes}>
         <GeneIcon />
       </ControlButton>
     </Controls>

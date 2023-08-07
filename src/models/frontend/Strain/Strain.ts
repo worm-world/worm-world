@@ -28,7 +28,7 @@ import {
 import { chromosomes } from 'models/frontend/Chromosome';
 import type StrainFilter from 'models/frontend/StrainFilter/StrainFilter';
 
-export interface GameteOption {
+export interface Gamete {
   chromosomes: Allele[][];
   prob: number;
 }
@@ -424,9 +424,9 @@ export class Strain {
     this.fillWildsFrom(other);
     other.fillWildsFrom(this);
 
-    const gameteOpts1 = this.meiosis();
-    const gameteOpts2 = other.meiosis();
-    return await Strain.fertilize(gameteOpts1, gameteOpts2);
+    const gametes1 = this.meiosis();
+    const gametes2 = other.meiosis();
+    return await Strain.fertilize(gametes1, gametes2);
   }
 
   public getAllelePairs(): AllelePair[] {
@@ -436,29 +436,32 @@ export class Strain {
   }
 
   public static async fertilize(
-    gameteOpts1: GameteOption[],
-    gameteOpts2: GameteOption[] = gameteOpts1
+    gametes1: Gamete[],
+    gametes2: Gamete[] = gametes1
   ): Promise<Strain[]> {
     const strains = await Promise.all(
-      gameteOpts1.flatMap((gameteOpt1) =>
-        gameteOpts2.map(async (gameteOpt2) => {
-          const chromPairs = gameteOpt1.chromosomes.map((chrom, idx) =>
-            ChromosomePair.buildFromChroms(chrom, gameteOpt2.chromosomes[idx])
+      gametes1.flatMap((gamete1) =>
+        gametes2.map(async (gamete2) => {
+          const chromPairs = gamete1.chromosomes.map((chrom, idx) =>
+            ChromosomePair.buildFromChroms(chrom, gamete2.chromosomes[idx])
           );
           const strain = await Strain.buildFromChromPairs(chromPairs);
-          strain.probability = gameteOpt1.prob * gameteOpt2.prob;
+          strain.probability = gamete1.prob * gamete2.prob;
+          strain.isChild = true;
           return strain;
         })
       )
     );
     Strain.reduceStrains(strains);
     Strain.normalizeEcaOptions(strains);
-    strains.sort((a, b) => (b?.probability ?? 1) - (a?.probability ?? 1));
+    strains.sort((a, b) => (b?.probability ?? 0) - (a?.probability ?? 0));
     return strains;
   }
 
-  /** Strain options differing only by extrachromosomal array contents should have same probability
-   * (for simplicity, not necessarily biologically accurate) */
+  /**
+   * Strain options differing only by extrachromosomal array contents should have same probability
+   * (for simplicity, not necessarily biologically accurate)
+   */
   private static normalizeEcaOptions(strains: Strain[]): void {
     // Partition options according to non-ECA equality
     const partition = new Map<string, Strain[]>();
@@ -485,7 +488,7 @@ export class Strain {
   }
 
   /** Produce all distinct "gametes", meaning top-heterozygous strains representing eggs/sperm */
-  public meiosis(): GameteOption[] {
+  public meiosis(): Gamete[] {
     return this.getSortedChromPairs()
       .map((pair) => pair.meiosis())
       .reduce<ChromosomeOption[][]>(

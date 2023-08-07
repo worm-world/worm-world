@@ -13,7 +13,10 @@ const Template: StoryFn<typeof StrainForm> = (args: StrainFormProps) => {
         <StrainForm
           onSubmit={() => {
             alert('clicked submit');
-          } } newId={''} showGenes={false} />
+          }}
+          newId={''}
+          showGenes={false}
+        />
       </div>
     </div>
   );

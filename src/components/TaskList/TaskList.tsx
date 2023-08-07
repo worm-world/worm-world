@@ -26,7 +26,7 @@ interface TaskListProps {
   tasks: Task[];
   updateTask: (task: Task) => void;
   refresh: () => Promise<void>;
-  setStagedId: (id: string) => void;
+  setStagedDesignId: (id: string) => void;
 }
 
 const getDateSections = (tasks: Task[]): Map<string, Set<Task>> => {
@@ -49,7 +49,7 @@ export const TaskList = (props: TaskListProps): React.JSX.Element => {
 
   const onTaskChecked = (checkedTask: Task): void => {
     if (props.tasks.every((task) => task.completed))
-      props.setStagedId(checkedTask.crossDesignId);
+      props.setStagedDesignId(checkedTask.crossDesignId);
   };
 
   return (

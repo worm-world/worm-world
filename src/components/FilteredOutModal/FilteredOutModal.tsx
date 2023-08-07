@@ -22,8 +22,8 @@ const FilteredOutModal = (props: FilteredOutModalProps): React.JSX.Element => {
         <label className='modal-box w-auto'>
           <div className='rounded-box border border-base-300 bg-base-200 shadow-md'>
             <div className='mt-8 text-center text-2xl font-medium'>
-              {`${props.excludedNodes.length} strain`}
-              {props.excludedNodes.length > 1 ? 's are' : ' is'} not shown
+              {`${props.excludedNodes.length} Strain`}
+              {props.excludedNodes.length > 1 ? 's' : ''} Hidden
             </div>
             <div className='divider w-auto px-8' />
             <ul>

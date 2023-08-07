@@ -213,6 +213,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
           selfCross(id).catch(console.error);
         },
       };
+
       const cross: MenuItem = {
         icon: <CrossIcon />,
         text: 'Cross',
@@ -220,6 +221,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
           setDrawerState({ type: DrawerType.Cross, isOpen: true, id });
         },
       };
+
       const schedule: MenuItem = {
         icon: <ScheduleIcon />,
         text: 'Schedule',
@@ -548,9 +550,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       sourceHandle: 'bottom',
     };
     const strainOpts = await parentNode.data.selfCross();
-    console.log(strainOpts);
     const childNodes = getChildNodes(selfNode, strainOpts);
-    console.log(childNodes);
     const childEdges = childNodes.map((node) => {
       return {
         id: props.crossDesign.createId(),
@@ -819,7 +819,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
               >
                 <CustomControls
                   reactFlowInstance={reactFlowInstance}
-                  toggleShowGenes={() => {
+                  toggleGenes={() => {
                     setShowGenes(!showGenes);
                   }}
                   crossDesignEditable={props.crossDesign.editable}
@@ -890,6 +890,13 @@ const Editor = (props: EditorProps): React.JSX.Element => {
           isOpen={saveStrainModalState.isOpen}
           setIsOpen={(isOpen: boolean) => {
             setSaveStrainModalState({ ...saveStrainModalState, isOpen });
+          }}
+          strain={saveStrainModalState.strain ?? new Strain()}
+        />
+        <ScheduleTasksModal
+          isOpen={saveStrainModalState.isOpen}
+          setIsOpen={(isOpen: boolean) => {
+            setScheduleTaskModalState({ ...scheduleTaskModalState, isOpen });
           }}
           strain={saveStrainModalState.strain ?? new Strain()}
         />

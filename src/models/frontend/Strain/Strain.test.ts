@@ -1,7 +1,7 @@
 import { clearMocks, mockIPC } from '@tauri-apps/api/mocks';
 import * as alleles from 'models/frontend/Allele/Allele.mock';
 import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
-import { Strain, type GameteOption } from 'models/frontend/Strain/Strain';
+import { Strain, type Gamete } from 'models/frontend/Strain/Strain';
 import * as strains from 'models/frontend/Strain/Strain.mock';
 import { expect, test, describe } from 'vitest';
 import {
@@ -11,15 +11,12 @@ import {
 
 const PRECISION = 6;
 
-function testGameteOptions(
-  actualOpts: GameteOption[],
-  expectedOpts: GameteOption[]
-): void {
-  expect(actualOpts).toHaveLength(expectedOpts.length);
+function testGametes(actuals: Gamete[], expecteds: Gamete[]): void {
+  expect(actuals).toHaveLength(expecteds.length);
 
-  for (let i = 0; i < actualOpts.length; i++) {
-    const expected = expectedOpts[i];
-    const actual = actualOpts[i];
+  for (let i = 0; i < actuals.length; i++) {
+    const expected = expecteds[i];
+    const actual = actuals[i];
     expect(
       actual.chromosomes.every((actualChrom, idx) => {
         return chromsEqual(actualChrom, expected.chromosomes[idx]);
@@ -270,15 +267,13 @@ describe('strain', () => {
 describe('Cross algorithm', () => {
   test('.meiosis() on empty.', () => {
     const gametesEmptyWild = strains.emptyWild.meiosis();
-    const expected: GameteOption[] = [{ chromosomes: [], prob: 1.0 }];
+    const expected: Gamete[] = [{ chromosomes: [], prob: 1.0 }];
     expect(gametesEmptyWild).toEqual(expected);
   });
 
   test('.meiosis() on homozygous.', () => {
     const gametesTN64 = strains.TN64.meiosis();
-    const expected: GameteOption[] = [
-      { chromosomes: [[alleles.cn64]], prob: 1.0 },
-    ];
+    const expected: Gamete[] = [{ chromosomes: [[alleles.cn64]], prob: 1.0 }];
     expect(gametesTN64).toEqual(expected);
   });
 
@@ -286,7 +281,7 @@ describe('Cross algorithm', () => {
     const gametes = new Strain({
       allelePairs: [alleles.ed3.toTopHet(), alleles.md299.toTopHet()],
     }).meiosis();
-    const expected: GameteOption[] = [
+    const expected: Gamete[] = [
       { chromosomes: [[alleles.ed3], [alleles.md299]], prob: 0.25 },
       {
         chromosomes: [[alleles.ed3], [alleles.md299.toWild()]],
@@ -301,23 +296,21 @@ describe('Cross algorithm', () => {
         prob: 0.25,
       },
     ];
-    testGameteOptions(gametes, expected);
+    testGametes(gametes, expected);
   });
 
   test('fertilize() empty case', async () => {
-    const gameteOpts1: GameteOption[] = [{ chromosomes: [], prob: 1.0 }];
-    const gameteOpts2: GameteOption[] = [{ chromosomes: [], prob: 1.0 }];
-    const zygotes = await Strain.fertilize(gameteOpts1, gameteOpts2);
+    const gametes1: Gamete[] = [{ chromosomes: [], prob: 1.0 }];
+    const gametes2: Gamete[] = [{ chromosomes: [], prob: 1.0 }];
+    const zygotes = await Strain.fertilize(gametes1, gametes2);
     const expected = [new Strain({ allelePairs: [] })];
 
     testStrains(zygotes, expected);
   });
 
   test('fertilize() homozygous', async () => {
-    const gameteOpts: GameteOption[] = [
-      { chromosomes: [[alleles.cn64]], prob: 1.0 },
-    ];
-    const zygotes = await Strain.fertilize(gameteOpts);
+    const gametes: Gamete[] = [{ chromosomes: [[alleles.cn64]], prob: 1.0 }];
+    const zygotes = await Strain.fertilize(gametes);
     const expected: Strain[] = [strains.TN64];
 
     testStrains(zygotes, expected);
@@ -412,7 +405,7 @@ describe('Cross algorithm', () => {
 
     // test all strains >= 0.1%
     testStrains(
-      crossStrains.filter((strainOpt) => strainOpt.probability >= 0.001),
+      crossStrains.filter((strain) => strain.probability >= 0.001),
       strains.partialAdvancedSelfCross
     );
   });
