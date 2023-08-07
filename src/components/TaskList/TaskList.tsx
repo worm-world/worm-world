@@ -26,7 +26,7 @@ interface TaskListProps {
   tasks: Task[];
   updateTask: (task: Task) => void;
   refresh: () => Promise<void>;
-  onTaskChecked: (task: Task) => void;
+  setStagedId: (id: string) => void;
 }
 
 const getDateSections = (tasks: Task[]): Map<string, Set<Task>> => {
@@ -46,6 +46,11 @@ export const TaskList = (props: TaskListProps): React.JSX.Element => {
     ([date1], [date2]) => (moment(date1).isAfter(moment(date2)) ? 1 : -1)
   );
   const [task, setTask] = useState<Task>(props.tasks[0] ?? new Task());
+
+  const onTaskChecked = (checkedTask: Task): void => {
+    if (props.tasks.every((task) => task.completed))
+      props.setStagedId(checkedTask.crossDesignId);
+  };
 
   return (
     <>
@@ -67,7 +72,7 @@ export const TaskList = (props: TaskListProps): React.JSX.Element => {
                     refresh={props.refresh}
                     task={task}
                     updateTask={props.updateTask}
-                    onTaskChecked={props.onTaskChecked}
+                    onTaskChecked={onTaskChecked}
                     setTaskToReschedule={setTask}
                   />
                 </div>

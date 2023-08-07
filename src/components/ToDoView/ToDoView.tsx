@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import { GiCheckboxTree as CrossDesignIcon } from 'react-icons/gi';
 import { deleteCrossDesign, getFilteredCrossDesigns } from 'api/crossDesign';
 import { BiHide, BiShow } from 'react-icons/bi';
+import { SiMicrogenetics as GeneIcon } from 'react-icons/si';
 
 export const ToDoView = (): React.JSX.Element => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -72,15 +73,6 @@ export const ToDoView = (): React.JSX.Element => {
       );
   };
 
-  const onTaskChecked = (checkedTask: Task): void => {
-    if (
-      tasks
-        .filter((task) => task.crossDesignId === checkedTask.crossDesignId)
-        .every((task) => task.completed)
-    )
-      setStagedId(checkedTask.crossDesignId);
-  };
-
   const hasFilter = filteringId !== undefined;
   const crossDesignIds = new Set<string>(
     tasks.map((task) => task.crossDesignId)
@@ -105,14 +97,19 @@ export const ToDoView = (): React.JSX.Element => {
                 crossDesignNames={crossDesignNames}
               />
             </div>
-            <ShowCompletedButton
-              showCompleted={showCompleted}
-              toggleShowCompleted={() => {
-                setShowCompleted(!showCompleted);
-              }}
-            />
-            <div className='justify-self-end'>
-              <TaskRemovalBtn
+            <div className='flex items-center gap-2 justify-self-end'>
+              <ShowCompletedButton
+                showCompleted={showCompleted}
+                toggleShowCompleted={() => {
+                  setShowCompleted(!showCompleted);
+                }}
+              />
+              <ShowGenesButton
+                toggleShowGenes={() => {
+                  setShowGenes(!showGenes);
+                }}
+              />
+              <TaskRemovalButton
                 hasFilter={hasFilter}
                 filteringId={filteringId}
                 crossDesignName={
@@ -137,7 +134,7 @@ export const ToDoView = (): React.JSX.Element => {
             refresh={refreshTasks}
             tasks={filteredTasks}
             updateTask={handleUpdateTask}
-            onTaskChecked={onTaskChecked}
+            setStagedId={setStagedId}
           />
         </div>
       )}
@@ -177,28 +174,39 @@ const ShowCompletedButton = (
   );
 };
 
-const TaskRemovalBtn = (props: {
+const ShowGenesButton = (props: {
+  toggleShowGenes: () => void;
+}): React.JSX.Element => {
+  return (
+    <div className='tooltip tooltip-bottom' data-tip={'Show genes'}>
+      <button className='btn btn-outline' onClick={props.toggleShowGenes}>
+        <GeneIcon size='20' />
+      </button>
+    </div>
+  );
+};
+
+const TaskRemovalButton = (props: {
   hasFilter: boolean;
   filteringId?: string;
   crossDesignName?: string;
   deleteTasks: (crossDesignId?: string) => void;
 }): React.JSX.Element => {
-  const removeBtnTxt = props.hasFilter ? 'Delete tasks' : 'Delete all tasks';
-  const modalHeader = 'Delete tasks';
-  const confirmationText = props.hasFilter
-    ? `Are you sure you want to remove tasks for "${props.crossDesignName}"? This cannot be undone.`
-    : 'Are you sure you want to remove ALL tasks? This will delete every task from every cross design.';
   return (
     <div>
       <label htmlFor='delete-tasks-modal' className='btn btn-error btn-outline'>
-        {removeBtnTxt}
+        {props.hasFilter ? 'Delete tasks' : 'Delete all tasks'}
       </label>
       <input type='checkbox' id='delete-tasks-modal' className='modal-toggle' />
       <label htmlFor='delete-tasks-modal' className='modal cursor-pointer'>
         <label className='modal-box relative text-center' htmlFor=''>
-          <h2 className='text-3xl font-bold'>{modalHeader}</h2>
+          <h2 className='text-3xl font-bold'>Delete Tasks</h2>
           <div className='divider' />
-          <p className='text-lg'>{confirmationText}</p>
+          <p className='text-lg'>
+            {props.hasFilter
+              ? `Are you sure you want to remove tasks for "${props.crossDesignName}"? This cannot be undone.`
+              : 'Are you sure you want to remove ALL tasks? This will delete every task from every cross design.'}
+          </p>
 
           <div className='modal-action justify-center'>
             <label
