@@ -11,7 +11,7 @@ pub fn get_tasks() -> Vec<Task> {
             notes: Some("example note".to_string()),
             cross_design_id: "1".to_string(),
             completed: true,
-            child_task_id: Some("2".to_string()),
+            child_task_id: None,
         },
         Task {
             id: "2".to_string(),
@@ -75,6 +75,6 @@ pub fn get_filtered_tasks() -> Vec<Task> {
         notes: Some("example note".to_string()),
         cross_design_id: "1".to_string(),
         completed: true,
-        child_task_id: todo!(),
+        child_task_id: None,
     }]
 }

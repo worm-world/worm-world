@@ -6,7 +6,7 @@ describe('StrainCard', () => {
   test('Empty strain shows "wild" label', () => {
     render(<StrainCard strain={strains.emptyWild} id={''} />);
 
-    const body = screen.getByTestId('strainNodeBody');
+    const body = screen.getByTestId('strainCard');
     expect(body).toHaveTextContent(/wild/i);
   });
 });

@@ -1,4 +1,3 @@
-import type { Action } from 'models/db/task/db_Action';
 import { Sex } from 'models/enums';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { type Node, type Edge, type XYPosition, getIncomers } from 'reactflow';
@@ -224,7 +223,9 @@ export default class CrossDesign {
   /** @returns db record of this tree */
   public generateRecord(): db_CrossDesign {
     return {
-      ...this,
+      name: this.name,
+      editable: this.editable,
+      id: this.id,
       data: this.toJSON(),
       lastEdited: this.lastSaved.toString(),
     };

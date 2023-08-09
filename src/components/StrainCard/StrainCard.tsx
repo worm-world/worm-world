@@ -26,16 +26,20 @@ const StrainCard = (props: StrainCardProps): JSX.Element => {
   const menuItems = context.getMenuItems?.(props.id) ?? [];
   const strainCardContextValue = {
     strain: props.strain,
-    toggleHetPair: (pair: AllelePair) => {
-      context.toggleHetPair?.(props.id, pair);
-    },
-    toggleSex: () => {
-      context.toggleSex?.(props.id);
-    },
+    toggleHetPair:
+      context.toggleHetPair === undefined
+        ? undefined
+        : (pair: AllelePair) => {
+            context.toggleHetPair?.(props.id, pair);
+          },
+    toggleSex:
+      context.toggleSex === undefined
+        ? undefined
+        : () => {
+            context.toggleSex?.(props.id);
+          },
     showGenes: context.showGenes,
   };
-
-  console.log(context);
 
   return (
     <StrainCardContext.Provider value={strainCardContextValue}>
@@ -71,10 +75,7 @@ const StrainCard = (props: StrainCardProps): JSX.Element => {
           </div>
         </div>
         <div className='overflow-x-auto'>
-          <div
-            className='flex h-24 min-w-min justify-center text-sm'
-            data-testid='strainNodeBody'
-          >
+          <div className='flex h-24 min-w-min justify-center text-sm'>
             <MainContentArea strain={props.strain} />
           </div>
         </div>
@@ -87,9 +88,7 @@ const StrainCard = (props: StrainCardProps): JSX.Element => {
 const SexButton = (): React.JSX.Element => {
   const context = useContext(StrainCardContext);
   const buttonIsDisabled =
-    context.strain.isParent ||
-    context.strain.isChild ||
-    context.toggleSex === undefined;
+    context.strain.isParent || context.toggleSex === undefined;
   return (
     <button
       className={`btn btn-ghost btn-xs m-1 text-base ring-0 hover:bg-base-200 hover:ring-0 disabled:bg-transparent 

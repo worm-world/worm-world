@@ -18,6 +18,8 @@ export const ToDoView = (): React.JSX.Element => {
   const [showCompleted, setShowCompleted] = useState(true);
   const [showGenes, setShowGenes] = useState(true);
 
+  console.log('staged', stagedDesignId);
+
   useEffect(() => {
     refreshTasks()
       .then(() => {
@@ -53,15 +55,15 @@ export const ToDoView = (): React.JSX.Element => {
       .catch((e) => toast.error('Unable to update task: ' + JSON.stringify(e)));
   };
 
-  const handleDeleteTasks = (filteredOnDesignId?: string): void => {
-    (filteredOnDesignId === undefined
+  const handleDeleteTasks = (designId?: string): void => {
+    (designId === undefined
       ? deleteAllTasks().then(() => {
           [...designNames.keys()].map(
             async (crossDesignId) => await deleteCrossDesign(crossDesignId)
           );
         })
-      : deleteTasks(filteredOnDesignId).then(async () => {
-          await deleteCrossDesign(filteredOnDesignId);
+      : deleteTasks(designId).then(async () => {
+          await deleteCrossDesign(designId);
         })
     )
       .then(refreshTasks)
@@ -89,6 +91,23 @@ export const ToDoView = (): React.JSX.Element => {
         <NoTaskPlaceholder />
       ) : (
         <EditorContext.Provider value={{ showGenes }}>
+          <TaskDeleteModal
+            tasks={tasks.filter(
+              (task) => task.crossDesignId === stagedDesignId
+            )}
+            crossDesignName={
+              stagedDesignId !== undefined
+                ? designNames.get(stagedDesignId)
+                : ''
+            }
+            stagedId={stagedDesignId}
+            clearStagedDesignId={() => {
+              setStagedDesignId(undefined);
+            }}
+            deleteTasks={() => {
+              handleDeleteTasks(stagedDesignId);
+            }}
+          />
           <div className='flex gap-2'>
             <div className='flex-grow'>
               <CrossDesignFilter
@@ -200,9 +219,15 @@ const TaskRemovalButton = (props: {
           <h2 className='text-3xl font-bold'>Delete Tasks</h2>
           <div className='divider' />
           <p className='text-lg'>
-            {props.hasFilter
-              ? `Are you sure you want to remove tasks for "${crossDesignName}"? This cannot be undone.`
-              : 'Are you sure you want to remove ALL tasks? This will delete every task from every cross design.'}
+            {props.hasFilter ? (
+              `Are you sure you want to remove tasks for "${crossDesignName}"? This cannot be undone.`
+            ) : (
+              <span>
+                Are you sure you want to remove{' '}
+                <span className='font-bold'> all </span> tasks? This will delete
+                every task from every cross design.
+              </span>
+            )}
           </p>
 
           <div className='modal-action justify-center'>
@@ -221,14 +246,6 @@ const TaskRemovalButton = (props: {
           </div>
         </label>
       </label>
-      <TaskDeleteModal
-        tasks={props.tasks.filter(
-          (task) => task.crossDesignId === props.filteredOnDesignId
-        )}
-        crossDesignName={crossDesignName}
-        clearStagedDesignId={props.clearStagedDesignId}
-        deleteTasks={props.deleteTasks}
-      />
     </div>
   );
 };
@@ -240,6 +257,7 @@ const TaskDeleteModal = (props: {
   clearStagedDesignId: () => void;
   deleteTasks: () => void;
 }): React.JSX.Element => {
+  console.log('staged id', props.stagedId);
   return (
     <>
       <input type='checkbox' className='modal-toggle' />

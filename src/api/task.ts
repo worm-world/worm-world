@@ -29,8 +29,8 @@ export const updateTask = async (record: db_Task): Promise<void> => {
   await invoke('update_task', { task: record });
 };
 
-export const deleteTasks = async (tree: string): Promise<void> => {
-  await invoke('delete_tasks', { tree });
+export const deleteTasks = async (crossDesign: string): Promise<void> => {
+  await invoke('delete_tasks', { crossDesign });
 };
 
 export const deleteAllTasks = async (): Promise<void> => {

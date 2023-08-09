@@ -15,7 +15,6 @@ import { FaArrowRight as RightIcon } from 'react-icons/fa';
 import { type Action } from 'models/db/task/db_Action';
 import { useNavigate } from 'react-router-dom';
 import React, { useCallback, useRef } from 'react';
-import { empty } from 'components/NoteNode/NoteNode.stories';
 
 const useFocus = (): [React.RefObject<HTMLTextAreaElement>, () => void] => {
   const htmlElRef = useRef<HTMLTextAreaElement>(null);

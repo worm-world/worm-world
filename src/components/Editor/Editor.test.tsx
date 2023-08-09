@@ -37,7 +37,7 @@ describe('Editor', () => {
   test('Renders', () => {
     renderComponent(crossDesigns.simpleCrossDesign);
 
-    const nodes = screen.getAllByTestId('strainNode');
+    const nodes = screen.getAllByTestId('strainCard');
     expect(nodes).toHaveLength(3 + 1); // Extra is preview node on right drawer
 
     const title = screen.getByText(/ed3 Cross/i);
@@ -60,25 +60,25 @@ describe('Editor', () => {
 
     renderComponent(crossDesigns.simpleCrossDesign);
 
-    // const nodes = screen.getAllByTestId('strainNode');
-    // expect(nodes).toHaveLength(3 + 1); // Extra is preview node on right drawer
+    const nodes = screen.getAllByTestId('strainCard');
+    expect(nodes).toHaveLength(3 + 1); // Extra is preview node on right drawer
 
-    // const addNewNodeButton = screen.getByRole('button', {
-    //   name: /add strain/i,
-    // });
-    // await user.click(addNewNodeButton);
+    const addNewNodeButton = screen.getByRole('button', {
+      name: /add strain/i,
+    });
+    await user.click(addNewNodeButton);
 
-    // const formSubmitButton = screen.getByRole('button', {
-    //   name: /add strain/i,
-    // });
-    // expect(formSubmitButton).toBeDefined();
-    // expect(formSubmitButton).toBeVisible();
+    const formSubmitButton = screen.getByRole('button', {
+      name: /add strain/i,
+    });
+    expect(formSubmitButton).toBeDefined();
+    expect(formSubmitButton).toBeVisible();
 
-    // await user.click(formSubmitButton);
-    // await waitFor(() => {
-    //   const nodes = screen.getAllByTestId('strainNode');
-    //   expect(nodes).toHaveLength(4 + 1);
-    // });
+    await user.click(formSubmitButton);
+    await waitFor(() => {
+      const nodes = screen.getAllByTestId('strainCard');
+      expect(nodes).toHaveLength(4 + 1);
+    });
   });
 
   test('adds notes', async () => {

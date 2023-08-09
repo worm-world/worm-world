@@ -3,7 +3,6 @@ import { type Edge, type Node } from 'reactflow';
 import { NodeType } from 'components/Editor/Editor';
 import * as strains from 'models/frontend/Strain/Strain.mock';
 import { type Strain } from 'models/frontend/Strain/Strain';
-import { type MiddleNodeProps } from 'components/MiddleNode/MiddleNode';
 import StrainFilter from '../StrainFilter/StrainFilter';
 
 export const emptyCrossDesign = new CrossDesign({

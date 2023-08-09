@@ -269,9 +269,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
     // Strain nodes must not be involved in a cross not slated for removal
     const involvedMiddleNodes = [
       ...getIncomers(node, nodes, edges),
-      ...getOutgoers(node, nodes, edges).filter(
-        (outNode) => outNode.type === NodeType.X
-      ),
+      ...getOutgoers(node, nodes, edges),
     ].map((node) => node.id);
     const removalChangeIds = nodeRemoveChanges.map(
       (nodeRemoveChange) => nodeRemoveChange.id
@@ -285,6 +283,8 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   };
 
   const onNodesChange = (changes: NodeChange[]): void => {
+    console.log('len', nodes.length);
+    console.log(nodes.map((node) => `node: ${node.id} => ${node.parentNode}`));
     const [nodeRemoveChanges, othehermNodeChanges] =
       categorizeNodeChanges(changes);
 
@@ -307,10 +307,12 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       getIncomers(node, nodes, edges)
     );
 
+    console.log('pr', parentsOfRemoved);
     const updatedParentsOfRemoved = parentsOfRemoved.map((node) => {
       if (node.type === NodeType.Strain) {
         node.data = new Strain({ ...node.data, isParent: false });
         // Remove parent node relationship between previously mated strains
+        // TODO fix delete grandchild
         if (
           node.parentNode !== undefined &&
           getOutgoers(node, nodes, edges)
@@ -890,13 +892,6 @@ const Editor = (props: EditorProps): React.JSX.Element => {
           isOpen={saveStrainModalState.isOpen}
           setIsOpen={(isOpen: boolean) => {
             setSaveStrainModalState({ ...saveStrainModalState, isOpen });
-          }}
-          strain={saveStrainModalState.strain ?? new Strain()}
-        />
-        <ScheduleTasksModal
-          isOpen={saveStrainModalState.isOpen}
-          setIsOpen={(isOpen: boolean) => {
-            setScheduleTaskModalState({ ...scheduleTaskModalState, isOpen });
           }}
           strain={saveStrainModalState.strain ?? new Strain()}
         />
