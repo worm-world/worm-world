@@ -62,7 +62,7 @@ const fixNodeDeserialization = (crossDesign: CrossDesign): void => {
       middleNode.data.reqConditions = new Set(middleNode.data.reqConditions);
       middleNode.data.supConditions = new Set(middleNode.data.supConditions);
       middleNode.data.exprPhenotypes = new Set(middleNode.data.exprPhenotypes);
-      middleNode.data.hidden = new Set(middleNode.data.hidden);
+      middleNode.data.hiddenNodes = new Set(middleNode.data.hiddenNodes);
       middleNode.data = new StrainFilter({ ...middleNode.data });
     }
   }

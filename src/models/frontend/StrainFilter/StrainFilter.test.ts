@@ -22,7 +22,7 @@ describe('StrainFilter', () => {
       exprPhenotypes: new Set(['1', '2']),
       reqConditions: new Set(['cond1']),
       supConditions: new Set(),
-      hidden: new Set(),
+      hiddenNodes: new Set(),
     });
     expect(filter.alleleNames).toHaveLength(3);
     expect(filter.alleleNames.has('a')).toBe(true);
@@ -38,13 +38,13 @@ describe('StrainFilter', () => {
     const exprPhenotypes = new Set(['1', '2']);
     const reqConditions = new Set(['cond1']);
     const supConditions = new Set<string>();
-    const hidden = new Set<string>();
+    const hiddenNodes = new Set<string>();
     const filter = new StrainFilter({
       alleleNames,
       exprPhenotypes,
       reqConditions,
       supConditions,
-      hidden,
+      hiddenNodes,
     });
     const clone = filter.clone();
 
@@ -61,7 +61,7 @@ describe('StrainFilter', () => {
       exprPhenotypes: new Set(['1', '2']),
       reqConditions: new Set(['cond1']),
       supConditions: new Set(),
-      hidden: new Set(),
+      hiddenNodes: new Set(),
     });
     expect(filter.alleleNames.has('a')).toBe(true);
     expect(filter.alleleNames.has('b')).toBe(true);
@@ -77,7 +77,7 @@ describe('StrainFilter', () => {
       exprPhenotypes: new Set(['1', '2']),
       reqConditions: new Set(['cond1']),
       supConditions: new Set(),
-      hidden: new Set(),
+      hiddenNodes: new Set(),
     });
 
     expect(filter.alleleNames.has('')).toBe(false);
@@ -135,7 +135,7 @@ describe('StrainFilter', () => {
       exprPhenotypes: new Set(['1', '2']),
       reqConditions: new Set(['cond1']),
       supConditions: new Set(),
-      hidden: new Set(),
+      hiddenNodes: new Set(),
     });
     const filterStr = filter.toJSON();
     const filterBack = StrainFilter.fromJSON(filterStr);

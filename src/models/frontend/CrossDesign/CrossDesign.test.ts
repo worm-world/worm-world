@@ -17,7 +17,6 @@ describe('cross crossDesign', () => {
     name = '',
     nodes = [],
     edges = [],
-    strainFilters = new Map(),
     lastSaved = new Date(),
     editable = true,
   }: Partial<ICrossDesign>): CrossDesign => {
@@ -26,7 +25,6 @@ describe('cross crossDesign', () => {
       nodes,
       edges,
       lastSaved,
-      strainFilters,
       editable,
     });
   };
@@ -425,11 +423,11 @@ describe('cross crossDesign', () => {
         exprPhenotypes: new Set(),
         supConditions: new Set(),
         reqConditions: new Set(),
-        hidden: new Set(),
+        hiddenNodes: new Set(),
       })
     );
 
-    const crossDesign = generateTree({ nodes, edges, strainFilters });
+    const crossDesign = generateTree({ nodes, edges });
     const crossDesignBack = CrossDesign.fromJSON(crossDesign.toJSON());
 
     expect(crossDesignBack.toJSON()).toEqual(crossDesign.toJSON());

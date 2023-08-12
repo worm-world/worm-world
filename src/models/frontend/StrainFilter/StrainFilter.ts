@@ -13,7 +13,7 @@ export interface IStrainFilter {
   exprPhenotypes: Set<string>;
   reqConditions: Set<string>;
   supConditions: Set<string>;
-  hidden: Set<string>;
+  hiddenNodes: Set<string>;
 }
 
 export class StrainFilter implements IStrainFilter {
@@ -29,8 +29,10 @@ export class StrainFilter implements IStrainFilter {
   @Transform((data: any) => new Set(data?.obj?.supConditions))
   public supConditions = new Set<string>();
 
-  @Transform((data: any) => new Set(data?.obj?.hidden))
-  public hidden: Set<string> = new Set<string>();
+  @Transform((data: any) => {
+    return new Set(data?.obj?.hiddenNodes);
+  })
+  public hiddenNodes: Set<string> = new Set<string>();
 
   constructor(props?: Partial<IStrainFilter>) {
     if (props !== undefined) Object.assign(this, props);
@@ -42,7 +44,7 @@ export class StrainFilter implements IStrainFilter {
       exprPhenotypes: new Set(this.exprPhenotypes),
       reqConditions: new Set(this.reqConditions),
       supConditions: new Set(this.supConditions),
-      hidden: new Set(this.hidden),
+      hiddenNodes: new Set(this.hiddenNodes),
     });
   }
 
@@ -52,7 +54,7 @@ export class StrainFilter implements IStrainFilter {
       this.exprPhenotypes.size === 0 &&
       this.reqConditions.size === 0 &&
       this.supConditions.size === 0 &&
-      this.hidden.size === 0
+      this.hiddenNodes.size === 0
     );
   }
 
@@ -75,7 +77,7 @@ export class StrainFilter implements IStrainFilter {
       supConditions: new Set(
         [...strainNode.data.getSupConditions()].map((cond) => cond.name)
       ),
-      hidden: new Set<string>([strainNode.id]),
+      hiddenNodes: new Set<string>([strainNode.id]),
     };
   }
 
@@ -102,7 +104,10 @@ export class StrainFilter implements IStrainFilter {
           ...allOptions.supConditions,
           ...options.supConditions,
         ]);
-        allOptions.hidden = new Set([...allOptions.hidden, ...options.hidden]);
+        allOptions.hiddenNodes = new Set([
+          ...allOptions.hiddenNodes,
+          ...options.hiddenNodes,
+        ]);
         return allOptions;
       },
       {
@@ -110,7 +115,7 @@ export class StrainFilter implements IStrainFilter {
         exprPhenotypes: new Set(),
         reqConditions: new Set(),
         supConditions: new Set(),
-        hidden: new Set(),
+        hiddenNodes: new Set(),
       }
     );
   }

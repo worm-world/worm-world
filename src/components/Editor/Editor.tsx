@@ -115,6 +115,10 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   const timeout = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
+    setIsSaving(false);
+  }, []);
+
+  useEffect(() => {
     setIsSaving(true);
     clearTimeout(timeout.current);
     timeout.current = setTimeout(() => {
@@ -452,7 +456,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
 
     childNodes.forEach((node: Node<Strain>) => {
       node.hidden =
-        !node.data.passesFilter(filter) || filter.hidden.has(node.id);
+        !node.data.passesFilter(filter) || filter.hiddenNodes.has(node.id);
       hideConnectedEdges(node, node.hidden);
     });
     const middleNode = reactFlowInstance.getNode(update.filterId);
@@ -675,12 +679,15 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       return;
     }
 
-    const clonedCrossDesign = props.crossDesign.clone(true);
-    clonedCrossDesign.editable = false;
-    const tasks = clonedCrossDesign
-      .getTasks(node)
-      .map((task) => task.generateRecord());
-    insertCrossDesign(clonedCrossDesign.generateRecord())
+    const design = new CrossDesign({
+      editable: false,
+      nodes,
+      edges,
+      name,
+      lastSaved: new Date(),
+    });
+    const tasks = design.getTasks(node).map((task) => task.generateRecord());
+    insertCrossDesign(design.generateRecord())
       .then(async () => {
         await insertTasks(tasks);
       })

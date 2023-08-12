@@ -18,7 +18,6 @@ primary.args = {
     nodes: [],
     edges: [],
     lastSaved: new Date(),
-    strainFilters: new Map(),
     editable: true,
   }),
 };
@@ -30,7 +29,6 @@ longTitle.args = {
     nodes: [],
     edges: [],
     lastSaved: new Date(),
-    strainFilters: new Map(),
     editable: true,
   }),
 };
