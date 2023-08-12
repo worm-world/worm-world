@@ -18,8 +18,6 @@ export const ToDoView = (): React.JSX.Element => {
   const [showCompleted, setShowCompleted] = useState(true);
   const [showGenes, setShowGenes] = useState(true);
 
-  console.log('staged', stagedDesignId);
-
   useEffect(() => {
     refreshTasks()
       .then(() => {
@@ -257,7 +255,6 @@ const TaskDeleteModal = (props: {
   clearStagedDesignId: () => void;
   deleteTasks: () => void;
 }): React.JSX.Element => {
-  console.log('staged id', props.stagedId);
   return (
     <>
       <input type='checkbox' className='modal-toggle' />

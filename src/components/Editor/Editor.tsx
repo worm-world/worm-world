@@ -283,8 +283,6 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   };
 
   const onNodesChange = (changes: NodeChange[]): void => {
-    console.log('len', nodes.length);
-    console.log(nodes.map((node) => `node: ${node.id} => ${node.parentNode}`));
     const [nodeRemoveChanges, othehermNodeChanges] =
       categorizeNodeChanges(changes);
 
@@ -307,7 +305,6 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       getIncomers(node, nodes, edges)
     );
 
-    console.log('pr', parentsOfRemoved);
     const updatedParentsOfRemoved = parentsOfRemoved.map((node) => {
       if (node.type === NodeType.Strain) {
         node.data = new Strain({ ...node.data, isParent: false });
