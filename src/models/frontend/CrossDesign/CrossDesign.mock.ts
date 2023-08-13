@@ -9,7 +9,6 @@ export const emptyCrossDesign = new CrossDesign({
   name: 'Empty cross tree',
   nodes: [],
   edges: [],
-  strainFilters: new Map(),
   lastSaved: new Date(),
   editable: true,
 });
@@ -78,7 +77,6 @@ export const simpleCrossDesign = new CrossDesign({
   nodes: [ed3HeteroHerm, ed3HeteroMale, ed3HomoHerm, xNode],
   edges: [edgeMale, edgeFemale, edgeChild],
   lastSaved: new Date(),
-  strainFilters: new Map(),
   editable: true,
 });
 
@@ -235,7 +233,6 @@ export const mediumCrossDesign = new CrossDesign({
     selfNode2,
   ],
   edges,
-  strainFilters: new Map(),
   lastSaved: new Date('2023-01-18'),
   editable: true,
 });

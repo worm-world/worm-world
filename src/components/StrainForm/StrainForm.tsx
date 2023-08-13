@@ -60,10 +60,15 @@ const StrainForm = (props: StrainFormProps): React.JSX.Element => {
   if (irregAlleles.size > 0 && !showAdvanced) setShowAdvanced(true);
 
   const setStrainFromAlleles = ({
+    sex,
     regs = regAlleles,
     irregs = irregAlleles,
+  }: {
+    sex: Sex;
+    regs?: Set<db_Allele>;
+    irregs?: Set<db_Allele>;
   }): void => {
-    buildStrain(regs, irregs)
+    buildStrain(sex, regs, irregs)
       .then((strain) => {
         setState({ strain, source: 'alleles' });
       })
@@ -83,19 +88,19 @@ const StrainForm = (props: StrainFormProps): React.JSX.Element => {
       pair.flip();
       Strain.build({
         allelePairs: state.strain.getAllelePairs(),
-        isParent: props.enforcedSex !== undefined,
       })
         .then((strain) => {
+          strain.sex = state.strain.sex;
           setState({ source: 'toggle', strain });
         })
         .catch(console.error);
     },
-    toggleSex: (id: string) => {
-      setState({ strain: state.strain.toggleSex(), source: 'toggle' });
-    },
-    openNote: () => {},
-    getMenuItems: () => [],
-    updateFilter: () => {},
+    toggleSex:
+      props.enforcedSex !== undefined
+        ? undefined
+        : (id: string) => {
+            setState({ strain: state.strain.toggleSex(), source: 'toggle' });
+          },
   };
 
   return (
@@ -109,12 +114,16 @@ const StrainForm = (props: StrainFormProps): React.JSX.Element => {
         setStrain={(strain) => {
           Strain.createFromRecord(strain)
             .then((strain) => {
+              strain.sex = state.strain.sex;
               setState({ strain, source: 'select' });
             })
             .catch(console.error);
         }}
         clearStrain={() => {
-          setState({ strain: new Strain(), source: 'select' });
+          setState({
+            strain: new Strain({ sex: state.strain.sex }),
+            source: 'select',
+          });
         }}
         source={state.source}
       />
@@ -123,7 +132,7 @@ const StrainForm = (props: StrainFormProps): React.JSX.Element => {
         label='Alleles'
         selectedRecords={regAlleles}
         setSelectedRecords={(regs) => {
-          setStrainFromAlleles({ regs });
+          setStrainFromAlleles({ sex: state.strain.sex, regs });
         }}
         shouldInclude={alleleIsUnused}
       />
@@ -133,7 +142,7 @@ const StrainForm = (props: StrainFormProps): React.JSX.Element => {
           label='Heterozygous Alleles'
           selectedRecords={irregAlleles}
           setSelectedRecords={(irregs) => {
-            setStrainFromAlleles({ irregs });
+            setStrainFromAlleles({ sex: state.strain.sex, irregs });
           }}
           shouldInclude={(allele) =>
             alleleIsUnused(allele) && !isEcaAlleleName(allele.name)
@@ -240,6 +249,7 @@ export const StrainSelect = (props: StrainSelectProps): React.JSX.Element => {
 };
 
 const buildStrain = async (
+  sex: Sex,
   regs: Set<db_Allele>,
   irregs: Set<db_Allele>
 ): Promise<Strain> => {
@@ -275,7 +285,7 @@ const buildStrain = async (
         new AllelePair({ top: alleles[0], bot: alleles[0].toWild() })
       );
   });
-  return await Strain.build({ allelePairs: [...homoPairs, ...hetPairs] });
+  return await Strain.build({ allelePairs: [...homoPairs, ...hetPairs], sex });
 };
 
 export default StrainForm;

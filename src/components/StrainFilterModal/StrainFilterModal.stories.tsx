@@ -74,7 +74,7 @@ const ed3Filter = new StrainFilter({
   exprPhenotypes: new Set(['unc-119']),
   reqConditions: new Set(),
   supConditions: new Set(),
-  hidden: new Set(),
+  hiddenNodes: new Set(),
 });
 export const WithAppliedfilter = Template.bind({});
 WithAppliedfilter.args = {

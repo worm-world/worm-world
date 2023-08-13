@@ -1,7 +1,6 @@
 import { open } from '@tauri-apps/api/dialog';
 import { readTextFile } from '@tauri-apps/api/fs';
 import { getFilteredCrossDesigns, insertCrossDesign } from 'api/crossDesign';
-import { type StrainFilter } from 'models/frontend/StrainFilter/StrainFilter';
 import CrossDesignCard from 'components/CrossDesignCard/CrossDesignCard';
 import { TopNav } from 'components/TopNav/TopNav';
 import CrossDesign from 'models/frontend/CrossDesign/CrossDesign';
@@ -145,7 +144,6 @@ const addCrossDesign = async (): Promise<string | undefined> => {
       lastSaved: new Date(),
       nodes: [],
       edges: [],
-      strainFilters: new Map<string, StrainFilter>(),
       editable: true,
     });
     await insertCrossDesign(newCrossDesign.generateRecord());

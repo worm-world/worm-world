@@ -59,7 +59,7 @@ const StrainCard = (props: StrainCardProps): JSX.Element => {
               </label>
               <div
                 tabIndex={0}
-                className='card-body dropdown-content rounded-box bg-base-100 shadow'
+                className='card-body dropdown-content rounded-box z-10 m-auto bg-base-100 shadow'
               >
                 <BreedCountProbability probability={props.strain.probability} />
               </div>

@@ -12,7 +12,6 @@ describe('Editor Top', () => {
             nodes: [],
             edges: [],
             lastSaved: new Date(),
-            strainFilters: new Map(),
             editable: true,
           })
         }

@@ -156,7 +156,7 @@ const StrainList = (props: {
   const onClickSelectAll = (): void => {
     filteredList.forEach((node) => {
       props.updateFilter({
-        field: 'hidden',
+        field: 'hiddenNodes',
         action: allSelected && !node.data.isParent ? 'add' : 'remove',
         name: node.id,
         filterId: props.filterId,
@@ -194,7 +194,7 @@ const StrainList = (props: {
             className='checkbox mx-4'
             onClick={() => {
               props.updateFilter({
-                field: 'hidden',
+                field: 'hiddenNodes',
                 name: node.id,
                 action: node.hidden ?? false ? 'remove' : 'add',
                 filterId: props.filterId,

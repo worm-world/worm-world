@@ -20,14 +20,12 @@ import { type db_CrossDesign } from 'models/db/db_CrossDesign';
 
 export const NODE_PADDING = 36;
 // middle nodes (X or Self)
-export const MIDDLE_NODE_HEIGHT = 64;
-export const MIDDLE_NODE_WIDTH = 64;
+export const MIDDLE_NODE_SIZE = 64;
 
 export interface ICrossDesign {
   name: string;
   nodes: Node[];
   edges: Edge[];
-  strainFilters: Map<string, StrainFilter>;
   lastSaved: Date;
   editable: boolean;
   id?: string;
@@ -75,8 +73,6 @@ export default class CrossDesign {
     },
     { toClassOnly: true }
   )
-  public strainFilters: Map<string, StrainFilter>;
-
   @Transform(
     (data: { obj: any }) => {
       const nodes: Node[] = data?.obj?.nodes ?? [];
@@ -98,7 +94,6 @@ export default class CrossDesign {
         name: '',
         nodes: [],
         edges: [],
-        strainFilters: new Map(),
         lastSaved: new Date(),
         editable: false,
       };
@@ -108,7 +103,6 @@ export default class CrossDesign {
     this.lastSaved = params.lastSaved;
     this.edges = [...params.edges];
     this.nodes = [...params.nodes];
-    this.strainFilters = new Map(params.strainFilters);
     this.editable = params.editable;
   }
 
@@ -118,7 +112,7 @@ export default class CrossDesign {
    */
   public static getSelfNodePos(): XYPosition {
     return {
-      x: STRAIN_NODE_WIDTH / 2 - MIDDLE_NODE_WIDTH / 2,
+      x: STRAIN_NODE_WIDTH / 2 - MIDDLE_NODE_SIZE / 2,
       y: STRAIN_NODE_HEIGHT + NODE_PADDING,
     };
   }
@@ -128,7 +122,7 @@ export default class CrossDesign {
     relative = true
   ): XYPosition {
     const x = STRAIN_NODE_WIDTH + 2 * NODE_PADDING;
-    const y = STRAIN_NODE_HEIGHT / 2 - MIDDLE_NODE_HEIGHT / 2;
+    const y = STRAIN_NODE_HEIGHT / 2 - MIDDLE_NODE_SIZE / 2;
     return relative
       ? {
           x,
@@ -144,7 +138,7 @@ export default class CrossDesign {
     const x =
       (STRAIN_NODE_WIDTH +
         2 * NODE_PADDING +
-        MIDDLE_NODE_WIDTH +
+        MIDDLE_NODE_SIZE +
         2 * NODE_PADDING) *
       (matedNode.data.sex === Sex.Hermaphrodite ? 1 : -1);
     return { x, y: 0 };
@@ -161,14 +155,14 @@ export default class CrossDesign {
   ): XYPosition[] {
     const positions: XYPosition[] = [];
     const maxNodesInRow = 5;
-    const xMidpoint = MIDDLE_NODE_WIDTH / 2;
+    const xMidpoint = MIDDLE_NODE_SIZE / 2;
     const deltaX = STRAIN_NODE_WIDTH + NODE_PADDING;
     const deltaY = STRAIN_NODE_HEIGHT + NODE_PADDING;
 
     let y =
       middleNodeType === NodeType.X
-        ? MIDDLE_NODE_HEIGHT / 2 + STRAIN_NODE_HEIGHT / 2 + 3 * NODE_PADDING
-        : MIDDLE_NODE_HEIGHT + NODE_PADDING;
+        ? MIDDLE_NODE_SIZE / 2 + STRAIN_NODE_HEIGHT / 2 + 3 * NODE_PADDING
+        : MIDDLE_NODE_SIZE + NODE_PADDING;
     for (let i = 0; i < childCount; i += maxNodesInRow) {
       const nodesInRow = Math.min(maxNodesInRow, childCount - i);
       const rowWidth = deltaX * nodesInRow - NODE_PADDING;
@@ -203,7 +197,6 @@ export default class CrossDesign {
       ...this,
       id: newId ? this.createId() : this.id,
       nodes: [...this.nodes],
-      strainFilters: new Map(this.strainFilters),
       edges: [...this.edges],
       lastSaved: new Date(),
     });
