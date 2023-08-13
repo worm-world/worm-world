@@ -399,10 +399,7 @@ export class Strain {
    */
   public clone(): Strain {
     return new Strain({
-      name: this.name,
-      description: this.description,
-      genotype: this.genotype,
-      sex: this.sex,
+      ...this,
       chromPairMap: new Map(this.chromPairMap),
     });
   }
