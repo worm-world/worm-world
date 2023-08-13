@@ -1,5 +1,7 @@
+import EditorContext from 'components/EditorContext/EditorContext';
 import StrainCard from 'components/StrainCard/StrainCard';
 import { type Strain } from 'models/frontend/Strain/Strain';
+import { useContext } from 'react';
 import { type Node } from 'reactflow';
 
 interface FilteredOutModalProps {
@@ -8,8 +10,14 @@ interface FilteredOutModalProps {
 }
 
 const FilteredOutModal = (props: FilteredOutModalProps): React.JSX.Element => {
+  const context = useContext(EditorContext);
+
+  const filteredOutModalContext = {
+    showGenes: context.showGenes,
+  };
+
   return (
-    <>
+    <EditorContext.Provider value={filteredOutModalContext}>
       <input
         type='checkbox'
         id={`filtered-out-modal-${props.filterId}`}
@@ -46,7 +54,7 @@ const FilteredOutModal = (props: FilteredOutModalProps): React.JSX.Element => {
           </div>
         </label>
       </label>
-    </>
+    </EditorContext.Provider>
   );
 };
 

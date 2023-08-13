@@ -50,7 +50,7 @@ const StrainCard = (props: StrainCardProps): JSX.Element => {
         <div className='flex h-6 justify-between'>
           <SexButton />
           {props.strain.isChild && (
-            <div className='dropdown dropdown-top justify-self-center'>
+            <div className={'dropdown justify-self-center' + 'dropdown-top'}>
               <label
                 tabIndex={0}
                 className='btn btn-ghost btn-xs text-accent ring-0 hover:bg-base-200 hover:ring-0'
@@ -89,19 +89,24 @@ const SexButton = (): React.JSX.Element => {
   const context = useContext(StrainCardContext);
   const buttonIsDisabled =
     context.strain.isParent || context.toggleSex === undefined;
+  const iconStyling =
+    'text-base ' + (context.strain.isParent ? 'opacity-50' : '');
   return (
     <button
-      className={`btn btn-ghost btn-xs m-1 text-base ring-0 hover:bg-base-200 hover:ring-0 disabled:bg-transparent 
-        disabled:text-base`}
-      disabled={buttonIsDisabled}
+      className={
+        'btn btn-ghost btn-xs m-1 ring-0 hover:bg-base-200 hover:ring-0' +
+        (buttonIsDisabled ? ' btn-transparent hover:bg-transparent' : '')
+      }
       onClick={() => {
         if (!context.strain.isParent && context.toggleSex !== undefined) {
           context.toggleSex();
         }
       }}
     >
-      {context.strain.sex === Sex.Male && <MaleIcon />}
-      {context.strain.sex === Sex.Hermaphrodite && <HermIcon />}
+      {context.strain.sex === Sex.Male && <MaleIcon className={iconStyling} />}
+      {context.strain.sex === Sex.Hermaphrodite && (
+        <HermIcon className={iconStyling} />
+      )}
     </button>
   );
 };
