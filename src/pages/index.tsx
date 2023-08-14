@@ -129,11 +129,11 @@ const importCrossDesign = async (): Promise<void> => {
     })) as string | null;
     if (filepath === null) return;
     const file = await readTextFile(filepath);
-    const clonedCrossDesign = CrossDesign.fromJSON(file).clone();
+    const clonedCrossDesign = CrossDesign.fromJSON(file).clone(true);
     await insertCrossDesign(clonedCrossDesign.generateRecord());
-    toast.success('Successfully imported crossDesign');
+    toast.success('Successfully imported cross design');
   } catch (err) {
-    toast.error(`Error importing crossDesign: ${err}`);
+    toast.error(`Error importing cross design: ${JSON.stringify(err)}`);
   }
 };
 
@@ -147,10 +147,10 @@ const addCrossDesign = async (): Promise<string | undefined> => {
       editable: true,
     });
     await insertCrossDesign(newCrossDesign.generateRecord());
-    toast.success('Successfully added crossDesign');
+    toast.success('Successfully added cross design');
     return newCrossDesign.id;
   } catch (err) {
-    toast.error(`Error adding crossDesign: ${err}`);
+    toast.error(`Error adding cross design: ${err}`);
     return undefined;
   }
 };
