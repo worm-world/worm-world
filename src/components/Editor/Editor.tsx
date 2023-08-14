@@ -13,7 +13,7 @@ import EditorTop from 'components/EditorTop/EditorTop';
 import { type MenuItem } from 'components/Menu/Menu';
 import NoteForm from 'components/NoteForm/NoteForm';
 import StrainForm from 'components/StrainForm/StrainForm';
-import { Sex } from 'models/enums';
+import { NodeType, Sex } from 'models/enums';
 import { type AllelePair } from 'models/frontend/AllelePair/AllelePair';
 import CrossDesign, {
   addToArray,
@@ -67,15 +67,7 @@ import CustomControls from 'components/CustomControls/CustomControls';
 import MiddleNode from 'components/MiddleNode/MiddleNode';
 import FilteredOutModal from 'components/FilteredOutModal/FilteredOutModal';
 
-export enum NodeType {
-  Strain = 'strain',
-  X = 'x',
-  Self = 'self',
-  Note = 'note',
-  FilteredOut = 'filteredOut',
-}
-
-export interface EditorProps {
+interface EditorProps {
   crossDesign: CrossDesign;
   testing?: boolean; // This is used to determine if the context menu should be shown (testing workaround)
 }
@@ -113,10 +105,6 @@ const Editor = (props: EditorProps): React.JSX.Element => {
   const [showGenes, setShowGenes] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const timeout = useRef<NodeJS.Timeout>();
-
-  useEffect(() => {
-    setIsSaving(false);
-  }, []);
 
   useEffect(() => {
     setIsSaving(true);
@@ -233,6 +221,7 @@ const Editor = (props: EditorProps): React.JSX.Element => {
           scheduleNode(id);
         },
       };
+
       const saveStrain: MenuItem = {
         icon: <SaveIcon />,
         text: 'Save strain',
@@ -305,27 +294,14 @@ const Editor = (props: EditorProps): React.JSX.Element => {
       (nodeRemoveChange) => reactFlowInstance.getNode(nodeRemoveChange.id) ?? []
     );
 
-    const parentsOfRemoved = removed.flatMap((node) =>
-      getIncomers(node, nodes, edges)
+    const parentStrainNodesOfRemoved = removed.flatMap((node) =>
+      getIncomers(node, nodes, edges).filter(
+        (node) => node.type === NodeType.Strain
+      )
     );
 
-    const updatedParentsOfRemoved = parentsOfRemoved.map((node) => {
-      if (node.type === NodeType.Strain) {
-        node.data = new Strain({ ...node.data, isParent: false });
-        // Remove parent node relationship between previously mated strains
-        // TODO fix delete grandchild
-        if (
-          node.parentNode !== undefined &&
-          getOutgoers(node, nodes, edges)
-            .filter((outNode) => outNode.type === NodeType.X)
-            .every((involvedXNode) =>
-              validNodeRemoveChanges
-                .map((nodeRemoveChange) => nodeRemoveChange.id)
-                .includes(involvedXNode.id)
-            )
-        )
-          node.parentNode = undefined;
-      }
+    const updatedParentsOfRemoved = parentStrainNodesOfRemoved.map((node) => {
+      node.data = new Strain({ ...node.data, isParent: false });
       return node;
     });
 

@@ -1,5 +1,5 @@
 import { deleteAllTasks, deleteTasks, getTasks, updateTask } from 'api/task';
-import { TaskList } from 'components/TaskList/TaskList';
+import TaskList from 'components/TaskList/TaskList';
 import { Task } from 'models/frontend/Task/Task';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';

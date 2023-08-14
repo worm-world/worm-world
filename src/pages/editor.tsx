@@ -1,7 +1,7 @@
 import { getCrossDesign } from 'api/crossDesign';
 import CrossDesign from 'models/frontend/CrossDesign/CrossDesign';
 import { useLocation } from 'react-router-dom';
-import Editor, { NodeType } from 'components/Editor/Editor';
+import Editor from 'components/Editor/Editor';
 import { useEffect, useState } from 'react';
 import Spinner from 'components/Spinner/Spinner';
 import { AllelePair } from 'models/frontend/AllelePair/AllelePair';
@@ -9,6 +9,7 @@ import { type Strain } from 'models/frontend/Strain/Strain';
 import { ReactFlowProvider, type Node } from 'reactflow';
 import { ChromosomePair } from 'models/frontend/ChromosomePair/ChromosomePair';
 import StrainFilter from 'models/frontend/StrainFilter/StrainFilter';
+import { NodeType } from 'models/enums';
 
 const EditorPage = (): React.JSX.Element => {
   const [crossDesign, setCrossDesign] = useState<CrossDesign>();

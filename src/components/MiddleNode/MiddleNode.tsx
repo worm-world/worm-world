@@ -6,17 +6,14 @@ import { AiOutlineEyeInvisible as EyeIcon } from 'react-icons/ai';
 import type StrainFilter from 'models/frontend/StrainFilter/StrainFilter';
 import { TbArrowLoopLeft as SelfIcon } from 'react-icons/tb';
 import { Handle, Position } from 'reactflow';
-import { NodeType } from 'components/Editor/Editor';
 import { BiX as CloseIcon } from 'react-icons/bi';
+import { NodeType } from 'models/enums';
 
 export interface MiddleNodeProps {
   id: string;
   data: StrainFilter;
   type: string;
 }
-
-export const MIDDLE_NODE_WIDTH = 64; // w-16
-export const MIDDLE_NODE_HEIGHT = 64; // w-16
 
 const MiddleNode = (props: MiddleNodeProps): React.JSX.Element => {
   return (

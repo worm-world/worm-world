@@ -11,7 +11,10 @@ import {
   BiCalendar as CalendarIcon,
   BiComment as CommentIcon,
 } from 'react-icons/bi';
-import { FaArrowRight as RightIcon } from 'react-icons/fa';
+import {
+  FaArrowRight as RightIcon,
+  FaFlask as FlaskIcon,
+} from 'react-icons/fa';
 import { type Action } from 'models/db/task/db_Action';
 import { useNavigate } from 'react-router-dom';
 import React, { useCallback, useRef } from 'react';
@@ -30,7 +33,7 @@ interface TaskItemProps {
   updateTask: (task: Task) => void;
   refresh: () => Promise<void>;
   onTaskChecked: (task: Task) => void;
-  setTaskToReschedule: (task: Task) => void;
+  selectTask: (task: Task) => void;
 }
 
 const TaskItem = (props: TaskItemProps): React.JSX.Element => {
@@ -43,12 +46,19 @@ const TaskItem = (props: TaskItemProps): React.JSX.Element => {
   const { action, hermStrain, maleStrain, resultStrain, completed } = {
     ...props.task,
   };
-
   const [textareaRef, setTextareaFocus] = useFocus();
+  const conditions = [
+    ...props.task.hermStrain.getReqConditions(),
+    ...props.task.hermStrain.getSupConditions(),
+    ...(props.task.maleStrain?.getReqConditions() ?? []),
+    ...(props.task.maleStrain?.getSupConditions() ?? []),
+    ...(props.task.resultStrain?.getReqConditions() ?? []),
+    ...(props.task.resultStrain?.getSupConditions() ?? []),
+  ];
 
   return (
-    <div className='group flex flex-col gap-2'>
-      <div className='flex items-center gap-2'>
+    <div className='group flex flex-col gap-2 '>
+      <div className='flex items-center gap-2 '>
         <input
           type='checkbox'
           className='checkbox-accent checkbox'
@@ -73,7 +83,7 @@ const TaskItem = (props: TaskItemProps): React.JSX.Element => {
         {resultStrain !== undefined && (
           <StrainCard strain={resultStrain} id={''} />
         )}
-        <div className='invisible ml-auto mr-6 self-start group-hover:visible'>
+        <div className='invisible ml-auto grid grid-cols-3 self-start group-hover:visible'>
           <div className='tooltip tooltip-bottom' data-tip={'Add comment'}>
             <button
               className='btn btn-ghost'
@@ -91,7 +101,7 @@ const TaskItem = (props: TaskItemProps): React.JSX.Element => {
               className='btn btn-ghost'
               htmlFor='task-reschedule-modal'
               onClick={() => {
-                props.setTaskToReschedule(props.task);
+                props.selectTask(props.task);
               }}
             >
               <CalendarIcon size='20' />
@@ -105,6 +115,22 @@ const TaskItem = (props: TaskItemProps): React.JSX.Element => {
               <TreeIcon size='20' />
             </button>
           </div>
+          {conditions.length > 0 && (
+            <div
+              className='tooltip tooltip-bottom'
+              data-tip={'View conditions'}
+            >
+              <label
+                htmlFor='task-condition-modal'
+                className='btn btn-ghost'
+                onClick={() => {
+                  props.selectTask(props.task);
+                }}
+              >
+                <FlaskIcon size='20' />
+              </label>
+            </div>
+          )}
         </div>
       </div>
       {props.task.notes !== undefined && (

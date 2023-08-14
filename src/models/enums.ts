@@ -4,6 +4,14 @@ export enum Dominance {
   Dominant,
 }
 
+export enum NodeType {
+  Strain = 'strain',
+  X = 'x',
+  Self = 'self',
+  Note = 'note',
+  FilteredOut = 'filteredOut',
+}
+
 export enum Sex {
   Hermaphrodite,
   Male,

@@ -1,4 +1,4 @@
-import { Sex } from 'models/enums';
+import { NodeType, Sex } from 'models/enums';
 import { Strain } from 'models/frontend/Strain/Strain';
 import { type Node, type Edge, type XYPosition, getIncomers } from 'reactflow';
 import { ulid } from 'ulid';
@@ -15,7 +15,6 @@ import {
   STRAIN_NODE_HEIGHT,
   STRAIN_NODE_WIDTH,
 } from 'components/StrainNode/StrainNode';
-import { NodeType } from 'components/Editor/Editor';
 import { type db_CrossDesign } from 'models/db/db_CrossDesign';
 
 export const NODE_PADDING = 36;

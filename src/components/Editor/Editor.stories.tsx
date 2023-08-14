@@ -1,7 +1,5 @@
 import { StoryFn, Meta } from '@storybook/react';
-import Editor, {
-  EditorProps,
-} from 'components/Editor/Editor';
+import Editor from 'components/Editor/Editor';
 import * as crossDesigns from 'models/frontend/CrossDesign/CrossDesign.mock';
 import { BrowserRouter } from 'react-router-dom';
 import { ReactFlowProvider } from 'reactflow';
@@ -11,11 +9,11 @@ export default {
   component: Editor,
 } as Meta<typeof Editor>;
 
-const Template: StoryFn<typeof Editor> = (args: EditorProps) => {
+const Template: StoryFn<typeof Editor> = (props) => {
   return (
     <BrowserRouter>
       <ReactFlowProvider>
-        <Editor {...args}></Editor>;
+        <Editor {...props}></Editor>;
       </ReactFlowProvider>
     </BrowserRouter>
   );

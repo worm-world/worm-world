@@ -1,9 +1,9 @@
 import CrossDesign from 'models/frontend/CrossDesign/CrossDesign';
 import { type Edge, type Node } from 'reactflow';
-import { NodeType } from 'components/Editor/Editor';
 import * as strains from 'models/frontend/Strain/Strain.mock';
 import { type Strain } from 'models/frontend/Strain/Strain';
 import StrainFilter from '../StrainFilter/StrainFilter';
+import { NodeType } from 'models/enums';
 
 export const emptyCrossDesign = new CrossDesign({
   name: 'Empty cross tree',

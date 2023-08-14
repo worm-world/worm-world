@@ -2,7 +2,6 @@ import { Task } from 'models/frontend/Task/Task';
 import moment from 'moment';
 import TaskItem, { TaskStatement } from 'components/TaskItem/TaskItem';
 import { useState } from 'react';
-
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 const getDateStr = (date: Date): string => {
@@ -41,7 +40,7 @@ const getDateSections = (tasks: Task[]): Map<string, Set<Task>> => {
   return dates;
 };
 
-export const TaskList = (props: TaskListProps): React.JSX.Element => {
+const TaskList = (props: TaskListProps): React.JSX.Element => {
   const sections = Array.from(getDateSections(props.tasks)).sort(
     ([date1], [date2]) => (moment(date1).isAfter(moment(date2)) ? 1 : -1)
   );
@@ -59,9 +58,10 @@ export const TaskList = (props: TaskListProps): React.JSX.Element => {
         updateTask={props.updateTask}
         tasks={props.tasks}
       />
+      <TaskConditionModal task={task} />
       <div className='flex flex-col gap-2'>
         {sections.map(([date, section]) => (
-          <div key={date} className='collapse'>
+          <div key={date} className='collapse overflow-visible'>
             <input type='checkbox' defaultChecked />
             <div className='collapse-title border-b-2 text-xl'>{date}</div>
             <div className='collapse-content mt-2'>
@@ -73,7 +73,7 @@ export const TaskList = (props: TaskListProps): React.JSX.Element => {
                     task={task}
                     updateTask={props.updateTask}
                     onTaskChecked={onTaskChecked}
-                    setTaskToReschedule={setTask}
+                    selectTask={setTask}
                   />
                 </div>
               ))}
@@ -82,6 +82,68 @@ export const TaskList = (props: TaskListProps): React.JSX.Element => {
         ))}
       </div>
     </>
+  );
+};
+
+const TaskConditionModal = (props: { task: Task }): React.JSX.Element => {
+  const conditionSummaries = [
+    ...props.task.hermStrain.getReqConditions().map((condition) => {
+      return { strain: 'hermaphrodite', type: 'requires', condition };
+    }),
+    ...props.task.hermStrain.getSupConditions().map((condition) => {
+      return { strain: 'hermaphrodite', type: 'suppressed by', condition };
+    }),
+    ...(props.task.maleStrain?.getReqConditions().map((condition) => {
+      return { strain: 'male', type: 'requires', condition };
+    }) ?? []),
+    ...(props.task.maleStrain?.getSupConditions().map((condition) => {
+      return { strain: 'male', type: 'suppressed by', condition };
+    }) ?? []),
+    ...(props.task.resultStrain?.getReqConditions().map((condition) => {
+      return { strain: 'result', type: 'requires', condition };
+    }) ?? []),
+    ...(props.task.resultStrain?.getSupConditions().map((condition) => {
+      return { strain: 'result', type: 'suppressed by', condition };
+    }) ?? []),
+  ];
+  return (
+    <div>
+      <input
+        type='checkbox'
+        id='task-condition-modal'
+        className='modal-toggle'
+      />
+      <div className='modal'>
+        <div className='modal-box'>
+          <h3 className='text-lg font-bold'>Conditions</h3>
+          <div className='mt-4 overflow-x-auto'>
+            <table className='table w-full'>
+              <thead>
+                <tr>
+                  <th>Strain</th>
+                  <th>Type of Condition</th>
+                  <th>Name</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                {conditionSummaries.map((summary, idx) => {
+                  return (
+                    <tr key={idx}>
+                      <td>{summary.strain}</td>
+                      <td>{summary.type}</td>
+                      <td>{summary.condition.name}</td>
+                      <td>{summary.condition.description}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <label className='modal-backdrop' htmlFor='task-condition-modal' />
+      </div>
+    </div>
   );
 };
 
@@ -111,7 +173,7 @@ const TaskRescheduleModal = (props: {
     <div>
       <input
         type='checkbox'
-        id={`task-reschedule-modal`}
+        id='task-reschedule-modal'
         className='modal-toggle'
       />
       <div className='modal'>
@@ -242,3 +304,5 @@ const TaskDelayPreview = (props: {
     </>
   );
 };
+
+export default TaskList;

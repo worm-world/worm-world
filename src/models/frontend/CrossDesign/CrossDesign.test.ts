@@ -1,5 +1,5 @@
 import { StrainFilter } from 'models/frontend/StrainFilter/StrainFilter';
-import { Sex } from 'models/enums';
+import { NodeType, Sex } from 'models/enums';
 import CrossDesign, {
   type ICrossDesign,
 } from 'models/frontend/CrossDesign/CrossDesign';
@@ -9,7 +9,6 @@ import { type XYPosition, type Node, type Edge } from 'reactflow';
 import { expect, test, describe } from 'vitest';
 import { ed3, n765, ox1059 } from 'models/frontend/Allele/Allele.mock';
 import moment from 'moment';
-import { NodeType } from 'components/Editor/Editor';
 
 describe('cross crossDesign', () => {
   // #region generator functions

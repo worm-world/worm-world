@@ -127,7 +127,7 @@ export class Strain {
     const passesSupConds =
       filter.supConditions.size === 0 ||
       [...filter.supConditions].every((supCondName) =>
-        this.getReqConditions()
+        this.getSupConditions()
           .map((supCond) => supCond.name)
           .includes(supCondName)
       );
@@ -531,21 +531,23 @@ export class Strain {
   }
 
   public getReqConditions(): Condition[] {
-    return [
-      ...new Set(
-        this.getAlleleExpressions().flatMap((expr) => expr.requiredConditions)
-      ),
-    ];
+    const allReqConditions = this.getAlleleExpressions().flatMap(
+      (expr) => expr.requiredConditions
+    );
+    return allReqConditions.reduce<Condition[]>((prev, curr) => {
+      if (!prev.map((cond) => cond.name).includes(curr.name)) prev.push(curr);
+      return prev;
+    }, []);
   }
 
   public getSupConditions(): Condition[] {
-    return [
-      ...new Set(
-        this.getAlleleExpressions().flatMap(
-          (expr) => expr.suppressingConditions
-        )
-      ),
-    ];
+    const allSupConditions = this.getAlleleExpressions().flatMap(
+      (expr) => expr.suppressingConditions
+    );
+    return allSupConditions.reduce<Condition[]>((prev, curr) => {
+      if (!prev.map((cond) => cond.name).includes(curr.name)) prev.push(curr);
+      return prev;
+    }, []);
   }
 
   public getMaturationDays(): number {
